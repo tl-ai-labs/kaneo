@@ -42,7 +42,8 @@ const column = new Hono<{
     describeRoute({
       operationId: "createColumn",
       tags: ["Columns"],
-      description: "Create a new column in a project",
+      description:
+        "Create a new column in a project. Accepts an optional nullable wipLimit (advisory work-in-progress limit) as a whole number in the inclusive range 1..2147483647; omit it or send null for no limit.",
       responses: {
         200: {
           description: "Column created successfully",
@@ -60,19 +61,30 @@ const column = new Hono<{
         icon: v.optional(v.string()),
         color: v.optional(v.string()),
         isFinal: v.optional(v.boolean()),
+        wipLimit: v.optional(
+          v.nullable(
+            v.pipe(
+              v.number(),
+              v.integer(),
+              v.minValue(1),
+              v.maxValue(2147483647),
+            ),
+          ),
+        ),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { name, icon, color, isFinal } = c.req.valid("json");
+      const { name, icon, color, isFinal, wipLimit } = c.req.valid("json");
       const result = await createColumn({
         projectId,
         name,
         icon,
         color,
         isFinal,
+        wipLimit,
       });
       return c.json(result);
     },
@@ -118,7 +130,8 @@ const column = new Hono<{
     describeRoute({
       operationId: "updateColumn",
       tags: ["Columns"],
-      description: "Update a column",
+      description:
+        "Update a column. Accepts an optional nullable wipLimit (advisory work-in-progress limit) as a whole number in the inclusive range 1..2147483647; send null to clear it, or omit it to leave it unchanged.",
       responses: {
         200: {
           description: "Column updated successfully",
@@ -136,6 +149,16 @@ const column = new Hono<{
         icon: v.optional(v.nullable(v.string())),
         color: v.optional(v.nullable(v.string())),
         isFinal: v.optional(v.boolean()),
+        wipLimit: v.optional(
+          v.nullable(
+            v.pipe(
+              v.number(),
+              v.integer(),
+              v.minValue(1),
+              v.maxValue(2147483647),
+            ),
+          ),
+        ),
       }),
     ),
     workspaceAccess.fromColumn("id"),

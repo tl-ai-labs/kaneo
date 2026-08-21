@@ -10,6 +10,7 @@ async function updateColumn(
     icon?: string | null;
     color?: string | null;
     isFinal?: boolean;
+    wipLimit?: number | null;
   },
 ) {
   const existing = await db.query.columnTable.findFirst({
@@ -27,6 +28,7 @@ async function updateColumn(
       ...(data.icon !== undefined && { icon: data.icon }),
       ...(data.color !== undefined && { color: data.color }),
       ...(data.isFinal !== undefined && { isFinal: data.isFinal }),
+      ...(data.wipLimit !== undefined && { wipLimit: data.wipLimit }),
     })
     .where(eq(columnTable.id, id))
     .returning();

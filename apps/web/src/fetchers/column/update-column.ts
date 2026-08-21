@@ -7,6 +7,7 @@ async function updateColumn(
     icon?: string | null;
     color?: string | null;
     isFinal?: boolean;
+    wipLimit?: number | null;
   },
 ) {
   const response = await client.column[":id"].$put({

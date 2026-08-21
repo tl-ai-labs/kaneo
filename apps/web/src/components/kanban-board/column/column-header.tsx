@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { Archive, Plus } from "lucide-react";
+import { AlertTriangle, Archive, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
@@ -7,6 +7,7 @@ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import { ArchiveTasksModal } from "../../shared/modals/archive-tasks-modal";
@@ -25,6 +26,10 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+
+  const count = column.tasks.length;
+  const limit = column.wipLimit ?? null;
+  const over = limit !== null && count > limit;
 
   const handleConfirmArchive = () => {
     if (!column.isFinal || !project) return;
@@ -59,8 +64,30 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         <span className="truncate text-sm font-medium text-foreground/95">
           {column.name}
         </span>
-        <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
-          {column.tasks.length}
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground",
+            over && "bg-destructive/15 text-destructive",
+          )}
+          // role="img" so the count, the limit and the over-cap icon are
+          // announced as one label instead of "3 / 5" followed by it. A bare
+          // span has no role that supports aria-label.
+          role="img"
+          aria-label={
+            limit === null
+              ? t("tasks:kanban.taskCountAria", { count })
+              : t("tasks:kanban.wipLimitAria", { count, limit })
+          }
+          title={
+            limit === null
+              ? undefined
+              : over
+                ? t("tasks:kanban.wipLimitOver", { count, limit })
+                : t("tasks:kanban.wipLimitWithin", { count, limit })
+          }
+        >
+          {limit === null ? count : `${count} / ${limit}`}
+          {over && <AlertTriangle className="w-3 h-3" aria-hidden="true" />}
         </span>
       </div>
 
