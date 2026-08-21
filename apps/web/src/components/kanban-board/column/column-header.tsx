@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { Archive, Plus } from "lucide-react";
+import { AlertTriangle, Archive, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
@@ -7,6 +7,7 @@ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { toast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import { ArchiveTasksModal } from "../../shared/modals/archive-tasks-modal";
@@ -25,6 +26,9 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const taskCount = column.tasks.length;
+  const wipLimit = column.wipLimit ?? null;
+  const isOverCap = wipLimit !== null && taskCount > wipLimit;
 
   const handleConfirmArchive = () => {
     if (!column.isFinal || !project) return;
@@ -59,9 +63,32 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         <span className="truncate text-sm font-medium text-foreground/95">
           {column.name}
         </span>
-        <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
-          {column.tasks.length}
-        </span>
+        {wipLimit === null ? (
+          <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+            {taskCount}
+          </span>
+        ) : (
+          <span
+            role="img"
+            aria-label={t(
+              isOverCap
+                ? "tasks:kanban.wipLimitBadgeOverAria"
+                : "tasks:kanban.wipLimitBadgeAria",
+              { current: taskCount, limit: wipLimit },
+            )}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium",
+              isOverCap
+                ? "border border-destructive/30 bg-destructive/10 text-destructive"
+                : "bg-muted text-muted-foreground",
+            )}
+          >
+            {isOverCap && (
+              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+            )}
+            {`${taskCount} / ${wipLimit}`}
+          </span>
+        )}
       </div>
 
       <div className="flex items-center">

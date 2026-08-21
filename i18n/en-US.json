@@ -900,7 +900,14 @@
 			"on": "On",
 			"off": "Off",
 			"newColumnPlaceholder": "New column name...",
-			"add": "Add"
+			"add": "Add",
+			"wipLimitLabel": "WIP limit",
+			"wipLimitPlaceholder": "No limit",
+			"wipLimitTooltip": "Advisory limit on tasks in this column. Leave empty for no limit.",
+			"wipLimitAria": "Set WIP limit for {{name}}",
+			"toastWipLimitUpdated": "WIP limit updated",
+			"toastWipLimitCleared": "WIP limit cleared",
+			"toastWipLimitInvalid": "WIP limit must be a whole number between 1 and 2147483647"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1882,7 +1889,9 @@
 			"noTasks": "No tasks"
 		},
 		"kanban": {
-			"addTask": "Add task"
+			"addTask": "Add task",
+			"wipLimitBadgeAria": "{{current}} of {{limit}} tasks",
+			"wipLimitBadgeOverAria": "{{current}} of {{limit}} tasks, over the WIP limit"
 		},
 		"pr": {
 			"merged": "Merged",

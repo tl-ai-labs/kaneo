@@ -3,7 +3,7 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import * as v from "valibot";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
-import createColumn from "./controllers/create-column";
+import createColumn, { wipLimitSchema } from "./controllers/create-column";
 import deleteColumn from "./controllers/delete-column";
 import getColumns from "./controllers/get-columns";
 import reorderColumns from "./controllers/reorder-columns";
@@ -60,19 +60,21 @@ const column = new Hono<{
         icon: v.optional(v.string()),
         color: v.optional(v.string()),
         isFinal: v.optional(v.boolean()),
+        wipLimit: v.optional(v.nullable(wipLimitSchema)),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { name, icon, color, isFinal } = c.req.valid("json");
+      const { name, icon, color, isFinal, wipLimit } = c.req.valid("json");
       const result = await createColumn({
         projectId,
         name,
         icon,
         color,
         isFinal,
+        wipLimit,
       });
       return c.json(result);
     },
@@ -136,6 +138,7 @@ const column = new Hono<{
         icon: v.optional(v.nullable(v.string())),
         color: v.optional(v.nullable(v.string())),
         isFinal: v.optional(v.boolean()),
+        wipLimit: v.optional(v.nullable(wipLimitSchema)),
       }),
     ),
     workspaceAccess.fromColumn("id"),

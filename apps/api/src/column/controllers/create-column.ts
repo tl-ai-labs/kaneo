@@ -1,5 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import * as v from "valibot";
 import db from "../../database";
 import { columnTable } from "../../database/schema";
 import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
@@ -15,18 +16,30 @@ export function toSlug(name: string): string {
   return /[\p{L}\p{N}]/u.test(slug) ? slug : "";
 }
 
+// Bounded at the int4 ceiling so an out-of-range limit is a 400 from the API
+// rather than an "integer out of range" 500 raised by PostgreSQL. `v.integer()`
+// is required because `v.number()` alone accepts floats.
+export const wipLimitSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(2147483647),
+);
+
 async function createColumn({
   projectId,
   name,
   icon,
   color,
   isFinal,
+  wipLimit,
 }: {
   projectId: string;
   name: string;
   icon?: string;
   color?: string;
   isFinal?: boolean;
+  wipLimit?: number | null;
 }) {
   const slug = toSlug(name);
 
@@ -74,6 +87,9 @@ async function createColumn({
       icon: icon || null,
       color: color || null,
       isFinal: isFinal ?? false,
+      // `??` and never `||`: 0 is not a legal limit, but `0 || null` would
+      // silently coerce a caller-supplied 0 to "no limit" instead of storing it.
+      wipLimit: wipLimit ?? null,
     })
     .returning();
 

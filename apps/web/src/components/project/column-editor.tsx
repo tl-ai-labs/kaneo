@@ -115,6 +115,55 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     }
   };
 
+  const handleWipLimitChange = async (
+    id: string,
+    raw: string,
+    previous: number | null,
+  ) => {
+    const trimmed = raw.trim();
+
+    if (trimmed === "") {
+      if (previous === null) return;
+      try {
+        await updateColumn({ id, projectId, data: { wipLimit: null } });
+        toast.success(t("settings:columnEditor.toastWipLimitCleared"));
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t("settings:columnEditor.toastUpdateError"),
+        );
+      }
+      return;
+    }
+
+    // Digits only: rejects floats, signs and exponent forms that Number() would
+    // otherwise accept. The API re-validates; this is a convenience, not the
+    // enforcement point.
+    if (!/^\d+$/.test(trimmed)) {
+      toast.error(t("settings:columnEditor.toastWipLimitInvalid"));
+      return;
+    }
+
+    const parsed = Number(trimmed);
+    if (parsed < 1 || parsed > 2147483647) {
+      toast.error(t("settings:columnEditor.toastWipLimitInvalid"));
+      return;
+    }
+    if (parsed === previous) return;
+
+    try {
+      await updateColumn({ id, projectId, data: { wipLimit: parsed } });
+      toast.success(t("settings:columnEditor.toastWipLimitUpdated"));
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastUpdateError"),
+      );
+    }
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await deleteColumn({ id, projectId });
@@ -327,6 +376,41 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                     ? t("settings:columnEditor.on")
                     : t("settings:columnEditor.off")}
                 </span>
+              </div>
+              <div
+                className="flex items-center gap-2"
+                title={t("settings:columnEditor.wipLimitTooltip")}
+              >
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {t("settings:columnEditor.wipLimitLabel")}
+                </span>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={2147483647}
+                  step={1}
+                  defaultValue={col.wipLimit ?? ""}
+                  placeholder={t("settings:columnEditor.wipLimitPlaceholder")}
+                  aria-label={t("settings:columnEditor.wipLimitAria", {
+                    name: col.name,
+                  })}
+                  disabled={!canEdit}
+                  className="h-8 w-20 text-sm"
+                  onBlur={(e) =>
+                    handleWipLimitChange(
+                      col.id,
+                      e.target.value,
+                      col.wipLimit ?? null,
+                    )
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      e.currentTarget.blur();
+                    }
+                  }}
+                />
               </div>
               {canEdit && (
                 <Button
