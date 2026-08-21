@@ -32,10 +32,12 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       columns: [
         {
           id: "todo",
+          columnId: "col-todo",
           slug: "todo",
           name: "Todo",
           icon: null,
           isFinal: false,
+          wipLimit: null,
           tasks: [
             {
               id: "task-1",
@@ -120,10 +122,12 @@ describe("useTaskFiltersWithLabelsSupport", () => {
         columns: [
           {
             id: "todo",
+            columnId: "col-todo",
             slug: "todo",
             name: "Todo",
             icon: null,
             isFinal: false,
+            wipLimit: null,
             tasks: [
               {
                 id: "task-123",

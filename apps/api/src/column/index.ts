@@ -60,19 +60,30 @@ const column = new Hono<{
         icon: v.optional(v.string()),
         color: v.optional(v.string()),
         isFinal: v.optional(v.boolean()),
+        wipLimit: v.optional(
+          v.nullable(
+            v.pipe(
+              v.number(),
+              v.integer(),
+              v.minValue(1),
+              v.maxValue(2_147_483_647),
+            ),
+          ),
+        ),
       }),
     ),
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { name, icon, color, isFinal } = c.req.valid("json");
+      const { name, icon, color, isFinal, wipLimit } = c.req.valid("json");
       const result = await createColumn({
         projectId,
         name,
         icon,
         color,
         isFinal,
+        wipLimit,
       });
       return c.json(result);
     },
@@ -136,6 +147,16 @@ const column = new Hono<{
         icon: v.optional(v.nullable(v.string())),
         color: v.optional(v.nullable(v.string())),
         isFinal: v.optional(v.boolean()),
+        wipLimit: v.optional(
+          v.nullable(
+            v.pipe(
+              v.number(),
+              v.integer(),
+              v.minValue(1),
+              v.maxValue(2_147_483_647),
+            ),
+          ),
+        ),
       }),
     ),
     workspaceAccess.fromColumn("id"),

@@ -1882,7 +1882,16 @@
 			"noTasks": "No tasks"
 		},
 		"kanban": {
-			"addTask": "Add task"
+			"addTask": "Add task",
+			"wipLimitTooltip": "WIP limit",
+			"setWipLimit": "Set WIP limit",
+			"wipLimitPlaceholder": "Limit (optional)",
+			"wipLimitExceeded": "Column is over WIP limit",
+			"clearWipLimit": "Clear limit",
+			"saveWipLimit": "Save",
+			"wipLimitInvalid": "Enter a whole number of 1 or more, or leave empty for no limit",
+			"wipLimitUpdated": "WIP limit updated",
+			"wipLimitUpdateError": "Failed to update WIP limit"
 		},
 		"pr": {
 			"merged": "Merged",
