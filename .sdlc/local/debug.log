@@ -1,0 +1,35 @@
+MMO: 2026-08-20T12:21:19.268Z WARN   packet.validate.fail packet_id=smoke-1 missing_fields="module,inputs,outputSchema,acceptance,budget,pass_id"
+MMO: 2026-08-20T12:23:36.495Z INFO   policy.load policy_name=opus-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-08-20T12:23:36.496Z INFO   route.decide packet_id=smoke-1 phase=codegen task_type=smoke module=smoke-test rule_index=-1 rule_reason="Unrecognized task — fail safe to premium" model_id=opus
+MMO: 2026-08-20T12:29:33.536Z INFO   policy.load policy_name=flash-agsdk-only source=name version=1 model_count=1 rule_count=12
+MMO: 2026-08-20T12:29:33.538Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-20T12:29:33.538Z INFO   preflight.model model_id=flash adapter=antigravity-worker ok=true
+MMO: 2026-08-20T12:29:33.539Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-20T12:35:00.038Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-20T12:35:00.038Z INFO   preflight.model model_id=flash adapter=antigravity-worker ok=true
+MMO: 2026-08-20T12:35:00.038Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-21T06:57:46.558Z INFO   policy.load policy_name=opus-only source=name version=1 model_count=1 rule_count=3
+MMO: 2026-08-21T06:57:51.178Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-21T06:57:51.179Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-21T06:57:51.179Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-21T07:05:45.654Z INFO   policy.load policy_name=opus-only-v5 source=name version=1 model_count=1 rule_count=3
+MMO: 2026-08-21T07:05:45.655Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-21T07:05:45.655Z INFO   preflight.model model_id=opus adapter=builtin-anthropic ok=true
+MMO: 2026-08-21T07:05:45.656Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-21T07:09:22.911Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-21T07:09:22.911Z INFO   preflight.model model_id=opus adapter=builtin-anthropic ok=true
+MMO: 2026-08-21T07:09:22.912Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-21T07:09:49.284Z INFO   policy.load policy_name=opus-only-v5 resolved_path=/home/sangeetha/.claude/plugins/cache/tilicho-ai-labs/mmo/0.6.0/config/policies/opus-only-v5.yaml source=path version=1 model_count=1 rule_count=3
+MMO: 2026-08-21T07:09:55.388Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-21T07:09:55.389Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-21T07:09:55.389Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-21T07:10:51.711Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-21T07:10:51.712Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-21T07:10:51.712Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-24T07:05:05.425Z INFO   policy.load policy_name=opus-plus-flash-v37 source=name version=1 model_count=3 rule_count=13
+MMO: 2026-08-24T07:05:05.611Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-24T07:05:05.614Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-24T07:05:05.614Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-24T07:05:05.614Z INFO   preflight.model model_id=flash-completion adapter=mcp:model-dispatch ok=true
+MMO: 2026-08-24T07:05:05.614Z INFO   preflight.model model_id=flash-agsdk-worker ok=true classification=not_selected
+MMO: 2026-08-24T07:05:05.615Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global

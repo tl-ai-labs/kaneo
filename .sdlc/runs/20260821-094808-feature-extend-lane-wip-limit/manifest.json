@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "run_id": "20260821-094808-feature-extend-lane-wip-limit",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": {
+    "name": "opus-plus-sonnet-max",
+    "version": 1,
+    "path": "/home/sangeetha/.claude/plugins/cache/tilicho-ai-labs/mmo/0.6.0/config/policies/opus-plus-sonnet-max.yaml",
+    "models": {
+      "opus": "claude-opus-5 (claude-cli)",
+      "sonnet": "claude-sonnet-5 (claude-cli)"
+    },
+    "hard_cost_cap_usd": 50
+  },
+  "auth_mode": "vendor",
+  "base_commit": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": 0,
+  "totals": {
+    "cost_usd": 2.707,
+    "dispatches": 10,
+    "failed_dispatches": 1,
+    "input_tokens": 150324,
+    "input_tokens_cached": 262701,
+    "output_tokens": 87167,
+    "dispatch_latency_ms": 1065199,
+    "cap_utilisation_pct": 5.4
+  },
+  "by_model": {
+    "claude-opus-5": {
+      "dispatches": 5,
+      "cost": 1.1256,
+      "in": 64711,
+      "cached": 128646,
+      "out": 20046,
+      "ms": 552844,
+      "avg_cost_per_dispatch": 0.2251,
+      "avg_output_tokens": 4009
+    },
+    "claude-sonnet-5": {
+      "dispatches": 5,
+      "cost": 1.5813,
+      "in": 85613,
+      "cached": 134055,
+      "out": 67121,
+      "ms": 512355,
+      "avg_cost_per_dispatch": 0.3163,
+      "avg_output_tokens": 13424
+    }
+  },
+  "by_phase": {
+    "requirements_analysis": {
+      "dispatches": 1,
+      "cost": 0.4304
+    },
+    "change_plan": {
+      "dispatches": 3,
+      "cost": 0.6102
+    },
+    "plan_task_packets": {
+      "dispatches": 1,
+      "cost": 0.085
+    },
+    "codegen": {
+      "dispatches": 3,
+      "cost": 0.638
+    },
+    "tests": {
+      "dispatches": 2,
+      "cost": 0.9433
+    }
+  },
+  "files": {
+    "touched": 22,
+    "changed": 20,
+    "reverted": [
+      "apps/docs/openapi.json"
+    ],
+    "new_files": [
+      "apps/api/drizzle/0043_conscious_gambit.sql",
+      "apps/api/drizzle/meta/0043_snapshot.json",
+      "tests/api/column/wip-limit.test.ts",
+      "tests/api-integration/column-wip-limit.test.ts",
+      "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "apps/web/src/components/project/column-editor.test.tsx"
+    ],
+    "note": "apps/docs/openapi.json was regenerated then reverted byte-for-byte at Gate 3 (see SUMMARY.md finding 2); it is unchanged in the working tree."
+  },
+  "verification": {
+    "npx biome ci apps packages tests i18n scripts": "0 errors, 78 pre-existing warnings",
+    "pnpm typecheck": "6/6 packages",
+    "pnpm --filter @kaneo/api test": "394 passed / 59 files",
+    "pnpm --filter @kaneo/web test": "127 passed / 38 files",
+    "DATABASE_URL=... pnpm --filter @kaneo/api test:integration": "196 passed / 30 files"
+  },
+  "tests_added": {
+    "api_unit": 20,
+    "web_component": 15,
+    "api_integration": 15,
+    "total": 50
+  },
+  "artifacts": [
+    "requirements.md",
+    "design.md",
+    "packets.json",
+    "review.md",
+    "security_review.md",
+    "telemetry.jsonl",
+    "provenance.json",
+    "manifest.json"
+  ],
+  "gates": {
+    "gate_1": "approved",
+    "gate_2": "approved",
+    "gate_3": "approved",
+    "gate_4": "accepted"
+  },
+  "efficiency": {
+    "cost_per_1k_output_tokens": {
+      "claude-opus-5": 0.0562,
+      "claude-sonnet-5": 0.0236
+    }
+  },
+  "final_report": "delivered in-conversation at Gate 4 (harness policy: orchestrator returns findings as text, not a report file)",
+  "findings": [
+    {
+      "id": "F-COST-1",
+      "severity": "headline",
+      "scope": "policy-benchmark",
+      "title": "The cheap tier cost MORE in absolute terms than the premium tier",
+      "evidence": {
+        "sonnet_cost_usd": 1.5813,
+        "opus_cost_usd": 1.1256,
+        "sonnet_cost_per_1k_output_usd": 0.0236,
+        "opus_cost_per_1k_output_usd": 0.0562,
+        "sonnet_output_tokens": 67121,
+        "opus_output_tokens": 20046,
+        "output_volume_ratio": 3.35,
+        "rate_advantage_ratio": 2.38,
+        "test_packets_cost_usd": 0.9433,
+        "test_packets_share_of_run_pct": 34.8
+      },
+      "explanation": "Sonnet was 2.4x cheaper per output token, exactly as intended, but mechanical work emitted 3.3x more output. A 2.4x rate advantage loses to a 3.3x volume disadvantage and the totals invert. Routing was correct throughout (rule 7 codegen, rule 8 tests, rules 0/6 judgment).",
+      "implication": "A mixed policy pays off on input-heavy / output-light phases (review, analysis, planning) and pays off LEAST on test generation - which is exactly where cheap tiers are usually assumed to shine. Tuning options: batch test packets far more coarsely, or accept that the tests phase prices like premium work regardless of tier."
+    },
+    {
+      "id": "F-PLUGIN-1",
+      "severity": "bug",
+      "scope": "plugin-wide (every claude-cli policy, not just this run)",
+      "title": "budget.maxOutputTokens is INERT on adapter claude-cli",
+      "evidence": {
+        "packet": "tp_p4_api_tests",
+        "declared_ceiling": 9000,
+        "actual_output_tokens": 25510,
+        "adapter_invocation": "claude -p --model <name> --output-format json"
+      },
+      "explanation": "ClaudeCliAdapter spawns the CLI without any max-tokens flag, so budget.maxOutputTokens is recorded in telemetry but never constrains the model.",
+      "consequence": "Budgets on claude-cli leaves are documentation, not control, and the ceiling-doubling retry described in the pipeline skill (hit_output_cap / retry_reason: output_cap) can never trigger on this adapter. Cost cannot be bounded per-packet on claude-cli.",
+      "affects": "every policy whose leaves use adapter: claude-cli"
+    },
+    {
+      "id": "F-REPO-1",
+      "severity": "blocker (fixed in this run)",
+      "scope": "standing repo property",
+      "title": "pnpm --filter @kaneo/api db:generate emits 2-space JSON into a tab-formatted repo and reddens biome ci",
+      "evidence": {
+        "journal_diff_before_fix": "313 insertions / 306 deletions for a 7-line append",
+        "journal_diff_after_fix": "7 insertions / 0 deletions",
+        "biome_ci_errors_before": 2,
+        "biome_ci_errors_after": 0,
+        "ci_job": ".github/workflows/ci.yml runs `pnpm exec biome ci .` as the FIRST job"
+      },
+      "root_cause": "drizzle-kit writes meta/_journal.json and meta/<n>_snapshot.json with 2-space indent; biome.json sets formatter.indentStyle=tab and the javascript override does not apply to JSON; apps/api/drizzle/** is not excluded from Biome file discovery.",
+      "why_missed": "The run linted the 18 files it EDITED, not the files a generator WROTE. The four-command verification gate contains no linter at all.",
+      "fix": "npx biome format --write apps/api/drizzle/meta/_journal.json apps/api/drizzle/meta/<n>_snapshot.json",
+      "superseded_advice": "Security review F-3 proposed the OPPOSITE fix (regenerate via db:generate so formatting matches). That is backwards - db:generate is what produces the spaces. Recorded as superseded."
+    },
+    {
+      "id": "F-SPEC-1",
+      "severity": "major (deferred by decision)",
+      "scope": "standing repo property",
+      "title": "apps/docs/openapi.json is 11 route-groups stale and CI has no spec-freshness check",
+      "evidence": {
+        "regeneration_diff": "1481 insertions / 166 deletions, of which exactly 2 lines were wipLimit",
+        "missing_route_groups": [
+          "/billing/{workspaceId}",
+          "/billing/{workspaceId}/checkout",
+          "/billing/{workspaceId}/portal",
+          "/mcp/authorize",
+          "/mcp/authorize/request/{requestId}",
+          "/mcp/register",
+          "/oauth/id-token",
+          "/project/reorder",
+          "/user/avatar",
+          "/user/avatar/{id}",
+          "/workspace/{workspaceId}/members"
+        ],
+        "new_operation_ids": 13,
+        "nullable_to_readonly_changes": 27,
+        "unrelated_drift_source": "Better Auth version difference"
+      },
+      "decision": "Allowlist was extended at Gate 3 and the spec WAS regenerated, then REVERTED byte-for-byte (md5 c125cebe51982a8b5e0d97083840ef04 restored, path git-clean). Shipping it would bury a 2-line contract change in ~1300 lines of unrelated drift, violate AGENTS.md on not mixing unrelated cleanup, and make this benchmark arm diff-incomparable with the other three arms.",
+      "follow_up": "Dedicated ticket: regenerate apps/docs/openapi.json on its own so the drift is reviewable; add a spec-freshness check to CI. The ABSENCE of that check is why an 11-route gap went unnoticed."
+    },
+    {
+      "id": "F-DISCOVERY-1",
+      "severity": "process",
+      "scope": "this run",
+      "title": "A discovery-phase claim was falsified by security review",
+      "evidence": "discovery.md asserted get-public-project.ts \"does not build a columns projection, so the public path is unaffected\". The controller is three lines and delegates straight to getTasks(id), inheriting the column projection wholesale.",
+      "consequence": "wipLimit is served anonymously via GET /api/public-project/:id. Accepted as intended at Gate 3 (see F-1 disclosure decision). Had no reviewer traced it, the run would have shipped believing the public surface was untouched.",
+      "lesson": "A discovery-phase assertion that a code path is UNAFFECTED is a claim that must be re-verified downstream, not inherited."
+    },
+    {
+      "id": "F-ADAPTER-2",
+      "severity": "operational",
+      "scope": "adapter claude-cli",
+      "title": "300s hard timeout kills long single-shot generations with no partial result",
+      "evidence": {
+        "packet": "tp_plan_001",
+        "requested": "9-section design at a 9000-token ceiling",
+        "outcome": "timeout at DEFAULT_TIMEOUT_SEC=300, billed $0.00",
+        "recovery": "split into tp_plan_002a / tp_plan_002b, which returned in 59s and 87s"
+      },
+      "guidance": "Cap any single claude-cli dispatch at roughly 5000 output tokens."
+    }
+  ],
+  "disclosure_decisions": [
+    {
+      "id": "F-1",
+      "status": "ACCEPTED as intended, closed at Gate 3",
+      "title": "wipLimit is served anonymously via GET /api/public-project/:id",
+      "reasoning": "An anonymous viewer of a public project already sees every task in the column and therefore already sees the count. The limit adds only the team internal target. Excluding it would require forking or post-processing the shared board projection for marginal benefit.",
+      "revisit_if": "public boards ever stop exposing task lists"
+    }
+  ],
+  "telemetry_integrity": {
+    "vendor_reported_events": 9,
+    "estimated_events": 1,
+    "estimated_detail": "plan_task_packets ($0.0850) was handled in-session on the same Opus tier the policy names for that phase, because decomposition depends on exact working-tree file contents a freshly spawned claude -p worker cannot see, and the 300s timeout risk was already demonstrated. Tokens are char/3.8 estimates priced from the policy pricing block. Flagged so it is not mistaken for vendor-measured."
+  },
+  "follow_ups": [
+    "Regenerate apps/docs/openapi.json as its own ticket; add a CI spec-freshness check (F-SPEC-1).",
+    "i18n/schema.json is stale by 9 keys - OFF-LIMITS by write contract, cosmetic, nothing validates it at runtime or in CI.",
+    "Add a cross-workspace 403 integration case for PUT /api/column/:id (security F-4).",
+    "better-auth transitive advisories (nanoid, deepmerge-ts) - pre-existing, own ticket.",
+    "pnpm i18n:check is red at HEAD already; never run i18n:check:fix - it would copy English into all 16 locales."
+  ]
+}

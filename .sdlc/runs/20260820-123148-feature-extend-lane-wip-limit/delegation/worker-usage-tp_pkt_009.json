@@ -1,0 +1,29 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 24087,
+    "cached_content_token_count": 0,
+    "candidates_token_count": 402,
+    "thoughts_token_count": 857,
+    "total_token_count": 25346,
+    "service_tier": null
+  },
+  "tool_call_count": 1,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/column/use-update-column.ts"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/column/use-update-column.ts",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"artifact_path\": \"apps/web/src/hooks/mutations/column/use-update-column.ts\",\n  \"summary\": \"Added wipLimit?: number | null to inline data type in useUpdateColumn mutationFn parameter while preserving query invalidations.\"\n}"
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "run_id": "20260824-042617-feature-extend-task-hours",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "opus-plus-flash-v37",
+  "auth_mode": "vendor",
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260824-042617-feature-extend-task-hours",
+  "status": "complete",
+  "phase": "final_report",
+  "checkpoint": "gate-4-accepted",
+  "phases_completed": [
+    "discovery",
+    "requirements_analysis",
+    "change_plan",
+    "plan_task_packets",
+    "execute_packets",
+    "test_run",
+    "senior_code_review",
+    "security_review",
+    "generate_final_report"
+  ],
+  "next_phase": null,
+  "packets_total": 5,
+  "packets_executed": 5,
+  "packets_pending": [],
+  "dispatches": 31,
+  "failed_dispatches": 8,
+  "cost_usd": 5.9899,
+  "verification": {
+    "biome_ci": "pass on apps/packages/tests/i18n - 1186 files, 0 errors, 78 pre-existing warnings. Full-repo biome ci also flags 78 formatting errors in .sdlc/** bookkeeping JSON; the .sdlc/ biome+gitignore exclusions are applied at commit time, outside the run.",
+    "typecheck": "pass 6/6 turbo tasks",
+    "api_unit": "pass 391/391 across 60 files",
+    "web_unit": "pass 132/132 across 39 files",
+    "api_integration": "pass 187/187 across 30 files (live PostgreSQL port 55432, kaneo_test absent beforehand so created and migrated from zero - no cross-arm 0043 collision)",
+    "i18n_check": "RED - pre-existing common:error.* gaps plus legitimate widening from 15 new en-US keys x 16 locales. i18n:check:fix NOT run.",
+    "migration": "0043_skinny_mockingbird.sql - single additive ALTER TABLE ADD COLUMN, nullable, no default, no backfill. biome format applied to generated meta files, collapsing 313/306 journal churn to +7.",
+    "taskSchema_revision": "Gate 3 revision 1 - response taskSchema now mirrors the request constraint (optional, nullable, integer 0..1000). taskSchema is documentation-only (resolver() + nested in search response); no runtime parse, so the integration suite was not re-run. API unit 391/391 and typecheck 6/6 re-run after the change.",
+    "authz_revision": "Gate 3 revision 2 - POST and PUT middleware chains read directly and recorded verbatim in security_review.md. Guards intact and correctly ordered: validation -> workspace scoping -> permission -> entitlement -> handler."
+  },
+  "committed": true,
+  "note": "Gate 3 pending. Routing defect worked around per operator DECISION 1: codegen packets re-typed to the greenfield task_type vocabulary the policy rule matches, so they route to gemini-flash. UPSTREAM PLUGIN BUG: none of the seven bundled policies list the brownfield task types (existing_file_edit, new_file_add, ...) in their codegen rule, so every mixed policy silently sends all brownfield codegen to its premium tier. Packet plan consolidated 25 -> 5 per DECISION 2. GATE 3 REVISIONS APPLIED. Final report at SUMMARY.md; manifest at manifest.json. Gate 4 pending. Process deviation ratified by operator: senior_code_review and security_review dispatched via execute_with_model rather than the spec-mandated subagents, so their $1.7979 of Opus spend appears in the cost split - subagents emit no telemetry under auth_mode=vendor (plugin bug 2).",
+  "updated_at": "2026-08-24T09:16:28.922Z",
+  "accepted_at": "2026-08-24T09:12:07.352Z",
+  "acceptance": {
+    "gate": "gate-4",
+    "response": "accept",
+    "phases_complete": 9,
+    "operator_reverified": {
+      "api_unit": "391/391 across 60 files - independently re-run by operator at acceptance",
+      "web_unit": "132/132 across 39 files - independently re-run by operator at acceptance",
+      "api_integration": "187/187 across 30 files - NOT re-run at acceptance (requires the PostgreSQL container on :55432); run-time result stands as reported"
+    }
+  },
+  "closeout_notes": [
+    "OUT-OF-CONTRACT REPO CHANGE, made by the OPERATOR, not by this run: biome.json gained \"!**/.sdlc\" to its files.includes negation list. NOT run output. Deliberately absent from provenance.json and from the write-contract allowlist (the PreToolUse hook would have refused it). Reason: the husky pre-commit hook runs `pnpm exec biome ci .`, which scanned 1293 files including the SDLC working directory and failed with 79 errors - all in .sdlc/ run artifacts (baselines, ledgers, state.json, write-contract.json, prior runs delegation JSON and backup .ts files), none in feature code. The run-time claim of \"biome ci clean on 1186 files\" was accurate for the source set; the hook simply checks a wider one. After the exclusion: biome ci exit 0 over 1198 files, and `pnpm run build` exit 0 across 7/7 tasks, so both pre-commit gates pass.",
+    "RECOMMENDED FOLLOW-UP (NOT applied): fold \"!**/apps/api/drizzle\" into the same biome.json negation list. This is the THIRD instance of one underlying flaw - Biome file discovery treating generated/tooling output as source. The fingerprint already documents it for apps/api/drizzle/**, which remains unexcluded and still forces a manual `biome format --write` on the generated meta files after every `db:generate`. Excluding it would retire that standing workaround. The negation list is already the established pattern for tooling output (!**/.claude, !**/.pi, !**/.pi-subagents, !**/openapi.json, and now !**/.sdlc).",
+    "committed remains false in this bookkeeping. The operator is committing the feature work to feature-extend-2/opus-flash directly, at the users explicit instruction, and will supply the SHA afterwards so provenance can record git_head_after and the commit list accurately. The run did not and must not perform the commit.",
+    "COUNT RECONCILIATION (corrects two earlier figures). provenance.json holds 38 RECORDS but only 28 UNIQUE paths - the extra 10 are repeat before/after pairs from files edited again during senior-review refinement. It contains ZERO .sdlc/ paths, so the earlier characterisation of the 38 as including .sdlc artifacts was wrong in both directions. Commit 33e24240 holds 29 files = those 28 run-touched source paths + biome.json (operator, out-of-contract). Every run-touched path landed in the commit; nothing in provenance is missing from it. The run-time figure of 27 was an artefact of `git status --porcelain` collapsing the untracked directory tests/api/task/ into a single line covering two files."
+  ],
+  "commit_sha": "33e24240",
+  "commit_note": "Feature work committed by the operator, not by the run. .sdlc artifacts committed separately in the following commit. biome.json gained \"!**/.sdlc\" (out-of-contract operator change) so the husky pre-commit hook passes.",
+  "commit": {
+    "sha": "33e242400210f61b1b8e40c2a4258c79ecd7366f",
+    "short": "33e24240",
+    "subject": "feat(task): add optional estimated hours with per-column rollup",
+    "branch": "feature-extend-2/opus-flash",
+    "parent": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "files": 29,
+    "insertions": 5366,
+    "deletions": 19,
+    "committed_by": "operator, at the users explicit instruction - NOT by the run",
+    "pre_commit_gates": "husky: biome ci . exit 0; pnpm run build exit 0",
+    "pushed": false,
+    "pull_request": false,
+    "sdlc_committed": false,
+    "sdlc_note": ".sdlc/ is not in 33e24240 and is not gitignored (user declined). A second commit is being held until this manifest is final so it captures settled state; these closeout writes land there."
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "column" ADD COLUMN "wip_limit" integer;

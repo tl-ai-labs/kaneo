@@ -1,0 +1,779 @@
+diff --git a/apps/web/src/components/kanban-board/column/column-header.tsx b/apps/web/src/components/kanban-board/column/column-header.tsx
+index 08464c22..dded1560 100644
+--- a/apps/web/src/components/kanban-board/column/column-header.tsx
++++ b/apps/web/src/components/kanban-board/column/column-header.tsx
+@@ -1,5 +1,5 @@
+ import { produce } from "immer";
+-import { Archive, Plus } from "lucide-react";
++import { Archive, Clock, Plus } from "lucide-react";
+ import { useState } from "react";
+ import { useTranslation } from "react-i18next";
+ import CreateTaskModal from "@/components/shared/modals/create-task-modal";
+@@ -50,6 +50,39 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
+     setIsArchiveModalOpen(false);
+   };
+ 
++  // `0` is a real estimate: it counts toward `done` while adding nothing to the
++  // sum. A `task.estimatedHours || 0` predicate would misclassify it as absent.
++  const estimatedTasks = column.tasks.filter(
++    (task) => typeof task.estimatedHours === "number",
++  );
++  const estimatedTotal = estimatedTasks.reduce(
++    (sum, task) => sum + (task.estimatedHours ?? 0),
++    0,
++  );
++  const estimateState =
++    estimatedTasks.length === 0
++      ? "none"
++      : estimatedTasks.length === column.tasks.length
++        ? "all"
++        : "partial";
++  const estimateArgs = {
++    hours: estimatedTotal,
++    done: estimatedTasks.length,
++    total: column.tasks.length,
++  };
++  const estimateLabel =
++    estimateState === "none"
++      ? t("tasks:kanban.estimate.none")
++      : estimateState === "partial"
++        ? t("tasks:kanban.estimate.partial", estimateArgs)
++        : t("tasks:kanban.estimate.all", estimateArgs);
++  const estimateText =
++    estimateState === "none"
++      ? t("tasks:kanban.estimate.noneShort")
++      : estimateState === "partial"
++        ? t("tasks:kanban.estimate.partialShort", estimateArgs)
++        : t("tasks:kanban.estimate.allShort", estimateArgs);
++
+   return (
+     <div className="flex items-center justify-between gap-2">
+       <div className="flex min-w-0 items-center gap-2">
+@@ -62,6 +95,18 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
+         <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+           {column.tasks.length}
+         </span>
++        {column.tasks.length > 0 && (
++          <span
++            role="img"
++            aria-label={estimateLabel}
++            title={estimateLabel}
++            data-estimate-state={estimateState}
++            className="flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
++          >
++            <Clock className="h-3 w-3" />
++            {estimateText}
++          </span>
++        )}
+       </div>
+ 
+       <div className="flex items-center">
+diff --git a/apps/web/src/components/shared/modals/create-task-modal.test.tsx b/apps/web/src/components/shared/modals/create-task-modal.test.tsx
+index f76cee1a..2043037c 100644
+--- a/apps/web/src/components/shared/modals/create-task-modal.test.tsx
++++ b/apps/web/src/components/shared/modals/create-task-modal.test.tsx
+@@ -128,4 +128,29 @@ describe("CreateTaskModal project picker", () => {
+       screen.queryByText("common:modals.createTask.selectProject"),
+     ).toBeNull();
+   });
++
++  it("omits estimatedHours entirely when the estimate is never touched", async () => {
++    // Omitting the key, rather than sending null, is what lets the API's
++    // preserve-on-omit semantics work.
++    useLocation.mockReturnValue({
++      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
++    });
++
++    render(<CreateTaskModal open onClose={vi.fn()} />);
++
++    fireEvent.change(
++      screen.getByPlaceholderText(
++        "common:modals.createTask.taskTitlePlaceholder",
++      ),
++      { target: { value: "Task without estimate" } },
++    );
++    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
++
++    await vi.waitFor(() => {
++      expect(createTask).toHaveBeenCalled();
++    });
++
++    const payload = createTask.mock.calls[0][0];
++    expect("estimatedHours" in payload).toBe(false);
++  });
+ });
+diff --git a/apps/web/src/components/shared/modals/create-task-modal.tsx b/apps/web/src/components/shared/modals/create-task-modal.tsx
+index cb3f627d..5ef64b30 100644
+--- a/apps/web/src/components/shared/modals/create-task-modal.tsx
++++ b/apps/web/src/components/shared/modals/create-task-modal.tsx
+@@ -3,6 +3,7 @@ import { produce } from "immer";
+ import {
+   CalendarIcon,
+   Check,
++  Clock,
+   FolderKanban,
+   Plus,
+   Search,
+@@ -12,6 +13,7 @@ import {
+ } from "lucide-react";
+ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+ import { useTranslation } from "react-i18next";
++import { EstimatedHoursInput } from "@/components/task/estimated-hours-input";
+ import TaskDescriptionEditor from "@/components/task/task-description-editor";
+ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ import { Badge } from "@/components/ui/badge";
+@@ -96,6 +98,7 @@ function normalizeTask(
+     priority: task.priority ?? null,
+     startDate: task.startDate ?? null,
+     dueDate: task.dueDate ?? null,
++    estimatedHours: task.estimatedHours ?? null,
+     position: task.position ?? 0,
+     userId: task.userId ?? null,
+     assigneeId: task.assigneeId ?? task.userId ?? null,
+@@ -188,6 +191,7 @@ function CreateTaskModal({
+   const [assigneeId, setAssigneeId] = useState("");
+   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
++  const [estimatedHours, setEstimatedHours] = useState<number | null>(null);
+   const [createMore, setCreateMore] = useState(false);
+   const [labels, setLabels] = useState<Label[]>([]);
+   const [draftTask, setDraftTask] = useState<Task | null>(null);
+@@ -250,6 +254,7 @@ function CreateTaskModal({
+     setAssigneeId("");
+     setStartDate(undefined);
+     setDueDate(undefined);
++    setEstimatedHours(null);
+     setCreateMore(false);
+     setLabels([]);
+     setLabelsStep("select");
+@@ -348,6 +353,7 @@ function CreateTaskModal({
+       startDate: startDate ? startDate.toISOString() : undefined,
+       dueDate: dueDate ? dueDate.toISOString() : undefined,
+       status: draftStatus,
++      ...(estimatedHours === null ? {} : { estimatedHours }),
+     }).then((task) => normalizeTask(task));
+ 
+     draftCreationPromiseRef.current = draftPromise;
+@@ -373,6 +379,7 @@ function CreateTaskModal({
+     draftTask,
+     startDate,
+     dueDate,
++    estimatedHours,
+     priority,
+     resolvedProjectId,
+     title,
+@@ -399,6 +406,9 @@ function CreateTaskModal({
+               startDate: startDate ? startDate.toISOString() : null,
+               dueDate: dueDate ? dueDate.toISOString() : null,
+               projectId: resolvedProjectId,
++              // Explicit value, including null: the user may have cleared an
++              // estimate the draft create already persisted.
++              estimatedHours,
+             }),
+           )
+         : normalizeTask(
+@@ -411,6 +421,7 @@ function CreateTaskModal({
+               startDate: startDate ? startDate.toISOString() : undefined,
+               dueDate: dueDate ? dueDate.toISOString() : undefined,
+               status: taskStatus,
++              ...(estimatedHours === null ? {} : { estimatedHours }),
+             }),
+           );
+ 
+@@ -442,6 +453,7 @@ function CreateTaskModal({
+         setAssigneeId("");
+         setStartDate(undefined);
+         setDueDate(undefined);
++        setEstimatedHours(null);
+         setLabels([]);
+         setLabelsStep("select");
+         setSearchValue("");
+@@ -925,6 +937,37 @@ function CreateTaskModal({
+                 </PopoverContent>
+               </Popover>
+ 
++              {canCreateTaskCapability && (
++                <Popover>
++                  <PopoverTrigger asChild>
++                    <button
++                      type="button"
++                      className={cn(
++                        "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
++                        estimatedHours !== null
++                          ? "bg-accent/30 text-foreground"
++                          : "text-muted-foreground",
++                      )}
++                    >
++                      <Clock className="w-3.5 h-3.5" />
++                      <span>
++                        {estimatedHours !== null
++                          ? t("tasks:properties.estimatedHours", {
++                              count: estimatedHours,
++                            })
++                          : t("common:modals.createTask.estimatedHours")}
++                      </span>
++                    </button>
++                  </PopoverTrigger>
++                  <PopoverContent className="p-0 w-56" align="start">
++                    <EstimatedHoursInput
++                      value={estimatedHours}
++                      onCommit={setEstimatedHours}
++                    />
++                  </PopoverContent>
++                </Popover>
++              )}
++
+               <Popover open={labelsOpen} onOpenChange={setLabelsOpen}>
+                 <PopoverTrigger asChild>
+                   <button
+diff --git a/apps/web/src/components/task/task-properties-sidebar.tsx b/apps/web/src/components/task/task-properties-sidebar.tsx
+index 54308185..2cf2ce53 100644
+--- a/apps/web/src/components/task/task-properties-sidebar.tsx
++++ b/apps/web/src/components/task/task-properties-sidebar.tsx
+@@ -3,6 +3,7 @@ import {
+   CalendarClock,
+   CalendarDays,
+   CalendarX,
++  Clock,
+   Copy,
+   GitBranch,
+   Plus,
+@@ -41,6 +42,7 @@ import { getPriorityIcon } from "@/lib/priority";
+ import { toast } from "@/lib/toast";
+ import TaskAssigneePopover from "./task-assignee-popover";
+ import TaskDueDatePopover from "./task-due-date-popover";
++import TaskEstimatedHoursPopover from "./task-estimated-hours-popover";
+ import TaskLabelsPopover from "./task-labels-popover";
+ import TaskMovePopover from "./task-move-popover";
+ import TaskPriorityPopover from "./task-priority-popover";
+@@ -324,6 +326,25 @@ export default function TaskPropertiesSidebar({
+                   </Button>
+                 </TaskDueDatePopover>
+               )}
++              {task && (
++                <TaskEstimatedHoursPopover task={task}>
++                  <Button
++                    variant="ghost"
++                    size="sm"
++                    className="justify-start h-7 px-1.5 gap-1.5"
++                  >
++                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
++                    <span className="text-xs font-semibold">
++                      {task.estimatedHours === null ||
++                      task.estimatedHours === undefined
++                        ? t("tasks:properties.noEstimate")
++                        : t("tasks:properties.estimatedHours", {
++                            count: task.estimatedHours,
++                          })}
++                    </span>
++                  </Button>
++                </TaskEstimatedHoursPopover>
++              )}
+             </div>
+           </div>
+         )}
+@@ -515,6 +536,25 @@ export default function TaskPropertiesSidebar({
+                     </Button>
+                   </TaskDueDatePopover>
+                 )}
++                {task && (
++                  <TaskEstimatedHoursPopover task={task}>
++                    <Button
++                      variant="ghost"
++                      size="sm"
++                      className="justify-start h-7 px-1.5 gap-1.5"
++                    >
++                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
++                      <span className="text-xs font-semibold">
++                        {task.estimatedHours === null ||
++                        task.estimatedHours === undefined
++                          ? t("tasks:properties.noEstimate")
++                          : t("tasks:properties.estimatedHours", {
++                              count: task.estimatedHours,
++                            })}
++                      </span>
++                    </Button>
++                  </TaskEstimatedHoursPopover>
++                )}
+               </div>
+             </div>
+ 
+@@ -708,6 +748,25 @@ export default function TaskPropertiesSidebar({
+                     </Button>
+                   </TaskDueDatePopover>
+                 )}
++                {task && (
++                  <TaskEstimatedHoursPopover task={task}>
++                    <Button
++                      variant="ghost"
++                      size="sm"
++                      className="justify-start h-7 px-1.5 gap-1.5"
++                    >
++                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
++                      <span className="text-xs font-semibold">
++                        {task.estimatedHours === null ||
++                        task.estimatedHours === undefined
++                          ? t("tasks:properties.noEstimate")
++                          : t("tasks:properties.estimatedHours", {
++                              count: task.estimatedHours,
++                            })}
++                      </span>
++                    </Button>
++                  </TaskEstimatedHoursPopover>
++                )}
+               </div>
+             </div>
+           </>
+diff --git a/apps/web/src/fetchers/task/create-task.ts b/apps/web/src/fetchers/task/create-task.ts
+index d45a91b1..24e08da8 100644
+--- a/apps/web/src/fetchers/task/create-task.ts
++++ b/apps/web/src/fetchers/task/create-task.ts
+@@ -15,6 +15,7 @@ async function createTask(
+   startDate: Date | undefined,
+   dueDate: Date | undefined,
+   priority: CreateTaskRequest["priority"],
++  estimatedHours?: number | null,
+ ) {
+   if (!projectId) {
+     throw new Error("No project selected for task creation");
+@@ -29,6 +30,8 @@ async function createTask(
+       startDate: startDate?.toISOString() || undefined,
+       dueDate: dueDate?.toISOString() || undefined,
+       priority,
++      // `0` is a real estimate, so this is an explicit === test, never `||`.
++      ...(estimatedHours === undefined ? {} : { estimatedHours }),
+     },
+     param: { projectId },
+   });
+diff --git a/apps/web/src/fetchers/task/update-task.ts b/apps/web/src/fetchers/task/update-task.ts
+index 7eed2b1d..6bd86799 100644
+--- a/apps/web/src/fetchers/task/update-task.ts
++++ b/apps/web/src/fetchers/task/update-task.ts
+@@ -21,6 +21,13 @@ async function updateTask(taskId: string, task: Task) {
+       priority: (task.priority || "no-priority") as UpdateTaskPriority,
+       startDate: task.startDate?.toString(),
+       dueDate: task.dueDate?.toString(),
++      // `undefined` (a cached task predating the field, e.g. a drag-and-drop
++      // payload) omits the key so the stored value is preserved; explicit
++      // `null` clears; a number sets. `?? null` here would silently wipe the
++      // estimate on every card move.
++      ...(task.estimatedHours === undefined
++        ? {}
++        : { estimatedHours: task.estimatedHours }),
+       position: task.position ?? 0,
+       projectId: task.projectId,
+     },
+diff --git a/apps/web/src/hooks/mutations/task/use-create-task.ts b/apps/web/src/hooks/mutations/task/use-create-task.ts
+index 14f61dc3..9ed14a95 100644
+--- a/apps/web/src/hooks/mutations/task/use-create-task.ts
++++ b/apps/web/src/hooks/mutations/task/use-create-task.ts
+@@ -16,6 +16,7 @@ function useCreateTask() {
+       startDate,
+       dueDate,
+       priority,
++      estimatedHours,
+     }: CreateTaskRequest) =>
+       createTask(
+         title,
+@@ -26,6 +27,7 @@ function useCreateTask() {
+         startDate ? new Date(startDate) : undefined,
+         dueDate ? new Date(dueDate) : undefined,
+         priority,
++        estimatedHours,
+       ),
+     onSuccess: (_data, variables) => {
+       void queryClient.invalidateQueries({
+diff --git a/apps/web/src/types/task/index.ts b/apps/web/src/types/task/index.ts
+index 9e62f501..6cabcfda 100644
+--- a/apps/web/src/types/task/index.ts
++++ b/apps/web/src/types/task/index.ts
+@@ -24,6 +24,10 @@ type Task = {
+   priority: string | null;
+   startDate: string | null;
+   dueDate: string | null;
++  // Whole hours, 0..1000. null = not estimated; 0 = estimated at nothing.
++  // Optional because cached/partial tasks predate the field: `undefined`
++  // means "unknown, do not write" (DR-5), never "clear".
++  estimatedHours?: number | null;
+   position: number | null;
+   createdAt: string;
+   updatedAt?: string;
+
+=== NEW FILE: apps/web/src/components/task/estimated-hours-input.tsx ===
+import { X } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+// Returns null for an empty field ("not estimated") and undefined for input
+// that is not a whole number in 0..1000 — callers must never write undefined.
+// The API is the authority: Valibot rejects out-of-range values with a 400.
+export function parseEstimatedHours(raw: string): number | null | undefined {
+  const trimmed = raw.trim();
+  if (trimmed === "") return null;
+  if (!/^\d+$/.test(trimmed)) return undefined;
+  const num = Number.parseInt(trimmed, 10);
+  if (num >= 0 && num <= 1000) return num;
+  return undefined;
+}
+
+export function EstimatedHoursInput({
+  value,
+  onCommit,
+}: {
+  value: number | null;
+  onCommit: (n: number | null) => void;
+}) {
+  const { t } = useTranslation();
+  const [raw, setRaw] = useState(value === null ? "" : String(value));
+
+  const handleCommit = () => {
+    const parsed = parseEstimatedHours(raw);
+    if (parsed !== undefined) {
+      onCommit(parsed);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleCommit();
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1 p-2">
+      <Input
+        type="number"
+        min={0}
+        max={1000}
+        step={1}
+        inputMode="numeric"
+        placeholder={t("tasks:popover.estimatedHours.placeholder")}
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        onBlur={handleCommit}
+        onKeyDown={handleKeyDown}
+        className="h-8 text-xs"
+      />
+      {value !== null && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2"
+          onClick={() => {
+            setRaw("");
+            onCommit(null);
+          }}
+          title={t("tasks:popover.estimatedHours.clear")}
+        >
+          <X className="w-3.5 h-3.5" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+=== NEW FILE: apps/web/src/components/task/task-estimated-hours-popover.tsx ===
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { toast } from "@/lib/toast";
+import type Task from "@/types/task";
+import { EstimatedHoursInput } from "./estimated-hours-input";
+
+type TaskEstimatedHoursPopoverProps = {
+  task: Task;
+  children: React.ReactNode;
+};
+
+export default function TaskEstimatedHoursPopover({
+  task,
+  children,
+}: TaskEstimatedHoursPopoverProps) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const { mutateAsync: updateTask } = useUpdateTask();
+  const { canUpdateTasks } = useWorkspacePermission();
+  const canEdit = canUpdateTasks();
+
+  const handleCommit = async (next: number | null) => {
+    try {
+      // Spread the whole task: the full PUT body reads other fields off it.
+      await updateTask({ ...task, estimatedHours: next });
+      toast.success(t("tasks:popover.estimatedHours.updateSuccess"));
+      setOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:popover.estimatedHours.updateError"),
+      );
+    }
+  };
+
+  if (!canEdit) return <>{children}</>;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent className="p-0 w-56" align="start">
+        <EstimatedHoursInput
+          value={task.estimatedHours ?? null}
+          onCommit={handleCommit}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+=== NEW FILE: apps/web/src/components/kanban-board/column/column-header.test.tsx ===
+import { cleanup, render } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
+import { ColumnHeader } from "./column-header";
+
+afterEach(() => {
+  cleanup();
+  document.body.innerHTML = "";
+});
+
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+
+vi.mock("@/hooks/mutations/task/use-update-task", () => ({
+  useUpdateTask: () => ({ mutate: vi.fn() }),
+}));
+
+vi.mock("@/hooks/use-workspace-permission", () => ({
+  useWorkspacePermission: () => ({
+    canUpdateTasks: () => true,
+    canCreateTasks: () => true,
+  }),
+}));
+
+vi.mock("@/store/project", () => ({
+  default: () => ({ project: null, setProject: vi.fn() }),
+}));
+
+vi.mock("@/lib/column", () => ({
+  getColumnIcon: () => null,
+}));
+
+vi.mock("@/components/shared/modals/create-task-modal", () => ({
+  default: () => null,
+}));
+
+vi.mock("../../shared/modals/archive-tasks-modal", () => ({
+  ArchiveTasksModal: () => null,
+}));
+
+function makeColumn(
+  hours: Array<number | null>,
+): ProjectWithTasks["columns"][number] {
+  const tasks: Task[] = hours.map((estimatedHours, index) => ({
+    id: `task-${index + 1}`,
+    title: `Task ${index + 1}`,
+    number: index + 1,
+    description: null,
+    status: "to-do",
+    priority: null,
+    startDate: null,
+    dueDate: null,
+    position: index + 1,
+    createdAt: "2026-07-17T00:00:00.000Z",
+    userId: null,
+    assigneeId: null,
+    assigneeName: null,
+    projectId: "project-1",
+    estimatedHours,
+  }));
+
+  return {
+    id: "to-do",
+    slug: "to-do",
+    name: "To do",
+    icon: null,
+    isFinal: false,
+    tasks,
+  } as ProjectWithTasks["columns"][number];
+}
+
+describe("ColumnHeader rollup pill", () => {
+  // react-i18next is mocked so `t` echoes the key: the visible text is just the
+  // key string. State is therefore asserted via data-estimate-state, and the
+  // accessible name only via aria-label presence. The formatted English strings
+  // and plural selection are proved separately, against a real i18next
+  // instance, in components/task/estimated-hours-i18n.test.ts.
+
+  it("renders data-estimate-state='none' when no task has an estimate", () => {
+    const { container } = render(
+      <ColumnHeader column={makeColumn([null, null])} />,
+    );
+
+    const pill = container.querySelector("[data-estimate-state]");
+    expect(pill).not.toBeNull();
+    expect(pill?.getAttribute("data-estimate-state")).toBe("none");
+    expect(pill?.getAttribute("aria-label")).toBeTruthy();
+  });
+
+  it("renders data-estimate-state='partial' when only some tasks have estimates", () => {
+    const { container } = render(
+      <ColumnHeader column={makeColumn([8, null, 0, 4])} />,
+    );
+
+    const pill = container.querySelector("[data-estimate-state]");
+    expect(pill).not.toBeNull();
+    expect(pill?.getAttribute("data-estimate-state")).toBe("partial");
+    expect(pill?.getAttribute("aria-label")).toBeTruthy();
+  });
+
+  it("renders data-estimate-state='all' when every task has an estimate", () => {
+    const { container } = render(<ColumnHeader column={makeColumn([3, 5])} />);
+
+    const pill = container.querySelector("[data-estimate-state]");
+    expect(pill).not.toBeNull();
+    expect(pill?.getAttribute("data-estimate-state")).toBe("all");
+    expect(pill?.getAttribute("aria-label")).toBeTruthy();
+  });
+
+  it("treats 0 as a real estimate: [0, null] is 'partial', not 'none'", () => {
+    const { container } = render(
+      <ColumnHeader column={makeColumn([0, null])} />,
+    );
+
+    const pill = container.querySelector("[data-estimate-state]");
+    expect(pill?.getAttribute("data-estimate-state")).toBe("partial");
+  });
+
+  it("hides the rollup pill when the column has no tasks", () => {
+    const { container } = render(<ColumnHeader column={makeColumn([])} />);
+
+    expect(container.querySelector("[data-estimate-state]")).toBeNull();
+  });
+
+  it("leaves the existing count pill unchanged", () => {
+    const { container } = render(
+      <ColumnHeader column={makeColumn([4, null])} />,
+    );
+
+    const countPill = container.querySelector(
+      "span.rounded-md.bg-muted:not([data-estimate-state])",
+    );
+    expect(countPill?.textContent).toBe("2");
+  });
+});
+
+=== NEW FILE: apps/web/src/components/task/estimated-hours-input.test.tsx ===
+import { describe, expect, it } from "vitest";
+import { parseEstimatedHours } from "./estimated-hours-input";
+
+describe("parseEstimatedHours", () => {
+  const cases: Array<[string, number | null | undefined]> = [
+    ["", null],
+    ["  ", null],
+    ["0", 0],
+    ["8", 8],
+    ["1000", 1000],
+    ["8.5", undefined],
+    ["-1", undefined],
+    ["1001", undefined],
+    ["abc", undefined],
+  ];
+
+  it.each(cases)("parses %j -> %j", (input, expected) => {
+    expect(parseEstimatedHours(input)).toBe(expected);
+  });
+});
+
+=== NEW FILE: apps/web/src/components/task/estimated-hours-i18n.test.ts ===
+import i18next from "i18next";
+import { beforeAll, describe, expect, it } from "vitest";
+import enUS from "../../../../../i18n/en-US.json";
+
+// Component tests in this repo mock react-i18next so `t` merely echoes the key
+// — `t("x", { count: 2 })` returns the literal "x". That makes plural bugs
+// invisible to them. Plural selection and placeholder substitution are
+// therefore proved here, against a REAL i18next instance loaded from the
+// en-US source of truth.
+beforeAll(async () => {
+  await i18next.init({
+    lng: "en-US",
+    resources: { "en-US": enUS },
+    ns: Object.keys(enUS),
+    defaultNS: "common",
+    interpolation: { escapeValue: false },
+  });
+});
+
+describe("estimatedHours i18n", () => {
+  it("selects the correct plural form for the hours label", () => {
+    expect(i18next.t("tasks:properties.estimatedHours", { count: 1 })).toBe(
+      "1 hour",
+    );
+    expect(i18next.t("tasks:properties.estimatedHours", { count: 2 })).toBe(
+      "2 hours",
+    );
+    expect(i18next.t("tasks:properties.estimatedHours", { count: 0 })).toBe(
+      "0 hours",
+    );
+  });
+
+  it("interpolates the kanban rollup strings", () => {
+    expect(
+      i18next.t("tasks:kanban.estimate.partial", {
+        hours: 12,
+        done: 2,
+        total: 5,
+      }),
+    ).toBe("12h estimated across 2 of 5 tasks");
+    expect(
+      i18next.t("tasks:kanban.estimate.all", { hours: 12, total: 5 }),
+    ).toBe("12h estimated across all 5 tasks");
+    expect(i18next.t("tasks:kanban.estimate.allShort", { hours: 12 })).toBe(
+      "12h",
+    );
+  });
+
+  it("resolves the none state to non-empty strings", () => {
+    expect(i18next.t("tasks:kanban.estimate.none")).toBeTruthy();
+    expect(i18next.t("tasks:kanban.estimate.noneShort")).toBeTruthy();
+  });
+
+  it("leaves no unsubstituted placeholders in any rollup string", () => {
+    const rendered = [
+      i18next.t("tasks:properties.estimatedHours", { count: 1 }),
+      i18next.t("tasks:properties.estimatedHours", { count: 5 }),
+      i18next.t("tasks:properties.noEstimate"),
+      i18next.t("tasks:kanban.estimate.partial", {
+        hours: 12,
+        done: 2,
+        total: 5,
+      }),
+      i18next.t("tasks:kanban.estimate.partialShort", {
+        hours: 12,
+        done: 2,
+        total: 5,
+      }),
+      i18next.t("tasks:kanban.estimate.all", { hours: 12, total: 5 }),
+      i18next.t("tasks:kanban.estimate.allShort", { hours: 12 }),
+      i18next.t("tasks:kanban.estimate.none"),
+      i18next.t("tasks:kanban.estimate.noneShort"),
+      i18next.t("common:modals.createTask.estimatedHours"),
+    ];
+
+    for (const str of rendered) {
+      expect(str).not.toContain("{{");
+    }
+  });
+});

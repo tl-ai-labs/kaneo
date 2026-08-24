@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "run_id": "20260821-065909-feature-extend-lane-wip-limit",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "apps/api/src/database/schema.ts",
+      "existed_before": true,
+      "sha_before": "sha256:54a934956aef8af8ec867205724021e2d016f9b0c1ba2ae74c3d4fac30fc91b4",
+      "sha_after": "sha256:ffadf3c75b6c33e449463a0c4ca842785634df8a10e6fd2a96f9bd6652e894c4",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a1",
+      "written_at": "2026-08-21T08:01:27.637Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/get-tasks.ts",
+      "existed_before": true,
+      "sha_before": "sha256:41b8a1714187c8ccd2ab62ca0d317aad1d230ea663100abeb3715272ed691d96",
+      "sha_after": "sha256:ad9c3153e0af5010586ddd8c52f138f06b656a6829e54d7d9df7a44c523c91a6",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a1",
+      "written_at": "2026-08-21T08:01:27.674Z"
+    },
+    {
+      "path": "i18n/en-US.json",
+      "existed_before": true,
+      "sha_before": "sha256:cdf16d5924db4dfe140bf8ec73dce566b1fe80669a1fa4587fcbd4517757a092",
+      "sha_after": "sha256:ead27d82e918227be7a46509a3f7ec9da155d21ae7461d855447b791d15ec230",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a1",
+      "written_at": "2026-08-21T08:01:27.714Z"
+    },
+    {
+      "path": "apps/api/src/column/index.ts",
+      "existed_before": true,
+      "sha_before": "sha256:585ca017a121f5f74c584d6e7d7e982a60a6b058e7d1806cdd86d42b04812e76",
+      "sha_after": "sha256:a8271c789855b4cf10801013e8776093e7bffe65691bd6c08695c3bee3f43611",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a2",
+      "written_at": "2026-08-21T08:04:27.914Z"
+    },
+    {
+      "path": "apps/api/src/column/controllers/create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:5163e758f79d2a87602b825b4502ebdfbbacf8364f3db3298246fbc7dfe96c3f",
+      "sha_after": "sha256:aca4b4d0452b564b642da050e904a53b79aeffe02e3abfd57060493a3205f7da",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a2",
+      "written_at": "2026-08-21T08:04:27.954Z"
+    },
+    {
+      "path": "apps/api/src/column/controllers/update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:7b52c5be905599b34c76b613d25544c4449e2510aa97aea127a66c356158c9bc",
+      "sha_after": "sha256:5a312c1c8c2522327decc99965e5b5cdb433a2e5185b53b256b865d28a7283cc",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a2",
+      "written_at": "2026-08-21T08:04:27.991Z"
+    },
+    {
+      "path": "apps/web/src/fetchers/column/create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:d77bb09313ad23e2079c18b26f89ab4faea626c83699d492ae37ef80638da711",
+      "sha_after": "sha256:989f881db7211aec2eb6671fd78a025f102b88d89523fb5d0aceaff1092a65b7",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a2",
+      "written_at": "2026-08-21T08:04:28.028Z"
+    },
+    {
+      "path": "apps/web/src/fetchers/column/update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:a08b659f93049d4c756419def65a34c74fe0d612f927a3aae99ed3f4d7174ff0",
+      "sha_after": "sha256:787856da167edcc2c0d5087511c93c33113de2ad9c069e1520afd4115bdb7c38",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a2",
+      "written_at": "2026-08-21T08:04:28.066Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/column/use-create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:e074b382a365982c88e2f68410cd0ea62688c74777daa64784224936bc32267a",
+      "sha_after": "sha256:ab925853ddaa6c0672b70923ca019cee3a2705013d6e1a8b3f010c6e63f5ce22",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a2",
+      "written_at": "2026-08-21T08:04:28.110Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/column/use-update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:ed52e891e998cac58c1396bd3982a9b1cfe9993232dfbb79f60ec5e71cb41331",
+      "sha_after": "sha256:a15eda387676e13aae827fac0c37857a3b502d3b014982e7c0c98cabb71fe192",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a2",
+      "written_at": "2026-08-21T08:04:28.147Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:c7eb59de90cc57961067be7ec101b4b9305c25e31ee3e7bc65c26b69c46c9f58",
+      "sha_after": "sha256:7fed76eb655cb96badf00f5a04d670ee43701e918eca4a3a35d59c71f9a942bd",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a3",
+      "written_at": "2026-08-21T08:06:23.647Z"
+    },
+    {
+      "path": "apps/web/src/components/project/column-editor.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:fedce18595c23f996eade0c28c5a1d44f07d082b8a4409125ee22485720fa9f4",
+      "sha_after": "sha256:510315817afc47db9350945b989c59d69b7c41afe14ed42fc9051c7dde9542d2",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave-a3",
+      "written_at": "2026-08-21T08:06:23.692Z"
+    },
+    {
+      "path": "tests/api/column/create-column.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:1f767644b620322a95e660f6bf0a1d7913abab2fa7a982f155864d4377e6ae3a",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave-b",
+      "written_at": "2026-08-21T08:12:58.385Z"
+    },
+    {
+      "path": "tests/api/column/update-column.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:fb4f4782cf009893cc3d8b2ed296fcf69a4081c545b863189bed44a64b033155",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave-b",
+      "written_at": "2026-08-21T08:12:58.430Z"
+    },
+    {
+      "path": "tests/api-integration/column-wip-limit.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:a3d631a7c2dc8e0e142e8d4c773d686d3b5617d693df6564c631865a0ed244af",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave-b",
+      "written_at": "2026-08-21T08:12:58.468Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:1d7dba35068a7691d64c106fc9c69e75cfd037dd9cb2df9143bac18a32384669",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave-b",
+      "written_at": "2026-08-21T08:12:58.503Z"
+    },
+    {
+      "path": "apps/web/src/components/project/column-editor.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:37f2a94aa32d093315975fcd1e4b463c2b60a13dd95f2f959267d9af3d6f27e6",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave-b",
+      "written_at": "2026-08-21T08:12:58.546Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:eb005cd71ff66234b5eaad6852db5e77a4eecfbfbf711dc735eb75e0905f596e",
+      "sha_after": "sha256:9dfa159e18f07b6395676b10a069a1a904a3c3355398a95005c71ee30783f08c",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_fix_fixtures",
+      "written_at": "2026-08-21T08:22:43.086Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/label/sync-task-labels-cache.test.ts",
+      "existed_before": true,
+      "sha_before": "sha256:1749c226ef04f55ea6338793430bc2c8a336bf9a64bbe67a8d8a7cc42506a966",
+      "sha_after": "sha256:cc4a5c0c9df66ee7ddf7b7fc3f92880e7b61f21e816334ccfcfcf32aa3a0b917",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_fix_fixtures",
+      "written_at": "2026-08-21T08:22:43.128Z"
+    },
+    {
+      "path": "i18n/en-US.json",
+      "existed_before": true,
+      "sha_before": "sha256:ead27d82e918227be7a46509a3f7ec9da155d21ae7461d855447b791d15ec230",
+      "sha_after": "sha256:3f67f987b02c8aea43ea034500f9fd15848ff1332b3928ab8708664ec5e93a5e",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260821-065909-feature-extend-lane-wip-limit/backups/i18n__en-US.json",
+      "packet_id": "tp_gate3_fixes",
+      "written_at": "2026-08-21T08:37:17.723Z"
+    },
+    {
+      "path": "apps/api/src/column/index.ts",
+      "existed_before": true,
+      "sha_before": "sha256:a8271c789855b4cf10801013e8776093e7bffe65691bd6c08695c3bee3f43611",
+      "sha_after": "sha256:66c9a3f86ac36978a0802da97bf5d5a4ff1084354f19c5334afac14b464202c0",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260821-065909-feature-extend-lane-wip-limit/backups/apps__api__src__column__index.ts",
+      "packet_id": "tp_gate3_fixes",
+      "written_at": "2026-08-21T08:37:17.759Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:1d7dba35068a7691d64c106fc9c69e75cfd037dd9cb2df9143bac18a32384669",
+      "sha_after": "sha256:6e962f392130a4e149aff597a67b009b934521a231cfd71098672d91c6e2b2bf",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260821-065909-feature-extend-lane-wip-limit/backups/apps__web__src__components__kanban-board__column__column-header.test.tsx",
+      "packet_id": "tp_gate3_fixes",
+      "written_at": "2026-08-21T08:37:17.796Z"
+    }
+  ]
+}

@@ -1,0 +1,653 @@
+[
+  {
+    "id": "tp_code_001",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "database_schema",
+    "module": "api/database",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/database/schema.ts",
+    "instruction": "Design §2.1. In `taskTable`, immediately after the anchor line `dueDate: timestamp(\"due_date\", { mode: \"date\" }),` (which sits just before `createdAt`), add one column: `estimatedHours: integer(\"estimated_hours\"),`. `integer` is already imported in this file — do not add an import. The column MUST be nullable with NO `.default(0)` and NO `.notNull()`: `null` means \"not estimated\" and is semantically distinct from `0` (\"estimated at nothing\", a legal value per DR-3). A default would make every pre-existing task claim an estimate it never received. Add NO index: DR-1 computes the rollup client-side, so the column is never a WHERE/ORDER BY target. Do not touch the table's five existing indexes or the `task_project_number_unique` constraint. Do not modify any other table. Do not hand-write any migration SQL — the migration is generated separately by `pnpm --filter @kaneo/api db:generate`.",
+    "acceptance": [
+      "`taskTable` contains exactly `estimatedHours: integer(\"estimated_hours\"),` placed directly after the `dueDate` column",
+      "The column has no `.default(...)` and no `.notNull()`",
+      "No new index or constraint is added; existing indexes and `task_project_number_unique` are byte-identical",
+      "No import statement changes and no other table is modified"
+    ],
+    "depends_on": [],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    },
+    "status": "completed",
+    "routed_model_id": "opus",
+    "note": "Dispatched under the original 25-packet plan with brownfield task_type; fell through to the policy default (opus). Applied and verified."
+  },
+  {
+    "id": "tp_code_002",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "openapi_schema",
+    "module": "api/schemas",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/schemas.ts",
+    "instruction": "Design §3. In `taskSchema`, anchor on the line `dueDate: v.optional(v.date()),` and add directly after it: `estimatedHours: v.nullable(v.number()),`. Use `v.nullable(v.number())`, NOT `v.optional(...)`: the field is always present in create/get/update responses and is `null` when unset, so the advertised OpenAPI shape must say exactly that. Do not attempt to repair the pre-existing drift in which `taskSchema` omits `assigneeName`, `assigneeImage`, and `updatedAt` from the real payload — that drift is explicitly out of scope. Do not regenerate or edit `apps/docs/openapi.json` (it is ~11 route-groups stale and regenerating produces ~1,481 insertions of unrelated churn). Change nothing else in this file.",
+    "acceptance": [
+      "`taskSchema` contains `estimatedHours: v.nullable(v.number()),` immediately after the `dueDate` entry",
+      "The field is nullable, not optional",
+      "No other schema entry in the file is added, removed, or reordered",
+      "No changes to `apps/docs/openapi.json`"
+    ],
+    "depends_on": [],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    },
+    "status": "completed",
+    "routed_model_id": "opus",
+    "note": "Dispatched under the original 25-packet plan with brownfield task_type; fell through to the policy default (opus). Applied and verified."
+  },
+  {
+    "id": "tp_code_009",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "web_type",
+    "module": "web/types",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/types/task/index.ts",
+    "instruction": "Design §4.2. In `type Task`, anchor on the `dueDate: string | null;` line and insert directly after it: `estimatedHours?: number | null;` with the comment block from the design — whole hours 0..1000; `null` = not estimated, `0` = estimated at nothing; optional because cached/partial tasks predate the field, so `undefined` means \"unknown, do not write\" (DR-5), never \"clear\". Keep `position: number | null;` following it. The `?:` is deliberate and load-bearing: `ProjectWithTasks` overrides `columns[].tasks` with this hand-written type, so typecheck cannot prove the server actually selects the column — the field's presence in this type is NOT evidence the board query returns it. Do not change any other type in the file and do not remove the optionality.",
+    "acceptance": [
+      "`type Task` declares `estimatedHours?: number | null;` immediately after `dueDate`",
+      "The property is optional (`?:`) and its type admits `null`",
+      "The explanatory comment records the undefined-vs-null DR-5 distinction",
+      "No other exported type in the file is modified"
+    ],
+    "depends_on": [],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    },
+    "status": "completed",
+    "routed_model_id": "opus",
+    "note": "Dispatched under the original 25-packet plan with brownfield task_type; fell through to the policy default (opus). Applied and verified."
+  },
+  {
+    "id": "tp_code_018",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "i18n",
+    "module": "i18n",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "i18n/en-US.json",
+    "instruction": "Design §11. Edit ONLY this locale file — `i18n/schema.json` is generated and off-limits, and the other 16 locales are translated separately and must NOT be hand-filled. Add to `common.modals.createTask`: `\"estimatedHours\": \"Estimated hours\"`. Add to `tasks.properties`: `\"estimatedHoursLabel\": \"Estimated hours\"`, `\"estimatedHours_one\": \"{{count}} hour\"`, `\"estimatedHours_other\": \"{{count}} hours\"`, `\"noEstimate\": \"No estimate\"` — note the no-base-key plural form matching the repo convention (`permissionCount_one`, `pr.count_one`); do NOT add a bare `estimatedHours` key under `tasks.properties`. Add `tasks.popover.estimatedHours` as a new sibling of `dueDate` with `placeholder` (\"Hours (0–1000)\"), `clear`, `updateSuccess`, `updateError` exactly as in the design. Add `tasks.kanban.estimate` with `none`, `noneShort` (\"—\"), `partial`, `partialShort`, `all`, `allShort` exactly as in the design. TRAP: the rollup strings interpolate `{{hours}}`/`{{done}}`/`{{total}}` only — `{{count}}` is RESERVED by i18next for plural selection and must never appear outside the `_one`/`_other` pair, or it would hijack plural resolution on the rollup labels. Keep the file's existing key ordering style and valid JSON. Do not run `pnpm i18n:check:fix`.",
+    "acceptance": [
+      "All keys land under `common.modals.createTask`, `tasks.properties`, `tasks.popover.estimatedHours`, and `tasks.kanban.estimate`",
+      "`estimatedHours_one`/`estimatedHours_other` exist with no bare `estimatedHours` sibling under `tasks.properties`",
+      "Rollup strings use only `{{hours}}`, `{{done}}`, `{{total}}` — no `{{count}}`",
+      "The file remains valid JSON and no other locale file or `i18n/schema.json` is touched"
+    ],
+    "depends_on": [],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    },
+    "status": "completed",
+    "routed_model_id": "opus",
+    "note": "Dispatched under the original 25-packet plan with brownfield task_type; fell through to the policy default (opus). Applied and verified."
+  },
+  {
+    "id": "tp_code_A",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "module": "api/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_paths": [
+      "apps/api/src/task/index.ts",
+      "apps/api/src/task/controllers/create-task.ts",
+      "apps/api/src/task/controllers/update-task.ts",
+      "apps/api/src/task/controllers/get-task.ts",
+      "apps/api/src/task/controllers/get-tasks.ts",
+      "apps/api/src/mcp/tools.ts"
+    ],
+    "artifact_path": "apps/api/src/task/index.ts",
+    "supersedes": [
+      "tp_code_003",
+      "tp_code_004",
+      "tp_code_005",
+      "tp_code_006",
+      "tp_code_007",
+      "tp_code_008"
+    ],
+    "retry_count": 0,
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "edit"
+                ]
+              },
+              "content": {
+                "type": "string",
+                "description": "Full file text when mode=create"
+              },
+              "edits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "old_string": {
+                      "type": "string"
+                    },
+                    "new_string": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "old_string",
+                    "new_string"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "path",
+              "mode"
+            ]
+          }
+        }
+      },
+      "required": [
+        "files"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 8000
+    },
+    "instruction": "(see dispatch record in telemetry.jsonl)",
+    "acceptance": [],
+    "routing_note": "task_type chosen from the greenfield vocabulary the policy's codegen rule actually matches, per operator DECISION 1. See run notes: plugin bug, no policy file lists the brownfield task types."
+  },
+  {
+    "id": "tp_code_B",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "web/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_paths": [
+      "apps/web/src/fetchers/task/create-task.ts",
+      "apps/web/src/fetchers/task/update-task.ts",
+      "apps/web/src/hooks/mutations/task/use-create-task.ts",
+      "apps/web/src/components/task/estimated-hours-input.tsx",
+      "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+      "apps/web/src/components/task/task-properties-sidebar.tsx",
+      "apps/web/src/components/shared/modals/create-task-modal.tsx"
+    ],
+    "artifact_path": "apps/web/src/fetchers/task/create-task.ts",
+    "supersedes": [
+      "tp_code_010",
+      "tp_code_011",
+      "tp_code_012",
+      "tp_code_013",
+      "tp_code_014",
+      "tp_code_015",
+      "tp_code_016"
+    ],
+    "retry_count": 0,
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "edit"
+                ]
+              },
+              "content": {
+                "type": "string",
+                "description": "Full file text when mode=create"
+              },
+              "edits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "old_string": {
+                      "type": "string"
+                    },
+                    "new_string": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "old_string",
+                    "new_string"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "path",
+              "mode"
+            ]
+          }
+        }
+      },
+      "required": [
+        "files"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 8000
+    },
+    "instruction": "(see dispatch record in telemetry.jsonl)",
+    "acceptance": [],
+    "routing_note": "task_type chosen from the greenfield vocabulary the policy's codegen rule actually matches, per operator DECISION 1. See run notes: plugin bug, no policy file lists the brownfield task types."
+  },
+  {
+    "id": "tp_code_C",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "web/kanban",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_paths": [
+      "apps/web/src/components/kanban-board/column/column-header.tsx"
+    ],
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "supersedes": [
+      "tp_code_017"
+    ],
+    "retry_count": 0,
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "edit"
+                ]
+              },
+              "content": {
+                "type": "string",
+                "description": "Full file text when mode=create"
+              },
+              "edits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "old_string": {
+                      "type": "string"
+                    },
+                    "new_string": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "old_string",
+                    "new_string"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "path",
+              "mode"
+            ]
+          }
+        }
+      },
+      "required": [
+        "files"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 4000
+    },
+    "instruction": "(see dispatch record in telemetry.jsonl)",
+    "acceptance": [],
+    "routing_note": "task_type chosen from the greenfield vocabulary the policy's codegen rule actually matches, per operator DECISION 1. See run notes: plugin bug, no policy file lists the brownfield task types."
+  },
+  {
+    "id": "tp_test_A",
+    "phase": "tests",
+    "task_type": "test_add",
+    "module": "api/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_paths": [
+      "tests/api/task/estimated-hours-validation.test.ts",
+      "tests/api/task/build-full-task-update-body.test.ts",
+      "tests/api-integration/task-estimated-hours.test.ts"
+    ],
+    "artifact_path": "tests/api/task/estimated-hours-validation.test.ts",
+    "supersedes": [
+      "tp_test_001",
+      "tp_test_002",
+      "tp_test_003"
+    ],
+    "retry_count": 0,
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "edit"
+                ]
+              },
+              "content": {
+                "type": "string",
+                "description": "Full file text when mode=create"
+              },
+              "edits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "old_string": {
+                      "type": "string"
+                    },
+                    "new_string": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "old_string",
+                    "new_string"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "path",
+              "mode"
+            ]
+          }
+        }
+      },
+      "required": [
+        "files"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 8000
+    },
+    "instruction": "(see dispatch record in telemetry.jsonl)",
+    "acceptance": [],
+    "routing_note": "task_type chosen from the greenfield vocabulary the policy's codegen rule actually matches, per operator DECISION 1. See run notes: plugin bug, no policy file lists the brownfield task types."
+  },
+  {
+    "id": "tp_test_B",
+    "phase": "tests",
+    "task_type": "test_add",
+    "module": "web/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_paths": [
+      "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "apps/web/src/components/task/estimated-hours-input.test.tsx",
+      "apps/web/src/components/task/estimated-hours-i18n.test.ts",
+      "apps/web/src/components/shared/modals/create-task-modal.test.tsx"
+    ],
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+    "supersedes": [
+      "tp_test_004",
+      "tp_test_005",
+      "tp_test_006",
+      "tp_test_007"
+    ],
+    "retry_count": 0,
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "edit"
+                ]
+              },
+              "content": {
+                "type": "string",
+                "description": "Full file text when mode=create"
+              },
+              "edits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "old_string": {
+                      "type": "string"
+                    },
+                    "new_string": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "old_string",
+                    "new_string"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "path",
+              "mode"
+            ]
+          }
+        }
+      },
+      "required": [
+        "files"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 8000
+    },
+    "instruction": "(see dispatch record in telemetry.jsonl)",
+    "acceptance": [],
+    "routing_note": "task_type chosen from the greenfield vocabulary the policy's codegen rule actually matches, per operator DECISION 1. See run notes: plugin bug, no policy file lists the brownfield task types."
+  }
+]

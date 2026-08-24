@@ -1,0 +1,1352 @@
+[
+  {
+    "id": "tp_code_001",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "database_schema",
+    "module": "api/database",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/database/schema.ts",
+    "instruction": "Design §2.1. In `taskTable`, immediately after the anchor line `dueDate: timestamp(\"due_date\", { mode: \"date\" }),` (which sits just before `createdAt`), add one column: `estimatedHours: integer(\"estimated_hours\"),`. `integer` is already imported in this file — do not add an import. The column MUST be nullable with NO `.default(0)` and NO `.notNull()`: `null` means \"not estimated\" and is semantically distinct from `0` (\"estimated at nothing\", a legal value per DR-3). A default would make every pre-existing task claim an estimate it never received. Add NO index: DR-1 computes the rollup client-side, so the column is never a WHERE/ORDER BY target. Do not touch the table's five existing indexes or the `task_project_number_unique` constraint. Do not modify any other table. Do not hand-write any migration SQL — the migration is generated separately by `pnpm --filter @kaneo/api db:generate`.",
+    "acceptance": [
+      "`taskTable` contains exactly `estimatedHours: integer(\"estimated_hours\"),` placed directly after the `dueDate` column",
+      "The column has no `.default(...)` and no `.notNull()`",
+      "No new index or constraint is added; existing indexes and `task_project_number_unique` are byte-identical",
+      "No import statement changes and no other table is modified"
+    ],
+    "depends_on": [],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_002",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "openapi_schema",
+    "module": "api/schemas",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/schemas.ts",
+    "instruction": "Design §3. In `taskSchema`, anchor on the line `dueDate: v.optional(v.date()),` and add directly after it: `estimatedHours: v.nullable(v.number()),`. Use `v.nullable(v.number())`, NOT `v.optional(...)`: the field is always present in create/get/update responses and is `null` when unset, so the advertised OpenAPI shape must say exactly that. Do not attempt to repair the pre-existing drift in which `taskSchema` omits `assigneeName`, `assigneeImage`, and `updatedAt` from the real payload — that drift is explicitly out of scope. Do not regenerate or edit `apps/docs/openapi.json` (it is ~11 route-groups stale and regenerating produces ~1,481 insertions of unrelated churn). Change nothing else in this file.",
+    "acceptance": [
+      "`taskSchema` contains `estimatedHours: v.nullable(v.number()),` immediately after the `dueDate` entry",
+      "The field is nullable, not optional",
+      "No other schema entry in the file is added, removed, or reordered",
+      "No changes to `apps/docs/openapi.json`"
+    ],
+    "depends_on": [],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_003",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "api_route_validator",
+    "module": "api/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/index.ts",
+    "instruction": "Design §4.1-§4.3. (1) At module scope immediately after the `VALID_PRIORITIES` declaration, insert `const ESTIMATED_HOURS_MAX = 1000;` and a single shared `estimatedHoursValidator` = `v.optional(v.nullable(v.pipe(v.number(), v.integer(...), v.minValue(0, ...), v.maxValue(ESTIMATED_HOURS_MAX, ...))))` with the messages from the design. Keep the DR-3/DR-5 comment: bounded at the validator so an out-of-range value is a 400, never a PostgreSQL \"integer out of range\" 500; `optional` = omitted, `nullable` = explicitly cleared. ONE constant used by both bodies so create and update cannot diverge. (2) Create route `POST /:projectId`: in its `validator(\"json\", ...)` object add `estimatedHours: estimatedHoursValidator,` after `userId: v.optional(v.string()),`; add `estimatedHours` to the handler destructure of `c.req.valid(\"json\")` and pass `estimatedHours,` into the `createTask({...})` call. (3) Update route `PUT /:id`: same validator addition after its `userId` line; add `estimatedHours` to the handler destructure and append `estimatedHours` as the LAST positional argument to `updateTask(...)`, after `currentUserId`. Do not change middleware chains or `describeRoute` blocks. The handler must not decide preserve-vs-clear — it forwards `undefined` through untouched.",
+    "acceptance": [
+      "One module-scope `ESTIMATED_HOURS_MAX = 1000` and one `estimatedHoursValidator` shared by both route bodies",
+      "Validator is `v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(1000))))`",
+      "Create route passes `estimatedHours` into `createTask({...})`; update route passes it as the last positional arg to `updateTask(...)`",
+      "Middleware chains, permission guards, and `describeRoute` metadata are unchanged",
+      "Handler contains no `||` coercion or preserve/clear branching for this field"
+    ],
+    "depends_on": [
+      "tp_code_002"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_004",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "api_controller",
+    "module": "api/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/create-task.ts",
+    "instruction": "Design §4.4. (1) Add `estimatedHours` to the destructured parameter object of `createTask` and add `estimatedHours?: number | null;` to its inline parameter type. (2) Inside `tx.insert(taskTable).values({ ... })`, anchor on `dueDate: dueDate || null,` and add directly after it: `estimatedHours: estimatedHours ?? null,`. TRAP: use `??`, NEVER `||`. `0 || null` evaluates to `null`, which would silently discard a legitimate zero-hour estimate — and `0` is a real, DR-3-permitted estimate distinct from `null` (\"not estimated\"). Leave the neighbouring `startDate`/`dueDate` `|| null` lines exactly as they are; changing date semantics is out of scope. Nothing else changes: the `returning()` row now carries `estimatedHours`, so the `task.created` event payload (`{ ...createdTask, ... }`) and the HTTP response both pick it up with no further edit.",
+    "acceptance": [
+      "`estimatedHours?: number | null` is in the parameter type and destructured in the signature",
+      "The insert values contain `estimatedHours: estimatedHours ?? null,` using `??` and not `||`",
+      "Existing `startDate`/`dueDate` `|| null` lines are unmodified",
+      "No changes to the event publication or return shape beyond the new field riding along"
+    ],
+    "depends_on": [
+      "tp_code_001"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_005",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "api_controller",
+    "module": "api/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/update-task.ts",
+    "instruction": "Design §4.5 — the DR-5 implementation, the highest-risk hunk in the run. (1) Append `estimatedHours?: number | null,` as the LAST positional parameter, after `currentUserId?: string,`, so no existing call site breaks. Semantics: `undefined` = omitted (preserve), `null` = clear, number = set. (2) Replace the single `const [updatedTask] = await db.update(taskTable).set({ ... })` statement with: build `const updateValues: Partial<typeof taskTable.$inferInsert> = { title, status, columnId: column?.id ?? null, startDate: startDate || null, dueDate: dueDate || null, projectId, description, priority, position, userId: userId || null };` then `if (estimatedHours !== undefined) { updateValues.estimatedHours = estimatedHours; }` then `.set(updateValues)`. Keep the DR-5 comment explaining that full-PUT callers (drag-and-drop, archive-all, MCP, draft promotion) must not erase the estimate. TRAP: do NOT write `estimatedHours || null` or `?? null` — the `x || null` shape on the startDate/dueDate lines is exactly the priority-empty-string bug in a new field, and `0 || null` would destroy a valid zero estimate. Leave those two date lines byte-identical. Everything after the update statement — 404/500 guards, `task.status_changed` / `task-relation.refresh` / `task.updated` events, `deleteOrphanedAssets` — is unchanged. This field publishes no new event.",
+    "acceptance": [
+      "`estimatedHours?: number | null` is the last positional parameter",
+      "The `.set()` argument is a prebuilt `updateValues` object and the key is assigned only inside `if (estimatedHours !== undefined)`",
+      "No `||` or `??` coercion is applied to `estimatedHours` anywhere in the file",
+      "The existing `startDate: startDate || null` and `dueDate: dueDate || null` lines are unchanged",
+      "Event publication, guards, and `deleteOrphanedAssets` are unchanged"
+    ],
+    "depends_on": [
+      "tp_code_001"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_006",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "api_controller",
+    "module": "api/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/get-task.ts",
+    "instruction": "Design §4.6. In the `db.select({ ... })` projection object, anchor on the `startDate: taskTable.startDate,` / `dueDate: taskTable.dueDate,` / `position: taskTable.position,` lines and insert `estimatedHours: taskTable.estimatedHours,` between `dueDate` and `position`. Without this, the task-detail surface reads `undefined` and an edit round-trip would submit a cleared value. Change nothing else — no joins, no filters, no other selected columns, no return-shape restructuring.",
+    "acceptance": [
+      "`estimatedHours: taskTable.estimatedHours,` is present in the `db.select({...})` projection between `dueDate` and `position`",
+      "No other selected column, join, or where clause is modified",
+      "The single-task response now carries `estimatedHours`"
+    ],
+    "depends_on": [
+      "tp_code_001"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_007",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "api_controller",
+    "module": "api/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/get-tasks.ts",
+    "instruction": "Design §4.7 — the single line the whole feature rests on. In the `taskSelection` object, anchor on the `startDate: taskTable.startDate,` / `dueDate: taskTable.dueDate,` / `position: taskTable.position,` lines and insert `estimatedHours: taskTable.estimatedHours,` between `dueDate` and `position`. DR-1 is client-side: the column header sums exactly what this selection returns. TRAP: do NOT modify the column shape at lines ~224-237 — no aggregate/total field is added there, per DR-1; a server-side sum would be filter-insensitive and contradict the filter-narrowed count pill. Second trap: `ProjectWithTasks` overrides `columns[].tasks` with the hand-written web `Task` type, so omitting this line will NOT fail typecheck — the board would compile cleanly and every column total would render `0`/`NaN` at runtime. Only the integration assertion (T-4) catches it. Change nothing else: no pagination, no filters, no ordering.",
+    "acceptance": [
+      "`estimatedHours: taskTable.estimatedHours,` is present in `taskSelection` between `dueDate` and `position`",
+      "The column-shape mapping (~lines 224-237) is unmodified — no aggregate or total field added",
+      "Pagination, filtering, and ordering logic are unchanged",
+      "Every task object in `body.data.columns[].tasks[]` now carries `estimatedHours`"
+    ],
+    "depends_on": [
+      "tp_code_001"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_008",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "mcp_tooling",
+    "module": "api/mcp",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/mcp/tools.ts",
+    "instruction": "Design §5 — `buildFullTaskUpdateBody` (a read-modify-write reconstructing a full PUT body from `existing` + `patch`). (1) Widen the return type annotation to `Record<string, string | number | null | undefined>` so an explicit clear is representable. (2) Immediately after the two `formatOptionalIso` lines for `startDate`/`dueDate`, insert: `const estimatedHoursRaw = patch.estimatedHours !== undefined ? patch.estimatedHours : existing.estimatedHours;` then `const estimatedHours = estimatedHoursRaw === null ? null : typeof estimatedHoursRaw === \"number\" ? estimatedHoursRaw : undefined;`. Note the `!== undefined` check and the `typeof === \"number\"` guard — never `||`, because `0` is a real estimate that must survive. (3) Widen the `const body: Record<string, string | number | undefined> = {...}` declaration to include `null`, and add `if (estimatedHours !== undefined) body.estimatedHours = estimatedHours;` alongside the existing trailing conditional assignments for `startDate`, `dueDate`, `userId`, before `return body;`. Behaviour: patch omits → existing value forwarded; explicit `null` → clears; number → sets; out-of-range → 400 from the §4.1 validator, not coerced here; malformed `existing` degrades to omission (a DR-5 no-op), never to an erase. Do NOT touch `packages/mcp` — it is off-limits this run; if its schemas need the field, that is a recorded follow-up only.",
+    "acceptance": [
+      "Return type and `body` declaration both include `null` in the value union",
+      "`estimatedHoursRaw` uses `patch.estimatedHours !== undefined` (not a truthiness check) so `0` and `null` in the patch are honoured",
+      "`body.estimatedHours` is assigned only when `estimatedHours !== undefined`",
+      "A patch with `0` yields `0` in the body; a patch with `null` yields `null`; an omitting patch yields the existing value",
+      "No files under `packages/mcp/` are modified"
+    ],
+    "depends_on": [
+      "tp_code_003"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_009",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "web_type",
+    "module": "web/types",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/types/task/index.ts",
+    "instruction": "Design §4.2. In `type Task`, anchor on the `dueDate: string | null;` line and insert directly after it: `estimatedHours?: number | null;` with the comment block from the design — whole hours 0..1000; `null` = not estimated, `0` = estimated at nothing; optional because cached/partial tasks predate the field, so `undefined` means \"unknown, do not write\" (DR-5), never \"clear\". Keep `position: number | null;` following it. The `?:` is deliberate and load-bearing: `ProjectWithTasks` overrides `columns[].tasks` with this hand-written type, so typecheck cannot prove the server actually selects the column — the field's presence in this type is NOT evidence the board query returns it. Do not change any other type in the file and do not remove the optionality.",
+    "acceptance": [
+      "`type Task` declares `estimatedHours?: number | null;` immediately after `dueDate`",
+      "The property is optional (`?:`) and its type admits `null`",
+      "The explanatory comment records the undefined-vs-null DR-5 distinction",
+      "No other exported type in the file is modified"
+    ],
+    "depends_on": [],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_010",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "web_fetcher",
+    "module": "web/fetchers",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/fetchers/task/create-task.ts",
+    "instruction": "Design §4.3a. Append `estimatedHours?: number | null,` as a trailing optional 9th positional parameter to `createTask(...)`, after `priority: CreateTaskRequest[\"priority\"]`. Do NOT refactor the signature into an options object — `use-create-task` is the only caller and an object refactor would widen the diff past the ticket. In the `json` body of the `client.task[\":projectId\"].$post({...})` call, after `priority,`, add the DR-5 tri-state spread: `...(estimatedHours === undefined ? {} : { estimatedHours }),` with the comment noting that omitting on `undefined` lets the server default apply and that `0` must survive, so this is an `===` check and NEVER `||` or a truthiness test. `CreateTaskRequest` is inferred from the Hono client and already carries the new validator field — no edit needed for it. Change nothing else in the file.",
+    "acceptance": [
+      "`estimatedHours?: number | null` is the trailing 9th positional parameter; no options-object refactor",
+      "The json body uses `...(estimatedHours === undefined ? {} : { estimatedHours })`",
+      "No `||` or truthiness coercion touches the field, so `0` is transmitted",
+      "Existing parameters, their order, and the rest of the request body are unchanged"
+    ],
+    "depends_on": [
+      "tp_code_003",
+      "tp_code_009"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_011",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "web_fetcher",
+    "module": "web/fetchers",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/fetchers/task/update-task.ts",
+    "instruction": "Design §4.3b — the most failure-prone hunk in Part 2. In the `json` body, anchor between `dueDate: task.dueDate?.toString(),` and `position: task.position ?? 0,` and insert: `...(task.estimatedHours === undefined ? {} : { estimatedHours: task.estimatedHours }),` with the DR-5 comment. Semantics: `undefined` (a task read from a cache entry predating the field, e.g. a drag-and-drop payload) omits the key so the stored value is PRESERVED; explicit `null` clears; a number sets. TRAP: `?? null` is WRONG here — it would silently clear the estimate on every drag-and-drop and every column-header archive-all, both of which hand this fetcher a `Task` straight out of the board cache. Equally, never use `||`, which would also destroy a legitimate `0`. This omit branch is the guarantee; do not \"simplify\" it. Leave the rest of the fixed body (`userId`, `title`, `description`, `status`, `priority`, `startDate`, `dueDate`, `position`, `projectId`) exactly as it is.",
+    "acceptance": [
+      "The body contains the conditional spread keyed on `task.estimatedHours === undefined`",
+      "No `?? null` or `||` is applied to `task.estimatedHours`",
+      "A task with `estimatedHours: 0` sends `estimatedHours: 0`; a task with `null` sends `null`; a task with `undefined` sends no key at all",
+      "All other fields in the fixed PUT body are unchanged"
+    ],
+    "depends_on": [
+      "tp_code_005",
+      "tp_code_009"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_012",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "web_hook",
+    "module": "web/hooks",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/hooks/mutations/task/use-create-task.ts",
+    "instruction": "Design §4.4a. The hook's `mutationFn` destructures a fixed field list out of `CreateTaskRequest` and re-passes them positionally to `createTask(...)`, so a newly inferred field is dropped on the floor unless added in BOTH places. Add `estimatedHours` to the destructured parameter list (after `priority`) and pass `estimatedHours` as the trailing 9th positional argument to `createTask(...)`, after the `priority` argument and after the `startDate ? new Date(startDate) : undefined` / `dueDate ? new Date(dueDate) : undefined` conversions. Do not wrap, coerce, or default the value — pass it through verbatim so `undefined`, `null`, and `0` each reach the fetcher unchanged. `onSuccess` already invalidates `[\"tasks\", variables.projectId]`, which is what refreshes the client-side column rollup; do NOT add a new query key or invalidation call. Change nothing else.",
+    "acceptance": [
+      "`estimatedHours` appears in the `mutationFn` destructure AND as the 9th positional argument to `createTask`",
+      "The value is passed through with no coercion or default",
+      "Existing argument order for title/description/projectId/userId/status/startDate/dueDate/priority is unchanged",
+      "No new query key or invalidation is added"
+    ],
+    "depends_on": [
+      "tp_code_010"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_013",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "subtype": "web_component",
+    "module": "web/components/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/estimated-hours-input.tsx",
+    "instruction": "Design §4.5, new file — the single place the DR-2/DR-3 parse lives so the create modal and the sidebar popover cannot drift. Export `parseEstimatedHours(raw: string): number | null | undefined`: trim; `\"\"` → `null` (not estimated); fail `/^\\d+$/` → `undefined`; otherwise `Number(trimmed)` and return it only when `Number.isInteger(value) && value >= 0 && value <= 1000`, else `undefined`. Document that `undefined` means invalid input and callers MUST NOT write it. Export `EstimatedHoursInput({ value, onCommit }: { value: number | null; onCommit: (next: number | null) => void })`: `useTranslation`, local `raw` state seeded `value === null ? \"\" : String(value)` (note: `0` seeds as `\"0\"`, never `\"\"`), `const parsed = parseEstimatedHours(raw)`. Render an `Input` (`type=\"number\"`, `min={0}`, `max={1000}`, `step={1}`, `inputMode=\"numeric\"`, placeholder `t(\"tasks:popover.estimatedHours.placeholder\")`) committing on blur and on Enter only when `parsed !== undefined` (never a truthiness check — `0` and `null` are valid commits). When `value !== null`, render a ghost `Button` with an `X` icon and `t(\"tasks:popover.estimatedHours.clear\")` calling `onCommit(null)`. Client parsing is convenience only; DR-3 is authoritative at the Valibot validator, which returns 400.",
+    "acceptance": [
+      "`parseEstimatedHours` returns `null` for empty/whitespace, the number for `\"0\"`/`\"8\"`/`\"1000\"`, and `undefined` for `\"8.5\"`, `\"-1\"`, `\"1001\"`, `\"abc\"`",
+      "Commit guards use `parsed !== undefined`, never truthiness, so `0` commits",
+      "The input seeds from `value` such that `0` renders as `\"0\"` and only `null` renders empty",
+      "The clear button renders only when `value !== null` and calls `onCommit(null)`",
+      "All user-facing strings come from static i18n keys via `useTranslation`"
+    ],
+    "depends_on": [
+      "tp_code_009"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_014",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "subtype": "web_component",
+    "module": "web/components/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+    "instruction": "Design §4.5, new file — mirror `apps/web/src/components/task/task-due-date-popover.tsx` structurally (popover + permission gate + toast), including its bare-children escape. Default-export `TaskEstimatedHoursPopover({ task, children }: { task: Task; children: React.ReactNode })`. Use `useTranslation`, `useState` for `open`, `const { mutateAsync: updateTask } = useUpdateTask()`, and `const { canUpdateTasks } = useWorkspacePermission()`. `handleCommit(next: number | null)` awaits `updateTask({ ...task, estimatedHours: next })` — spread the WHOLE cached task, because the full-PUT fetcher reads eight other fields off it and narrowing would drop them — then `toast.success(t(\"tasks:popover.estimatedHours.updateSuccess\"))` and `setOpen(false)`; on error `toast.error(error instanceof Error ? error.message : t(\"tasks:popover.estimatedHours.updateError\"))`. Before rendering the popover, `if (!canUpdateTasks()) return <>{children}</>;`. Render `Popover`/`PopoverTrigger asChild`/`PopoverContent className=\"p-0 w-56\" align=\"start\"` wrapping `<EstimatedHoursInput value={task.estimatedHours ?? null} onCommit={handleCommit} />`. `?? null` is correct at this boundary only (display seed); do not use `||`, which would turn a stored `0` into `null`. Add no new fetcher, hook, or endpoint — DR-4 row 3b rejects them.",
+    "acceptance": [
+      "Renders bare `children` and no popover when `canUpdateTasks()` is false",
+      "`handleCommit` spreads the full task (`{ ...task, estimatedHours: next }`) into `updateTask`",
+      "Success and error toasts use the `tasks:popover.estimatedHours.*` keys",
+      "The input is seeded with `task.estimatedHours ?? null` (not `||`), so `0` seeds as `0`",
+      "No new fetcher, mutation hook, or API endpoint is introduced"
+    ],
+    "depends_on": [
+      "tp_code_013",
+      "tp_code_011"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_code_015",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "web_component",
+    "module": "web/components/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+    "instruction": "Design §4.5 final hunk. Insert an estimated-hours row immediately after the `<TaskDueDatePopover>` block — in BOTH render paths: the wide branch (around lines 146-330) AND the narrow branch (around lines 337-460). TRAP: a field added to only one branch is invisible above or below the breakpoint; both insertions are required. Import `TaskEstimatedHoursPopover` from `./task-estimated-hours-popover` and `Clock` from `lucide-react`. Each insertion: `<TaskEstimatedHoursPopover task={task}>` wrapping a `<button type=\"button\">` whose className copies the sibling due-date trigger's className verbatim in that branch, containing `<Clock className=\"w-3.5 h-3.5\" />` and a `<span>` reading `task.estimatedHours === null || task.estimatedHours === undefined ? t(\"tasks:properties.noEstimate\") : t(\"tasks:properties.estimatedHours\", { count: task.estimatedHours })`. TRAP: the label check MUST be an explicit null/undefined comparison — `0` is a real estimate and must render as \"0 hours\", not \"No estimate\", so never use `!task.estimatedHours` or `||`. Permission gating is handled inside the popover via `canUpdateTasks()`; do not duplicate it here. Change nothing else in either branch.",
+    "acceptance": [
+      "The popover-wrapped trigger appears in both the wide and the narrow render branches, each after the due-date block",
+      "The empty-state check is `=== null || === undefined`, so `estimatedHours: 0` renders the hours label",
+      "`Clock` and `TaskEstimatedHoursPopover` are imported once and used in both branches",
+      "Labels use the `tasks:properties.estimatedHours` / `tasks:properties.noEstimate` keys with `{ count }`",
+      "No other sidebar row, layout class, or permission check is modified"
+    ],
+    "depends_on": [
+      "tp_code_014"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 5000
+    }
+  },
+  {
+    "id": "tp_code_016",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "web_component",
+    "module": "web/components/modals",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/shared/modals/create-task-modal.tsx",
+    "instruction": "Design §4.6 — six hunks in one file. (1) State: after the `dueDate` state (~line 190) add `const [estimatedHours, setEstimatedHours] = useState<number | null>(null);`. (2) Reset: add `setEstimatedHours(null);` at the `setPriority(\"no-priority\")` line in the close reset (~249) AND in the post-submit reset (~441) — BOTH; `createMore` keeps the modal mounted, so a missed reset leaks the previous task's estimate. (3) `normalizeTask` (~line 93, after the `dueDate` line): `estimatedHours: task.estimatedHours ?? null,` — `??` is correct HERE (it builds a complete client-side Task; `0` survives `??`) unlike the update fetcher. (4) Draft creation (~line 351, after `status: draftStatus,`): `...(estimatedHours === null ? {} : { estimatedHours }),`. (5) `handleSubmit` (~lines 390-415), asymmetric by DR-5, not by oversight: the draft-PROMOTION branch sends `estimatedHours,` unconditionally after `projectId: resolvedProjectId,` (an explicit `null` must clear an estimate the draft create already persisted); the plain-CREATE branch uses `...(estimatedHours === null ? {} : { estimatedHours }),` after `status: taskStatus,` (nothing to clear on create). (6) Trigger (~line 905, after the due-date `<Popover>` block): gated on `canCreateTasks()`, a `Popover`/`PopoverTrigger asChild` button using the same idiom and `cn(...)` classes as the due-date trigger with a `Clock` icon, label `estimatedHours !== null ? t(\"tasks:properties.estimatedHours\", { count: estimatedHours }) : t(\"common:modals.createTask.estimatedHours\")`, and `PopoverContent className=\"p-0 w-56\" align=\"start\"` containing `<EstimatedHoursInput value={estimatedHours} onCommit={setEstimatedHours} />`. All emptiness checks are `=== null` — never `||`/truthiness, since `0` is a real estimate.",
+    "acceptance": [
+      "All six hunks land, including BOTH reset paths (close reset and post-submit reset)",
+      "Draft-promotion sends `estimatedHours` unconditionally; plain-create omits it only when `=== null`",
+      "`normalizeTask` maps `task.estimatedHours ?? null`",
+      "Every conditional uses `=== null` / `!== null`, so a `0` estimate is submitted and rendered, not treated as unset",
+      "The trigger renders only when `canCreateTasks()` and opens `EstimatedHoursInput` bound to `setEstimatedHours`"
+    ],
+    "depends_on": [
+      "tp_code_013",
+      "tp_code_012",
+      "tp_code_009"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 5000
+    }
+  },
+  {
+    "id": "tp_code_017",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "web_component",
+    "module": "web/components/kanban",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "instruction": "Design §10.1, DR-6 — three hunks. Hunk A: change the lucide import to `import { Archive, Clock, Plus } from \"lucide-react\";`. Hunk B: after `handleConfirmArchive` and before `return (`, derive `estimatedTasks = column.tasks.filter((task) => typeof task.estimatedHours === \"number\")`; `estimatedTotal = estimatedTasks.reduce((sum, task) => sum + (task.estimatedHours as number), 0)`; `estimateState` = `\"none\"` when `estimatedTasks.length === 0`, `\"all\"` when it equals `column.tasks.length`, else `\"partial\"`; `estimateArgs = { hours: estimatedTotal, done: estimatedTasks.length, total: column.tasks.length }`; and `estimateLabel`/`estimateText` from `tasks:kanban.estimate.{state}` and `.{state}Short` (the `none` cases take no args). TRAP: the filter predicate MUST be `typeof task.estimatedHours === \"number\"` — never `task.estimatedHours || 0`, which would reclassify a real `0` estimate as unestimated. Hunk C: inside the header's LEFT `div`, immediately after the existing count pill and only when `column.tasks.length > 0`, render a `<span role=\"img\" aria-label={estimateLabel} title={estimateLabel} data-estimate-state={estimateState} className=\"flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\">` containing `<Clock className=\"h-3 w-3\" />` and `{estimateText}`. `role=\"img\"` is required so `aria-label` is reliably exposed and `getByLabelText` works. State must be conveyed by text + `data-estimate-state` + accessible name, never colour. The count pill must stay byte-identical, and the archive/add buttons, both modals, and the wrapper classes are unchanged. Do NOT modify `handleConfirmArchive` (its `{ ...task, status: \"archived\" }` spread already preserves the estimate) and do not touch `column-dropzone.tsx` — the pill is display-only and must not affect drag/drop.",
+    "acceptance": [
+      "The pill renders only when `column.tasks.length > 0`, with `role=\"img\"`, `aria-label`, `title`, and `data-estimate-state`",
+      "A column of `[8, null, 0, 4]` yields total `12`, estimated count `3`, and state `partial`",
+      "The filter uses `typeof ... === \"number\"`; no `|| 0` appears in the predicate",
+      "The existing count pill, archive/add buttons, both modals, and `handleConfirmArchive` are unchanged",
+      "All strings come from `tasks:kanban.estimate.*` keys with `hours`/`done`/`total` interpolation (no `count`)"
+    ],
+    "depends_on": [
+      "tp_code_009",
+      "tp_code_018"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 5000
+    }
+  },
+  {
+    "id": "tp_code_018",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "i18n",
+    "module": "i18n",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "i18n/en-US.json",
+    "instruction": "Design §11. Edit ONLY this locale file — `i18n/schema.json` is generated and off-limits, and the other 16 locales are translated separately and must NOT be hand-filled. Add to `common.modals.createTask`: `\"estimatedHours\": \"Estimated hours\"`. Add to `tasks.properties`: `\"estimatedHoursLabel\": \"Estimated hours\"`, `\"estimatedHours_one\": \"{{count}} hour\"`, `\"estimatedHours_other\": \"{{count}} hours\"`, `\"noEstimate\": \"No estimate\"` — note the no-base-key plural form matching the repo convention (`permissionCount_one`, `pr.count_one`); do NOT add a bare `estimatedHours` key under `tasks.properties`. Add `tasks.popover.estimatedHours` as a new sibling of `dueDate` with `placeholder` (\"Hours (0–1000)\"), `clear`, `updateSuccess`, `updateError` exactly as in the design. Add `tasks.kanban.estimate` with `none`, `noneShort` (\"—\"), `partial`, `partialShort`, `all`, `allShort` exactly as in the design. TRAP: the rollup strings interpolate `{{hours}}`/`{{done}}`/`{{total}}` only — `{{count}}` is RESERVED by i18next for plural selection and must never appear outside the `_one`/`_other` pair, or it would hijack plural resolution on the rollup labels. Keep the file's existing key ordering style and valid JSON. Do not run `pnpm i18n:check:fix`.",
+    "acceptance": [
+      "All keys land under `common.modals.createTask`, `tasks.properties`, `tasks.popover.estimatedHours`, and `tasks.kanban.estimate`",
+      "`estimatedHours_one`/`estimatedHours_other` exist with no bare `estimatedHours` sibling under `tasks.properties`",
+      "Rollup strings use only `{{hours}}`, `{{done}}`, `{{total}}` — no `{{count}}`",
+      "The file remains valid JSON and no other locale file or `i18n/schema.json` is touched"
+    ],
+    "depends_on": [],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_test_001",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "integration_test",
+    "module": "tests/api-integration",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "tests/api-integration/task-estimated-hours.test.ts",
+    "instruction": "Design §12, the one permitted new integration file. Follow the existing `tests/api-integration/` helper and workspace-context conventions. Cover: T-1 (AC-1) POST `/api/task/tasks/:projectId` with `estimatedHours: 8` → 200, body echoes `8`, DB row is `8`; a second POST omitting the field → row is `null`. T-2 (AC-2) PUT sets `12`, then a full PUT with the complete task body MINUS `estimatedHours` → row is still `12`, NOT `null` (the DR-5 preserve-on-omit guarantee, shaped like a drag-and-drop update); also assert an explicit `null` clears. T-3 (AC-3) `-1`, `1001`, `2.5`, `\"8\"` on BOTH create and update → 400, and re-read the seeded row to prove no DB write occurred. T-4 (AC-4, AC-8) GET `/api/task/tasks/:projectId` — the response is wrapped `{ data, pagination }` with columns at `body.data.columns`; assert the sorted `Object.keys()` of a returned task CONTAINS `estimatedHours` (this is what catches a missing `taskSelection` entry, which `pnpm typecheck` cannot). T-5 (AC-5) single-task read returns `estimatedHours`, using the workspace context the existing helpers supply — calling `/api/task/:projectId` bare 400s with \"Workspace ID could not be determined\", which is the board-path mistake, not a bug. T-6 (AC-7) seed one column with `[8, null, 0, 4]`; assert sum-of-non-null `=== 12` and estimated-count `=== 3` (the `0` counts as estimated). T-7 (AC-10) rows inserted without the field read back `null`. T-8 (AC-12) a non-member gets 403 from the existing `requireWorkspacePermission` — no new guard, `packages/permissions` untouched.",
+    "acceptance": [
+      "T-2 asserts a full PUT omitting `estimatedHours` leaves the stored value intact, and that explicit `null` clears it",
+      "T-4 asserts against the real `body.data.columns[].tasks[]` payload keys, not a typed fixture",
+      "T-3 asserts 400 for `-1`, `1001`, `2.5`, `\"8\"` on both create and update and re-reads the row to prove no write",
+      "T-6 treats `0` as estimated: sum `12`, estimated count `3` for `[8, null, 0, 4]`",
+      "Tests run against the integration harness's own database and create no new permission or guard code"
+    ],
+    "depends_on": [
+      "tp_code_003",
+      "tp_code_004",
+      "tp_code_005",
+      "tp_code_006",
+      "tp_code_007"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 5000
+    }
+  },
+  {
+    "id": "tp_test_002",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit_test",
+    "module": "tests/api",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "tests/api/task/estimated-hours-validation.test.ts",
+    "instruction": "Design §12 T-9 (AC-3). New file; `tests/api/task/` is currently empty, so establish the directory. Table-driven Valibot unit test over the create and update request schemas from `apps/api/src/task/index.ts` (the shared `estimatedHoursValidator` per §4.1 — assert both bodies behave identically, since one constant serves both). ACCEPT: `0`, `1`, `1000`, `undefined` (omitted), `null` (explicit clear). REJECT: `-1`, `1001`, `0.5`, `\"8\"` (string), `NaN`, `Infinity`. Assert acceptance/rejection via the Valibot parse result, and assert that a successful parse of an omitted field yields `undefined` (not `null` and not `0`) — that distinction is the DR-5 preserve-on-omit contract. Explicitly cover `0` as ACCEPTED and distinct from `null`: `0` is a real estimate (\"estimated at nothing\") and any truthiness-based implementation would fail this case. Use the repo's existing `tests/api/` test-runner idiom and imports; do not spin up a database or HTTP server.",
+    "acceptance": [
+      "Table-driven cases cover accept `0`/`1`/`1000`/`undefined`/`null` and reject `-1`/`1001`/`0.5`/`\"8\"`/`NaN`/`Infinity`",
+      "Both the create and the update body schemas are exercised with the same table",
+      "An omitted field parses to `undefined`, asserted distinctly from `null`",
+      "The test needs no database or running server"
+    ],
+    "depends_on": [
+      "tp_code_003"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_test_003",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit_test",
+    "module": "tests/api",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "tests/api/task/build-full-task-update-body.test.ts",
+    "instruction": "Design §12 T-10 (AC-9). New unit test over `buildFullTaskUpdateBody` from `apps/api/src/mcp/tools.ts` (the MCP read-modify-write). Assert: (a) a patch that OMITS `estimatedHours` produces a body whose `estimatedHours` equals the existing task's value — the preserve path; (b) a patch with explicit `null` produces `estimatedHours: null` — the clear path; (c) a patch with `0` produces `estimatedHours: 0` and the key IS present — this is the guard against an `||` regression, since `0 || existing` would silently substitute the old value; (d) an `existing` whose `estimatedHours` is `undefined` or non-numeric with an omitting patch produces a body with NO `estimatedHours` key at all, which DR-5 makes a harmless no-op rather than an erase. Use plain object fixtures for `existing` and `patch`; no database, no HTTP server, no MCP transport. Follow the repo's existing `tests/api/` test-runner idiom.",
+    "acceptance": [
+      "Omitting patch forwards the existing value; explicit `null` emits `null`",
+      "A patch of `0` emits `estimatedHours: 0` with the key present",
+      "A malformed/absent `existing` value with an omitting patch emits no `estimatedHours` key",
+      "Test uses plain fixtures with no database, server, or MCP transport"
+    ],
+    "depends_on": [
+      "tp_code_008"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_test_004",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "component_test",
+    "module": "web/components/kanban",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+    "instruction": "Design §12 T-11 (AC-6) and T-6b (AC-2, web side). New component test following the repo's existing web component-test idiom (note: these tests mock `react-i18next` so `t` echoes the key — assert on `data-estimate-state` and the accessible name/key rather than on resolved English prose; plural correctness is proved separately in the i18n test). T-11: three column fixtures — none estimated, mixed, all estimated. For each, find the rollup via `getByLabelText` (it is `role=\"img\"` with `aria-label`), assert `data-estimate-state` is `none` / `partial` / `all` respectively, and assert the visible text differs across the three. Fourth assertion: the count pill still renders `column.tasks.length` unchanged. Fifth assertion: a `[0, null]` column reports state `partial` with a total of `0` hours — the `0` counts as estimated and must not be filtered out. T-6b: mock `useUpdateTask`, click the archive button, confirm in the modal, and assert EVERY `updateTask` call argument carries the task's original `estimatedHours` — proving archive-all preserves the estimate through the full-PUT fetcher. Do not import or exercise `column-dropzone.tsx`.",
+    "acceptance": [
+      "Three fixtures assert `data-estimate-state` of `none`, `partial`, `all` via `getByLabelText`",
+      "A `[0, null]` column asserts state `partial` and total `0`, proving `0` is counted as estimated",
+      "The count pill assertion confirms `column.tasks.length` still renders",
+      "T-6b asserts every `updateTask` call from archive-all carries the original `estimatedHours`",
+      "No assertion depends on resolved English strings from the mocked `t`"
+    ],
+    "depends_on": [
+      "tp_code_017"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 5000
+    }
+  },
+  {
+    "id": "tp_test_005",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "component_test",
+    "module": "web/components/modals",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/shared/modals/create-task-modal.test.tsx",
+    "instruction": "Design §12 T-12 (AC-1, AC-11). This file EXISTS — extend it, preserving every existing test and its setup/mocks unchanged. Add coverage that (a) the estimated-hours trigger renders in the modal when create permission is granted (locate it by its i18n key, since `react-i18next` is mocked and `t` echoes keys), and (b) submitting WITHOUT touching the field produces a create payload with NO `estimatedHours` key at all — assert on the mocked create mutation's argument via `Object.keys()` or an `in` check, not on a `=== undefined` comparison, since the point is key absence per §4.6 hunk 5's plain-create branch. If the existing mocks make it practical, also assert that setting a value of `0` submits `estimatedHours: 0` rather than omitting it — `0` is a real estimate and `=== null` is the only correct emptiness test. Do not restructure the file, rename existing tests, or change shared fixtures.",
+    "acceptance": [
+      "All pre-existing tests in the file remain present and unmodified",
+      "A new test asserts the estimated-hours trigger renders under create permission",
+      "A new test asserts an untouched field submits a payload with no `estimatedHours` key (key-absence assertion)",
+      "Assertions locate elements by i18n key, consistent with the file's mocked `react-i18next`"
+    ],
+    "depends_on": [
+      "tp_code_016"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 5000
+    }
+  },
+  {
+    "id": "tp_test_006",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit_test",
+    "module": "web/components/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/estimated-hours-input.test.tsx",
+    "instruction": "Design §12 T-13. New test over `parseEstimatedHours` exported from `apps/web/src/components/task/estimated-hours-input.tsx`. Table-driven: `\"\"` → `null`; whitespace-only → `null`; `\"0\"` → `0`; `\"8\"` → `8`; `\"1000\"` → `1000`; and `\"8.5\"`, `\"-1\"`, `\"1001\"`, `\"abc\"` → `undefined` (invalid). Assert the three-way distinction explicitly: `null` (cleared / not estimated), a number (set), and `undefined` (invalid, must never be written by a caller) are three different outcomes — use strict equality and, for the `null` vs `undefined` cases, assertions that distinguish them rather than a loose falsy check. Critically, assert `parseEstimatedHours(\"0\")` returns the number `0` and NOT `null`/`undefined`, since `0` is a real DR-3-permitted estimate. Follow the repo's existing web unit-test idiom; the file may test the pure function alone and need not render the component.",
+    "acceptance": [
+      "Cases cover `\"\"`, whitespace, `\"0\"`, `\"8\"`, `\"1000\"`, `\"8.5\"`, `\"-1\"`, `\"1001\"`, `\"abc\"`",
+      "`\"0\"` asserts strictly to the number `0`",
+      "`null` and `undefined` outcomes are distinguished by strict assertions, not falsy checks",
+      "The test imports the exported `parseEstimatedHours` and passes without a DOM render if none is needed"
+    ],
+    "depends_on": [
+      "tp_code_013"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  },
+  {
+    "id": "tp_test_007",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit_test",
+    "module": "web/components/task",
+    "pass_id": "20260824-042617-feature-extend-task-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/estimated-hours-i18n.test.ts",
+    "instruction": "Design §12 T-14 (AC-11, plural proof). Component tests in this repo mock `react-i18next` so `t` merely echoes the key — `t(\"x\", { count: 2 })` returns the literal `\"x\"`, which makes plural bugs invisible. This test therefore initialises a REAL i18next instance from `i18n/en-US.json` (do not mock `react-i18next` here) and proves resolution. Assert: `tasks:properties.estimatedHours` with `count: 1` → `\"1 hour\"`, `count: 2` → `\"2 hours\"`, `count: 0` → `\"0 hours\"` (English plural rules make 0 plural; this also proves the `_one`/`_other` no-base-key form resolves). Assert the rollup labels `tasks:kanban.estimate.partial` / `partialShort` / `all` / `allShort` resolve with `{{hours}}`, `{{done}}`, `{{total}}` substituted, and that no resolved string contains a stray `{{` or `}}`. Assert `tasks:kanban.estimate.none` and `noneShort` resolve to non-empty strings. Do NOT pass `count` to any rollup label — `count` is reserved by i18next for plural selection and would hijack resolution.",
+    "acceptance": [
+      "A real i18next instance loads `i18n/en-US.json`; `react-i18next` is not mocked in this file",
+      "`estimatedHours` resolves to `\"1 hour\"` for count 1 and `\"2 hours\"` / `\"0 hours\"` for counts 2 and 0",
+      "Rollup labels resolve with hours/done/total substituted and contain no residual `{{`",
+      "No rollup assertion passes a `count` option"
+    ],
+    "depends_on": [
+      "tp_code_018"
+    ],
+    "inputs": [],
+    "retry_count": 0,
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 40000,
+      "maxOutputTokens": 3000
+    }
+  }
+]

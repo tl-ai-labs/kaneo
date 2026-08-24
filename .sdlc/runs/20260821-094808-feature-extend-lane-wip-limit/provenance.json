@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "run_id": "20260821-094808-feature-extend-lane-wip-limit",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "apps/api/src/database/schema.ts",
+      "existed_before": true,
+      "sha_before": "sha256:54a934956aef8af8ec867205724021e2d016f9b0c1ba2ae74c3d4fac30fc91b4",
+      "sha_after": "sha256:ffadf3c75b6c33e449463a0c4ca842785634df8a10e6fd2a96f9bd6652e894c4",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p1_api_contract",
+      "written_at": "2026-08-21T10:28:45.935Z"
+    },
+    {
+      "path": "apps/api/src/column/controllers/create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:5163e758f79d2a87602b825b4502ebdfbbacf8364f3db3298246fbc7dfe96c3f",
+      "sha_after": "sha256:ce6cfdaa212e8d43690af0a7ce9ba3c4bd2476e5ead7c4d97a763a0545ec5b2f",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p1_api_contract",
+      "written_at": "2026-08-21T10:28:45.993Z"
+    },
+    {
+      "path": "apps/api/src/column/controllers/update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:7b52c5be905599b34c76b613d25544c4449e2510aa97aea127a66c356158c9bc",
+      "sha_after": "sha256:5a312c1c8c2522327decc99965e5b5cdb433a2e5185b53b256b865d28a7283cc",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p1_api_contract",
+      "written_at": "2026-08-21T10:28:46.081Z"
+    },
+    {
+      "path": "apps/api/src/column/index.ts",
+      "existed_before": true,
+      "sha_before": "sha256:585ca017a121f5f74c584d6e7d7e982a60a6b058e7d1806cdd86d42b04812e76",
+      "sha_after": "sha256:7a054ec41140802dcad726717a928f9fcce17a4f093d53460ce47bd4284b83a3",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p1_api_contract",
+      "written_at": "2026-08-21T10:28:46.235Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/get-tasks.ts",
+      "existed_before": true,
+      "sha_before": "sha256:41b8a1714187c8ccd2ab62ca0d317aad1d230ea663100abeb3715272ed691d96",
+      "sha_after": "sha256:ad9c3153e0af5010586ddd8c52f138f06b656a6829e54d7d9df7a44c523c91a6",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p1_api_contract",
+      "written_at": "2026-08-21T10:28:46.317Z"
+    },
+    {
+      "path": "apps/api/drizzle/0043_conscious_gambit.sql",
+      "existed_before": true,
+      "sha_before": "sha256:4e298c825082f0a0044c9d3c132c938485490647b9d3dab86dd804b70f430648",
+      "sha_after": "sha256:4e298c825082f0a0044c9d3c132c938485490647b9d3dab86dd804b70f430648",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260821-094808-feature-extend-lane-wip-limit/backups/apps__api__drizzle__0043_conscious_gambit.sql",
+      "packet_id": "tp_p1b_migration",
+      "written_at": "2026-08-21T10:29:15.664Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/0043_snapshot.json",
+      "existed_before": true,
+      "sha_before": "sha256:bfadf17c43b70140cc422b11be2b00a458e0bf5dfd240ac3dc8ae8c5425bef52",
+      "sha_after": "sha256:bfadf17c43b70140cc422b11be2b00a458e0bf5dfd240ac3dc8ae8c5425bef52",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260821-094808-feature-extend-lane-wip-limit/backups/apps__api__drizzle__meta__0043_snapshot.json",
+      "packet_id": "tp_p1b_migration",
+      "written_at": "2026-08-21T10:29:15.752Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/_journal.json",
+      "existed_before": true,
+      "sha_before": "sha256:873143e0f4603f0d3785cff182452c099873bd4ef5485ff88ae3f2743491390f",
+      "sha_after": "sha256:873143e0f4603f0d3785cff182452c099873bd4ef5485ff88ae3f2743491390f",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260821-094808-feature-extend-lane-wip-limit/backups/apps__api__drizzle__meta___journal.json",
+      "packet_id": "tp_p1b_migration",
+      "written_at": "2026-08-21T10:29:15.841Z"
+    },
+    {
+      "path": "apps/web/src/fetchers/column/update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:a08b659f93049d4c756419def65a34c74fe0d612f927a3aae99ed3f4d7174ff0",
+      "sha_after": "sha256:787856da167edcc2c0d5087511c93c33113de2ad9c069e1520afd4115bdb7c38",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p2_web_data_i18n",
+      "written_at": "2026-08-21T10:31:14.561Z"
+    },
+    {
+      "path": "apps/web/src/fetchers/column/create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:d77bb09313ad23e2079c18b26f89ab4faea626c83699d492ae37ef80638da711",
+      "sha_after": "sha256:989f881db7211aec2eb6671fd78a025f102b88d89523fb5d0aceaff1092a65b7",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p2_web_data_i18n",
+      "written_at": "2026-08-21T10:31:14.599Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/column/use-update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:ed52e891e998cac58c1396bd3982a9b1cfe9993232dfbb79f60ec5e71cb41331",
+      "sha_after": "sha256:a15eda387676e13aae827fac0c37857a3b502d3b014982e7c0c98cabb71fe192",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p2_web_data_i18n",
+      "written_at": "2026-08-21T10:31:14.639Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/column/use-create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:e074b382a365982c88e2f68410cd0ea62688c74777daa64784224936bc32267a",
+      "sha_after": "sha256:ab925853ddaa6c0672b70923ca019cee3a2705013d6e1a8b3f010c6e63f5ce22",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p2_web_data_i18n",
+      "written_at": "2026-08-21T10:31:14.679Z"
+    },
+    {
+      "path": "i18n/en-US.json",
+      "existed_before": true,
+      "sha_before": "sha256:cdf16d5924db4dfe140bf8ec73dce566b1fe80669a1fa4587fcbd4517757a092",
+      "sha_after": "sha256:0d7aa79176b95a05f3e9defad449b6b9247f205487e16c917393f0625f8abac1",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p2_web_data_i18n",
+      "written_at": "2026-08-21T10:31:14.717Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:c7eb59de90cc57961067be7ec101b4b9305c25e31ee3e7bc65c26b69c46c9f58",
+      "sha_after": "sha256:096e9c24a5a1314dc498b51e9c166db6cbc7abd46e9c609c374f1404e8c116b5",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p3_ui",
+      "written_at": "2026-08-21T10:33:52.538Z"
+    },
+    {
+      "path": "apps/web/src/components/project/column-editor.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:fedce18595c23f996eade0c28c5a1d44f07d082b8a4409125ee22485720fa9f4",
+      "sha_after": "sha256:f451811093c0e0456c4bd6978f5b513c53f76c5028aa3c38e4349973e1b07eec",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p3_ui",
+      "written_at": "2026-08-21T10:33:52.577Z"
+    },
+    {
+      "path": "tests/api/column/wip-limit.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:abce792a2f361b9450d0d3d884e2a21f573c1bb9e53aa7b21f9c0b84b9eacd04",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_p4_p5_tests",
+      "written_at": "2026-08-21T10:45:48.634Z"
+    },
+    {
+      "path": "tests/api-integration/column-wip-limit.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:219eefad56a4a6a06592f2e8396f6f68ac552ae68302ae3299ea7473e7f1e043",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_p4_p5_tests",
+      "written_at": "2026-08-21T10:45:48.671Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:b4296c182c7727f339d6eb8f5814687d8928abebc7558228d89e3d2fe8a4d054",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_p4_p5_tests",
+      "written_at": "2026-08-21T10:45:48.707Z"
+    },
+    {
+      "path": "apps/web/src/components/project/column-editor.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:ce7643fc30294a08d9528f4126bf123e313be186a9f61c55a1740bdfcdc7b63c",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_p4_p5_tests",
+      "written_at": "2026-08-21T10:45:48.743Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/label/sync-task-labels-cache.test.ts",
+      "existed_before": true,
+      "sha_before": "sha256:1749c226ef04f55ea6338793430bc2c8a336bf9a64bbe67a8d8a7cc42506a966",
+      "sha_after": "sha256:cc4a5c0c9df66ee7ddf7b7fc3f92880e7b61f21e816334ccfcfcf32aa3a0b917",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p4_p5_tests",
+      "written_at": "2026-08-21T10:45:48.780Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:eb005cd71ff66234b5eaad6852db5e77a4eecfbfbf711dc735eb75e0905f596e",
+      "sha_after": "sha256:53464bf95960efcea26c7a410fa8395b71d73f3eff687f66a5d7b0cf7a5ea836",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p4_p5_tests",
+      "written_at": "2026-08-21T10:45:48.817Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/_journal.json",
+      "existed_before": true,
+      "sha_before": "sha256:873143e0f4603f0d3785cff182452c099873bd4ef5485ff88ae3f2743491390f",
+      "sha_after": "sha256:79e8786ed8e258f3da44600ddc262bded5b12d74fed3bf96c362873a836e7f28",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260821-094808-feature-extend-lane-wip-limit/backups/apps__api__drizzle__meta___journal.json",
+      "packet_id": "tp_r1_biome_meta",
+      "written_at": "2026-08-21T11:01:42.047Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/0043_snapshot.json",
+      "existed_before": true,
+      "sha_before": "sha256:bfadf17c43b70140cc422b11be2b00a458e0bf5dfd240ac3dc8ae8c5425bef52",
+      "sha_after": "sha256:d2ea02fefd73d39b5a509d605b3dbac8a9e0eacb7dfa635ddcf7163733af0f17",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260821-094808-feature-extend-lane-wip-limit/backups/apps__api__drizzle__meta__0043_snapshot.json",
+      "packet_id": "tp_r1_biome_meta",
+      "written_at": "2026-08-21T11:01:42.090Z"
+    },
+    {
+      "path": "apps/docs/openapi.json",
+      "existed_before": true,
+      "sha_before": "sha256:09053e1c8b21d20f239d97ae4f8d863274c7c8d58e905dfad076ba062b6bad26",
+      "sha_after": "sha256:09053e1c8b21d20f239d97ae4f8d863274c7c8d58e905dfad076ba062b6bad26",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_r2_openapi",
+      "written_at": "2026-08-21T11:14:41.004Z"
+    }
+  ]
+}

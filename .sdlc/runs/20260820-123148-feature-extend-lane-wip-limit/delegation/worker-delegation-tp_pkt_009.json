@@ -1,0 +1,57 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_pkt_009",
+  "phase": "codegen",
+  "task_type": "existing_file_edit",
+  "module": "web-data",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-20T13:27:51.091Z",
+  "duration_ms": 15519,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.047462,
+  "tokens": {
+    "input": 24087,
+    "input_cached": 0,
+    "output": 1259,
+    "output_reasoning": 857
+  },
+  "tool_calls": {
+    "count": 1,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/column/use-update-column.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/column/use-update-column.ts",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/web/src/hooks/mutations/column/use-update-column.ts"
+    ],
+    "removed": [],
+    "unchanged": 1676,
+    "scanned": 1677,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_pkt_009.md",
+    "usage": "worker-usage-tp_pkt_009.json"
+  }
+}

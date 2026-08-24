@@ -1,0 +1,298 @@
+{
+  "run_id": "20260820-123148-feature-extend-lane-wip-limit",
+  "phase": "senior_code_review",
+  "verdict": "changes_required",
+  "summary": "The change is small, additive and largely correct: the schema/migration is nullable with no backfill (0043 + snapshot + journal all consistent), the API keeps requireWorkspacePermission({project:['update']}) as the single authority, Valibot validates wipLimit as optional/nullable integer >= 1 on both create and update, the get-tasks projection adds columnId and wipLimit additively while leaving id: column.slug untouched (R-3 honoured), and the web side stays on the typed @kaneo/libs client with inferred types (pnpm typecheck passes). Two majors block sign-off, both in apps/web/src/components/kanban-board/column/column-header.tsx: (1) a WIP input of 0, a negative number or any unparseable value is silently coerced into 'clear the limit' even though the API rejects 0 with a 400, so client and server disagree on zero semantics; (2) the update mutation is fired with mutate() and no onError/onSuccess feedback, so a 400/403/500 is swallowed entirely - the popover closes and the badge simply does not change, diverging from the established column-editor.tsx toast pattern. Minor issues: the added i18n key tasks:kanban.wipLimitTooltip is unused dead copy, the number input and popover trigger have no accessible name beyond a title attribute, there is no pending/disabled state on Save, and the two redundant `wipLimit !== undefined` guards are dead code given the inferred `number | null`. No new realtime event is published, which is correct per NFR-6 (no column controller has ever published events; other viewers pick the change up on the next board refetch). i18n:check now lists the 6 new keys as missing in 17 locales, but that check was already failing before this run for pre-existing common:error.* keys and the locale files are outside the write contract, so it is reported as advisory only.",
+  "ac_coverage": [
+    {
+      "ac_id": "AC-1",
+      "status": "satisfied",
+      "evidence": "apps/api/drizzle/0043_known_night_thrasher.sql:1 `ALTER TABLE \"column\" ADD COLUMN \"wip_limit\" integer;` - nullable, no default, no backfill (NFR-1). apps/api/drizzle/meta/0043_snapshot.json:983 declares wip_limit integer notNull:false and prevId 9f67f0d6 matches 0042's id; _journal.json idx 43 entry matches the tag. apps/api/src/database/schema.ts:360 `wipLimit: integer(\"wip_limit\")`."
+    },
+    {
+      "ac_id": "AC-2",
+      "status": "satisfied",
+      "evidence": "apps/api/src/column/index.ts:63-66 validator accepts optional nullable integer >= 1; index.ts:72-80 threads wipLimit into createColumn; apps/api/src/column/controllers/create-column.ts:79 inserts `wipLimit: wipLimit ?? null` and `.returning()` returns the entity. Runtime persistence not statically provable - covered by test guidance."
+    },
+    {
+      "ac_id": "AC-3",
+      "status": "satisfied",
+      "evidence": "apps/api/src/column/controllers/update-column.ts:31 `...(data.wipLimit !== undefined && { wipLimit: data.wipLimit })` - explicit null clears, integer updates, omission leaves the column untouched. Valibot v.optional(v.nullable(...)) at index.ts:143-145 preserves the undefined/null distinction."
+    },
+    {
+      "ac_id": "AC-4",
+      "status": "satisfied",
+      "evidence": "apps/api/src/column/index.ts:148-149 - workspaceAccess.fromColumn(\"id\") then requireWorkspacePermission({ project: [\"update\"] }), identical to the pre-existing delete/reorder routes. No ad-hoc role check was introduced anywhere in the diff (NFR-4)."
+    },
+    {
+      "ac_id": "AC-5",
+      "status": "satisfied",
+      "evidence": "`pnpm typecheck` run during review: 6/6 tasks successful. apps/web/src/types/project/index.ts still infers ProjectWithTasks from InferResponseType of the task client, so columnId: string and wipLimit: number | null propagate without assertions (NFR-7)."
+    },
+    {
+      "ac_id": "AC-6",
+      "status": "satisfied",
+      "evidence": "column-header.tsx:103-110 - when wipLimit is null badgeContent is `column.tasks.length` and badgeClasses is the original `rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground` string, byte-identical to the previous markup. Caveat: for a project:update user the badge is now wrapped in a PopoverTrigger button, so the null case is visually identical but no longer inert (NFR-2 satisfied in appearance, changed in interaction by design per FR-11)."
+    },
+    {
+      "ac_id": "AC-7",
+      "status": "satisfied",
+      "evidence": "column-header.tsx:103-110 renders `${tasks.length}/${wipLimit}` and keeps the muted (non-warning) class set while tasks.length <= wipLimit."
+    },
+    {
+      "ac_id": "AC-8",
+      "status": "satisfied",
+      "evidence": "column-header.tsx:98-101,108-110 - isOverLimit drives `bg-destructive/15 ... text-destructive` and a title of t(\"tasks:kanban.wipLimitExceeded\"). Over-capacity styling is colour+weight only; see F-4 for the a11y note."
+    },
+    {
+      "ac_id": "AC-9",
+      "status": "satisfied",
+      "evidence": "The diff adds no enforcement anywhere: apps/api/src/task/controllers/get-tasks.ts changes are a pure projection widening (lines 225,230) and no task create/update/move controller was touched. NFR-5 holds."
+    },
+    {
+      "ac_id": "AC-10",
+      "status": "partial",
+      "evidence": "column-header.tsx:130-167 provides the inline popover and use-update-column.ts:22-33 invalidates [\"columns\", projectId] and [\"tasks\", projectId]; board.tsx:123-127 pushes refetched data into the project store, so the header does update after the refetch round-trip. Partial because of F-1 (a 0/invalid entry silently clears instead of updating) and F-2 (a failed update produces no feedback at all, so the user sees an unexplained no-op). There is also no optimistic update or pending state, so 'immediately' means one network round-trip later (F-5)."
+    },
+    {
+      "ac_id": "AC-11",
+      "status": "satisfied",
+      "evidence": "column-header.tsx:31-35,130-170 - canUpdateProjects() gates the whole Popover; without it the bare `badge` span renders with no trigger, no button role and no handler. Server-side the PUT is independently gated (AC-4), so hiding it in the UI is not the only check."
+    },
+    {
+      "ac_id": "AC-12",
+      "status": "satisfied",
+      "evidence": "apps/api/src/task/controllers/get-tasks.ts:224-231 - `id: column.slug` retained, `columnId: column.id` and `wipLimit: column.wipLimit` added alongside it (FR-14/FR-15). wipLimit is null for unset columns because the DB column is nullable with no default."
+    },
+    {
+      "ac_id": "AC-13",
+      "status": "satisfied",
+      "evidence": "column-header.tsx:125 still calls getColumnIcon(column.id, ...) and line 200 still passes status={column.id}; both continue to receive the slug. The inline editor correctly uses column.columnId (lines 73, 79, 90) per FR-16. No consumer of the board payload was changed to read id as a UUID."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "major",
+      "file": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "line": 68,
+      "title": "A WIP input of 0 / negative / unparseable is silently coerced to \"no limit\"",
+      "detail": "handleSaveWipLimit parses the input and, when `Number.isNaN(parsed) || parsed <= 0`, falls into the else branch and sends `{ wipLimit: null }` - i.e. it clears the limit. The API deliberately rejects 0 and negatives (v.pipe(v.number(), v.integer(), v.minValue(1)) in apps/api/src/column/index.ts:143-145) with a 400, so the two layers disagree on zero semantics: the server treats 0 as invalid input, the client treats it as 'unlimited'. A user who types 0 (or 'abc', or -3) intending a strict/blocked column instead silently wipes an existing limit with no message. Nothing in requirements.md sanctions this coercion; FR-11 lists set / update / clear as three distinct actions, and clearing already has its own dedicated button (handleClearWipLimit, line 87).",
+      "recommendation": "Distinguish the three cases explicitly: empty/whitespace input means clear (consistent with the 'Limit (optional)' placeholder); a parsed integer >= 1 means set; anything else (0, negative, non-integer, NaN) is invalid and must not mutate - keep the popover open and surface a validation message from a static i18n key instead of sending null."
+    },
+    {
+      "id": "F-2",
+      "severity": "major",
+      "file": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "line": 72,
+      "title": "WIP-limit mutation errors are swallowed - no onError, no toast, no rollback signal",
+      "detail": "Both handleSaveWipLimit and handleClearWipLimit call the fire-and-forget `mutate(...)` from useUpdateColumn and then unconditionally `setIsWipPopoverOpen(false)`. useUpdateColumn (apps/web/src/hooks/mutations/column/use-update-column.ts:22-33) only defines onSuccess; there is no onError anywhere in the path. The fetcher does throw on a non-ok response (apps/web/src/fetchers/column/update-column.ts:18-21), so a 400 (invalid limit), 403 (permission revoked between page load and click, which is exactly the case the server-side guard exists for) or 500 produces an unhandled mutation rejection: the popover closes, the badge keeps its old value, and the user gets no indication the save failed. This diverges from the established pattern for the same mutation in apps/web/src/components/project/column-editor.tsx:63-98, which awaits mutateAsync in try/catch and toasts both success and `error instanceof Error ? error.message : t(...)`. AGENTS.md requires following an established local pattern where it fits, and a swallowed authorization failure is the worst case to hide.",
+      "recommendation": "Switch to mutateAsync inside an async handler with try/catch, toast success and failure using static i18n keys, and only close the popover on success. Do not surface the raw thrown text unfiltered as the sole message - fall back to a translated generic message, matching column-editor.tsx."
+    },
+    {
+      "id": "F-3",
+      "severity": "minor",
+      "file": "i18n/en-US.json",
+      "line": 1886,
+      "title": "Added i18n key tasks:kanban.wipLimitTooltip is never referenced",
+      "detail": "grep across apps/ finds no usage of `wipLimitTooltip`; only setWipLimit, wipLimitPlaceholder, wipLimitExceeded, clearWipLimit and saveWipLimit are consumed by column-header.tsx. It is dead copy that every other locale will now have to translate. The badge also has no tooltip at all in the in-limit case (title is undefined unless over limit), which is presumably what this key was meant for.",
+      "recommendation": "Either use it as the badge title when a limit is configured and not exceeded, or remove the key. Do not leave an unreferenced key in the source-of-truth file."
+    },
+    {
+      "id": "F-4",
+      "severity": "minor",
+      "file": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "line": 145,
+      "title": "Accessibility gaps in the new WIP control",
+      "detail": "The number Input has only a placeholder - no <label>, no aria-label - so screen readers announce an unlabelled spinbutton. The PopoverContent has no PopoverTitle/PopoverDescription, so the dialog opens without an accessible name. The PopoverTrigger's only accessible name is the `title` attribute, and the over-capacity state is conveyed by colour plus a `title` on a non-interactive span in the read-only branch (title tooltips are not reliably exposed to assistive tech or reachable by keyboard). The rest of the header uses the same title-only idiom for its icon buttons, so this is consistent with local practice, but the new control is a form input rather than an icon button.",
+      "recommendation": "Add aria-label to the Input (reusing tasks:kanban.setWipLimit or a dedicated key) and give the over-capacity badge a non-colour cue reachable to AT - e.g. a visually hidden span or aria-label carrying tasks:kanban.wipLimitExceeded."
+    },
+    {
+      "id": "F-5",
+      "severity": "minor",
+      "file": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "line": 161,
+      "title": "No pending/disabled state; popover closes before the mutation resolves",
+      "detail": "Save and Clear are never disabled while the mutation is in flight (isPending from useUpdateColumn is not destructured), and the popover closes synchronously. Double-clicking Save fires two PUTs. There is also no optimistic update, so the badge only changes after the ['tasks', projectId] invalidation round-trips and board.tsx re-hydrates the project store - a visible lag on a slow connection.",
+      "recommendation": "Destructure isPending and disable both buttons while it is true. Optimistic update is optional for an indicator-only feature; if it is skipped, that should be a deliberate note rather than an omission."
+    },
+    {
+      "id": "F-6",
+      "severity": "nit",
+      "file": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "line": 98,
+      "title": "Redundant `!== undefined` guards on a `number | null` field",
+      "detail": "column.wipLimit is inferred as `number | null` from the API response type (apps/web/src/types/project/index.ts), so `column.wipLimit !== undefined` at lines 100 and 104 is dead. It duplicates the null check twice and makes the intent (null means unlimited) harder to read. The same expression is computed twice for isOverLimit and badgeContent.",
+      "recommendation": "Hoist a single `const hasLimit = column.wipLimit !== null;` (or `typeof column.wipLimit === \"number\"`) and derive both isOverLimit and badgeContent from it."
+    },
+    {
+      "id": "F-7",
+      "severity": "minor",
+      "file": "i18n/en-US.json",
+      "line": 1885,
+      "title": "The 6 new keys are missing from the other 17 locales - fix is outside this run's write contract",
+      "detail": "`node ./scripts/i18n/check.mjs` now reports tasks:kanban.{clearWipLimit,saveWipLimit,setWipLimit,wipLimitExceeded,wipLimitPlaceholder,wipLimitTooltip} as missing in every non-en-US locale, and the repo convention (git log on i18n/) is to land locale files together, normally via `pnpm i18n:check:fix`. Important mitigation: the check was ALREADY failing before this run - the pre-existing common:error.* keys are missing in the same locales - so this run does not newly break a green check. The 17 locale JSON files are outside the intent brief's allowlist, so no refinement packet is emitted.",
+      "recommendation": "Out of write contract - flag to the operator. Before merge, run `pnpm i18n:check:fix` (or add the translations) as a separate, explicitly authorized change; do not do it under this run's allowlist."
+    },
+    {
+      "id": "F-8",
+      "severity": "minor",
+      "file": "i18n/en-US.json",
+      "line": 1885,
+      "title": "Generated i18n/schema.json is now stale relative to en-US.json",
+      "detail": "i18n/schema.json is generated from en-US via `pnpm i18n:schema` and does not contain the new tasks.kanban WIP keys. requirements.md explicitly puts generated schema files out of scope, and nothing in the typecheck or web build consumes the missing entries, so this is informational rather than a defect in the change.",
+      "recommendation": "Regenerate with `pnpm i18n:schema` at merge time as part of the same authorized follow-up as F-7. No packet."
+    },
+    {
+      "id": "F-9",
+      "severity": "minor",
+      "file": "apps/api/src/column/index.ts",
+      "line": 122,
+      "title": "OpenAPI metadata does not describe wipLimit (responses remain resolver(v.any()))",
+      "detail": "The request body IS documented, because hono-openapi derives it from the Valibot validator, so wipLimit with its integer/min-1 constraint does appear in the generated spec for POST and PUT. The response schemas stay `resolver(v.any())` for every column route, so the returned wipLimit is undocumented - but that is the pre-existing shape of all five column routes, unchanged by this run. The route descriptions ('Create a new column in a project', 'Update a column') were also not touched. AGENTS.md requires accurate OpenAPI metadata; this is accurate-but-vague rather than wrong.",
+      "recommendation": "No change required in this run. If response schemas are ever tightened for the Columns tag, include wipLimit and columnId then."
+    },
+    {
+      "id": "F-10",
+      "severity": "minor",
+      "file": "apps/api/src/column/controllers/update-column.ts",
+      "line": 24,
+      "title": "WIP-limit changes do not propagate over the realtime path (deliberate, matches NFR-6)",
+      "detail": "Stating the decision explicitly since the review asks for it: no publishEvent call exists in any column controller (create, update, delete, reorder) - column mutations have never been realtime in this codebase - and this run adds none, which is what NFR-6 requires ('No new realtime event types or WebSocket topics; cache invalidation must rely on existing query keys'). Consequence: user B viewing the same board sees a WIP limit set by user A only on their next ['tasks', projectId] refetch, not instantly. The intent brief's realtime bullet hoped to ride an existing column-update event; there is no such event to ride. Task-count changes that cross the threshold DO propagate, because they flow through the existing task event/WebSocket path and re-render the badge from the same column.tasks array.",
+      "recommendation": "Accept as-is for an indicator-only feature. If cross-client immediacy is later wanted, it needs a real column-update event and is a separate scoped change."
+    },
+    {
+      "id": "F-11",
+      "severity": "nit",
+      "file": "apps/web/src/hooks/mutations/column/use-create-column.ts",
+      "line": 13,
+      "title": "wipLimit threaded through create-column but no caller sets it",
+      "detail": "FR-7/FR-8 asked for it and the type widening is harmless and consistent, but the only consumer, apps/web/src/components/project/column-editor.tsx, never passes wipLimit, so new columns always start at null. That matches the intent brief (inline editing in ColumnHeader is the configuration surface) - noted only so it is not mistaken for an unfinished wiring.",
+      "recommendation": "No change. The create-side widening is contract completeness, not dead code."
+    },
+    {
+      "id": "F-12",
+      "severity": "nit",
+      "file": "apps/web/src/hooks/mutations/label/sync-task-labels-cache.test.ts",
+      "line": 19,
+      "title": "Patched test files verified fixture-only",
+      "detail": "Confirmed against the diff: both sync-task-labels-cache.test.ts and use-task-filters-with-labels-support.test.tsx add only `columnId: \"col-todo\"` and `wipLimit: null` to existing column fixtures (three fixture blocks in total). No assertion, no arrange/act step and no expectation was modified, and no test was skipped or renamed. This is the minimum edit required by the widened inferred column type.",
+      "recommendation": "No change."
+    }
+  ],
+  "refinement_packets": [
+    {
+      "id": "tp_ref_001",
+      "phase": "codegen",
+      "task_type": "existing_file_edit",
+      "module": "i18n",
+      "instruction": "In i18n/en-US.json, the tasks.kanban namespace was just extended with WIP-limit keys. Two gaps must be closed. (1) The inline WIP editor in the kanban column header currently swallows mutation failures and silently clears a limit when the user types an invalid number, and the fix needs static copy to show. Add three keys inside the existing \"tasks\" -> \"kanban\" object, alongside the existing wipLimitTooltip/setWipLimit/wipLimitPlaceholder/wipLimitExceeded/clearWipLimit/saveWipLimit keys: \"wipLimitInvalid\": \"Enter a whole number of 1 or more, or leave empty for no limit\", \"wipLimitUpdated\": \"WIP limit updated\", \"wipLimitUpdateError\": \"Failed to update WIP limit\". (2) Do not remove wipLimitTooltip; it will be wired up by the companion edit to column-header.tsx. Change nothing else: do not touch any other namespace, do not reorder or reformat existing keys, do not edit any other locale file, and do not touch i18n/schema.json. Preserve the file's existing tab indentation exactly.",
+      "inputs": [
+        {
+          "path": "i18n/en-US.json",
+          "start_line": 1880,
+          "end_line": 1896,
+          "reason": "The tasks.kanban object where the three new keys must be inserted, showing existing indentation and sibling keys."
+        },
+        {
+          "path": ".sdlc/runs/20260820-123148-feature-extend-lane-wip-limit/requirements.md",
+          "start_line": 56,
+          "end_line": 62,
+          "reason": "FR-13 and NFR-3 - all WIP UI text must be static keys in en-US.json."
+        }
+      ],
+      "outputSchema": "full file content of i18n/en-US.json",
+      "acceptance": [
+        "tasks.kanban.wipLimitInvalid, tasks.kanban.wipLimitUpdated and tasks.kanban.wipLimitUpdateError exist with the exact string values given in the instruction.",
+        "tasks.kanban.wipLimitTooltip, setWipLimit, wipLimitPlaceholder, wipLimitExceeded, clearWipLimit and saveWipLimit are still present and unchanged.",
+        "The file is valid JSON and `git diff --stat i18n/en-US.json` shows only added lines inside tasks.kanban (no reordering, no reformatting of unrelated namespaces).",
+        "No other file under i18n/ is modified."
+      ],
+      "budget": {
+        "maxInputTokens": 6000,
+        "maxOutputTokens": 2000
+      },
+      "pass_id": "20260820-123148-feature-extend-lane-wip-limit",
+      "artifact_path": "i18n/en-US.json"
+    },
+    {
+      "id": "tp_ref_002",
+      "phase": "codegen",
+      "task_type": "existing_file_edit",
+      "module": "apps/web/src/components/kanban-board/column",
+      "instruction": "Fix two defects in apps/web/src/components/kanban-board/column/column-header.tsx (WIP-limit inline editor). FAILURE MODE 1 (zero semantics): handleSaveWipLimit parses the input and sends `{ wipLimit: null }` for ANY value that is NaN or <= 0, so typing 0 or -3 silently CLEARS an existing limit. The API rejects 0 with a 400 (Valibot minValue(1)), so client and server disagree. Rewrite the handler to branch three ways: trimmed-empty input -> send `{ wipLimit: null }` (clear); an integer >= 1 -> send `{ wipLimit: parsed }`; anything else (0, negative, non-integer, NaN) -> do NOT mutate, keep the popover open, and render t(\"tasks:kanban.wipLimitInvalid\") as an inline error under the Input via a new useState error string (clear that error on each onChange and whenever the popover opens). FAILURE MODE 2 (swallowed errors): both handlers use fire-and-forget mutate() and close the popover unconditionally, so a 400/403/500 produces no feedback at all. Switch to `const { mutateAsync: updateColumn, isPending } = useUpdateColumn()`, make both handlers async, await inside try/catch, on success toast.success(t(\"tasks:kanban.wipLimitUpdated\")) and close the popover, on failure toast.error(error instanceof Error && error.message ? error.message : t(\"tasks:kanban.wipLimitUpdateError\")) and leave the popover open. `toast` is already imported from \"@/lib/toast\". Mirror the try/catch + toast pattern used in apps/web/src/components/project/column-editor.tsx. ALSO: disable both the Save and Clear buttons while isPending; add aria-label={t(\"tasks:kanban.setWipLimit\")} to the Input; use the currently-unreferenced key as the badge title when a limit is set and not exceeded (title={isOverLimit ? t(\"tasks:kanban.wipLimitExceeded\") : hasLimit ? t(\"tasks:kanban.wipLimitTooltip\") : undefined}); and collapse the duplicated `wipLimit !== null && wipLimit !== undefined` guards into one `const hasLimit = column.wipLimit !== null;` (the field is typed number | null). DO NOT CHANGE: keep updating against column.columnId (never column.id), keep getColumnIcon(column.id, ...) and status={column.id} exactly as they are, keep the canUpdateProjects() gate around the Popover and the plain badge in the else branch, keep the existing archive and create-task markup untouched, and keep all copy in static i18n keys.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+          "start_line": 1,
+          "end_line": 211,
+          "reason": "The whole component - handlers at 68-96, badge derivation at 98-119 and the popover JSX at 130-170 all change."
+        },
+        {
+          "path": "apps/web/src/components/project/column-editor.tsx",
+          "start_line": 55,
+          "end_line": 100,
+          "reason": "Established mutateAsync + try/catch + toast.success/toast.error pattern for the same useUpdateColumn mutation; the fix must mirror it."
+        },
+        {
+          "path": "apps/web/src/hooks/mutations/column/use-update-column.ts",
+          "start_line": 1,
+          "end_line": 35,
+          "reason": "Mutation signature ({ id, projectId, data }), available isPending, and the onSuccess invalidation of ['columns'|'tasks', projectId] that must keep working."
+        },
+        {
+          "path": "apps/web/src/fetchers/column/update-column.ts",
+          "start_line": 14,
+          "end_line": 23,
+          "reason": "Shows the fetcher throws `new Error(await response.text())` on !ok, which is what the catch block receives."
+        }
+      ],
+      "outputSchema": "full file content of apps/web/src/components/kanban-board/column/column-header.tsx",
+      "acceptance": [
+        "Entering 0, a negative number or a non-integer and pressing Save issues NO updateColumn call, keeps the popover open, and shows t(\"tasks:kanban.wipLimitInvalid\").",
+        "Entering an empty/whitespace value and pressing Save sends { wipLimit: null }; entering an integer >= 1 sends { wipLimit: <that integer> }.",
+        "Both handlers await mutateAsync in try/catch; a rejection triggers toast.error and leaves the popover open, a success triggers toast.success and closes it.",
+        "Save and Clear are disabled while isPending is true.",
+        "The mutation target is column.columnId in every call site; getColumnIcon(column.id, ...) and status={column.id} are byte-identical to before.",
+        "The Popover (and therefore the whole editing affordance) still renders only when canUpdateProjects() is true; the read-only branch still renders the plain badge span.",
+        "t(\"tasks:kanban.wipLimitTooltip\") is now referenced; no hardcoded user-facing string is introduced.",
+        "`pnpm typecheck` passes with no new errors."
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 4000
+      },
+      "pass_id": "20260820-123148-feature-extend-lane-wip-limit",
+      "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx"
+    }
+  ],
+  "test_guidance": {
+    "api_unit": [
+      "createColumn: passing wipLimit as a positive integer inserts that value; omitting wipLimit inserts null (assert the `wipLimit: wipLimit ?? null` branch, not just a truthy insert).",
+      "updateColumn: passing wipLimit: 5 sets it; passing wipLimit: null clears it to null; omitting wipLimit leaves the stored value untouched (assert the existing value survives an update that only changes `name`).",
+      "updateColumn: an unknown id throws HTTPException 404 'Column not found' before any UPDATE is issued.",
+      "POST /column/:projectId and PUT /column/:id Valibot validators: accept an integer >= 1, accept explicit null, accept omission; reject 0, reject -1, reject 1.5, reject the string \"5\", reject true - each with a 400 and no controller invocation.",
+      "PUT /column/:id: assert the 0 rejection specifically, since the web layer currently disagrees about zero (see F-1) - this test pins the server contract."
+    ],
+    "api_integration": [
+      "Migration 0043 applies cleanly to a database that already has rows in \"column\": seed columns, run migrations, assert every pre-existing row has wip_limit NULL and no error/lock failure occurred (AC-1, NFR-1).",
+      "Round-trip over PostgreSQL: POST /column/:projectId with wipLimit 5 returns the created column with wipLimit 5; a subsequent GET /column/:projectId includes wipLimit 5 (AC-2, FR-6).",
+      "PUT /column/:id with { wipLimit: 3 } updates; then { wipLimit: null } clears to null; then { name: 'Renamed' } alone leaves wipLimit null and the rename applied (AC-3).",
+      "Authz: a workspace member WITHOUT project:update gets 403 from PUT /column/:id carrying only { wipLimit: 2 }, and the stored value is unchanged; an owner/admin succeeds (AC-4, role matrix). Also assert 401 for an unauthenticated request and that a user from a different workspace cannot reach the column via workspaceAccess.fromColumn.",
+      "GET /task/tasks/:projectId: each column has id === slug (NOT the uuid), a distinct columnId equal to columnTable.id, and wipLimit (null when unset, the integer when set) - this is the AC-12 regression pin for R-3.",
+      "Indicator-only: with wipLimit 1 and one task already in the column, creating a second task and moving a task into that column both succeed with 2xx (AC-9, NFR-5)."
+    ],
+    "web_component": [
+      "ColumnHeader with wipLimit null renders only the task count (e.g. '3') with the muted badge classes and no '/' - the AC-6 no-regression pin.",
+      "ColumnHeader with wipLimit 5 and 3 tasks renders '3/5' and does NOT carry the destructive/over-capacity classes (AC-7).",
+      "ColumnHeader with wipLimit 5 and 6 tasks renders '6/5' WITH the over-capacity styling and exposes the tasks:kanban.wipLimitExceeded copy (AC-8).",
+      "Authz-denied: with canUpdateProjects() false the badge is not a button, has no popover trigger, and clicking it opens nothing (AC-11). With it true the trigger is present and opens the editor.",
+      "Save path: typing 4 and clicking Save calls the updateColumn mutation exactly once with { id: column.columnId, projectId, data: { wipLimit: 4 } } - assert id is the UUID and NOT column.id/slug (FR-16 regression pin).",
+      "Clear path: clicking Clear sends { wipLimit: null } and resets the input.",
+      "Zero semantics (post-F-1 fix): typing 0 (and separately -1, and 1.5) then Save issues NO mutation and shows the invalid-input message; typing nothing then Save sends { wipLimit: null }.",
+      "Error path (post-F-2 fix): with the mutation rejecting (e.g. a 403), assert toast.error is called and the popover stays open; with it resolving, assert toast.success and the popover closes.",
+      "Pending state: while the mutation is in flight Save and Clear are disabled (no double-submit).",
+      "Regression: getColumnIcon still receives column.id (the slug) and CreateTaskModal still receives status={column.id} (AC-13)."
+    ]
+  }
+}

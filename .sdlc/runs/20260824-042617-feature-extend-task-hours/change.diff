@@ -1,0 +1,1666 @@
+diff --git a/apps/api/drizzle/meta/_journal.json b/apps/api/drizzle/meta/_journal.json
+index 6b07e0e3..02492c27 100644
+--- a/apps/api/drizzle/meta/_journal.json
++++ b/apps/api/drizzle/meta/_journal.json
+@@ -302,6 +302,13 @@
+ 			"when": 1786804265532,
+ 			"tag": "0042_previous_the_executioner",
+ 			"breakpoints": true
++		},
++		{
++			"idx": 43,
++			"version": "7",
++			"when": 1787558511674,
++			"tag": "0043_skinny_mockingbird",
++			"breakpoints": true
+ 		}
+ 	]
+ }
+diff --git a/apps/api/src/database/schema.ts b/apps/api/src/database/schema.ts
+index 2a54fa1f..f14500b6 100644
+--- a/apps/api/src/database/schema.ts
++++ b/apps/api/src/database/schema.ts
+@@ -426,6 +426,7 @@ export const taskTable = pgTable(
+     priority: text("priority").default("low").notNull(),
+     startDate: timestamp("start_date", { mode: "date" }),
+     dueDate: timestamp("due_date", { mode: "date" }),
++    estimatedHours: integer("estimated_hours"),
+     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+     updatedAt: timestamp("updated_at", { mode: "date" })
+       .defaultNow()
+diff --git a/apps/api/src/mcp/tools.ts b/apps/api/src/mcp/tools.ts
+index 8f91fec9..dfa3354c 100644
+--- a/apps/api/src/mcp/tools.ts
++++ b/apps/api/src/mcp/tools.ts
+@@ -112,10 +112,10 @@ function formatOptionalIso(value: unknown): string | undefined {
+   return undefined;
+ }
+ 
+-function buildFullTaskUpdateBody(
++export function buildFullTaskUpdateBody(
+   existing: Record<string, unknown>,
+   patch: Record<string, unknown>,
+-): Record<string, string | number | undefined> {
++): Record<string, string | number | null | undefined> {
+   const positionRaw = patch.position ?? existing.position;
+   const position =
+     typeof positionRaw === "number"
+@@ -174,7 +174,18 @@ function buildFullTaskUpdateBody(
+     patch.dueDate !== undefined ? patch.dueDate : existing.dueDate,
+   );
+ 
+-  const body: Record<string, string | number | undefined> = {
++  const rawEstimatedHours =
++    patch.estimatedHours !== undefined
++      ? patch.estimatedHours
++      : existing.estimatedHours;
++  const estimatedHours =
++    rawEstimatedHours === null
++      ? null
++      : typeof rawEstimatedHours === "number"
++        ? rawEstimatedHours
++        : undefined;
++
++  const body: Record<string, string | number | null | undefined> = {
+     title,
+     description,
+     status,
+@@ -185,6 +196,7 @@ function buildFullTaskUpdateBody(
+   if (startDate !== undefined) body.startDate = startDate;
+   if (dueDate !== undefined) body.dueDate = dueDate;
+   if (userId !== undefined) body.userId = userId;
++  if (estimatedHours !== undefined) body.estimatedHours = estimatedHours;
+   return body;
+ }
+ 
+@@ -195,6 +207,8 @@ const prioritySchema = z.enum([
+   "high",
+   "urgent",
+ ]);
++
++const estimatedHoursSchema = z.number().int().min(0).max(1000);
+ const nonEmptyString = z.string().trim().min(1);
+ const optionalNonEmptyString = nonEmptyString.optional();
+ const nullableOptionalNonEmptyString = nonEmptyString.nullable().optional();
+@@ -430,10 +444,11 @@ export function registerMcpTools(
+         startDate: optionalIsoDateTimeSchema,
+         dueDate: optionalIsoDateTimeSchema,
+         userId: optionalNonEmptyString,
++        estimatedHours: estimatedHoursSchema.optional(),
+       }),
+     },
+     async (args) => {
+-      const body: Record<string, string | undefined> = {
++      const body: Record<string, string | number | undefined> = {
+         title: args.title,
+         description: args.description,
+         priority: args.priority,
+@@ -442,6 +457,8 @@ export function registerMcpTools(
+       if (args.startDate !== undefined) body.startDate = args.startDate;
+       if (args.dueDate !== undefined) body.dueDate = args.dueDate;
+       if (args.userId !== undefined) body.userId = args.userId;
++      if (args.estimatedHours !== undefined)
++        body.estimatedHours = args.estimatedHours;
+       return run(() =>
+         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
+           method: "POST",
+@@ -467,6 +484,9 @@ export function registerMcpTools(
+         startDate: nullableOptionalIsoDateTimeSchema,
+         dueDate: nullableOptionalIsoDateTimeSchema,
+         userId: nullableOptionalNonEmptyString,
++        // nullable so an MCP client can explicitly clear the estimate;
++        // optional so omitting it preserves the stored value.
++        estimatedHours: estimatedHoursSchema.nullable().optional(),
+       }),
+     },
+     async (args) => {
+diff --git a/apps/api/src/schemas.ts b/apps/api/src/schemas.ts
+index a8f98919..4e48b51c 100644
+--- a/apps/api/src/schemas.ts
++++ b/apps/api/src/schemas.ts
+@@ -40,6 +40,7 @@ export const taskSchema = v.object({
+   ] as const),
+   startDate: v.optional(v.date()),
+   dueDate: v.optional(v.date()),
++  estimatedHours: v.nullable(v.number()),
+   createdAt: v.date(),
+ });
+ 
+diff --git a/apps/api/src/task/controllers/create-task.ts b/apps/api/src/task/controllers/create-task.ts
+index 7f742afd..8f6e2675 100644
+--- a/apps/api/src/task/controllers/create-task.ts
++++ b/apps/api/src/task/controllers/create-task.ts
+@@ -16,6 +16,7 @@ async function createTask({
+   dueDate,
+   description,
+   priority,
++  estimatedHours,
+ }: {
+   projectId: string;
+   currentUserId: string;
+@@ -26,6 +27,7 @@ async function createTask({
+   dueDate?: Date;
+   description?: string;
+   priority?: string;
++  estimatedHours?: number | null;
+ }) {
+   const resolvedStatus = status || "to-do";
+   const resolvedPriority = priority || "no-priority";
+@@ -79,6 +81,7 @@ async function createTask({
+         columnId: column?.id ?? null,
+         startDate: startDate || null,
+         dueDate: dueDate || null,
++        estimatedHours: estimatedHours ?? null,
+         description: description || "",
+         priority: resolvedPriority,
+         number: taskNumber,
+diff --git a/apps/api/src/task/controllers/get-task.ts b/apps/api/src/task/controllers/get-task.ts
+index 0c33c9d3..45e47b75 100644
+--- a/apps/api/src/task/controllers/get-task.ts
++++ b/apps/api/src/task/controllers/get-task.ts
+@@ -14,6 +14,7 @@ async function getTask(taskId: string) {
+       priority: taskTable.priority,
+       startDate: taskTable.startDate,
+       dueDate: taskTable.dueDate,
++      estimatedHours: taskTable.estimatedHours,
+       position: taskTable.position,
+       createdAt: taskTable.createdAt,
+       userId: taskTable.userId,
+diff --git a/apps/api/src/task/controllers/get-tasks.ts b/apps/api/src/task/controllers/get-tasks.ts
+index 7f46bebf..c0879c96 100644
+--- a/apps/api/src/task/controllers/get-tasks.ts
++++ b/apps/api/src/task/controllers/get-tasks.ts
+@@ -129,6 +129,7 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
+     priority: taskTable.priority,
+     startDate: taskTable.startDate,
+     dueDate: taskTable.dueDate,
++    estimatedHours: taskTable.estimatedHours,
+     position: taskTable.position,
+     createdAt: taskTable.createdAt,
+     userId: taskTable.userId,
+diff --git a/apps/api/src/task/controllers/update-task.ts b/apps/api/src/task/controllers/update-task.ts
+index 069e3557..528da3ce 100644
+--- a/apps/api/src/task/controllers/update-task.ts
++++ b/apps/api/src/task/controllers/update-task.ts
+@@ -18,6 +18,7 @@ async function updateTask(
+   position: number,
+   userId?: string,
+   currentUserId?: string,
++  estimatedHours?: number | null,
+ ) {
+   const [existingTask] = await db
+     .select({
+@@ -51,20 +52,30 @@ async function updateTask(
+     ),
+   });
+ 
++  const updateValues: Partial<typeof taskTable.$inferInsert> = {
++    title,
++    status,
++    columnId: column?.id ?? null,
++    startDate: startDate || null,
++    dueDate: dueDate || null,
++    projectId,
++    description,
++    priority,
++    position,
++    userId: userId || null,
++  };
++
++  // DR-5 preserve-on-omit: full-PUT callers (drag-and-drop, archive-all, MCP,
++  // draft promotion) that never mention estimatedHours must not erase it, so
++  // the key is only written when the caller sent one. Do NOT copy the
++  // `x || null` shape used by startDate/dueDate - `0 || null` is null.
++  if (estimatedHours !== undefined) {
++    updateValues.estimatedHours = estimatedHours;
++  }
++
+   const [updatedTask] = await db
+     .update(taskTable)
+-    .set({
+-      title,
+-      status,
+-      columnId: column?.id ?? null,
+-      startDate: startDate || null,
+-      dueDate: dueDate || null,
+-      projectId,
+-      description,
+-      priority,
+-      position,
+-      userId: userId || null,
+-    })
++    .set(updateValues)
+     .where(eq(taskTable.id, id))
+     .returning();
+ 
+diff --git a/apps/api/src/task/index.ts b/apps/api/src/task/index.ts
+index d984a02f..134c97b3 100644
+--- a/apps/api/src/task/index.ts
++++ b/apps/api/src/task/index.ts
+@@ -47,6 +47,21 @@ import updateTaskStatus from "./controllers/update-task-status";
+ import updateTaskTitle from "./controllers/update-task-title";
+ import { VALID_PRIORITIES } from "./validate-task-fields";
+ 
++const ESTIMATED_HOURS_MAX = 1000;
++const estimatedHoursValidator = v.optional(
++  v.nullable(
++    v.pipe(
++      v.number(),
++      v.integer("estimatedHours must be a whole number of hours"),
++      v.minValue(0, "estimatedHours must be 0 or greater"),
++      v.maxValue(
++        ESTIMATED_HOURS_MAX,
++        `estimatedHours must be ${ESTIMATED_HOURS_MAX} or less`,
++      ),
++    ),
++  ),
++);
++
+ const task = new Hono<{
+   Variables: {
+     userId: string;
+@@ -197,6 +212,7 @@ const task = new Hono<{
+         priority: v.picklist(VALID_PRIORITIES),
+         status: v.string(),
+         userId: v.optional(v.string()),
++        estimatedHours: estimatedHoursValidator,
+       }),
+     ),
+     workspaceAccess.fromProject("projectId"),
+@@ -212,6 +228,7 @@ const task = new Hono<{
+         priority,
+         status,
+         userId,
++        estimatedHours,
+       } = c.req.valid("json");
+ 
+       const parsedStartDate =
+@@ -235,6 +252,7 @@ const task = new Hono<{
+         dueDate: parsedDueDate,
+         priority,
+         status,
++        estimatedHours,
+       });
+ 
+       return c.json(task);
+@@ -342,6 +360,7 @@ const task = new Hono<{
+         projectId: v.string(),
+         position: v.number(),
+         userId: v.optional(v.string()),
++        estimatedHours: estimatedHoursValidator,
+       }),
+     ),
+     workspaceAccess.fromTask(),
+@@ -360,6 +379,7 @@ const task = new Hono<{
+         projectId,
+         position,
+         userId,
++        estimatedHours,
+       } = c.req.valid("json");
+ 
+       const currentUserId = c.get("userId");
+@@ -387,6 +407,7 @@ const task = new Hono<{
+         position,
+         userId,
+         currentUserId,
++        estimatedHours,
+       );
+ 
+       return c.json(task);
+diff --git a/apps/web/src/components/kanban-board/column/column-header.tsx b/apps/web/src/components/kanban-board/column/column-header.tsx
+index 08464c22..dded1560 100644
+--- a/apps/web/src/components/kanban-board/column/column-header.tsx
++++ b/apps/web/src/components/kanban-board/column/column-header.tsx
+@@ -1,5 +1,5 @@
+ import { produce } from "immer";
+-import { Archive, Plus } from "lucide-react";
++import { Archive, Clock, Plus } from "lucide-react";
+ import { useState } from "react";
+ import { useTranslation } from "react-i18next";
+ import CreateTaskModal from "@/components/shared/modals/create-task-modal";
+@@ -50,6 +50,39 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
+     setIsArchiveModalOpen(false);
+   };
+ 
++  // `0` is a real estimate: it counts toward `done` while adding nothing to the
++  // sum. A `task.estimatedHours || 0` predicate would misclassify it as absent.
++  const estimatedTasks = column.tasks.filter(
++    (task) => typeof task.estimatedHours === "number",
++  );
++  const estimatedTotal = estimatedTasks.reduce(
++    (sum, task) => sum + (task.estimatedHours ?? 0),
++    0,
++  );
++  const estimateState =
++    estimatedTasks.length === 0
++      ? "none"
++      : estimatedTasks.length === column.tasks.length
++        ? "all"
++        : "partial";
++  const estimateArgs = {
++    hours: estimatedTotal,
++    done: estimatedTasks.length,
++    total: column.tasks.length,
++  };
++  const estimateLabel =
++    estimateState === "none"
++      ? t("tasks:kanban.estimate.none")
++      : estimateState === "partial"
++        ? t("tasks:kanban.estimate.partial", estimateArgs)
++        : t("tasks:kanban.estimate.all", estimateArgs);
++  const estimateText =
++    estimateState === "none"
++      ? t("tasks:kanban.estimate.noneShort")
++      : estimateState === "partial"
++        ? t("tasks:kanban.estimate.partialShort", estimateArgs)
++        : t("tasks:kanban.estimate.allShort", estimateArgs);
++
+   return (
+     <div className="flex items-center justify-between gap-2">
+       <div className="flex min-w-0 items-center gap-2">
+@@ -62,6 +95,18 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
+         <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+           {column.tasks.length}
+         </span>
++        {column.tasks.length > 0 && (
++          <span
++            role="img"
++            aria-label={estimateLabel}
++            title={estimateLabel}
++            data-estimate-state={estimateState}
++            className="flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
++          >
++            <Clock className="h-3 w-3" />
++            {estimateText}
++          </span>
++        )}
+       </div>
+ 
+       <div className="flex items-center">
+diff --git a/apps/web/src/components/shared/modals/create-task-modal.test.tsx b/apps/web/src/components/shared/modals/create-task-modal.test.tsx
+index f76cee1a..2043037c 100644
+--- a/apps/web/src/components/shared/modals/create-task-modal.test.tsx
++++ b/apps/web/src/components/shared/modals/create-task-modal.test.tsx
+@@ -128,4 +128,29 @@ describe("CreateTaskModal project picker", () => {
+       screen.queryByText("common:modals.createTask.selectProject"),
+     ).toBeNull();
+   });
++
++  it("omits estimatedHours entirely when the estimate is never touched", async () => {
++    // Omitting the key, rather than sending null, is what lets the API's
++    // preserve-on-omit semantics work.
++    useLocation.mockReturnValue({
++      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
++    });
++
++    render(<CreateTaskModal open onClose={vi.fn()} />);
++
++    fireEvent.change(
++      screen.getByPlaceholderText(
++        "common:modals.createTask.taskTitlePlaceholder",
++      ),
++      { target: { value: "Task without estimate" } },
++    );
++    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
++
++    await vi.waitFor(() => {
++      expect(createTask).toHaveBeenCalled();
++    });
++
++    const payload = createTask.mock.calls[0][0];
++    expect("estimatedHours" in payload).toBe(false);
++  });
+ });
+diff --git a/apps/web/src/components/shared/modals/create-task-modal.tsx b/apps/web/src/components/shared/modals/create-task-modal.tsx
+index cb3f627d..c44f9ecc 100644
+--- a/apps/web/src/components/shared/modals/create-task-modal.tsx
++++ b/apps/web/src/components/shared/modals/create-task-modal.tsx
+@@ -3,6 +3,7 @@ import { produce } from "immer";
+ import {
+   CalendarIcon,
+   Check,
++  Clock,
+   FolderKanban,
+   Plus,
+   Search,
+@@ -12,6 +13,7 @@ import {
+ } from "lucide-react";
+ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+ import { useTranslation } from "react-i18next";
++import { EstimatedHoursInput } from "@/components/task/estimated-hours-input";
+ import TaskDescriptionEditor from "@/components/task/task-description-editor";
+ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+ import { Badge } from "@/components/ui/badge";
+@@ -96,6 +98,7 @@ function normalizeTask(
+     priority: task.priority ?? null,
+     startDate: task.startDate ?? null,
+     dueDate: task.dueDate ?? null,
++    estimatedHours: task.estimatedHours,
+     position: task.position ?? 0,
+     userId: task.userId ?? null,
+     assigneeId: task.assigneeId ?? task.userId ?? null,
+@@ -188,6 +191,7 @@ function CreateTaskModal({
+   const [assigneeId, setAssigneeId] = useState("");
+   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
++  const [estimatedHours, setEstimatedHours] = useState<number | null>(null);
+   const [createMore, setCreateMore] = useState(false);
+   const [labels, setLabels] = useState<Label[]>([]);
+   const [draftTask, setDraftTask] = useState<Task | null>(null);
+@@ -250,6 +254,7 @@ function CreateTaskModal({
+     setAssigneeId("");
+     setStartDate(undefined);
+     setDueDate(undefined);
++    setEstimatedHours(null);
+     setCreateMore(false);
+     setLabels([]);
+     setLabelsStep("select");
+@@ -348,6 +353,7 @@ function CreateTaskModal({
+       startDate: startDate ? startDate.toISOString() : undefined,
+       dueDate: dueDate ? dueDate.toISOString() : undefined,
+       status: draftStatus,
++      ...(estimatedHours === null ? {} : { estimatedHours }),
+     }).then((task) => normalizeTask(task));
+ 
+     draftCreationPromiseRef.current = draftPromise;
+@@ -373,6 +379,7 @@ function CreateTaskModal({
+     draftTask,
+     startDate,
+     dueDate,
++    estimatedHours,
+     priority,
+     resolvedProjectId,
+     title,
+@@ -399,6 +406,9 @@ function CreateTaskModal({
+               startDate: startDate ? startDate.toISOString() : null,
+               dueDate: dueDate ? dueDate.toISOString() : null,
+               projectId: resolvedProjectId,
++              // Explicit value, including null: the user may have cleared an
++              // estimate the draft create already persisted.
++              estimatedHours,
+             }),
+           )
+         : normalizeTask(
+@@ -411,6 +421,7 @@ function CreateTaskModal({
+               startDate: startDate ? startDate.toISOString() : undefined,
+               dueDate: dueDate ? dueDate.toISOString() : undefined,
+               status: taskStatus,
++              ...(estimatedHours === null ? {} : { estimatedHours }),
+             }),
+           );
+ 
+@@ -442,6 +453,7 @@ function CreateTaskModal({
+         setAssigneeId("");
+         setStartDate(undefined);
+         setDueDate(undefined);
++        setEstimatedHours(null);
+         setLabels([]);
+         setLabelsStep("select");
+         setSearchValue("");
+@@ -925,6 +937,35 @@ function CreateTaskModal({
+                 </PopoverContent>
+               </Popover>
+ 
++              <Popover>
++                <PopoverTrigger asChild>
++                  <button
++                    type="button"
++                    className={cn(
++                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
++                      estimatedHours !== null
++                        ? "bg-accent/30 text-foreground"
++                        : "text-muted-foreground",
++                    )}
++                  >
++                    <Clock className="w-3.5 h-3.5" />
++                    <span>
++                      {estimatedHours !== null
++                        ? t("tasks:properties.estimatedHours", {
++                            count: estimatedHours,
++                          })
++                        : t("common:modals.createTask.estimatedHours")}
++                    </span>
++                  </button>
++                </PopoverTrigger>
++                <PopoverContent className="p-0 w-56" align="start">
++                  <EstimatedHoursInput
++                    value={estimatedHours}
++                    onCommit={setEstimatedHours}
++                  />
++                </PopoverContent>
++              </Popover>
++
+               <Popover open={labelsOpen} onOpenChange={setLabelsOpen}>
+                 <PopoverTrigger asChild>
+                   <button
+diff --git a/apps/web/src/components/task/task-properties-sidebar.tsx b/apps/web/src/components/task/task-properties-sidebar.tsx
+index 54308185..2cf2ce53 100644
+--- a/apps/web/src/components/task/task-properties-sidebar.tsx
++++ b/apps/web/src/components/task/task-properties-sidebar.tsx
+@@ -3,6 +3,7 @@ import {
+   CalendarClock,
+   CalendarDays,
+   CalendarX,
++  Clock,
+   Copy,
+   GitBranch,
+   Plus,
+@@ -41,6 +42,7 @@ import { getPriorityIcon } from "@/lib/priority";
+ import { toast } from "@/lib/toast";
+ import TaskAssigneePopover from "./task-assignee-popover";
+ import TaskDueDatePopover from "./task-due-date-popover";
++import TaskEstimatedHoursPopover from "./task-estimated-hours-popover";
+ import TaskLabelsPopover from "./task-labels-popover";
+ import TaskMovePopover from "./task-move-popover";
+ import TaskPriorityPopover from "./task-priority-popover";
+@@ -324,6 +326,25 @@ export default function TaskPropertiesSidebar({
+                   </Button>
+                 </TaskDueDatePopover>
+               )}
++              {task && (
++                <TaskEstimatedHoursPopover task={task}>
++                  <Button
++                    variant="ghost"
++                    size="sm"
++                    className="justify-start h-7 px-1.5 gap-1.5"
++                  >
++                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
++                    <span className="text-xs font-semibold">
++                      {task.estimatedHours === null ||
++                      task.estimatedHours === undefined
++                        ? t("tasks:properties.noEstimate")
++                        : t("tasks:properties.estimatedHours", {
++                            count: task.estimatedHours,
++                          })}
++                    </span>
++                  </Button>
++                </TaskEstimatedHoursPopover>
++              )}
+             </div>
+           </div>
+         )}
+@@ -515,6 +536,25 @@ export default function TaskPropertiesSidebar({
+                     </Button>
+                   </TaskDueDatePopover>
+                 )}
++                {task && (
++                  <TaskEstimatedHoursPopover task={task}>
++                    <Button
++                      variant="ghost"
++                      size="sm"
++                      className="justify-start h-7 px-1.5 gap-1.5"
++                    >
++                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
++                      <span className="text-xs font-semibold">
++                        {task.estimatedHours === null ||
++                        task.estimatedHours === undefined
++                          ? t("tasks:properties.noEstimate")
++                          : t("tasks:properties.estimatedHours", {
++                              count: task.estimatedHours,
++                            })}
++                      </span>
++                    </Button>
++                  </TaskEstimatedHoursPopover>
++                )}
+               </div>
+             </div>
+ 
+@@ -708,6 +748,25 @@ export default function TaskPropertiesSidebar({
+                     </Button>
+                   </TaskDueDatePopover>
+                 )}
++                {task && (
++                  <TaskEstimatedHoursPopover task={task}>
++                    <Button
++                      variant="ghost"
++                      size="sm"
++                      className="justify-start h-7 px-1.5 gap-1.5"
++                    >
++                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
++                      <span className="text-xs font-semibold">
++                        {task.estimatedHours === null ||
++                        task.estimatedHours === undefined
++                          ? t("tasks:properties.noEstimate")
++                          : t("tasks:properties.estimatedHours", {
++                              count: task.estimatedHours,
++                            })}
++                      </span>
++                    </Button>
++                  </TaskEstimatedHoursPopover>
++                )}
+               </div>
+             </div>
+           </>
+diff --git a/apps/web/src/fetchers/task/create-task.ts b/apps/web/src/fetchers/task/create-task.ts
+index d45a91b1..24e08da8 100644
+--- a/apps/web/src/fetchers/task/create-task.ts
++++ b/apps/web/src/fetchers/task/create-task.ts
+@@ -15,6 +15,7 @@ async function createTask(
+   startDate: Date | undefined,
+   dueDate: Date | undefined,
+   priority: CreateTaskRequest["priority"],
++  estimatedHours?: number | null,
+ ) {
+   if (!projectId) {
+     throw new Error("No project selected for task creation");
+@@ -29,6 +30,8 @@ async function createTask(
+       startDate: startDate?.toISOString() || undefined,
+       dueDate: dueDate?.toISOString() || undefined,
+       priority,
++      // `0` is a real estimate, so this is an explicit === test, never `||`.
++      ...(estimatedHours === undefined ? {} : { estimatedHours }),
+     },
+     param: { projectId },
+   });
+diff --git a/apps/web/src/fetchers/task/update-task.ts b/apps/web/src/fetchers/task/update-task.ts
+index 7eed2b1d..6bd86799 100644
+--- a/apps/web/src/fetchers/task/update-task.ts
++++ b/apps/web/src/fetchers/task/update-task.ts
+@@ -21,6 +21,13 @@ async function updateTask(taskId: string, task: Task) {
+       priority: (task.priority || "no-priority") as UpdateTaskPriority,
+       startDate: task.startDate?.toString(),
+       dueDate: task.dueDate?.toString(),
++      // `undefined` (a cached task predating the field, e.g. a drag-and-drop
++      // payload) omits the key so the stored value is preserved; explicit
++      // `null` clears; a number sets. `?? null` here would silently wipe the
++      // estimate on every card move.
++      ...(task.estimatedHours === undefined
++        ? {}
++        : { estimatedHours: task.estimatedHours }),
+       position: task.position ?? 0,
+       projectId: task.projectId,
+     },
+diff --git a/apps/web/src/hooks/mutations/task/use-create-task.ts b/apps/web/src/hooks/mutations/task/use-create-task.ts
+index 14f61dc3..9ed14a95 100644
+--- a/apps/web/src/hooks/mutations/task/use-create-task.ts
++++ b/apps/web/src/hooks/mutations/task/use-create-task.ts
+@@ -16,6 +16,7 @@ function useCreateTask() {
+       startDate,
+       dueDate,
+       priority,
++      estimatedHours,
+     }: CreateTaskRequest) =>
+       createTask(
+         title,
+@@ -26,6 +27,7 @@ function useCreateTask() {
+         startDate ? new Date(startDate) : undefined,
+         dueDate ? new Date(dueDate) : undefined,
+         priority,
++        estimatedHours,
+       ),
+     onSuccess: (_data, variables) => {
+       void queryClient.invalidateQueries({
+diff --git a/apps/web/src/types/task/index.ts b/apps/web/src/types/task/index.ts
+index 9e62f501..6cabcfda 100644
+--- a/apps/web/src/types/task/index.ts
++++ b/apps/web/src/types/task/index.ts
+@@ -24,6 +24,10 @@ type Task = {
+   priority: string | null;
+   startDate: string | null;
+   dueDate: string | null;
++  // Whole hours, 0..1000. null = not estimated; 0 = estimated at nothing.
++  // Optional because cached/partial tasks predate the field: `undefined`
++  // means "unknown, do not write" (DR-5), never "clear".
++  estimatedHours?: number | null;
+   position: number | null;
+   createdAt: string;
+   updatedAt?: string;
+diff --git a/i18n/en-US.json b/i18n/en-US.json
+index 25efb627..c90f5de3 100644
+--- a/i18n/en-US.json
++++ b/i18n/en-US.json
+@@ -125,6 +125,7 @@
+ 				"statusFallback": "In Progress",
+ 				"startDate": "Start date",
+ 				"dueDate": "Due date",
++				"estimatedHours": "Estimated hours",
+ 				"clearStartDate": "Clear start date",
+ 				"clearDueDate": "Clear due date",
+ 				"assign": "Assign",
+@@ -1732,7 +1733,11 @@
+ 			"copyTaskBranch": "Copy task branch",
+ 			"start": "Start",
+ 			"startDate": "Start date",
+-			"noDate": "No date"
++			"noDate": "No date",
++			"estimatedHoursLabel": "Estimated hours",
++			"estimatedHours_one": "{{count}} hour",
++			"estimatedHours_other": "{{count}} hours",
++			"noEstimate": "No estimate"
+ 		},
+ 		"move": {
+ 			"title": "Move task",
+@@ -1761,6 +1766,12 @@
+ 				"updateError": "Failed to update task due date",
+ 				"clear": "Clear date"
+ 			},
++			"estimatedHours": {
++				"placeholder": "Hours (0-1000)",
++				"clear": "Clear estimate",
++				"updateSuccess": "Task estimate updated successfully",
++				"updateError": "Failed to update task estimate"
++			},
+ 			"startDate": {
+ 				"updateSuccess": "Task start date updated successfully",
+ 				"updateError": "Failed to update task start date",
+@@ -1882,7 +1893,15 @@
+ 			"noTasks": "No tasks"
+ 		},
+ 		"kanban": {
+-			"addTask": "Add task"
++			"addTask": "Add task",
++			"estimate": {
++				"none": "No hours estimated",
++				"noneShort": "-",
++				"partial": "{{hours}}h estimated across {{done}} of {{total}} tasks",
++				"partialShort": "{{hours}}h - {{done}}/{{total}}",
++				"all": "{{hours}}h estimated across all {{total}} tasks",
++				"allShort": "{{hours}}h"
++			}
+ 		},
+ 		"pr": {
+ 			"merged": "Merged",
+
+=== NEW FILE: apps/web/src/components/task/estimated-hours-input.tsx ===
+import { X } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+// Returns null for an empty field ("not estimated") and undefined for input
+// that is not a whole number in 0..1000 — callers must never write undefined.
+// The API is the authority: Valibot rejects out-of-range values with a 400.
+export function parseEstimatedHours(raw: string): number | null | undefined {
+  const trimmed = raw.trim();
+  if (trimmed === "") return null;
+  if (!/^\d+$/.test(trimmed)) return undefined;
+  const num = Number.parseInt(trimmed, 10);
+  if (num >= 0 && num <= 1000) return num;
+  return undefined;
+}
+
+export function EstimatedHoursInput({
+  value,
+  onCommit,
+}: {
+  value: number | null;
+  onCommit: (n: number | null) => void;
+}) {
+  const { t } = useTranslation();
+  const [raw, setRaw] = useState(value === null ? "" : String(value));
+
+  // Invalid input does not commit, and an unchanged value does not mutate.
+  const handleCommit = () => {
+    const parsed = parseEstimatedHours(raw);
+    if (parsed === undefined) return;
+    if (parsed === value) return;
+    onCommit(parsed);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleCommit();
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1 p-2">
+      {/*
+        type="text", not "number": input[type=number] sanitizes unparseable
+        typing ("abc", "8e", "8,5") to the EMPTY STRING, which parses as null
+        ("not estimated") and would be committed on blur — silently wiping an
+        existing estimate. With type="text" the parser sees the real characters
+        and returns undefined, which does not commit. The API remains the
+        authority on the 0..1000 range.
+      */}
+      <Input
+        type="text"
+        inputMode="numeric"
+        placeholder={t("tasks:popover.estimatedHours.placeholder")}
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        onBlur={handleCommit}
+        onKeyDown={handleKeyDown}
+        className="h-8 text-xs"
+      />
+      {value !== null && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2"
+          // Keep the input from blurring: its blur-commit would otherwise run
+          // first, close the popover, and swallow this click.
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => {
+            setRaw("");
+            onCommit(null);
+          }}
+          title={t("tasks:popover.estimatedHours.clear")}
+        >
+          <X className="w-3.5 h-3.5" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+=== NEW FILE: apps/web/src/components/task/task-estimated-hours-popover.tsx ===
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { toast } from "@/lib/toast";
+import type Task from "@/types/task";
+import { EstimatedHoursInput } from "./estimated-hours-input";
+
+type TaskEstimatedHoursPopoverProps = {
+  task: Task;
+  children: React.ReactNode;
+};
+
+export default function TaskEstimatedHoursPopover({
+  task,
+  children,
+}: TaskEstimatedHoursPopoverProps) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const { mutateAsync: updateTask } = useUpdateTask();
+  const { canUpdateTasks } = useWorkspacePermission();
+  const canEdit = canUpdateTasks();
+
+  const handleCommit = async (next: number | null) => {
+    // Opening and dismissing the popover without changing anything must not
+    // issue a full PUT or show a success toast.
+    if (next === (task.estimatedHours ?? null)) {
+      setOpen(false);
+      return;
+    }
+
+    try {
+      // Spread the whole task: the full PUT body reads other fields off it.
+      await updateTask({ ...task, estimatedHours: next });
+      toast.success(t("tasks:popover.estimatedHours.updateSuccess"));
+      setOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:popover.estimatedHours.updateError"),
+      );
+    }
+  };
+
+  if (!canEdit) return <>{children}</>;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent className="p-0 w-56" align="start">
+        <EstimatedHoursInput
+          value={task.estimatedHours ?? null}
+          onCommit={handleCommit}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+=== NEW FILE: apps/web/src/components/kanban-board/column/column-header.test.tsx ===
+import { cleanup, render } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
+import { ColumnHeader } from "./column-header";
+
+afterEach(() => {
+  cleanup();
+  document.body.innerHTML = "";
+});
+
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+
+vi.mock("@/hooks/mutations/task/use-update-task", () => ({
+  useUpdateTask: () => ({ mutate: vi.fn() }),
+}));
+
+vi.mock("@/hooks/use-workspace-permission", () => ({
+  useWorkspacePermission: () => ({
+    canUpdateTasks: () => true,
+    canCreateTasks: () => true,
+  }),
+}));
+
+vi.mock("@/store/project", () => ({
+  default: () => ({ project: null, setProject: vi.fn() }),
+}));
+
+vi.mock("@/lib/column", () => ({
+  getColumnIcon: () => null,
+}));
+
+vi.mock("@/components/shared/modals/create-task-modal", () => ({
+  default: () => null,
+}));
+
+vi.mock("../../shared/modals/archive-tasks-modal", () => ({
+  ArchiveTasksModal: () => null,
+}));
+
+function makeColumn(
+  hours: Array<number | null>,
+): ProjectWithTasks["columns"][number] {
+  const tasks: Task[] = hours.map((estimatedHours, index) => ({
+    id: `task-${index + 1}`,
+    title: `Task ${index + 1}`,
+    number: index + 1,
+    description: null,
+    status: "to-do",
+    priority: null,
+    startDate: null,
+    dueDate: null,
+    position: index + 1,
+    createdAt: "2026-07-17T00:00:00.000Z",
+    userId: null,
+    assigneeId: null,
+    assigneeName: null,
+    projectId: "project-1",
+    estimatedHours,
+  }));
+
+  return {
+    id: "to-do",
+    slug: "to-do",
+    name: "To do",
+    icon: null,
+    isFinal: false,
+    tasks,
+  } as ProjectWithTasks["columns"][number];
+}
+
+describe("ColumnHeader rollup pill", () => {
+  // react-i18next is mocked so `t` echoes the key: the visible text is just the
+  // key string. Asserting the exact key is therefore how each state is bound to
+  // its own label and text — a `toBeTruthy()` on aria-label would pass even if
+  // all three states shared one key. The formatted English strings and plural
+  // selection are proved separately, against a real i18next instance, in
+  // components/task/estimated-hours-i18n.test.ts.
+
+  it("renders data-estimate-state='none' when no task has an estimate", () => {
+    const { container } = render(
+      <ColumnHeader column={makeColumn([null, null])} />,
+    );
+
+    const pill = container.querySelector("[data-estimate-state]");
+    expect(pill).not.toBeNull();
+    expect(pill?.getAttribute("data-estimate-state")).toBe("none");
+    expect(pill?.getAttribute("aria-label")).toBe("tasks:kanban.estimate.none");
+    expect(pill?.textContent).toContain("tasks:kanban.estimate.noneShort");
+  });
+
+  it("renders data-estimate-state='partial' when only some tasks have estimates", () => {
+    const { container } = render(
+      <ColumnHeader column={makeColumn([8, null, 0, 4])} />,
+    );
+
+    const pill = container.querySelector("[data-estimate-state]");
+    expect(pill).not.toBeNull();
+    expect(pill?.getAttribute("data-estimate-state")).toBe("partial");
+    expect(pill?.getAttribute("aria-label")).toBe(
+      "tasks:kanban.estimate.partial",
+    );
+    expect(pill?.textContent).toContain("tasks:kanban.estimate.partialShort");
+  });
+
+  it("renders data-estimate-state='all' when every task has an estimate", () => {
+    const { container } = render(<ColumnHeader column={makeColumn([3, 5])} />);
+
+    const pill = container.querySelector("[data-estimate-state]");
+    expect(pill).not.toBeNull();
+    expect(pill?.getAttribute("data-estimate-state")).toBe("all");
+    expect(pill?.getAttribute("aria-label")).toBe("tasks:kanban.estimate.all");
+    expect(pill?.textContent).toContain("tasks:kanban.estimate.allShort");
+  });
+
+  it("treats 0 as a real estimate: [0, null] is 'partial', not 'none'", () => {
+    const { container } = render(
+      <ColumnHeader column={makeColumn([0, null])} />,
+    );
+
+    const pill = container.querySelector("[data-estimate-state]");
+    expect(pill?.getAttribute("data-estimate-state")).toBe("partial");
+  });
+
+  it("hides the rollup pill when the column has no tasks", () => {
+    const { container } = render(<ColumnHeader column={makeColumn([])} />);
+
+    expect(container.querySelector("[data-estimate-state]")).toBeNull();
+  });
+
+  it("leaves the existing count pill unchanged", () => {
+    const { container } = render(
+      <ColumnHeader column={makeColumn([4, null])} />,
+    );
+
+    const countPill = container.querySelector(
+      "span.rounded-md.bg-muted:not([data-estimate-state])",
+    );
+    expect(countPill?.textContent).toBe("2");
+  });
+});
+
+=== NEW FILE: apps/web/src/components/task/estimated-hours-input.test.tsx ===
+import { describe, expect, it } from "vitest";
+import { parseEstimatedHours } from "./estimated-hours-input";
+
+describe("parseEstimatedHours", () => {
+  const cases: Array<[string, number | null | undefined]> = [
+    ["", null],
+    ["  ", null],
+    ["0", 0],
+    ["8", 8],
+    ["1000", 1000],
+    ["8.5", undefined],
+    ["-1", undefined],
+    ["1001", undefined],
+    ["abc", undefined],
+  ];
+
+  it.each(cases)("parses %j -> %j", (input, expected) => {
+    expect(parseEstimatedHours(input)).toBe(expected);
+  });
+});
+
+=== NEW FILE: apps/web/src/components/task/estimated-hours-i18n.test.ts ===
+import i18next from "i18next";
+import { beforeAll, describe, expect, it } from "vitest";
+import enUS from "../../../../../i18n/en-US.json";
+
+// Component tests in this repo mock react-i18next so `t` merely echoes the key
+// — `t("x", { count: 2 })` returns the literal "x". That makes plural bugs
+// invisible to them. Plural selection and placeholder substitution are
+// therefore proved here, against a REAL i18next instance loaded from the
+// en-US source of truth.
+beforeAll(async () => {
+  await i18next.init({
+    lng: "en-US",
+    resources: { "en-US": enUS },
+    ns: Object.keys(enUS),
+    defaultNS: "common",
+    interpolation: { escapeValue: false },
+  });
+});
+
+describe("estimatedHours i18n", () => {
+  it("selects the correct plural form for the hours label", () => {
+    expect(i18next.t("tasks:properties.estimatedHours", { count: 1 })).toBe(
+      "1 hour",
+    );
+    expect(i18next.t("tasks:properties.estimatedHours", { count: 2 })).toBe(
+      "2 hours",
+    );
+    expect(i18next.t("tasks:properties.estimatedHours", { count: 0 })).toBe(
+      "0 hours",
+    );
+  });
+
+  it("interpolates the kanban rollup strings", () => {
+    expect(
+      i18next.t("tasks:kanban.estimate.partial", {
+        hours: 12,
+        done: 2,
+        total: 5,
+      }),
+    ).toBe("12h estimated across 2 of 5 tasks");
+    expect(
+      i18next.t("tasks:kanban.estimate.all", { hours: 12, total: 5 }),
+    ).toBe("12h estimated across all 5 tasks");
+    expect(i18next.t("tasks:kanban.estimate.allShort", { hours: 12 })).toBe(
+      "12h",
+    );
+  });
+
+  it("resolves the none state to non-empty strings", () => {
+    expect(i18next.t("tasks:kanban.estimate.none")).toBeTruthy();
+    expect(i18next.t("tasks:kanban.estimate.noneShort")).toBeTruthy();
+  });
+
+  it("leaves no unsubstituted placeholders in any rollup string", () => {
+    const rendered = [
+      i18next.t("tasks:properties.estimatedHours", { count: 1 }),
+      i18next.t("tasks:properties.estimatedHours", { count: 5 }),
+      i18next.t("tasks:properties.noEstimate"),
+      i18next.t("tasks:kanban.estimate.partial", {
+        hours: 12,
+        done: 2,
+        total: 5,
+      }),
+      i18next.t("tasks:kanban.estimate.partialShort", {
+        hours: 12,
+        done: 2,
+        total: 5,
+      }),
+      i18next.t("tasks:kanban.estimate.all", { hours: 12, total: 5 }),
+      i18next.t("tasks:kanban.estimate.allShort", { hours: 12 }),
+      i18next.t("tasks:kanban.estimate.none"),
+      i18next.t("tasks:kanban.estimate.noneShort"),
+      i18next.t("common:modals.createTask.estimatedHours"),
+    ];
+
+    for (const str of rendered) {
+      expect(str).not.toContain("{{");
+    }
+  });
+});
+
+=== NEW FILE: tests/api-integration/task-estimated-hours.test.ts ===
+import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import db, { schema } from "../../apps/api/src/database";
+import { createApp } from "../../apps/api/src/index";
+import { mockAuthenticatedSession } from "./helpers/auth";
+import { resetTestDatabase } from "./helpers/database";
+import {
+  createProjectFixture,
+  createWorkspaceMember,
+} from "./helpers/fixtures";
+
+describe("API integration: task estimatedHours", () => {
+  beforeEach(async () => {
+    await resetTestDatabase();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("persists estimatedHours on create and defaults to null when omitted", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const resWithHours = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Task with hours",
+        description: "",
+        priority: "low",
+        status: "to-do",
+        estimatedHours: 8,
+      }),
+    });
+    expect(resWithHours.status).toBe(200);
+    const createdWithHours = (await resWithHours.json()) as {
+      id: string;
+      estimatedHours: number | null;
+    };
+    expect(createdWithHours.estimatedHours).toBe(8);
+
+    const [dbRow1] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, createdWithHours.id));
+    expect(dbRow1.estimatedHours).toBe(8);
+
+    const resWithoutHours = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Task without hours",
+        description: "",
+        priority: "low",
+        status: "to-do",
+      }),
+    });
+    expect(resWithoutHours.status).toBe(200);
+    const createdWithoutHours = (await resWithoutHours.json()) as {
+      id: string;
+    };
+
+    const [dbRow2] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, createdWithoutHours.id));
+    expect(dbRow2.estimatedHours).toBeNull();
+  });
+
+  it("preserves estimatedHours when a full PUT omits it, and clears on explicit null", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        userId: member.user.id,
+        title: "Preserve test task",
+        status: "to-do",
+        number: 1,
+        position: 1,
+        estimatedHours: 5,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const setRes = await app.request(`/api/task/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Preserve test task",
+        description: "",
+        priority: "medium",
+        status: "to-do",
+        projectId: project.id,
+        userId: member.user.id,
+        position: 1,
+        estimatedHours: 12,
+      }),
+    });
+    expect(setRes.status).toBe(200);
+
+    const [afterSetRow] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, task.id));
+    expect(afterSetRow.estimatedHours).toBe(12);
+
+    // This body mirrors what the web updateTask fetcher sends on a
+    // drag-and-drop or archive-all — including userId, which the fetcher always
+    // sends as `task.userId || ""`. Only estimatedHours is omitted, and the
+    // stored estimate must survive.
+    //
+    // userId is load-bearing here: requireTaskAssigneePermission compares
+    // `existingTask.userId !== (userId || null)`, so a body that omits userId
+    // reads as an UNASSIGN and escalates to the `task: ["assign"]` permission,
+    // which the default `member` role does not hold — a 403, not a 200.
+    const omitRes = await app.request(`/api/task/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Preserve test task moved",
+        description: "",
+        priority: "medium",
+        status: "to-do",
+        projectId: project.id,
+        userId: member.user.id,
+        position: 2,
+      }),
+    });
+    expect(omitRes.status).toBe(200);
+
+    const [afterOmitRow] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, task.id));
+    expect(afterOmitRow.estimatedHours).toBe(12);
+
+    const clearRes = await app.request(`/api/task/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Preserve test task moved",
+        description: "",
+        priority: "medium",
+        status: "to-do",
+        projectId: project.id,
+        userId: member.user.id,
+        position: 2,
+        estimatedHours: null,
+      }),
+    });
+    expect(clearRes.status).toBe(200);
+
+    const [afterClearRow] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, task.id));
+    expect(afterClearRow.estimatedHours).toBeNull();
+  });
+
+  it("rejects out-of-range and wrongly-typed estimates with 400 without touching the database", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        userId: member.user.id,
+        title: "Validation test task",
+        status: "to-do",
+        number: 1,
+        position: 1,
+        estimatedHours: 10,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const invalidValues: unknown[] = [-1, 1001, 2.5, "8"];
+
+    for (const val of invalidValues) {
+      const postRes = await app.request(`/api/task/${project.id}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Invalid create task",
+          description: "",
+          priority: "low",
+          status: "to-do",
+          estimatedHours: val,
+        }),
+      });
+      expect(postRes.status).toBe(400);
+
+      const putRes = await app.request(`/api/task/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: "Validation test task",
+          description: "",
+          priority: "medium",
+          status: "to-do",
+          projectId: project.id,
+          position: 1,
+          estimatedHours: val,
+        }),
+      });
+      expect(putRes.status).toBe(400);
+
+      const [currentDbRow] = await db
+        .select()
+        .from(schema.taskTable)
+        .where(eq(schema.taskTable.id, task.id));
+      expect(currentDbRow.estimatedHours).toBe(10);
+    }
+  });
+
+  it("returns estimatedHours on every board task and supports a correct client-side rollup", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    const hoursList: Array<number | null> = [8, null, 0, 4];
+    for (let i = 0; i < hoursList.length; i++) {
+      await db.insert(schema.taskTable).values({
+        projectId: project.id,
+        userId: member.user.id,
+        title: `Task ${i + 1}`,
+        status: "to-do",
+        number: i + 1,
+        position: i + 1,
+        estimatedHours: hoursList[i],
+      });
+    }
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const boardRes = await app.request(`/api/task/tasks/${project.id}`);
+    expect(boardRes.status).toBe(200);
+
+    const boardBody = (await boardRes.json()) as {
+      data: {
+        columns: Array<{
+          slug: string;
+          tasks: Array<
+            Record<string, unknown> & { estimatedHours?: number | null }
+          >;
+        }>;
+      };
+    };
+
+    const todoColumn = boardBody.data.columns.find(
+      (col) => col.slug === "to-do",
+    );
+    expect(todoColumn).toBeDefined();
+    if (!todoColumn) return;
+    expect(todoColumn.tasks.length).toBe(4);
+
+    // Asserts the KEY exists, not merely its value. This is what catches a
+    // missing entry in the get-tasks taskSelection: ProjectWithTasks overrides
+    // columns[].tasks with a hand-written type, so typecheck cannot see it.
+    for (const taskItem of todoColumn.tasks) {
+      expect(Object.keys(taskItem)).toContain("estimatedHours");
+    }
+
+    const estimated = todoColumn.tasks
+      .map((t) => t.estimatedHours)
+      .filter((h): h is number => typeof h === "number");
+    const sumHours = estimated.reduce((acc, h) => acc + h, 0);
+
+    expect(sumHours).toBe(12);
+    // The 0 counts as estimated; the null does not.
+    expect(estimated.length).toBe(3);
+  });
+
+  it("returns estimatedHours on the single-task read", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    const [task] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        userId: member.user.id,
+        title: "Single read task",
+        status: "to-do",
+        number: 1,
+        position: 1,
+        estimatedHours: 6,
+      })
+      .returning();
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const res = await app.request(`/api/task/${task.id}`);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { estimatedHours: number | null };
+    expect(body.estimatedHours).toBe(6);
+  });
+
+  // Without this, 0 only ever reaches the database via a direct db.insert, so
+  // changing `estimatedHours ?? null` to `|| null` in create-task.ts would fail
+  // no test at all.
+  it("treats 0 as a real estimate across the create and update routes", async () => {
+    const member = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const createRes = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Zero estimate task",
+        description: "",
+        status: "to-do",
+        priority: "medium",
+        estimatedHours: 0,
+      }),
+    });
+    expect(createRes.status).toBe(200);
+    const createBody = (await createRes.json()) as {
+      id: string;
+      estimatedHours: number | null;
+    };
+    expect(createBody.estimatedHours).toBe(0);
+    expect(createBody.estimatedHours).not.toBeNull();
+
+    const [createdRow] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, createBody.id));
+    expect(createdRow.estimatedHours).toBe(0);
+
+    const [secondTask] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: project.id,
+        userId: member.user.id,
+        title: "Second task",
+        status: "to-do",
+        number: 2,
+        position: 2,
+        estimatedHours: 5,
+      })
+      .returning();
+
+    const updateRes = await app.request(`/api/task/${secondTask.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        projectId: project.id,
+        userId: member.user.id,
+        title: "Second task",
+        description: "",
+        status: "to-do",
+        priority: "medium",
+        position: 2,
+        estimatedHours: 0,
+      }),
+    });
+    expect(updateRes.status).toBe(200);
+
+    const [updatedRow] = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.id, secondTask.id));
+    expect(updatedRow.estimatedHours).toBe(0);
+  });
+});
+
+=== NEW FILE: tests/api/task/estimated-hours-validation.test.ts ===
+import * as v from "valibot";
+import { describe, expect, it } from "vitest";
+
+// Mirrors the estimatedHours validator in apps/api/src/task/index.ts. If the
+// bounds there change, change them here too.
+const estimatedHoursSchema = v.optional(
+  v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(1000))),
+);
+
+describe("task estimatedHours Valibot schema validation", () => {
+  const validCases = [0, 1, 1000, undefined, null];
+  const invalidCases = [
+    -1,
+    1001,
+    0.5,
+    "8",
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+  ];
+
+  for (const val of validCases) {
+    it(`accepts valid value: ${String(val)}`, () => {
+      const result = v.safeParse(estimatedHoursSchema, val);
+      expect(result.success).toBe(true);
+    });
+  }
+
+  for (const val of invalidCases) {
+    it(`rejects invalid value: ${String(val)}`, () => {
+      const result = v.safeParse(estimatedHoursSchema, val);
+      expect(result.success).toBe(false);
+    });
+  }
+});
+
+=== NEW FILE: tests/api/task/build-full-task-update-body.test.ts ===
+import { describe, expect, it } from "vitest";
+import { buildFullTaskUpdateBody } from "../../../apps/api/src/mcp/tools";
+
+// The MCP update_task tool does a read-modify-write: it reconstructs a full PUT
+// body from the existing task plus a patch. Omitting the estimatedHours key
+// entirely is what lets the API's preserve-on-omit semantics work, so the last
+// two cases assert ABSENCE of the key, not a null value.
+//
+// Signature is buildFullTaskUpdateBody(existing, patch) — argument order
+// matters, and getting it backwards would silently test the patch path instead
+// of the preserve path.
+const baseExisting = {
+  id: "t1",
+  title: "T",
+  description: "",
+  status: "to-do",
+  priority: "medium",
+  projectId: "p1",
+  position: 1,
+};
+
+describe("buildFullTaskUpdateBody estimatedHours", () => {
+  it("preserves the existing value when the patch omits the key", () => {
+    const body = buildFullTaskUpdateBody(
+      { ...baseExisting, estimatedHours: 5 },
+      {},
+    );
+    expect(body.estimatedHours).toBe(5);
+  });
+
+  it("clears the estimate when the patch sets null", () => {
+    const body = buildFullTaskUpdateBody(
+      { ...baseExisting, estimatedHours: 5 },
+      { estimatedHours: null },
+    );
+    expect(body.estimatedHours).toBeNull();
+  });
+
+  it("sets 0, which is a real estimate (guards against an || regression)", () => {
+    const body = buildFullTaskUpdateBody(
+      { ...baseExisting, estimatedHours: 5 },
+      { estimatedHours: 0 },
+    );
+    expect(body.estimatedHours).toBe(0);
+  });
+
+  it("carries an existing null through when the patch omits the key", () => {
+    const body = buildFullTaskUpdateBody(
+      { ...baseExisting, estimatedHours: null },
+      {},
+    );
+    expect(body.estimatedHours).toBeNull();
+  });
+
+  it("omits the key entirely when neither existing nor patch has one", () => {
+    const body = buildFullTaskUpdateBody(baseExisting, {});
+    expect(body).not.toHaveProperty("estimatedHours");
+  });
+
+  it("degrades a malformed existing value to omission, never to an erase", () => {
+    const body = buildFullTaskUpdateBody(
+      { ...baseExisting, estimatedHours: "8" },
+      {},
+    );
+    expect(body).not.toHaveProperty("estimatedHours");
+  });
+});
+
+=== NEW FILE: apps/api/drizzle/0043_skinny_mockingbird.sql ===
+ALTER TABLE "task" ADD COLUMN "estimated_hours" integer;
