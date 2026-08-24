@@ -3,6 +3,7 @@ import { produce } from "immer";
 import {
   CalendarIcon,
   Check,
+  Clock,
   FolderKanban,
   Plus,
   Search,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { EstimatedHoursInput } from "@/components/task/estimated-hours-input";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -96,6 +98,7 @@ function normalizeTask(
     priority: task.priority ?? null,
     startDate: task.startDate ?? null,
     dueDate: task.dueDate ?? null,
+    estimatedHours: task.estimatedHours,
     position: task.position ?? 0,
     userId: task.userId ?? null,
     assigneeId: task.assigneeId ?? task.userId ?? null,
@@ -188,6 +191,7 @@ function CreateTaskModal({
   const [assigneeId, setAssigneeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [estimatedHours, setEstimatedHours] = useState<number | null>(null);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
@@ -250,6 +254,7 @@ function CreateTaskModal({
     setAssigneeId("");
     setStartDate(undefined);
     setDueDate(undefined);
+    setEstimatedHours(null);
     setCreateMore(false);
     setLabels([]);
     setLabelsStep("select");
@@ -348,6 +353,7 @@ function CreateTaskModal({
       startDate: startDate ? startDate.toISOString() : undefined,
       dueDate: dueDate ? dueDate.toISOString() : undefined,
       status: draftStatus,
+      ...(estimatedHours === null ? {} : { estimatedHours }),
     }).then((task) => normalizeTask(task));
 
     draftCreationPromiseRef.current = draftPromise;
@@ -373,6 +379,7 @@ function CreateTaskModal({
     draftTask,
     startDate,
     dueDate,
+    estimatedHours,
     priority,
     resolvedProjectId,
     title,
@@ -399,6 +406,9 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : null,
               dueDate: dueDate ? dueDate.toISOString() : null,
               projectId: resolvedProjectId,
+              // Explicit value, including null: the user may have cleared an
+              // estimate the draft create already persisted.
+              estimatedHours,
             }),
           )
         : normalizeTask(
@@ -411,6 +421,7 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : undefined,
               dueDate: dueDate ? dueDate.toISOString() : undefined,
               status: taskStatus,
+              ...(estimatedHours === null ? {} : { estimatedHours }),
             }),
           );
 
@@ -442,6 +453,7 @@ function CreateTaskModal({
         setAssigneeId("");
         setStartDate(undefined);
         setDueDate(undefined);
+        setEstimatedHours(null);
         setLabels([]);
         setLabelsStep("select");
         setSearchValue("");
@@ -922,6 +934,35 @@ function CreateTaskModal({
                       </Button>
                     </div>
                   )}
+                </PopoverContent>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                      estimatedHours !== null
+                        ? "bg-accent/30 text-foreground"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>
+                      {estimatedHours !== null
+                        ? t("tasks:properties.estimatedHours", {
+                            count: estimatedHours,
+                          })
+                        : t("common:modals.createTask.estimatedHours")}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 w-56" align="start">
+                  <EstimatedHoursInput
+                    value={estimatedHours}
+                    onCommit={setEstimatedHours}
+                  />
                 </PopoverContent>
               </Popover>
 

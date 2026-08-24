@@ -15,6 +15,7 @@ async function createTask(
   startDate: Date | undefined,
   dueDate: Date | undefined,
   priority: CreateTaskRequest["priority"],
+  estimatedHours?: number | null,
 ) {
   if (!projectId) {
     throw new Error("No project selected for task creation");
@@ -29,6 +30,8 @@ async function createTask(
       startDate: startDate?.toISOString() || undefined,
       dueDate: dueDate?.toISOString() || undefined,
       priority,
+      // `0` is a real estimate, so this is an explicit === test, never `||`.
+      ...(estimatedHours === undefined ? {} : { estimatedHours }),
     },
     param: { projectId },
   });

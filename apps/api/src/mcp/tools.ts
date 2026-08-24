@@ -112,10 +112,10 @@ function formatOptionalIso(value: unknown): string | undefined {
   return undefined;
 }
 
-function buildFullTaskUpdateBody(
+export function buildFullTaskUpdateBody(
   existing: Record<string, unknown>,
   patch: Record<string, unknown>,
-): Record<string, string | number | undefined> {
+): Record<string, string | number | null | undefined> {
   const positionRaw = patch.position ?? existing.position;
   const position =
     typeof positionRaw === "number"
@@ -174,7 +174,18 @@ function buildFullTaskUpdateBody(
     patch.dueDate !== undefined ? patch.dueDate : existing.dueDate,
   );
 
-  const body: Record<string, string | number | undefined> = {
+  const rawEstimatedHours =
+    patch.estimatedHours !== undefined
+      ? patch.estimatedHours
+      : existing.estimatedHours;
+  const estimatedHours =
+    rawEstimatedHours === null
+      ? null
+      : typeof rawEstimatedHours === "number"
+        ? rawEstimatedHours
+        : undefined;
+
+  const body: Record<string, string | number | null | undefined> = {
     title,
     description,
     status,
@@ -185,6 +196,7 @@ function buildFullTaskUpdateBody(
   if (startDate !== undefined) body.startDate = startDate;
   if (dueDate !== undefined) body.dueDate = dueDate;
   if (userId !== undefined) body.userId = userId;
+  if (estimatedHours !== undefined) body.estimatedHours = estimatedHours;
   return body;
 }
 
@@ -195,6 +207,8 @@ const prioritySchema = z.enum([
   "high",
   "urgent",
 ]);
+
+const estimatedHoursSchema = z.number().int().min(0).max(1000);
 const nonEmptyString = z.string().trim().min(1);
 const optionalNonEmptyString = nonEmptyString.optional();
 const nullableOptionalNonEmptyString = nonEmptyString.nullable().optional();
@@ -430,10 +444,11 @@ export function registerMcpTools(
         startDate: optionalIsoDateTimeSchema,
         dueDate: optionalIsoDateTimeSchema,
         userId: optionalNonEmptyString,
+        estimatedHours: estimatedHoursSchema.optional(),
       }),
     },
     async (args) => {
-      const body: Record<string, string | undefined> = {
+      const body: Record<string, string | number | undefined> = {
         title: args.title,
         description: args.description,
         priority: args.priority,
@@ -442,6 +457,8 @@ export function registerMcpTools(
       if (args.startDate !== undefined) body.startDate = args.startDate;
       if (args.dueDate !== undefined) body.dueDate = args.dueDate;
       if (args.userId !== undefined) body.userId = args.userId;
+      if (args.estimatedHours !== undefined)
+        body.estimatedHours = args.estimatedHours;
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
           method: "POST",
@@ -467,6 +484,9 @@ export function registerMcpTools(
         startDate: nullableOptionalIsoDateTimeSchema,
         dueDate: nullableOptionalIsoDateTimeSchema,
         userId: nullableOptionalNonEmptyString,
+        // nullable so an MCP client can explicitly clear the estimate;
+        // optional so omitting it preserves the stored value.
+        estimatedHours: estimatedHoursSchema.nullable().optional(),
       }),
     },
     async (args) => {

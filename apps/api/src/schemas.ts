@@ -40,6 +40,15 @@ export const taskSchema = v.object({
   ] as const),
   startDate: v.optional(v.date()),
   dueDate: v.optional(v.date()),
+  // Mirrors estimatedHoursValidator in apps/api/src/task/index.ts; the two must
+  // stay in step. Optional rather than required because this schema is also
+  // nested in the search response (apps/api/src/search/index.ts), whose
+  // controller does not select the column.
+  estimatedHours: v.optional(
+    v.nullable(
+      v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(1000)),
+    ),
+  ),
   createdAt: v.date(),
 });
 

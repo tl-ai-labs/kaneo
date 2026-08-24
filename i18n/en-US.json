@@ -125,6 +125,7 @@
 				"statusFallback": "In Progress",
 				"startDate": "Start date",
 				"dueDate": "Due date",
+				"estimatedHours": "Estimated hours",
 				"clearStartDate": "Clear start date",
 				"clearDueDate": "Clear due date",
 				"assign": "Assign",
@@ -1732,7 +1733,11 @@
 			"copyTaskBranch": "Copy task branch",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"estimatedHoursLabel": "Estimated hours",
+			"estimatedHours_one": "{{count}} hour",
+			"estimatedHours_other": "{{count}} hours",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Move task",
@@ -1760,6 +1765,12 @@
 				"updateSuccess": "Task due date updated successfully",
 				"updateError": "Failed to update task due date",
 				"clear": "Clear date"
+			},
+			"estimatedHours": {
+				"placeholder": "Hours (0-1000)",
+				"clear": "Clear estimate",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			},
 			"startDate": {
 				"updateSuccess": "Task start date updated successfully",
@@ -1882,7 +1893,15 @@
 			"noTasks": "No tasks"
 		},
 		"kanban": {
-			"addTask": "Add task"
+			"addTask": "Add task",
+			"estimate": {
+				"none": "No hours estimated",
+				"noneShort": "-",
+				"partial": "{{hours}}h estimated across {{done}} of {{total}} tasks",
+				"partialShort": "{{hours}}h - {{done}}/{{total}}",
+				"all": "{{hours}}h estimated across all {{total}} tasks",
+				"allShort": "{{hours}}h"
+			}
 		},
 		"pr": {
 			"merged": "Merged",

@@ -18,6 +18,7 @@ async function updateTask(
   position: number,
   userId?: string,
   currentUserId?: string,
+  estimatedHours?: number | null,
 ) {
   const [existingTask] = await db
     .select({
@@ -51,20 +52,30 @@ async function updateTask(
     ),
   });
 
+  const updateValues: Partial<typeof taskTable.$inferInsert> = {
+    title,
+    status,
+    columnId: column?.id ?? null,
+    startDate: startDate || null,
+    dueDate: dueDate || null,
+    projectId,
+    description,
+    priority,
+    position,
+    userId: userId || null,
+  };
+
+  // DR-5 preserve-on-omit: full-PUT callers (drag-and-drop, archive-all, MCP,
+  // draft promotion) that never mention estimatedHours must not erase it, so
+  // the key is only written when the caller sent one. Do NOT copy the
+  // `x || null` shape used by startDate/dueDate - `0 || null` is null.
+  if (estimatedHours !== undefined) {
+    updateValues.estimatedHours = estimatedHours;
+  }
+
   const [updatedTask] = await db
     .update(taskTable)
-    .set({
-      title,
-      status,
-      columnId: column?.id ?? null,
-      startDate: startDate || null,
-      dueDate: dueDate || null,
-      projectId,
-      description,
-      priority,
-      position,
-      userId: userId || null,
-    })
+    .set(updateValues)
     .where(eq(taskTable.id, id))
     .returning();
 

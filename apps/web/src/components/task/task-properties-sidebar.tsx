@@ -3,6 +3,7 @@ import {
   CalendarClock,
   CalendarDays,
   CalendarX,
+  Clock,
   Copy,
   GitBranch,
   Plus,
@@ -41,6 +42,7 @@ import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
+import TaskEstimatedHoursPopover from "./task-estimated-hours-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskMovePopover from "./task-move-popover";
 import TaskPriorityPopover from "./task-priority-popover";
@@ -324,6 +326,25 @@ export default function TaskPropertiesSidebar({
                   </Button>
                 </TaskDueDatePopover>
               )}
+              {task && (
+                <TaskEstimatedHoursPopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5"
+                  >
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs font-semibold">
+                      {task.estimatedHours === null ||
+                      task.estimatedHours === undefined
+                        ? t("tasks:properties.noEstimate")
+                        : t("tasks:properties.estimatedHours", {
+                            count: task.estimatedHours,
+                          })}
+                    </span>
+                  </Button>
+                </TaskEstimatedHoursPopover>
+              )}
             </div>
           </div>
         )}
@@ -514,6 +535,25 @@ export default function TaskPropertiesSidebar({
                       )}
                     </Button>
                   </TaskDueDatePopover>
+                )}
+                {task && (
+                  <TaskEstimatedHoursPopover task={task}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-7 px-1.5 gap-1.5"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-xs font-semibold">
+                        {task.estimatedHours === null ||
+                        task.estimatedHours === undefined
+                          ? t("tasks:properties.noEstimate")
+                          : t("tasks:properties.estimatedHours", {
+                              count: task.estimatedHours,
+                            })}
+                      </span>
+                    </Button>
+                  </TaskEstimatedHoursPopover>
                 )}
               </div>
             </div>
@@ -707,6 +747,25 @@ export default function TaskPropertiesSidebar({
                       )}
                     </Button>
                   </TaskDueDatePopover>
+                )}
+                {task && (
+                  <TaskEstimatedHoursPopover task={task}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-7 px-1.5 gap-1.5"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-xs font-semibold">
+                        {task.estimatedHours === null ||
+                        task.estimatedHours === undefined
+                          ? t("tasks:properties.noEstimate")
+                          : t("tasks:properties.estimatedHours", {
+                              count: task.estimatedHours,
+                            })}
+                      </span>
+                    </Button>
+                  </TaskEstimatedHoursPopover>
                 )}
               </div>
             </div>

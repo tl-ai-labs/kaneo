@@ -128,4 +128,29 @@ describe("CreateTaskModal project picker", () => {
       screen.queryByText("common:modals.createTask.selectProject"),
     ).toBeNull();
   });
+
+  it("omits estimatedHours entirely when the estimate is never touched", async () => {
+    // Omitting the key, rather than sending null, is what lets the API's
+    // preserve-on-omit semantics work.
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+    });
+
+    render(<CreateTaskModal open onClose={vi.fn()} />);
+
+    fireEvent.change(
+      screen.getByPlaceholderText(
+        "common:modals.createTask.taskTitlePlaceholder",
+      ),
+      { target: { value: "Task without estimate" } },
+    );
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+
+    await vi.waitFor(() => {
+      expect(createTask).toHaveBeenCalled();
+    });
+
+    const payload = createTask.mock.calls[0][0];
+    expect("estimatedHours" in payload).toBe(false);
+  });
 });

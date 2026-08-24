@@ -24,6 +24,10 @@ type Task = {
   priority: string | null;
   startDate: string | null;
   dueDate: string | null;
+  // Whole hours, 0..1000. null = not estimated; 0 = estimated at nothing.
+  // Optional because cached/partial tasks predate the field: `undefined`
+  // means "unknown, do not write" (DR-5), never "clear".
+  estimatedHours?: number | null;
   position: number | null;
   createdAt: string;
   updatedAt?: string;

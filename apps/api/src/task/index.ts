@@ -47,6 +47,21 @@ import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
+const ESTIMATED_HOURS_MAX = 1000;
+const estimatedHoursValidator = v.optional(
+  v.nullable(
+    v.pipe(
+      v.number(),
+      v.integer("estimatedHours must be a whole number of hours"),
+      v.minValue(0, "estimatedHours must be 0 or greater"),
+      v.maxValue(
+        ESTIMATED_HOURS_MAX,
+        `estimatedHours must be ${ESTIMATED_HOURS_MAX} or less`,
+      ),
+    ),
+  ),
+);
+
 const task = new Hono<{
   Variables: {
     userId: string;
@@ -197,6 +212,7 @@ const task = new Hono<{
         priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
         userId: v.optional(v.string()),
+        estimatedHours: estimatedHoursValidator,
       }),
     ),
     workspaceAccess.fromProject("projectId"),
@@ -212,6 +228,7 @@ const task = new Hono<{
         priority,
         status,
         userId,
+        estimatedHours,
       } = c.req.valid("json");
 
       const parsedStartDate =
@@ -235,6 +252,7 @@ const task = new Hono<{
         dueDate: parsedDueDate,
         priority,
         status,
+        estimatedHours,
       });
 
       return c.json(task);
@@ -342,6 +360,7 @@ const task = new Hono<{
         projectId: v.string(),
         position: v.number(),
         userId: v.optional(v.string()),
+        estimatedHours: estimatedHoursValidator,
       }),
     ),
     workspaceAccess.fromTask(),
@@ -360,6 +379,7 @@ const task = new Hono<{
         projectId,
         position,
         userId,
+        estimatedHours,
       } = c.req.valid("json");
 
       const currentUserId = c.get("userId");
@@ -387,6 +407,7 @@ const task = new Hono<{
         position,
         userId,
         currentUserId,
+        estimatedHours,
       );
 
       return c.json(task);

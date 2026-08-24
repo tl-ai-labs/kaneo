@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { Archive, Plus } from "lucide-react";
+import { Archive, Clock, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
@@ -50,6 +50,39 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
     setIsArchiveModalOpen(false);
   };
 
+  // `0` is a real estimate: it counts toward `done` while adding nothing to the
+  // sum. A `task.estimatedHours || 0` predicate would misclassify it as absent.
+  const estimatedTasks = column.tasks.filter(
+    (task) => typeof task.estimatedHours === "number",
+  );
+  const estimatedTotal = estimatedTasks.reduce(
+    (sum, task) => sum + (task.estimatedHours ?? 0),
+    0,
+  );
+  const estimateState =
+    estimatedTasks.length === 0
+      ? "none"
+      : estimatedTasks.length === column.tasks.length
+        ? "all"
+        : "partial";
+  const estimateArgs = {
+    hours: estimatedTotal,
+    done: estimatedTasks.length,
+    total: column.tasks.length,
+  };
+  const estimateLabel =
+    estimateState === "none"
+      ? t("tasks:kanban.estimate.none")
+      : estimateState === "partial"
+        ? t("tasks:kanban.estimate.partial", estimateArgs)
+        : t("tasks:kanban.estimate.all", estimateArgs);
+  const estimateText =
+    estimateState === "none"
+      ? t("tasks:kanban.estimate.noneShort")
+      : estimateState === "partial"
+        ? t("tasks:kanban.estimate.partialShort", estimateArgs)
+        : t("tasks:kanban.estimate.allShort", estimateArgs);
+
   return (
     <div className="flex items-center justify-between gap-2">
       <div className="flex min-w-0 items-center gap-2">
@@ -62,6 +95,18 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
           {column.tasks.length}
         </span>
+        {column.tasks.length > 0 && (
+          <span
+            role="img"
+            aria-label={estimateLabel}
+            title={estimateLabel}
+            data-estimate-state={estimateState}
+            className="flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
+          >
+            <Clock className="h-3 w-3" />
+            {estimateText}
+          </span>
+        )}
       </div>
 
       <div className="flex items-center">

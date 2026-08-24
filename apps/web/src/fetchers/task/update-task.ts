@@ -21,6 +21,13 @@ async function updateTask(taskId: string, task: Task) {
       priority: (task.priority || "no-priority") as UpdateTaskPriority,
       startDate: task.startDate?.toString(),
       dueDate: task.dueDate?.toString(),
+      // `undefined` (a cached task predating the field, e.g. a drag-and-drop
+      // payload) omits the key so the stored value is preserved; explicit
+      // `null` clears; a number sets. `?? null` here would silently wipe the
+      // estimate on every card move.
+      ...(task.estimatedHours === undefined
+        ? {}
+        : { estimatedHours: task.estimatedHours }),
       position: task.position ?? 0,
       projectId: task.projectId,
     },
