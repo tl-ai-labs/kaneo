@@ -413,8 +413,15 @@
       "explanation": "All 28 run-touched source paths landed in 33e24240. The commits 29th file is biome.json, the operators out-of-contract change. The 38 provenance RECORDS are 28 unique paths plus 10 repeat before/after pairs from files edited again during senior-review refinement (schemas.ts and task-estimated-hours.test.ts 3x; mcp/tools.ts, estimated-hours-input.tsx, task-estimated-hours-popover.tsx, create-task-modal.tsx, build-full-task-update-body.test.ts, column-header.test.tsx 2x)."
     }
   },
-  "sdlc_commit_pending": {
-    "committed": false,
-    "note": "`.sdlc/` is NOT in 33e24240 and is not gitignored - the user explicitly declined that. The operator is holding a second commit until this manifest is final, so it captures settled state rather than a half-written one. These closeout writes will land in that follow-up commit."
-  }
+  "sdlc_commit": {
+    "sha": "845f094087b04f3f1305ae9675b56fcbd377de3e",
+    "short": "845f0940",
+    "subject": "chore(sdlc): add AI-SDLC run artifacts and benchmark records",
+    "parent": "33e242400210f61b1b8e40c2a4258c79ecd7366f",
+    "files": 169,
+    "captured_closeout": "Confirmed: this commit contains manifest.json with committed=true and commit.short=33e24240, the full file_count_reconciliation block, and SUMMARY.md section 10. The operator held it until the closeout writes had settled, as intended.",
+    "self_reference_note": "This very record (sdlc_committed=true plus the 845f0940 SHA) is written AFTER 845f0940 and is therefore NOT inside it - a file cannot contain the hash of the commit that contains it. Expect exactly one small dirty delta in .sdlc/ after this update: state.json, manifest.json and provenance.json each gaining this block. It needs no further commit unless the operator wants the closing SHA on disk."
+  },
+  "git_head_after_final": "845f094087b04f3f1305ae9675b56fcbd377de3e",
+  "revert_note": "/mmo:revert targets the 28 run-touched source paths, which landed in 33e24240. git_head_after stays 33e24240 (the feature commit); 845f0940 is bookkeeping only and touches no source path in files_touched."
 }
