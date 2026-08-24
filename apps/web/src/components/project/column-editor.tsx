@@ -100,6 +100,51 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     }
   };
 
+  const commitWipLimit = async (id: string, wipLimit: number | null) => {
+    try {
+      await updateColumn({ id, projectId, data: { wipLimit } });
+      toast.success(
+        wipLimit === null
+          ? t("settings:columnEditor.toastWipLimitCleared")
+          : t("settings:columnEditor.toastWipLimitUpdated"),
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastUpdateError"),
+      );
+    }
+  };
+
+  const handleUpdateWipLimit = (
+    id: string,
+    current: number | null,
+    input: HTMLInputElement,
+  ) => {
+    const raw = input.value.trim();
+
+    if (raw === "") {
+      if (current === null) return;
+      void commitWipLimit(id, null);
+      return;
+    }
+
+    const parsed = Number(raw);
+
+    // Client-side guard only; the Valibot validator on PUT /column/:id is the authority.
+    // Upper bound mirrors PostgreSQL's int4 max so the UI cannot submit a value
+    // the API will reject.
+    if (!Number.isInteger(parsed) || parsed < 1 || parsed > 2147483647) {
+      input.value = current === null ? "" : String(current);
+      return;
+    }
+
+    if (parsed === current) return;
+
+    void commitWipLimit(id, parsed);
+  };
+
   const handleUpdateIcon = async (id: string, icon: string) => {
     try {
       await updateColumn({ id, projectId, data: { icon } });
@@ -297,6 +342,41 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
               }}
             />
             <div className="flex items-center gap-1.5 shrink-0">
+              <div
+                className="flex items-center gap-1.5"
+                title={t("settings:columnEditor.wipLimitTooltip")}
+              >
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {t("settings:columnEditor.wipLimit")}
+                </span>
+                <Input
+                  type="number"
+                  min={1}
+                  max={2147483647}
+                  step={1}
+                  inputMode="numeric"
+                  defaultValue={col.wipLimit ?? ""}
+                  disabled={!canEdit}
+                  aria-label={t("settings:columnEditor.wipLimitAria", {
+                    name: col.name,
+                  })}
+                  placeholder={t("settings:columnEditor.wipLimitPlaceholder")}
+                  className="h-8 w-16 text-sm"
+                  onBlur={(e) =>
+                    handleUpdateWipLimit(
+                      col.id,
+                      col.wipLimit ?? null,
+                      e.currentTarget,
+                    )
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      e.currentTarget.blur();
+                    }
+                  }}
+                />
+              </div>
               <div
                 className="flex items-center gap-2"
                 title={t("settings:columnEditor.doneColumnTooltip")}

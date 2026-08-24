@@ -715,7 +715,13 @@
 			"on": "Açık",
 			"off": "Kapalı",
 			"newColumnPlaceholder": "Yeni sütun adı...",
-			"add": "Ekle"
+			"add": "Ekle",
+			"wipLimit": "WIP",
+			"wipLimitPlaceholder": "∞",
+			"wipLimitAria": "Work-in-progress limit for {{name}}",
+			"wipLimitTooltip": "Soft work-in-progress limit. The board shows an over-limit indicator; nothing is blocked.",
+			"toastWipLimitUpdated": "WIP limit updated",
+			"toastWipLimitCleared": "WIP limit cleared"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1859,7 +1865,11 @@
 			"noTasks": "Talep yok"
 		},
 		"kanban": {
-			"addTask": "Talep ekle"
+			"addTask": "Talep ekle",
+			"wipLimit": {
+				"withinLabel": "{{current}} of {{limit}} tasks",
+				"overLabel": "{{current}} of {{limit}} tasks, over the WIP limit"
+			}
 		},
 		"pr": {
 			"merged": "Birleştirildi",

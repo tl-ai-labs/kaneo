@@ -612,7 +612,13 @@
 			"on": "Activado",
 			"off": "Desactivado",
 			"newColumnPlaceholder": "Nombre de la nueva columna...",
-			"add": "Añadir"
+			"add": "Añadir",
+			"wipLimit": "WIP",
+			"wipLimitPlaceholder": "∞",
+			"wipLimitAria": "Work-in-progress limit for {{name}}",
+			"wipLimitTooltip": "Soft work-in-progress limit. The board shows an over-limit indicator; nothing is blocked.",
+			"toastWipLimitUpdated": "WIP limit updated",
+			"toastWipLimitCleared": "WIP limit cleared"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1848,7 +1854,11 @@
 			"noTasks": "No hay tareas"
 		},
 		"kanban": {
-			"addTask": "Añadir tarea"
+			"addTask": "Añadir tarea",
+			"wipLimit": {
+				"withinLabel": "{{current}} of {{limit}} tasks",
+				"overLabel": "{{current}} of {{limit}} tasks, over the WIP limit"
+			}
 		},
 		"pr": {
 			"merged": "Mergeada",

@@ -8,6 +8,7 @@ import deleteColumn from "./controllers/delete-column";
 import getColumns from "./controllers/get-columns";
 import reorderColumns from "./controllers/reorder-columns";
 import updateColumn from "./controllers/update-column";
+import { wipLimitSchema } from "./validators";
 
 const column = new Hono<{
   Variables: {
@@ -42,7 +43,8 @@ const column = new Hono<{
     describeRoute({
       operationId: "createColumn",
       tags: ["Columns"],
-      description: "Create a new column in a project",
+      description:
+        "Create a new column in a project. Optional wipLimit sets a soft work-in-progress cap as a positive integer; omit it or send null for no limit. The cap is advisory — the API never rejects a task for exceeding it.",
       responses: {
         200: {
           description: "Column created successfully",
@@ -60,19 +62,21 @@ const column = new Hono<{
         icon: v.optional(v.string()),
         color: v.optional(v.string()),
         isFinal: v.optional(v.boolean()),
+        wipLimit: wipLimitSchema,
       }),
     ),
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ project: ["update"] }),
     async (c) => {
       const { projectId } = c.req.valid("param");
-      const { name, icon, color, isFinal } = c.req.valid("json");
+      const { name, icon, color, isFinal, wipLimit } = c.req.valid("json");
       const result = await createColumn({
         projectId,
         name,
         icon,
         color,
         isFinal,
+        wipLimit,
       });
       return c.json(result);
     },
@@ -118,7 +122,8 @@ const column = new Hono<{
     describeRoute({
       operationId: "updateColumn",
       tags: ["Columns"],
-      description: "Update a column",
+      description:
+        "Update a column. Send wipLimit as a positive integer to set the soft work-in-progress cap, null to clear it, or omit it to leave it unchanged. The cap is advisory and is never enforced.",
       responses: {
         200: {
           description: "Column updated successfully",
@@ -136,6 +141,7 @@ const column = new Hono<{
         icon: v.optional(v.nullable(v.string())),
         color: v.optional(v.nullable(v.string())),
         isFinal: v.optional(v.boolean()),
+        wipLimit: wipLimitSchema,
       }),
     ),
     workspaceAccess.fromColumn("id"),

@@ -10,6 +10,7 @@ import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import { ArchiveTasksModal } from "../../shared/modals/archive-tasks-modal";
+import { ColumnTaskCountBadge } from "./column-task-count-badge";
 
 type ColumnHeaderProps = {
   column: ProjectWithTasks["columns"][number];
@@ -59,9 +60,10 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         <span className="truncate text-sm font-medium text-foreground/95">
           {column.name}
         </span>
-        <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
-          {column.tasks.length}
-        </span>
+        <ColumnTaskCountBadge
+          count={column.tasks.length}
+          wipLimit={column.wipLimit}
+        />
       </div>
 
       <div className="flex items-center">

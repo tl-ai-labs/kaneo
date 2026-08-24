@@ -877,7 +877,13 @@
 			"on": "Attivo",
 			"off": "Disattivo",
 			"newColumnPlaceholder": "Nuovo nome colonna...",
-			"add": "Aggiungi"
+			"add": "Aggiungi",
+			"wipLimit": "WIP",
+			"wipLimitPlaceholder": "∞",
+			"wipLimitAria": "Work-in-progress limit for {{name}}",
+			"wipLimitTooltip": "Soft work-in-progress limit. The board shows an over-limit indicator; nothing is blocked.",
+			"toastWipLimitUpdated": "WIP limit updated",
+			"toastWipLimitCleared": "WIP limit cleared"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1859,7 +1865,11 @@
 			"noTasks": "Nessuna attività"
 		},
 		"kanban": {
-			"addTask": "Aggiungi attività"
+			"addTask": "Aggiungi attività",
+			"wipLimit": {
+				"withinLabel": "{{current}} of {{limit}} tasks",
+				"overLabel": "{{current}} of {{limit}} tasks, over the WIP limit"
+			}
 		},
 		"pr": {
 			"merged": "Unito",

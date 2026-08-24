@@ -715,7 +715,13 @@
 			"on": "Увімк.",
 			"off": "Вимк.",
 			"newColumnPlaceholder": "Назва нової колонки...",
-			"add": "Додати"
+			"add": "Додати",
+			"wipLimit": "WIP",
+			"wipLimitPlaceholder": "∞",
+			"wipLimitAria": "Work-in-progress limit for {{name}}",
+			"wipLimitTooltip": "Soft work-in-progress limit. The board shows an over-limit indicator; nothing is blocked.",
+			"toastWipLimitUpdated": "WIP limit updated",
+			"toastWipLimitCleared": "WIP limit cleared"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1869,7 +1875,11 @@
 			"noTasks": "Немає завдань"
 		},
 		"kanban": {
-			"addTask": "Додати завдання"
+			"addTask": "Додати завдання",
+			"wipLimit": {
+				"withinLabel": "{{current}} of {{limit}} tasks",
+				"overLabel": "{{current}} of {{limit}} tasks, over the WIP limit"
+			}
 		},
 		"pr": {
 			"merged": "Змерджено",

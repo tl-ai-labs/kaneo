@@ -877,7 +877,13 @@
 			"on": "Bật",
 			"off": "Tắt",
 			"newColumnPlaceholder": "Tên cột mới...",
-			"add": "Thêm"
+			"add": "Thêm",
+			"wipLimit": "WIP",
+			"wipLimitPlaceholder": "∞",
+			"wipLimitAria": "Work-in-progress limit for {{name}}",
+			"wipLimitTooltip": "Soft work-in-progress limit. The board shows an over-limit indicator; nothing is blocked.",
+			"toastWipLimitUpdated": "WIP limit updated",
+			"toastWipLimitCleared": "WIP limit cleared"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1859,7 +1865,11 @@
 			"noTasks": "Không có công việc"
 		},
 		"kanban": {
-			"addTask": "Thêm công việc"
+			"addTask": "Thêm công việc",
+			"wipLimit": {
+				"withinLabel": "{{current}} of {{limit}} tasks",
+				"overLabel": "{{current}} of {{limit}} tasks, over the WIP limit"
+			}
 		},
 		"pr": {
 			"merged": "Đã gộp",

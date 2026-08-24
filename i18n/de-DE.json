@@ -715,7 +715,13 @@
 			"on": "Ein",
 			"off": "Aus",
 			"newColumnPlaceholder": "Neuer Spaltenname...",
-			"add": "Hinzufügen"
+			"add": "Hinzufügen",
+			"wipLimit": "WIP",
+			"wipLimitPlaceholder": "∞",
+			"wipLimitAria": "Work-in-progress limit for {{name}}",
+			"wipLimitTooltip": "Soft work-in-progress limit. The board shows an over-limit indicator; nothing is blocked.",
+			"toastWipLimitUpdated": "WIP limit updated",
+			"toastWipLimitCleared": "WIP limit cleared"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1859,7 +1865,11 @@
 			"noTasks": "Keine Aufgaben"
 		},
 		"kanban": {
-			"addTask": "Aufgabe hinzufügen"
+			"addTask": "Aufgabe hinzufügen",
+			"wipLimit": {
+				"withinLabel": "{{current}} of {{limit}} tasks",
+				"overLabel": "{{current}} of {{limit}} tasks, over the WIP limit"
+			}
 		},
 		"pr": {
 			"merged": "Zusammengeführt",
