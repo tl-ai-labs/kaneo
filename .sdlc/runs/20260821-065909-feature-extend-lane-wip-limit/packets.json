@@ -1,0 +1,253 @@
+[
+  {
+    "id": "tp_cg_01",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "api-schema",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/database/schema.ts",
+    "also_writes": [],
+    "depends_on": [],
+    "instruction": "Add a nullable wipLimit column to columnTable in apps/api/src/database/schema.ts.\n\nThe exact line to add is: wipLimit: integer(\"wip_limit\"),\nInsert it immediately AFTER this existing line (note the method order - default() comes before notNull()):\n    isFinal: boolean(\"is_final\").default(false).notNull(),\nand BEFORE the createdAt line.\n\nNo .notNull(), no .default() - nullable is the contract, and null means 'no limit'. `integer` is already imported in this file; add no imports. Do NOT hand-author anything under apps/api/drizzle/** - the orchestrator runs `pnpm --filter @kaneo/api db:generate` after this packet. Do not touch any other table.\n\nReturn STRICT JSON: {\"edits\":[{\"path\":\"...\",\"old_string\":\"...\",\"new_string\":\"...\",\"reason\":\"...\"}]} where old_string matches the file byte-for-byte (include enough surrounding lines to be unique) and new_string is its replacement.",
+    "acceptance": [
+      "columnTable gains wipLimit: integer(\"wip_limit\") with no notNull and no default",
+      "wipLimit sits between isFinal and createdAt",
+      "No file under apps/api/drizzle/** is touched",
+      "No other table or column changes"
+    ],
+    "risk": "Adding .notNull() or .default(0) breaks the null-means-unlimited contract and makes the migration unsafe on populated tables.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 1500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_02",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "api-contract",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/column/index.ts",
+    "also_writes": [
+      "apps/api/src/column/controllers/create-column.ts",
+      "apps/api/src/column/controllers/update-column.ts"
+    ],
+    "depends_on": [
+      "tp_cg_01"
+    ],
+    "instruction": "Thread wipLimit through the column API contract. Three files.\n\n(1) apps/api/src/column/index.ts - add this field to BOTH json validators (the .post(\"/:projectId\") create validator, which has name/icon/color/isFinal, and the .put(\"/:id\") update validator, which has name plus nullable icon/color plus isFinal):\n        wipLimit: v.optional(\n          v.nullable(\n            v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(2147483647)),\n          ),\n        ),\nThen in the CREATE handler change the destructure to include wipLimit and pass it to createColumn({ projectId, name, icon, color, isFinal, wipLimit }). The UPDATE handler already forwards c.req.valid(\"json\") whole into updateColumn(id, data) - leave that call untouched.\n\n(2) apps/api/src/column/controllers/create-column.ts - add wipLimit to the destructured params, add wipLimit?: number | null to the param type, and add wipLimit: wipLimit ?? null, to the db.insert(columnTable).values({...}) object after the isFinal line.\n\n(3) apps/api/src/column/controllers/update-column.ts - add wipLimit?: number | null to the data param type, and add\n        ...(data.wipLimit !== undefined && { wipLimit: data.wipLimit }),\nas the last entry of the conditional-spread block inside .set({...}). undefined means 'leave alone'; explicit null means 'clear the limit'.\n\nAccept: null, absent, 1, 5, 2147483647. Reject 400: 0, -3, 2.5, 2147483648, 99999999999, 9007199254740992, Number.MAX_VALUE. Do not change authorization middleware or add any permission. Do not reformat unrelated code.\n\nReturn STRICT JSON: {\"edits\":[{\"path\",\"old_string\",\"new_string\",\"reason\"}]} - one or more entries per file, old_string matching byte-for-byte.",
+    "acceptance": [
+      "Both validators carry the exact v.optional(v.nullable(v.pipe(...))) shape",
+      "Create handler destructures and forwards wipLimit",
+      "create-column inserts wipLimit: wipLimit ?? null",
+      "update-column spreads wipLimit only when !== undefined so null clears",
+      "No change to workspaceAccess or requireWorkspacePermission"
+    ],
+    "risk": "Dropping v.nullable turns an explicit null clear into a 400; dropping v.integer lets 2.5 through to an int4 column.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 4000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_03",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "api-projection",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/get-tasks.ts",
+    "also_writes": [],
+    "depends_on": [
+      "tp_cg_01"
+    ],
+    "instruction": "Add wipLimit to the board column projection in apps/api/src/task/controllers/get-tasks.ts.\n\nThe projection is a hand-written whitelist (it is NOT a spread), so the field is invisible to the board until it is named here:\n  const columns = projectColumns.map((column) => ({\n    id: column.slug,\n    slug: column.slug,\n    name: column.name,\n    icon: column.icon,\n    isFinal: column.isFinal,\n    tasks: ...\n  }));\nAdd wipLimit: column.wipLimit, after isFinal and before tasks. The source query is `db.select().from(columnTable)` - an unqualified select - so column.wipLimit is already present on the row once the schema packet lands; do not change the query.\n\nThis is the single highest-risk line in the feature: apps/web/src/types/project ProjectWithTasks is INFERRED from this endpoint via InferResponseType, so omitting it produces NO TypeScript error anywhere and the badge silently never renders. The sibling field `color` is already dropped by this same projection, which is how the omission happens. Change nothing else in the file.\n\nReturn STRICT JSON: {\"edits\":[{\"path\",\"old_string\",\"new_string\",\"reason\"}]}.",
+    "acceptance": [
+      "Projected column object includes wipLimit: column.wipLimit",
+      "The db.select() query is unchanged",
+      "No other projected field renamed, reordered or removed",
+      "archivedTasks/plannedTasks/pagination shapes untouched"
+    ],
+    "risk": "Silent omission - no compile error, no failing typecheck, badge just never shows a limit.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 1500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_04",
+    "phase": "tests",
+    "task_type": "new_file_add",
+    "module": "api-tests",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "tests/api/column/create-column.test.ts",
+    "also_writes": [
+      "tests/api/column/update-column.test.ts",
+      "tests/api-integration/column-wip-limit.test.ts"
+    ],
+    "depends_on": [
+      "tp_cg_02",
+      "tp_cg_03"
+    ],
+    "instruction": "Write three test files. Two API unit files and one PostgreSQL-backed integration file.\n\nUNIT FILES run under apps/api/vitest.config.ts: environment node, NO setupFiles, so there is NO database and NO env. The established local idiom (see tests/api/label/delete-label.test.ts and tests/api/utils/workspace-access-middleware.test.ts) is to vi.mock the database module and import the real code under test. Follow it - do NOT reconstruct a copy of the validator schema, which would test a duplicate rather than the shipped one.\n\nIn each unit file:\n  vi.mock(\"../../../apps/api/src/database\", async () => {\n    const schema = await import(\"../../../apps/api/src/database/schema\");\n    return { default: <chainable stub>, schema };\n  });\nAlso vi.mock(\"../../../apps/api/src/utils/workspace-access-middleware\") exporting workspaceAccess with fromProject/fromColumn returning a pass-through middleware ((c, next) => next()), and vi.mock(\"../../../apps/api/src/utils/require-workspace-permission\") exporting requireWorkspacePermission as () => (c, next) => next(). Then `import column from \"../../../apps/api/src/column/index\"` and drive it with column.request(path, { method, headers: { \"content-type\": \"application/json\" }, body: JSON.stringify(...) }).\nValidator middleware runs BEFORE the access middleware in the chain, so a malformed body returns 400 without any database work.\n\ntests/api/column/create-column.test.ts - POST /:projectId. Assert 400 for wipLimit of 0, -3, 2.5, 2147483648, 99999999999, 9007199254740992, Number.MAX_VALUE (assert each value individually so a regression names the value that broke). Assert NOT-400 for wipLimit null, key absent, 1, 5, 2147483647.\ntests/api/column/update-column.test.ts - PUT /:id, the same accept and reject matrix, plus a case proving an explicit null is accepted as a clear.\n\nINTEGRATION FILE tests/api-integration/column-wip-limit.test.ts runs under vitest.integration.config.ts (real PostgreSQL, single worker, setup.ts supplies DATABASE_URL and env). Follow tests/api-integration/label.test.ts exactly: import db, { schema } from \"../../apps/api/src/database\"; import { createApp } from \"../../apps/api/src/index\"; import { mockAuthenticatedSession } from \"./helpers/auth\"; import { resetTestDatabase } from \"./helpers/database\"; import { createProjectFixture, createWorkspaceMember } from \"./helpers/fixtures\"; beforeEach(async () => { await resetTestDatabase(); }).\nCover: (a) POST /api/column/:projectId with wipLimit 5 persists 5 and the row reads back 5; (b) omitting wipLimit yields null on the persisted row; (c) PUT /api/column/:id with wipLimit null clears a previously set limit; (d) PUT with wipLimit 0 returns 400 and leaves the stored value unchanged; (e) GET the tasks board endpoint and assert each projected column carries wipLimit, set for the configured column and null for the others; (f) ADVISORY PROOF - with a column whose wipLimit is 1, creating a second task in that column still succeeds (no 4xx), because the limit never blocks.\nNote the board projection sets id to the column slug, so match projected columns by slug.\n\nReturn STRICT JSON: {\"files\":[{\"path\":\"...\",\"content\":\"<entire file>\"}]} with all three files.",
+    "acceptance": [
+      "Unit files never import createApp, never touch a real database, and mock the database module",
+      "Unit files assert every reject value individually and every accept value individually",
+      "Update unit file proves explicit null is accepted",
+      "Integration file uses resetTestDatabase plus the documented fixtures and app.request",
+      "Integration file asserts the board projection carries wipLimit and that an over-limit column still accepts a new task"
+    ],
+    "risk": "Any database or createApp usage inside tests/api/** fails the whole unit suite at import time because no DATABASE_URL exists there.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 8000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_05",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "web-data",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/fetchers/column/create-column.ts",
+    "also_writes": [
+      "apps/web/src/fetchers/column/update-column.ts",
+      "apps/web/src/hooks/mutations/column/use-create-column.ts",
+      "apps/web/src/hooks/mutations/column/use-update-column.ts"
+    ],
+    "depends_on": [
+      "tp_cg_02"
+    ],
+    "instruction": "Thread wipLimit?: number | null through all four web data-layer files. They must land together - the same data shape is duplicated in each, and a partial edit drifts silently.\n\n(1) apps/web/src/fetchers/column/create-column.ts - the data param is an inline type: { name: string; icon?: string; color?: string; isFinal?: boolean }. Add wipLimit?: number | null. The body is already forwarded whole as json: data, so no call-site change.\n(2) apps/web/src/fetchers/column/update-column.ts - same, on { name?: string; icon?: string | null; color?: string | null; isFinal?: boolean }.\n(3) apps/web/src/hooks/mutations/column/use-create-column.ts - add it to the inline data type inside the mutationFn variables type.\n(4) apps/web/src/hooks/mutations/column/use-update-column.ts - same. Do NOT change the onSuccess invalidations: it already invalidates [\"columns\", projectId] and [\"tasks\", projectId], which is exactly what a WIP-limit change needs since the count lives on the tasks query.\n\nPlace wipLimit last in each type, after isFinal. Introduce no defaults: undefined means unchanged, explicit null means clear.\n\nReturn STRICT JSON: {\"edits\":[{\"path\",\"old_string\",\"new_string\",\"reason\"}]}.",
+    "acceptance": [
+      "All four files carry wipLimit?: number | null",
+      "Both fetchers still forward the data object unchanged",
+      "use-update-column onSuccess invalidations are untouched",
+      "No default value is introduced anywhere"
+    ],
+    "risk": "Editing 2 of 4 leaves the hook's variables type narrower than the fetcher's, so the editor cannot pass the field and the failure looks like a UI bug.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_06",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "web-editor",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/project/column-editor.tsx",
+    "also_writes": [],
+    "depends_on": [
+      "tp_cg_05",
+      "tp_cg_08"
+    ],
+    "instruction": "Add the per-column WIP-limit control to apps/web/src/components/project/column-editor.tsx. This file is the configuration surface; the board header is display-only.\n\n(1) Add this handler next to the existing handleToggleFinal, mirroring its shape exactly:\nconst handleWipLimitChange = async (id: string, wipLimit: number | null) => {\n  try {\n    await updateColumn({ id, projectId, data: { wipLimit } });\n    toast.success(t(\"settings:columnEditor.toastWipLimitUpdated\"));\n  } catch (error) {\n    toast.error(\n      error instanceof Error\n        ? error.message\n        : t(\"settings:columnEditor.toastWipLimitUpdateError\"),\n    );\n  }\n};\n\n(2) In the per-column row, inside the <div className=\"flex items-center gap-1.5 shrink-0\"> cluster and BEFORE the Done-column toggle group (the div titled settings:columnEditor.doneColumnTooltip), insert:\n<div className=\"flex items-center gap-2\" title={t(\"settings:columnEditor.wipLimitTooltip\")}>\n  <span className=\"text-xs text-muted-foreground whitespace-nowrap\">\n    {t(\"settings:columnEditor.wipLimit\")}\n  </span>\n  <Input\n    type=\"number\"\n    inputMode=\"numeric\"\n    min={1}\n    max={2147483647}\n    step={1}\n    defaultValue={col.wipLimit ?? \"\"}\n    placeholder={t(\"settings:columnEditor.wipLimitPlaceholder\")}\n    disabled={!canEdit}\n    aria-label={t(\"settings:columnEditor.wipLimitAria\", { name: col.name })}\n    className=\"h-7 w-16 text-xs\"\n    onBlur={(e) => {\n      const raw = e.target.value.trim();\n      const next = raw === \"\" ? null : Number(raw);\n      const current = col.wipLimit ?? null;\n      if (next === current) return;\n      if (\n        next !== null &&\n        (!Number.isInteger(next) || next < 1 || next > 2147483647)\n      ) {\n        e.target.value = current === null ? \"\" : String(current);\n        return;\n      }\n      handleWipLimitChange(col.id, next);\n    }}\n    onKeyDown={(e) => {\n      if (e.key === \"Enter\") {\n        e.preventDefault();\n        e.currentTarget.blur();\n      }\n    }}\n  />\n</div>\n\nInput, t, toast, updateColumn and canEdit all already exist in this file - add no imports. col.id here is the real column id from useGetColumns (a full row select), which is why configuration lives here rather than in the header. min/max/step mirror the API validator as a UX guard only; the API stays authoritative. Change nothing else.\n\nReturn STRICT JSON: {\"edits\":[{\"path\",\"old_string\",\"new_string\",\"reason\"}]}.",
+    "acceptance": [
+      "handleWipLimitChange calls updateColumn({ id, projectId, data: { wipLimit } }) and toasts on both paths",
+      "Control renders before the Done-column toggle group inside the shrink-0 cluster",
+      "Blur on empty input commits null; unchanged value commits nothing",
+      "Out-of-range or non-integer input reverts the field and fires no mutation",
+      "Input carries min=1, max=2147483647, step=1 and is disabled when !canEdit"
+    ],
+    "risk": "Committing on every keystroke instead of on blur would fire a mutation per digit; using col.slug instead of col.id would target the wrong row.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 4000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_07",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "web-header",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "also_writes": [],
+    "depends_on": [
+      "tp_cg_03",
+      "tp_cg_08"
+    ],
+    "instruction": "Replace the plain task-count badge in apps/web/src/components/kanban-board/column/column-header.tsx with a count/limit badge carrying an advisory over-cap indicator. DISPLAY ONLY - this file must not gain any input, mutation, or blocking behavior.\n\nREQUIRED IMPORTS - this file today imports only { Archive, Plus } from lucide-react and has no cn import. Both must be added or the file fails typecheck on two missing symbols:\n  - extend the lucide-react import to: import { AlertTriangle, Archive, Plus } from \"lucide-react\";\n  - add: import { cn } from \"@/lib/utils\";\nKeep the repo's existing import ordering convention (the @/ imports are grouped together and alphabetized by path).\n\nInside the component, before the returned JSX, compute:\n  const count = column.tasks.length;\n  const limit = column.wipLimit ?? null;\n  const over = limit !== null && count > limit;\n\nReplace this existing element:\n        <span className=\"rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\">\n          {column.tasks.length}\n        </span>\nwith:\n        <span\n          className={cn(\n            \"inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\",\n            over && \"bg-destructive/15 text-destructive\",\n          )}\n          aria-label={\n            limit === null\n              ? t(\"tasks:kanban.taskCountAria\", { count })\n              : t(\"tasks:kanban.wipLimitAria\", { count, limit })\n          }\n          title={\n            limit === null\n              ? undefined\n              : over\n                ? t(\"tasks:kanban.wipLimitOver\", { count, limit })\n                : t(\"tasks:kanban.wipLimitWithin\", { count, limit })\n          }\n        >\n          {limit === null ? count : `${count} / ${limit}`}\n          {over && <AlertTriangle className=\"w-3 h-3\" aria-hidden=\"true\" />}\n        </span>\n\nOver-cap is strictly count > limit - a column sitting exactly at its limit renders neutral, and there is NO at-capacity state. The indicator must not be color-only: the AlertTriangle icon plus the title and aria-label are the non-color affordance and are required. Leave the archive button, add-task button and both modals untouched. Do not touch column-dropzone.tsx or kanban-board/column/index.tsx.\n\nReturn STRICT JSON: {\"edits\":[{\"path\",\"old_string\",\"new_string\",\"reason\"}]}.",
+    "acceptance": [
+      "AlertTriangle and cn imports are both added",
+      "Renders bare count when wipLimit is null and `count / limit` when set",
+      "over is strictly count > limit; equal renders neutral",
+      "Over-cap adds destructive tint AND AlertTriangle AND title/aria-label",
+      "No blocking behavior and no other element changed"
+    ],
+    "risk": "Missing either import fails typecheck; a color-only indicator fails the accessibility requirement carried since Gate 2.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_08",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "i18n",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "i18n/en-US.json",
+    "also_writes": [],
+    "depends_on": [],
+    "instruction": "Add exactly ten keys to i18n/en-US.json, inserted into the EXISTING settings.columnEditor and tasks.kanban objects. Touch no other locale file and never i18n/schema.json.\n\nAppend to settings.columnEditor (whose current last key is \"add\": \"Add\"):\n  \"wipLimit\": \"WIP limit\",\n  \"wipLimitTooltip\": \"Advisory maximum number of tasks for this column\",\n  \"wipLimitPlaceholder\": \"None\",\n  \"wipLimitAria\": \"WIP limit for {{name}}\",\n  \"toastWipLimitUpdated\": \"WIP limit updated\",\n  \"toastWipLimitUpdateError\": \"Failed to update WIP limit\"\n\nAppend to tasks.kanban (whose only current key is \"addTask\": \"Add task\"):\n  \"taskCountAria\": \"{{count}} tasks\",\n  \"wipLimitAria\": \"{{count}} of {{limit}} tasks (WIP limit)\",\n  \"wipLimitWithin\": \"{{count}} of {{limit}} - within WIP limit\",\n  \"wipLimitOver\": \"{{count}} of {{limit}} - over WIP limit\"\n\nAnchor each edit on the unique existing final key of its object so comma placement stays valid. Preserve the file's existing indentation exactly. The result must be parseable JSON with no trailing comma and no duplicate key.\n\nReturn STRICT JSON: {\"edits\":[{\"path\",\"old_string\",\"new_string\",\"reason\"}]}.",
+    "acceptance": [
+      "All ten keys present with the exact strings given",
+      "Keys land inside the existing settings.columnEditor and tasks.kanban objects",
+      "File still parses as JSON",
+      "No other locale file and not i18n/schema.json"
+    ],
+    "risk": "A trailing comma or a duplicated key breaks the entire i18n bundle at runtime, not just the new copy.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 2000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_09",
+    "phase": "tests",
+    "task_type": "new_file_add",
+    "module": "web-tests",
+    "pass_id": "20260821-065909-feature-extend-lane-wip-limit",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+    "also_writes": [
+      "apps/web/src/components/project/column-editor.test.tsx"
+    ],
+    "depends_on": [
+      "tp_cg_06",
+      "tp_cg_07"
+    ],
+    "instruction": "Write two component test files following the established local idiom in apps/web/src/components/list-view/task-row.test.tsx: every hook and store dependency is vi.mock'd at module level, and react-i18next is mocked so t returns the KEY. Assertions therefore match key strings such as \"tasks:kanban.wipLimitOver\", never English text.\n\nShared boilerplate:\nimport { cleanup, fireEvent, render, screen } from \"@testing-library/react\";\nimport { afterEach, describe, expect, it, vi } from \"vitest\";\nafterEach(() => { cleanup(); vi.clearAllMocks(); });\nvi.mock(\"react-i18next\", () => ({\n  useTranslation: () => ({ t: (key: string) => key }),\n  initReactI18next: { type: \"3rdParty\", init: vi.fn() },\n}));\n\nFILE 1 apps/web/src/components/kanban-board/column/column-header.test.tsx - imports { ColumnHeader } from \"./column-header\" (a NAMED export). Mock exactly these, matching the specifiers the component uses:\n  \"@/store/project\" -> { default: () => ({ project: { id: \"project-1\" }, setProject: vi.fn() }) }\n  \"@/hooks/mutations/task/use-update-task\" -> { useUpdateTask: () => ({ mutate: vi.fn() }) }\n  \"@/hooks/use-workspace-permission\" -> { useWorkspacePermission: () => ({ canUpdateTasks: () => true, canCreateTasks: () => true }) }\n  \"@/lib/column\" -> { getColumnIcon: () => null }\n  \"@/lib/toast\" -> { toast: { success: vi.fn(), error: vi.fn() } }\n  \"@/components/shared/modals/create-task-modal\" -> { default: () => null }\n  \"../../shared/modals/archive-tasks-modal\" -> { ArchiveTasksModal: () => null }\nBuild a column fixture helper taking (count, wipLimit) and returning { id: \"to-do\", slug: \"to-do\", name: \"To do\", icon: null, isFinal: false, wipLimit, tasks: Array.from({length: count}, (_, i) => ({ id: `t${i}` })) } cast through `as unknown as ...` to satisfy the prop type without hand-writing a full Task.\nCases: (a) wipLimit null -> badge text is exactly the count, no slash, and aria-label is \"tasks:kanban.taskCountAria\"; (b) count 3 limit 5 -> text \"3 / 5\", title \"tasks:kanban.wipLimitWithin\", NO svg icon inside the badge; (c) count 6 limit 5 -> text \"6 / 5\", title \"tasks:kanban.wipLimitOver\", and the badge contains an svg; (d) BOUNDARY: count 5 limit 5 -> title is \"tasks:kanban.wipLimitWithin\" and no svg, proving equal-to-limit is NOT over-cap.\n\nFILE 2 apps/web/src/components/project/column-editor.test.tsx - imports ColumnEditor from \"./column-editor\" (a DEFAULT export), rendered as <ColumnEditor projectId=\"project-1\" />. Hoist a shared const mockUpdateColumn = vi.fn() via vi.hoisted so the assertions can see it. Mock:\n  \"@/hooks/queries/column/use-get-columns\" -> { useGetColumns: () => ({ data: [{ id: \"col-1\", slug: \"to-do\", name: \"To do\", icon: null, isFinal: false, wipLimit: null, position: 0 }], isLoading: false }) }\n  \"@/hooks/mutations/column/use-update-column\" -> { useUpdateColumn: () => ({ mutateAsync: mockUpdateColumn }) }\n  \"@/hooks/mutations/column/use-create-column\", \"...use-delete-column\", \"...use-reorder-columns\" -> each returning { mutateAsync: vi.fn() } under its own named export\n  \"@/hooks/use-workspace-permission\" -> { useWorkspacePermission: () => ({ canManageProjects: () => true }) }\n  \"@/lib/column\" -> { getColumnIcon: () => null }\n  \"@/lib/toast\" -> { toast: { success: vi.fn(), error: vi.fn() } }\n  \"@/constants/column-icons\" -> { default: {}, DEFAULT_COLUMN_ICON_NAMES: {} }\nFind the input by its aria-label key \"settings:columnEditor.wipLimitAria\" (t returns the key, so the label is that literal string).\nCases: (a) change value to \"5\" then blur -> mockUpdateColumn called once with { id: \"col-1\", projectId: \"project-1\", data: { wipLimit: 5 } }; (b) with a column whose wipLimit is 5, clearing to \"\" then blur -> called with data: { wipLimit: null }; (c) value \"0\" then blur -> NOT called, and the input reverts; (d) value \"2147483648\" then blur -> NOT called; (e) unchanged value then blur -> NOT called. Use a second describe block or a re-mock for the case needing an initial wipLimit of 5.\n\nReturn STRICT JSON: {\"files\":[{\"path\":\"...\",\"content\":\"<entire file>\"}]} with both files.",
+    "acceptance": [
+      "Both files mock react-i18next so assertions match key strings",
+      "Header tests cover null / within / over / exactly-at-limit boundary",
+      "Editor tests assert the exact mutation argument for a valid value and for the null clear",
+      "Editor tests prove 0 and 2147483648 fire no mutation",
+      "Every hook and store the components import is mocked"
+    ],
+    "risk": "Missing one vi.mock makes render throw, and every case in the file fails with an error that points at the harness rather than the feature.",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 8000
+    },
+    "retry_count": 0
+  }
+]
