@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "run_id": "20260821-094808-feature-extend-lane-wip-limit",
+      "intent": "feature-extend",
+      "feature": "advisory per-column WIP limit (wipLimit)",
+      "started_at": "2026-08-21T09:48:08Z",
+      "closed_at": "2026-08-21T11:21:00Z",
+      "mode": "brownfield",
+      "policy": "opus-plus-sonnet-max",
+      "auth_mode": "vendor",
+      "model": "claude-opus-5 (judgment) + claude-sonnet-5 (mechanical)",
+      "adapter": "claude-cli (both leaves)",
+      "branch": "feature-extend-1/opus-sonnet",
+      "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+      "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+      "committed": false,
+      "cost_usd": 2.707,
+      "cost_is_floor": false,
+      "cost_caveat": "9 of 10 dispatches vendor-reported. One event (plan_task_packets, $0.0850) is ESTIMATED: handled in-session on the same Opus tier the policy names, priced from the policy pricing block via the char/3.8 heuristic. Arm 4 of 4; cheapest of the four arms.",
+      "dispatches": 10,
+      "failed_dispatches": 1,
+      "cost_by_tier": {
+        "claude-opus-5": {
+          "dispatches": 5,
+          "cost_usd": 1.1256,
+          "output_tokens": 20046,
+          "usd_per_1k_output": 0.0562
+        },
+        "claude-sonnet-5": {
+          "dispatches": 5,
+          "cost_usd": 1.5813,
+          "output_tokens": 67121,
+          "usd_per_1k_output": 0.0236
+        }
+      },
+      "headline_finding": "The cheap tier cost MORE in absolute terms than the premium tier ($1.5813 vs $1.1256) despite being 2.4x cheaper per output token, because mechanical work emitted 3.3x more output. The two test packets alone were $0.9433 (35% of the run). A mixed policy pays off on input-heavy/output-light phases (review, analysis, planning) and pays off LEAST on test generation.",
+      "files_touched": 20,
+      "files_new": 6,
+      "tests_added": {
+        "api_unit": 20,
+        "web_component": 15,
+        "api_integration": 15,
+        "total": 50
+      },
+      "gates": {
+        "gate_0": "approved",
+        "gate_1": "approved",
+        "gate_2": "approved",
+        "gate_3": "approved (openapi allowlisted, then regeneration declined on inspection)",
+        "gate_4": "accepted"
+      },
+      "verification": {
+        "typecheck": "pass 6/6",
+        "api_unit": "pass 394/394 across 59 files",
+        "web_unit": "pass 127/127 across 38 files",
+        "api_integration": "pass 196/196 across 30 files (live PostgreSQL, port 55432, created+migrated from zero)",
+        "biome_ci": "0 errors across 1186 files (78 pre-existing warnings)",
+        "i18n_check": "fail - PRE-EXISTING at baseline, not caused by this run, not in the confirmed gate"
+      },
+      "reviews": {
+        "senior": "changes-required -> resolved. Both blockers were outside the feature logic; D1-D6 and contract constraints 1-6 all passed on inspection.",
+        "security": "pass with observations; F-1 accepted as a disclosure decision. Reviewer EXECUTED the Valibot schema against 17 hostile inputs (NaN, Infinity, -0, 1e300, \"5\", 2147483648, 2.5) rather than reasoning from source."
+      },
+      "revert": "/mmo:revert 20260821-094808-feature-extend-lane-wip-limit"
+    }
+  ]
+}
