@@ -45,6 +45,7 @@ import type Task from "@/types/task";
 import { Button } from "../ui/button";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
+import { TaskEstimateBadge } from "./task-estimate-badge";
 import { TaskLabels } from "./task-labels";
 
 type TaskCardProps = {
@@ -278,6 +279,8 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                   <span>{format(new Date(task.dueDate), "MMM d")}</span>
                 </div>
               )}
+
+              <TaskEstimateBadge minutes={task.estimatedMinutes} />
 
               {pullRequests.length === 1 && (
                 <HoverCard openDelay={200} closeDelay={100}>

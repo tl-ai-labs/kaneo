@@ -1719,7 +1719,8 @@
 			"copyTaskBranch": "Копіювати гілку завдання",
 			"start": "Початок",
 			"startDate": "Дата початку",
-			"noDate": "Немає дати"
+			"noDate": "Немає дати",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Перемістити завдання",
@@ -1774,6 +1775,15 @@
 					"rose": "Троянда",
 					"crimson": "Багряний"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1869,7 +1879,8 @@
 			"noTasks": "Немає завдань"
 		},
 		"kanban": {
-			"addTask": "Додати завдання"
+			"addTask": "Додати завдання",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Змерджено",

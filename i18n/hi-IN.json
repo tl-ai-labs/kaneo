@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "कार्य शाखा कॉपी करें",
 			"start": "शुरू",
 			"startDate": "शुरू की तारीख",
-			"noDate": "कोई तारीख नहीं"
+			"noDate": "कोई तारीख नहीं",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "कार्य ले जाएँ",
@@ -1764,6 +1765,15 @@
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1869,8 @@
 			"noTasks": "कोई कार्य नहीं"
 		},
 		"kanban": {
-			"addTask": "कार्य जोड़ें"
+			"addTask": "कार्य जोड़ें",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "मर्ज किया",

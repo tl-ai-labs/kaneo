@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "작업 브랜치 복사",
 			"start": "시작",
 			"startDate": "시작일",
-			"noDate": "날짜 없음"
+			"noDate": "날짜 없음",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "작업 이동",
@@ -1764,6 +1765,15 @@
 					"rose": "로즈",
 					"crimson": "크림슨"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1869,8 @@
 			"noTasks": "작업 없음"
 		},
 		"kanban": {
-			"addTask": "작업 추가"
+			"addTask": "작업 추가",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "병합됨",

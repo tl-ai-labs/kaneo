@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "Copiar la rama de la tarea",
 			"start": "Comenzar",
 			"startDate": "Fecha de inicio",
-			"noDate": "Sin fecha"
+			"noDate": "Sin fecha",
+			"noEstimate": "No estimate"
 		},
 		"popover": {
 			"assignee": {
@@ -1753,6 +1754,15 @@
 					"rose": "Rosa",
 					"crimson": "Carmesí"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1848,7 +1858,8 @@
 			"noTasks": "No hay tareas"
 		},
 		"kanban": {
-			"addTask": "Añadir tarea"
+			"addTask": "Añadir tarea",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Mergeada",

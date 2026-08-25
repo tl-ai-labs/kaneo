@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { coerceEstimatedMinutes } from "../estimated-minutes";
 import {
   coercePriority,
   coerceStatus,
@@ -17,6 +18,7 @@ export type ImportTask = {
   priority?: string;
   startDate?: string | null;
   dueDate?: string | null;
+  estimatedMinutes?: number | null;
   userId?: string | null;
 };
 
@@ -48,7 +50,11 @@ async function importTasks(
       const { priority, warning: priorityWarning } = coercePriority(
         taskData.priority || "low",
       );
-      const warnings = [statusWarning, priorityWarning].filter(Boolean);
+      const { estimatedMinutes, warning: estimateWarning } =
+        coerceEstimatedMinutes(taskData.estimatedMinutes);
+      const warnings = [statusWarning, priorityWarning, estimateWarning].filter(
+        Boolean,
+      );
 
       const column = await db.query.columnTable.findFirst({
         where: and(
@@ -70,6 +76,7 @@ async function importTasks(
             columnId: column?.id ?? null,
             startDate: taskData.startDate ? new Date(taskData.startDate) : null,
             dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
+            estimatedMinutes,
             description: taskData.description || "",
             priority,
             number: taskNumber,

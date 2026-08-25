@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "Aufgaben-Branch kopieren",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Kein Datum"
+			"noDate": "Kein Datum",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Aufgabe verschieben",
@@ -1764,6 +1765,15 @@
 					"rose": "Rosa",
 					"crimson": "Karmesinrot"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1869,8 @@
 			"noTasks": "Keine Aufgaben"
 		},
 		"kanban": {
-			"addTask": "Aufgabe hinzufügen"
+			"addTask": "Aufgabe hinzufügen",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Zusammengeführt",

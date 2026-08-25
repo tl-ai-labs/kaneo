@@ -24,6 +24,10 @@ type Task = {
   priority: string | null;
   startDate: string | null;
   dueDate: string | null;
+  // Optional rather than required: bare Task literals exist in files outside this
+  // change's write contract (e.g. list-view/task-row.test.tsx), and a required
+  // member would break typecheck at call sites this change cannot edit.
+  estimatedMinutes?: number | null;
   position: number | null;
   createdAt: string;
   updatedAt?: string;

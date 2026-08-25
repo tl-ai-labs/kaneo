@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "复制任务分支",
 			"start": "开始",
 			"startDate": "开始日期",
-			"noDate": "无日期"
+			"noDate": "无日期",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "移动任务",
@@ -1764,6 +1765,15 @@
 					"rose": "玫红",
 					"crimson": "深红"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1869,8 @@
 			"noTasks": "无任务"
 		},
 		"kanban": {
-			"addTask": "添加任务"
+			"addTask": "添加任务",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "已合并",

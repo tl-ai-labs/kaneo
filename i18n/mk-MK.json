@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "Копирај гранка на задача",
 			"start": "Почеток",
 			"startDate": "Почетен датум",
-			"noDate": "Без датум"
+			"noDate": "Без датум",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Премести задача",
@@ -1764,6 +1765,15 @@
 					"rose": "Роза",
 					"crimson": "Гримизна"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1869,8 @@
 			"noTasks": "Нема задачи"
 		},
 		"kanban": {
-			"addTask": "Додади задача"
+			"addTask": "Додади задача",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Споен",

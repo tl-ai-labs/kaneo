@@ -42,9 +42,11 @@ import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
+import updateTaskEstimate from "./controllers/update-task-estimate";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
+import { normalizeEstimatedMinutes } from "./estimated-minutes";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
 const task = new Hono<{
@@ -444,6 +446,7 @@ const task = new Hono<{
             priority: v.optional(v.string()),
             startDate: v.optional(v.nullable(v.string())),
             dueDate: v.optional(v.nullable(v.string())),
+            estimatedMinutes: v.optional(v.nullable(v.number())),
             userId: v.optional(v.nullable(v.string())),
           }),
         ),
@@ -608,6 +611,41 @@ const task = new Hono<{
         id,
         dueDate: dueDate ? validateAndParseDate(dueDate, "dueDate") : null,
         currentUserId,
+      });
+
+      return c.json(task);
+    },
+  )
+  .put(
+    "/estimate/:id",
+    describeRoute({
+      operationId: "updateTaskEstimate",
+      tags: ["Tasks"],
+      description: "Update only the estimated effort of a task",
+      responses: {
+        200: {
+          description: "Task estimate updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator(
+      "json",
+      v.object({ estimatedMinutes: v.optional(v.nullable(v.number())) }),
+    ),
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { estimatedMinutes = null } = c.req.valid("json");
+
+      const task = await updateTaskEstimate({
+        id,
+        estimatedMinutes: normalizeEstimatedMinutes(estimatedMinutes),
       });
 
       return c.json(task);

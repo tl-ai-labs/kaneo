@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "Taakbranch kopiëren",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Geen datum"
+			"noDate": "Geen datum",
+			"noEstimate": "No estimate"
 		},
 		"popover": {
 			"assignee": {
@@ -1753,6 +1754,15 @@
 					"rose": "Roos",
 					"crimson": "Karmozijn"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1848,7 +1858,8 @@
 			"noTasks": "Geen taken"
 		},
 		"kanban": {
-			"addTask": "Taak toevoegen"
+			"addTask": "Taak toevoegen",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Samengevoegd",

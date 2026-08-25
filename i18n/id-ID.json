@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "Salin branch tugas",
 			"start": "Mulai",
 			"startDate": "Tanggal mulai",
-			"noDate": "Tanpa tanggal"
+			"noDate": "Tanpa tanggal",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Pindahkan tugas",
@@ -1764,6 +1765,15 @@
 					"rose": "Rose",
 					"crimson": "Crimson"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1869,8 @@
 			"noTasks": "Tidak ada tugas"
 		},
 		"kanban": {
-			"addTask": "Tambah tugas"
+			"addTask": "Tambah tugas",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Digabung",

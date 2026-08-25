@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "Αντιγραφή κλάδου εργασίας",
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
-			"noDate": "Χωρίς ημερομηνία"
+			"noDate": "Χωρίς ημερομηνία",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Μετακίνηση εργασίας",
@@ -1764,6 +1765,15 @@
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1869,8 @@
 			"noTasks": "Δεν υπάρχουν εργασίες"
 		},
 		"kanban": {
-			"addTask": "Προσθήκη εργασίας"
+			"addTask": "Προσθήκη εργασίας",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Συγχωνευμένο",

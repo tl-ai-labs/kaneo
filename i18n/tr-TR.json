@@ -1709,7 +1709,8 @@
 			"copyTaskBranch": "Talep dalını kopyala",
 			"start": "Başlat",
 			"startDate": "Başlangıç tarihi",
-			"noDate": "Tarih yok"
+			"noDate": "Tarih yok",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Talebi taşı",
@@ -1764,6 +1765,15 @@
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1869,8 @@
 			"noTasks": "Talep yok"
 		},
 		"kanban": {
-			"addTask": "Talep ekle"
+			"addTask": "Talep ekle",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Birleştirildi",

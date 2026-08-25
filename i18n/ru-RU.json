@@ -1727,7 +1727,8 @@
 			"copyTaskBranch": "Скопировать ветку задачи",
 			"start": "Начало",
 			"startDate": "Дата начала",
-			"noDate": "Без даты"
+			"noDate": "Без даты",
+			"noEstimate": "No estimate"
 		},
 		"move": {
 			"title": "Переместить задачу",
@@ -1782,6 +1783,15 @@
 					"rose": "Роза",
 					"crimson": "Малиновый"
 				}
+			},
+			"estimate": {
+				"title": "Estimate (hours)",
+				"placeholder": "e.g. 2.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours between {{min}} and {{max}}.",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			}
 		},
 		"backlog": {
@@ -1889,7 +1899,8 @@
 			"noTasks": "Нет задач"
 		},
 		"kanban": {
-			"addTask": "Добавить задачу"
+			"addTask": "Добавить задачу",
+			"laneEstimate": "Estimated: {{value}}"
 		},
 		"pr": {
 			"merged": "Влит",
