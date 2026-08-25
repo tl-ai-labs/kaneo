@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "run_id": "20260821-065909-feature-extend-lane-wip-limit",
+      "intent": "feature-extend",
+      "feature": "advisory per-column WIP limit (wipLimit)",
+      "started_at": "2026-08-21T06:59:09Z",
+      "closed_at": "2026-08-21T08:45:00Z",
+      "mode": "brownfield",
+      "policy": "opus-only-v5",
+      "auth_mode": "vendor",
+      "model": "claude-opus-5",
+      "adapter": "claude-cli",
+      "branch": "feature-extend-1/opus-only",
+      "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+      "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+      "committed": false,
+      "cost_usd": 3.884535,
+      "cost_is_floor": false,
+      "cost_caveat": "Vendor-reported per-dispatch cost across 14 claude-cli dispatches. Five small items were completed in-session rather than dispatched (see manifest.cost_caveat), so this is not strictly like-for-like against the flash arm's $3.501437.",
+      "dispatches": 14,
+      "files_touched": 22,
+      "gates": {
+        "gate_0": "approved",
+        "gate_1": "approved (1 revision: explicit v.integer() + int4 ceiling 2147483647)",
+        "gate_2": "approved (over-cap threshold fixed at strictly count > limit)",
+        "gate_3": "approved (both review fixes applied before final report)",
+        "gate_4": "accepted"
+      },
+      "verification": {
+        "typecheck": "pass 6/6",
+        "api_unit": "pass 398/398",
+        "web_unit": "pass 126/126",
+        "api_integration": "pass 187/187",
+        "i18n_check": "fail \u2014 pre-existing at baseline, not caused by this run"
+      },
+      "reviews": {
+        "senior": "APPROVE WITH NITS (0 blockers)",
+        "security": "PASS (highest severity Informational)"
+      },
+      "revert": "/mmo:revert 20260821-065909-feature-extend-lane-wip-limit (delete apps/api/drizzle/0043_next_killraven.sql and meta/0043_snapshot.json by hand)"
+    }
+  ]
+}
