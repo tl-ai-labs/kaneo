@@ -57,5 +57,4 @@ apps/web/.tanstack/
 .pi/
 
 # AI-SDLC run artifacts (requirements, plans, telemetry, backups)
-.sdlc/
 .hook-logs/
