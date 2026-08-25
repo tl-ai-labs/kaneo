@@ -1,0 +1,48 @@
+=== BASELINE @ 5d1fc910 ===
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> test:unit
+> vitest run --config vitest.config.ts
+
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ target: 'node18' }`
+
+ RUN  v4.1.10 /home/sangeetha/projects/kaneo/apps/api
+
+
+ Test Files  58 passed (58)
+      Tests  374 passed (374)
+   Start at  09:05:40
+   Duration  6.63s (transform 3.47s, setup 0ms, import 23.04s, tests 4.67s, environment 11ms)
+
+--- web unit ---
+[33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vitest.config.ts:17:25). Use `import.meta.dirname` instead
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+
+ RUN  v4.1.10 /home/sangeetha/projects/kaneo/apps/web
+
+
+ Test Files  36 passed (36)
+      Tests  112 passed (112)
+   Start at  09:05:54
+   Duration  23.33s (transform 7.73s, setup 11.38s, import 52.26s, tests 18.50s, environment 59.28s)
+
+--- typecheck (api+web) ---
+[33m@kaneo/api:build: [0m  dist/index.js  1.2mb ⚠️
+[33m@kaneo/api:build: [0m
+[33m@kaneo/api:build: [0m⚡ Done in 56ms
+[34m@kaneo/libs:typecheck: [0mcache miss, executing [2meb758881b48c98b9[0m
+[36m@kaneo/web:typecheck: [0mcache miss, executing [2m6eb591b639295889[0m
+[34m@kaneo/libs:typecheck: [0m
+[34m@kaneo/libs:typecheck: [0m> @kaneo/libs@0.0.0 typecheck /home/sangeetha/projects/kaneo/packages/libs
+[34m@kaneo/libs:typecheck: [0m> tsc --noEmit -p tsconfig.json
+[34m@kaneo/libs:typecheck: [0m
+[36m@kaneo/web:typecheck: [0m
+[36m@kaneo/web:typecheck: [0m> @kaneo/web@0.0.0 typecheck /home/sangeetha/projects/kaneo/apps/web
+[36m@kaneo/web:typecheck: [0m> tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json
+[36m@kaneo/web:typecheck: [0m
+
+[1m Tasks:    [32m[1m6 successful[0m, 6 total[0m
+[1mCached:    [1m2 cached[0m, 6 total[0m
+[1m  Time:    [1m6m54.701s[0m [0m
+

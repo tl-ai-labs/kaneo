@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "run_id": "20260825-084051-feature-extend-estimated-hours",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "opus-only-v5",
+  "auth_mode": "estimated",
+  "git": {
+    "branch": "feature-extend-2/opus-only",
+    "head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "base": "5d1fc910"
+  },
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours",
+  "started_at": "2026-08-25T08:56:22.270Z",
+  "finished_at": "2026-08-25T10:43:15.109Z",
+  "totals": {
+    "events": 24,
+    "cost_usd": 9.5535,
+    "input_tokens": 776361,
+    "input_tokens_cached": 1262434,
+    "output_tokens": 141400
+  },
+  "by_provenance": {
+    "vendor": {
+      "events": 16,
+      "cost_usd": 4.755
+    },
+    "estimated": {
+      "events": 8,
+      "cost_usd": 4.7985
+    }
+  },
+  "by_phase": {
+    "requirements_analysis": {
+      "events": 1,
+      "input_tokens": 23684,
+      "input_tokens_cached": 0,
+      "output_tokens": 5845,
+      "cost_usd": 0.2646
+    },
+    "change_plan": {
+      "events": 1,
+      "input_tokens": 115771,
+      "input_tokens_cached": 0,
+      "output_tokens": 17500,
+      "cost_usd": 1.0169
+    },
+    "plan_task_packets": {
+      "events": 1,
+      "input_tokens": 55000,
+      "input_tokens_cached": 0,
+      "output_tokens": 8000,
+      "cost_usd": 0.475
+    },
+    "codegen": {
+      "events": 12,
+      "input_tokens": 208871,
+      "input_tokens_cached": 833484,
+      "output_tokens": 28086,
+      "cost_usd": 3.2423
+    },
+    "tests": {
+      "events": 3,
+      "input_tokens": 59587,
+      "input_tokens_cached": 304356,
+      "output_tokens": 14855,
+      "cost_usd": 1.1268
+    },
+    "execute_packets": {
+      "events": 1,
+      "input_tokens": 63000,
+      "input_tokens_cached": 0,
+      "output_tokens": 42000,
+      "cost_usd": 1.365
+    },
+    "test_run": {
+      "events": 1,
+      "input_tokens": 3500,
+      "input_tokens_cached": 0,
+      "output_tokens": 2200,
+      "cost_usd": 0.0725
+    },
+    "debug": {
+      "events": 2,
+      "input_tokens": 35540,
+      "input_tokens_cached": 124594,
+      "output_tokens": 7414,
+      "cost_usd": 0.5459
+    },
+    "senior_code_review": {
+      "events": 1,
+      "input_tokens": 113679,
+      "input_tokens_cached": 0,
+      "output_tokens": 8500,
+      "cost_usd": 0.7809
+    },
+    "security_review": {
+      "events": 1,
+      "input_tokens": 97729,
+      "input_tokens_cached": 0,
+      "output_tokens": 7000,
+      "cost_usd": 0.6636
+    }
+  },
+  "by_model": {
+    "claude-opus-5": {
+      "events": 24,
+      "cost_usd": 9.5535
+    }
+  },
+  "hard_cost_cap_usd": 50,
+  "cap_headroom_usd": 40.4465,
+  "files_changed": 45,
+  "changed_files": [
+    "apps/api/drizzle/0043_adorable_micromacro.sql",
+    "apps/api/drizzle/meta/0043_snapshot.json",
+    "apps/api/drizzle/meta/_journal.json",
+    "apps/api/src/database/schema.ts",
+    "apps/api/src/schemas.ts",
+    "apps/api/src/task/controllers/export-tasks.ts",
+    "apps/api/src/task/controllers/get-task.ts",
+    "apps/api/src/task/controllers/get-tasks.ts",
+    "apps/api/src/task/controllers/import-tasks.ts",
+    "apps/api/src/task/controllers/update-task-estimate.ts",
+    "apps/api/src/task/estimated-minutes.ts",
+    "apps/api/src/task/index.ts",
+    "apps/web/src/components/kanban-board/column/column-estimate-total.test.tsx",
+    "apps/web/src/components/kanban-board/column/column-estimate-total.tsx",
+    "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "apps/web/src/components/kanban-board/task-card.tsx",
+    "apps/web/src/components/kanban-board/task-estimate-badge.test.tsx",
+    "apps/web/src/components/kanban-board/task-estimate-badge.tsx",
+    "apps/web/src/components/task/estimate.test.ts",
+    "apps/web/src/components/task/estimate.ts",
+    "apps/web/src/components/task/task-estimate-popover.tsx",
+    "apps/web/src/components/task/task-properties-sidebar.tsx",
+    "apps/web/src/fetchers/task/update-task-estimate.ts",
+    "apps/web/src/hooks/mutations/task/use-update-task-estimate.ts",
+    "apps/web/src/types/task/index.ts",
+    "i18n/de-DE.json",
+    "i18n/el-GR.json",
+    "i18n/en-US.json",
+    "i18n/es-ES.json",
+    "i18n/fr-FR.json",
+    "i18n/hi-IN.json",
+    "i18n/id-ID.json",
+    "i18n/it-IT.json",
+    "i18n/ko-KR.json",
+    "i18n/mk-MK.json",
+    "i18n/nl-NL.json",
+    "i18n/pt-BR.json",
+    "i18n/ru-RU.json",
+    "i18n/schema.json",
+    "i18n/tr-TR.json",
+    "i18n/uk-UA.json",
+    "i18n/vi-VN.json",
+    "i18n/zh-CN.json",
+    "tests/api/task/estimate-import-export.test.ts",
+    "tests/api/task/estimated-minutes.test.ts"
+  ],
+  "artifacts": [
+    "apply-i18n-keys.mjs",
+    "baseline-notes.md",
+    "baseline.json",
+    "build-manifest.mjs",
+    "build-packets.mjs",
+    "build-packets2.mjs",
+    "build-packets3.mjs",
+    "change_plan.md",
+    "changed-files.txt",
+    "discovery.md",
+    "final_report.md",
+    "i18n-after.txt",
+    "i18n-baseline-before.txt",
+    "i18n-baseline-md5.txt",
+    "i18n-guard-result.txt",
+    "intent_brief.md",
+    "live-persistence-check.mts",
+    "manifest.json",
+    "orchestrator.log",
+    "packets.json",
+    "provenance.json",
+    "requirements.md",
+    "review.md",
+    "security_review.md",
+    "telemetry.jsonl",
+    "test-baseline-before.txt",
+    "validate-paths.mjs",
+    "verify-i18n-guard.mjs"
+  ],
+  "verification": {
+    "api_tests": {
+      "before": "58 files / 374 tests",
+      "after": "60 files / 384 tests",
+      "status": "pass"
+    },
+    "web_tests": {
+      "before": "36 files / 112 tests",
+      "after": "39 files / 176 tests",
+      "status": "pass"
+    },
+    "typecheck": {
+      "before": "6/6",
+      "after": "6/6",
+      "status": "pass"
+    },
+    "biome_scoped": {
+      "scope": "44 changed files",
+      "result": "0 errors, 0 warnings",
+      "status": "pass"
+    },
+    "biome_repo_wide": {
+      "status": "pre-existing red, NOT run and NOT attributable to this run"
+    },
+    "i18n_check": {
+      "status": "byte-identical to pre-run baseline",
+      "pre_existing_missing_keys": 324,
+      "note": "324 pre-existing gaps neither fixed nor widened; run added no new missing key"
+    },
+    "migration": {
+      "file": "apps/api/drizzle/0043_adorable_micromacro.sql",
+      "sql": "ALTER TABLE \"task\" ADD COLUMN \"estimated_minutes\" integer;",
+      "applied_to_populated_table": true,
+      "pre_existing_rows_after": "all NULL",
+      "status": "pass"
+    },
+    "live_persistence_check": {
+      "checks": 12,
+      "passed": 12,
+      "database": "kaneo_opus_only"
+    }
+  },
+  "gates": {
+    "gate_0": {
+      "title": "Discovery Confirmation",
+      "status": "approved"
+    },
+    "gate_1": {
+      "title": "Requirements Approval",
+      "status": "approved",
+      "decisions": 5
+    },
+    "gate_2": {
+      "title": "Architecture Approval",
+      "status": "approved",
+      "orchestrator_corrections": 3
+    },
+    "gate_3": {
+      "title": "Security Review",
+      "status": "approved"
+    },
+    "gate_4": {
+      "title": "Final Acceptance",
+      "status": "accepted",
+      "accepted_at": "2026-08-25"
+    }
+  },
+  "finalized": true,
+  "reviews": {
+    "senior": {
+      "verdict": "approve with nits",
+      "blocking": 0,
+      "nits": 10,
+      "nits_actioned": 9
+    },
+    "security": {
+      "verdict": "pass",
+      "blocking": 0,
+      "observations": 3,
+      "pre_existing_noted": 2
+    }
+  },
+  "process_outcomes": [
+    "The minutes<->hours round-trip identity parseEstimateHours(toEstimateHoursInput(m)) === m was brute-forced by the senior reviewer over every integer in 1..525600: 0 failures. That is a proof over the whole domain, not an 11-value sample.",
+    "N-6 was a genuine defect no other arm found: Number(\"2,5\") is NaN, so users in 9 of the 17 shipped locales typing their own decimal separator were rejected with a message that did not explain why. Fixed by normalising the first comma; \"1,2,3\" still rejects.",
+    "The senior reviewer's own N-1 fix was incomplete - swapping the label moved the dead key from noEstimate to estimate rather than removing it. Caught and corrected: the feature ships 9 keys, all live, instead of 10 with one dead.",
+    "The migration's _journal.json diff was 7 insertions / 0 deletions on the first attempt, with no correction cycle.",
+    "The authorization analysis bounds the untested risk rather than asserting it: intra-workspace escalation only, not cross-tenant, and the chain is self-defending against transposition because requireWorkspacePermission throws 500 when workspaceId is unset.",
+    "changed-files.txt initially listed the untracked directory tests/api/task/ rather than its two files, because git status porcelain collapses untracked directories. Caught at close-out; a revert driven off that list would have silently skipped both new test files.",
+    "27 provenance records carried a stale sha_after: they were written before the senior-review refinement pass edited the same files again inside the same run. /mmo:revert compares sha_after to detect a later run touching a file, so all 27 would have looked externally modified and been skipped. Refreshed at finalize (sha_before left untouched, since that is what revert restores). Catching this required reasoning about the run's own execution order, not just reading state.",
+    "Gate 4 acceptance was not pre-marked. manifest.finalized stayed false and state.json stayed terminal:false until the user actually replied, so a dead session would have re-prompted at the gate rather than silently completing - a mechanism fix for the reported sibling-arm defect, not a formatting one."
+  ],
+  "follow_ups": [
+    {
+      "severity": "high",
+      "title": "GET /task/export/:projectId has no requireWorkspacePermission",
+      "detail": "The export route carries workspaceAccess.fromProject(\"projectId\") and no requireWorkspacePermission, so any workspace member can export every task in a project. PRE-EXISTING - it predates this run. This run widens that payload by one field (estimatedMinutes) without changing who can call it. Deliberately not fixed here: mixing an unrelated security fix into a benchmark arm would confound the comparison.",
+      "owner": "separate ticket"
+    },
+    {
+      "severity": "low",
+      "title": "taskSchema / search response drift (S-2)",
+      "detail": "search/index.ts documents its response as v.array(taskSchema) while global-search.ts projects an explicit field list omitting estimatedMinutes. Documentation-only (resolver() has no runtime effect). Pre-existing for position, number and description; this run widens it by one field. Recorded, not fixed.",
+      "owner": "separate ticket"
+    },
+    {
+      "severity": "info",
+      "title": "pnpm i18n:check is red at baseline",
+      "detail": "324 pre-existing missing keys across all 16 non-default locales, in two clusters: common:error.* absent from vi-VN/zh-CN, and i18next plural-suffix keys the checker demands without regard for per-locale CLDR plural categories. Neither caused nor fixed by this run.",
+      "owner": "separate ticket"
+    },
+    {
+      "severity": "info",
+      "title": "2 high transitive advisories under better-auth",
+      "detail": "pnpm audit --prod reports GHSA-2v37-7h3g-55p8 and GHSA-ggr8-5vv4-36mx, both dev-tooling chains. package.json and pnpm-lock.yaml are untouched by this run.",
+      "owner": "separate ticket"
+    }
+  ],
+  "known_gaps": [
+    "No executed test covers the middleware chain on PUT /task/estimate/:id. A regression deleting requireWorkspacePermission({ task: ['update'] }) from that route would pass typecheck, scoped biome, API tests and web tests alike. Deliberate: Gate 1 OQ-4 chose benchmark consistency over widening the allowlist to tests/api-integration/**, even though this branch's fresh database could have run a real integration test.",
+    "The lane rollup is not realtime for other viewers: no publishEvent is emitted (Gate 1 OQ-5), so a teammate's board shows the old lane total until their next refetch. This diverges from due-date, priority, title and assignee, which all publish.",
+    "The 16 non-default locales carry English placeholder strings for the 10 new keys (Gate 1 OQ-3)."
+  ],
+  "finalized_at": "2026-08-25",
+  "outcome": "completed"
+}

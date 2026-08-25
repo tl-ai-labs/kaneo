@@ -1,0 +1,19 @@
+ok   de-DE.json   +10 keys, 0 removed, 0 existing values altered
+ok   el-GR.json   +10 keys, 0 removed, 0 existing values altered
+ok   en-US.json   +10 keys, 0 removed, 0 existing values altered
+ok   es-ES.json   +10 keys, 0 removed, 0 existing values altered
+ok   fr-FR.json   +10 keys, 0 removed, 0 existing values altered
+ok   hi-IN.json   +10 keys, 0 removed, 0 existing values altered
+ok   id-ID.json   +10 keys, 0 removed, 0 existing values altered
+ok   it-IT.json   +10 keys, 0 removed, 0 existing values altered
+ok   ko-KR.json   +10 keys, 0 removed, 0 existing values altered
+ok   mk-MK.json   +10 keys, 0 removed, 0 existing values altered
+ok   nl-NL.json   +10 keys, 0 removed, 0 existing values altered
+ok   pt-BR.json   +10 keys, 0 removed, 0 existing values altered
+ok   ru-RU.json   +10 keys, 0 removed, 0 existing values altered
+ok   tr-TR.json   +10 keys, 0 removed, 0 existing values altered
+ok   uk-UA.json   +10 keys, 0 removed, 0 existing values altered
+ok   vi-VN.json   +10 keys, 0 removed, 0 existing values altered
+ok   zh-CN.json   +10 keys, 0 removed, 0 existing values altered
+
+AC-16 PASS: all 17 locale files changed by exactly the 10 permitted keys, with no existing translation touched.

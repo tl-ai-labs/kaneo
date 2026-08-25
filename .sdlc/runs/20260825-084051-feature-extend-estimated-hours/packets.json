@@ -1,0 +1,978 @@
+[
+  {
+    "id": "tp_cg_001_api_data",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "api-data",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/database/schema.ts",
+    "instruction": "Produce FOUR one-line insertions that thread the new nullable column through the API data layer.\n1) apps/api/src/database/schema.ts - add the estimatedMinutes column to taskTable, positioned between dueDate and createdAt. 'integer' is already imported in this file. Do NOT touch the index block.\n2) apps/api/src/schemas.ts - taskSchema gains estimatedMinutes after dueDate.\n3) apps/api/src/task/controllers/get-task.ts - add estimatedMinutes to the db.select projection, after dueDate.\n4) apps/api/src/task/controllers/get-tasks.ts - add estimatedMinutes to the taskSelection literal, after dueDate.\nFor each edit, 'anchor' MUST be a short exact substring that appears EXACTLY ONCE in that file, and 'insert_after' is the new line(s) with correct indentation.\n\nHARD RULES (this is a brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and was approved by a human. Do not redesign.\n- Match the surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): thin Hono handlers, domain logic in controllers, Valibot validation, HTTPException for expected failures, requireWorkspacePermission for authz, fetchers under apps/web/src/fetchers/, TanStack Query hooks for server state, typed client from @kaneo/libs, prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields, no explanation.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "column definition and placement",
+        "content": "### 3.1 Column definition and placement\n\nIn `apps/api/src/database/schema.ts`, inside the `taskTable` column literal, insert one line between\n`dueDate` (L428) and `createdAt` (L429):\n\n```ts\n    dueDate: timestamp(\"due_date\", { mode: \"date\" }),\n    estimatedMinutes: integer(\"estimated_minutes\"),\n    createdAt: timestamp(\"created_at\", { mode: \"date\" }).defaultNow().notNull(),\n```\n\n`integer` is already imported in this file (used by `position` L413 and `number` L414) — no import edit.\nPlacement groups the estimate with the other planning fields and keeps `createdAt` / `updatedAt` trailing,\nmatching the convention across every other table in the file. Column order in the drizzle literal has no\neffect on the emitted DDL; PostgreSQL always appends physically.\n\nNullable, no `.default()`, no `.notNull()`. **NULL is the only representation of \"no estimate\"** (FR-1);\n`0` is rejected at the API boundary and can never be stored.\n\n### 3.2 No index (FR-3)\n\nThe `(table) => [...]` block at L435-441 is untouched. Justification: no query filters, orders, joins or\naggregates on `estimated_minutes`. The lane rollup is computed in the browser over `column.tasks`, an array\nalready materialised by the existing board query. `get-tasks.ts`'s `sortBy` union is explicitly out of scope\n(§2.7). An index here would be pure write-amplification on a hot table.\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "taskSchema + read projections",
+        "content": "### 4.3 Response schema\n\n`apps/api/src/schemas.ts`, `taskSchema` (L25-44) gains one line after `dueDate` (L42):\n\n```ts\n  estimatedMinutes: v.nullish(v.number()),\n```\n\n`v.nullish` (accepts `null`, `undefined`, or a number) matches how a nullable integer column surfaces both\nin a full row and in a partial projection. `taskSchema` is consumed only through `resolver()` for OpenAPI\nmetadata, so this is a documentation-contract change with no runtime response validation effect — but it is\nrequired for \"Public API behavior must retain accurate Valibot validation and OpenAPI metadata\" (AGENTS.md).\n\n### 4.4 Read projections\n\nBoth read paths list columns explicitly and would otherwise silently drop the field:\n\n- `apps/api/src/task/controllers/get-task.ts` — add `estimatedMinutes: taskTable.estimatedMinutes,` after\n  `dueDate` (L16).\n- `apps/api/src/task/controllers/get-tasks.ts` — same line in the `taskSelection` object after `dueDate`\n  (L131). This is the board payload, so it feeds both the card badge and the lane rollup.\n\nNo other read path is touched. Search/MCP/webhook payloads are unchanged (§2.4, §2.5).\n\n### 4.5 Export payload delta"
+      },
+      {
+        "path": "apps/api/src/database/schema.ts",
+        "reason": "taskTable definition",
+        "content": "export const taskTable = pgTable(\n  \"task\",\n  {\n    id: text(\"id\")\n      .$defaultFn(() => createId())\n      .primaryKey(),\n    projectId: text(\"project_id\")\n      .notNull()\n      .references(() => projectTable.id, {\n        onDelete: \"cascade\",\n        onUpdate: \"cascade\",\n      }),\n    position: integer(\"position\").default(0),\n    number: integer(\"number\").default(1),\n    userId: text(\"assignee_id\").references(() => userTable.id, {\n      onDelete: \"set null\",\n      onUpdate: \"cascade\",\n    }),\n    title: text(\"title\").notNull(),\n    description: text(\"description\"),\n    status: text(\"status\").notNull().default(\"to-do\"),\n    columnId: text(\"column_id\").references(() => columnTable.id, {\n      onDelete: \"set null\",\n      onUpdate: \"cascade\",\n    }),\n    priority: text(\"priority\").default(\"low\").notNull(),\n    startDate: timestamp(\"start_date\", { mode: \"date\" }),\n    dueDate: timestamp(\"due_date\", { mode: \"date\" }),\n    createdAt: timestamp(\"created_at\", { mode: \"date\" }).defaultNow().notNull(),\n    updatedAt: timestamp(\"updated_at\", { mode: \"date\" })\n      .defaultNow()\n      .$onUpdate(() => new Date())\n      .notNull(),\n  },\n  (table) => [\n    index(\"task_projectId_idx\").on(table.projectId),\n    index(\"task_dueDate_idx\").on(table.dueDate),\n    index(\"task_assigneeId_idx\").on(table.userId),\n    index(\"task_columnId_idx\").on(table.columnId),\n    unique(\"task_project_number_unique\").on(table.projectId, table.number),\n  ],\n);\n\nexport const billingReminderSentTable = pgTable(\n  \"billing_reminder_sent\","
+      },
+      {
+        "path": "apps/api/src/schemas.ts",
+        "reason": "taskSchema",
+        "content": "export const taskSchema = v.object({\n  id: v.string(),\n  projectId: v.string(),\n  position: v.nullable(v.number()),\n  number: v.nullable(v.number()),\n  userId: v.nullable(v.string()),\n  title: v.string(),\n  description: v.nullable(v.string()),\n  status: v.string(),\n  priority: v.picklist([\n    \"no-priority\",\n    \"low\",\n    \"medium\",\n    \"high\",\n    \"urgent\",\n  ] as const),\n  startDate: v.optional(v.date()),\n  dueDate: v.optional(v.date()),\n  createdAt: v.date(),\n});\n"
+      },
+      {
+        "path": "apps/api/src/task/controllers/get-task.ts",
+        "reason": "getTask projection",
+        "content": "import { eq } from \"drizzle-orm\";\nimport { HTTPException } from \"hono/http-exception\";\nimport db from \"../../database\";\nimport { taskTable, userTable } from \"../../database/schema\";\n\nasync function getTask(taskId: string) {\n  const task = await db\n    .select({\n      id: taskTable.id,\n      title: taskTable.title,\n      number: taskTable.number,\n      description: taskTable.description,\n      status: taskTable.status,\n      priority: taskTable.priority,\n      startDate: taskTable.startDate,\n      dueDate: taskTable.dueDate,\n      position: taskTable.position,\n      createdAt: taskTable.createdAt,\n      userId: taskTable.userId,\n      assigneeName: userTable.name,\n      assigneeId: userTable.id,\n      projectId: taskTable.projectId,\n    })\n    .from(taskTable)\n    .leftJoin(userTable, eq(taskTable.userId, userTable.id))\n    .where(eq(taskTable.id, taskId))\n    .limit(1);\n\n  if (!task.length || !task[0]) {\n    throw new HTTPException(404, {"
+      },
+      {
+        "path": "apps/api/src/task/controllers/get-tasks.ts",
+        "reason": "taskSelection literal",
+        "content": "\n  const taskSelection = {\n    id: taskTable.id,\n    title: taskTable.title,\n    number: taskTable.number,\n    description: taskTable.description,\n    status: taskTable.status,\n    priority: taskTable.priority,\n    startDate: taskTable.startDate,\n    dueDate: taskTable.dueDate,\n    position: taskTable.position,\n    createdAt: taskTable.createdAt,\n    userId: taskTable.userId,\n    assigneeName: userTable.name,\n    assigneeId: userTable.id,\n    assigneeImage: userTable.image,\n    projectId: taskTable.projectId,\n  };\n\n  const query = db\n    .select(taskSelection)"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "anchor": {
+                "type": "string",
+                "description": "exact unique existing text to insert after"
+              },
+              "insert_after": {
+                "type": "string",
+                "description": "exact new text, correctly indented"
+              }
+            },
+            "required": [
+              "path",
+              "anchor",
+              "insert_after"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "schema.ts insert is exactly: estimatedMinutes: integer(\"estimated_minutes\"),",
+      "schemas.ts insert declares estimatedMinutes as nullish number",
+      "both projections add estimatedMinutes: taskTable.estimatedMinutes,",
+      "every anchor string occurs exactly once in its file"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 1500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_002_api_validator",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "api-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/estimated-minutes.ts",
+    "instruction": "Write the complete new DB-free validation module apps/api/src/task/estimated-minutes.ts.\nIt must import ONLY { HTTPException } from \"hono/http-exception\" - it must NOT import ../database, because tests/api is a DB-free suite that imports this module directly.\nExport exactly: MAX_ESTIMATED_MINUTES, normalizeEstimatedMinutes(value: unknown): number | null, coerceEstimatedMinutes(value: unknown): { estimatedMinutes: number | null; warning?: string }.\nImplement the accept/reject table and the two verbatim messages exactly as the plan states. Note Number.isInteger is false for NaN and Infinity, which is why one range check covers them.\n\nHARD RULES (this is a brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and was approved by a human. Do not redesign.\n- Match the surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): thin Hono handlers, domain logic in controllers, Valibot validation, HTTPException for expected failures, requireWorkspacePermission for authz, fetchers under apps/web/src/fetchers/, TanStack Query hooks for server state, typed client from @kaneo/libs, prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields, no explanation.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "validation design: exports, messages, accept/reject table, implementation order",
+        "content": "## 5. Validation design\n\n### 5.1 The module\n\nPath: **`apps/api/src/task/estimated-minutes.ts`** — a new file, not an addition to\n`validate-task-fields.ts`, because that file imports `../database` (L3) and is therefore unimportable from\nthe DB-free `tests/api` suite. The new module imports only `hono/http-exception`.\n\nExports:\n\n```ts\nexport const MAX_ESTIMATED_MINUTES = 60 * 24 * 365; // 525_600 — one year\nexport function normalizeEstimatedMinutes(value: unknown): number | null\nexport function coerceEstimatedMinutes(value: unknown): {\n  estimatedMinutes: number | null;\n  warning?: string;\n}\n```\n\n`MAX_ESTIMATED_MINUTES` sizing (FR-6): 525,600 × 4,084 tasks in a single lane would be needed to overflow\nPostgreSQL `integer` (2,147,483,647), which is not reachable on a rendered board, and is nine orders of\nmagnitude below `Number.MAX_SAFE_INTEGER` for the client-side sum.\n\n### 5.2 Two layers, two failure modes\n\n| Layer | Catches | Produces |\n|---|---|---|\n| `validator(\"json\", v.object({ estimatedMinutes: v.optional(v.nullable(v.number())) }))` | wrong **type** — string, boolean, object, array | framework 400 before the handler runs |\n| `normalizeEstimatedMinutes` | wrong **value** — `0`, negative, non-integer, `NaN`, `Infinity`, over bound | `HTTPException(400, { message })` with a readable message |\n\nThe normalizer also re-checks the type (`typeof value !== \"number\"`) so that it is safe to call from any\ncaller, including the tests, without relying on the route validator having run. Neither layer can produce a\n500 (AC-3).\n\nNote that `v.number()` in Valibot accepts `NaN` and `Infinity` — both are `typeof \"number\"` — which is\nprecisely why the value rules cannot live in the route schema.\n\n### 5.3 `normalizeEstimatedMinutes` accept/reject table\n\nMessages, verbatim:\n\n- `TYPE_MESSAGE` = `\"estimatedMinutes must be a number or null\"`\n- `RANGE_MESSAGE` = ``` `estimatedMinutes must be a whole number of minutes between 1 and ${MAX_ESTIMATED_MINUTES}` ``` → `\"estimatedMinutes must be a whole number of minutes between 1 and 525600\"`\n\n| Input | Result | Produced by |\n|---|---|---|\n| `150` | `150` | — |\n| `1` | `1` | — |\n| `525600` | `525600` | — |\n| `null` | `null` (clear) | — |\n| `undefined` | `null` (clear) | — |\n| `0` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `-5` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `90.5` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `NaN` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `Infinity` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `525601` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `999999999` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `\"abc\"` | 400 at the route (Valibot); `HTTPException(400, TYPE_MESSAGE)` if called directly | validator / normalizer |\n| `\"150\"` | 400 at the route (Valibot); `HTTPException(400, TYPE_MESSAGE)` if called directly | validator / normalizer |\n| `true` | 400 at the route (Valibot); `HTTPException(400, TYPE_MESSAGE)` if called directly | validator / normalizer |\n\nImplementation order inside the function: `null`/`undefined` → `null`; `typeof !== \"number\"` → TYPE_MESSAGE;\n`!Number.isInteger(value)` (which is false for `NaN`, `Infinity` and `90.5` alike) or\n`value < 1` or `value > MAX_ESTIMATED_MINUTES` → RANGE_MESSAGE; else the value.\n\n`undefined → null` matches the route's `const { estimatedMinutes = null } = ...` destructuring default,\nwhich is the same posture the due-date route takes at L604.\n\n### 5.4 `coerceEstimatedMinutes` (import path)\n\nNever throws. Same accept set as the normalizer; every reject becomes:\n\n```ts\n{ estimatedMinutes: null, warning: `Invalid estimatedMinutes ${JSON.stringify(value)} imported as no estimate` }\n```\n\n`null` and `undefined` return `{ estimatedMinutes: null }` with **no** warning — an absent estimate is\nnormal input, not a data problem. The wording mirrors `coerceStatus`'s\n`` `Unknown status \"${status}\" mapped to \"planned\"` ``.\n\n---\n"
+      },
+      {
+        "path": "apps/api/src/task/validate-task-fields.ts",
+        "reason": "coercePriority: the shape coerceEstimatedMinutes mirrors",
+        "content": "  }\n  return {\n    status: \"planned\",\n    warning: `Unknown status \"${status}\" mapped to \"planned\"`,\n  };\n}\n\nexport function coercePriority(priority: string): {\n  priority: string;\n  warning?: string;\n} {\n  if ((VALID_PRIORITIES as readonly string[]).includes(priority)) {\n    return { priority };\n  }\n  return {\n    priority: \"no-priority\",\n    warning: `Unknown priority \"${priority}\" mapped to \"no-priority\"`,"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "no import of ../database",
+      "MAX_ESTIMATED_MINUTES === 525600",
+      "normalizeEstimatedMinutes throws HTTPException(400) for 0, -5, 90.5, NaN, Infinity, 525601",
+      "normalizeEstimatedMinutes returns null for null and undefined",
+      "coerceEstimatedMinutes never throws and returns a warning for every rejected value",
+      "null/undefined coerce to null with NO warning"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 2500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_003_api_controller",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "api-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/update-task-estimate.ts",
+    "instruction": "Write the complete new controller apps/api/src/task/controllers/update-task-estimate.ts.\nModel it on the sibling update-task-due-date.ts provided, with two deliberate differences:\n- NO publishEvent call (approved Gate 1 OQ-5: activitySchema's type is a closed picklist with no estimate member).\n- NO taskReminderSentTable deletion (that is due-date specific).\nInclude a short comment explaining WHY no event is published, since a reader will notice the asymmetry with every sibling controller.\n\nHARD RULES (this is a brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and was approved by a human. Do not redesign.\n- Match the surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): thin Hono handlers, domain logic in controllers, Valibot validation, HTTPException for expected failures, requireWorkspacePermission for authz, fetchers under apps/web/src/fetchers/, TanStack Query hooks for server state, typed client from @kaneo/libs, prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields, no explanation.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "controller spec",
+        "content": "### 4.2 Controller\n\n`apps/api/src/task/controllers/update-task-estimate.ts`, shaped on `update-task-due-date.ts`:\n\n```ts\nasync function updateTaskEstimate({\n  id,\n  estimatedMinutes,\n}: {\n  id: string;\n  estimatedMinutes: number | null;\n}) {\n  const existingTask = await db.query.taskTable.findFirst({\n    where: eq(taskTable.id, id),\n  });\n\n  if (!existingTask) {\n    throw new HTTPException(404, { message: \"Task not found\" });\n  }\n\n  const [updatedTask] = await db\n    .update(taskTable)\n    .set({ estimatedMinutes })\n    .where(eq(taskTable.id, id))\n    .returning();\n\n  if (!updatedTask) {\n    throw new HTTPException(500, { message: \"Failed to update task estimate\" });\n  }\n\n  return updatedTask;\n}\n\nexport default updateTaskEstimate;\n```\n\nDifferences from `update-task-due-date.ts`, both intentional: no `taskReminderSentTable` delete (estimates\ndrive no reminders) and **no `publishEvent`** (Gate 1 OQ-5, FR-11, ADR-3).\n"
+      },
+      {
+        "path": "apps/api/src/task/controllers/update-task-due-date.ts",
+        "reason": "the sibling pattern to copy",
+        "content": "import { eq } from \"drizzle-orm\";\nimport { HTTPException } from \"hono/http-exception\";\nimport db from \"../../database\";\nimport { taskReminderSentTable, taskTable } from \"../../database/schema\";\nimport { publishEvent } from \"../../events\";\n\nasync function updateTaskDueDate({\n  id,\n  dueDate,\n  currentUserId,\n}: {\n  id: string;\n  dueDate: Date | null;\n  currentUserId: string;\n}) {\n  const existingTask = await db.query.taskTable.findFirst({\n    where: eq(taskTable.id, id),\n  });\n\n  if (!existingTask) {\n    throw new HTTPException(404, {\n      message: \"Task not found\",\n    });\n  }\n\n  // Clear sent reminders so new due date triggers fresh notifications\n  await db\n    .delete(taskReminderSentTable)\n    .where(eq(taskReminderSentTable.taskId, id));\n\n  const [updatedTask] = await db\n    .update(taskTable)\n    .set({ dueDate: dueDate || null })\n    .where(eq(taskTable.id, id))\n    .returning();\n\n  if (!updatedTask) {\n    throw new HTTPException(500, {\n      message: \"Failed to update task due date\",\n    });\n  }\n\n  await publishEvent(\"task.due_date_changed\", {\n    taskId: updatedTask.id,\n    projectId: updatedTask.projectId,\n    userId: currentUserId,\n    oldDueDate: existingTask.dueDate,\n    newDueDate: dueDate,\n    title: updatedTask.title,\n    type: \"due_date_changed\",\n  });\n\n  return updatedTask;\n}\n\nexport default updateTaskDueDate;\n"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "default-exports an async function taking { id, estimatedMinutes, currentUserId }",
+      "404 HTTPException when the task does not exist",
+      "500 HTTPException when the update returns no row",
+      "no publishEvent import or call",
+      "a comment explains the omission"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 1800
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_004_api_route",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "api-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/index.ts",
+    "instruction": "Produce the edits that add the PUT /estimate/:id route to apps/api/src/task/index.ts.\nReturn THREE edits: (1) the import of updateTaskEstimate, placed to keep the existing alphabetical controller-import order; (2) the import of normalizeEstimatedMinutes from \"./estimated-minutes\", matching how VALID_PRIORITIES is imported from \"./validate-task-fields\"; (3) the new .put(\"/estimate/:id\", ...) chain link inserted immediately after the closing of the /due-date/:id link.\nThe middleware order is load-bearing and must be exactly: validator(\"param\") -> validator(\"json\") -> workspaceAccess.fromTask() -> requireWorkspacePermission({ task: [\"update\"] }) -> requireEntitlement -> handler.\nThe handler must be THIN: destructure with a default of null, call normalizeEstimatedMinutes, delegate to the controller, return c.json(task).\nEach anchor must occur EXACTLY ONCE in the file.\n\nHARD RULES (this is a brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and was approved by a human. Do not redesign.\n- Match the surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): thin Hono handlers, domain logic in controllers, Valibot validation, HTTPException for expected failures, requireWorkspacePermission for authz, fetchers under apps/web/src/fetchers/, TanStack Query hooks for server state, typed client from @kaneo/libs, prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields, no explanation.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "the new route spec",
+        "content": "### 4.1 New route\n\n| Property | Value |\n|---|---|\n| Method / path | `PUT /task/estimate/:id` |\n| `operationId` | `updateTaskEstimate` |\n| `tags` | `[\"Tasks\"]` |\n| `description` | `\"Update only the estimated effort of a task\"` |\n| Param | `v.object({ id: v.string() })` |\n| Body | `v.object({ estimatedMinutes: v.optional(v.nullable(v.number())) })` |\n| 200 | `resolver(taskSchema)` — the full updated task row |\n| 400 | wrong body **type** (Valibot, framework-generated) or invalid **value** (`HTTPException` from the normalizer, human-readable message) |\n| 401/403 | existing auth middleware / `requireWorkspacePermission` |\n| 404 | task id not found (from the controller) |\n| 500 | update returned no row (should be unreachable) |\n\nMiddleware chain, **in this exact order** (AC-4 is verified by reading this back):\n\n```\ndescribeRoute({...})\nvalidator(\"param\", v.object({ id: v.string() }))\nvalidator(\"json\", v.object({ estimatedMinutes: v.optional(v.nullable(v.number())) }))\nworkspaceAccess.fromTask()\nrequireWorkspacePermission({ task: [\"update\"] })\nrequireEntitlement\nasync (c) => { ... }\n```\n\nHandler body (thin — parse, normalize, delegate, return):\n\n```ts\n    async (c) => {\n      const { id } = c.req.valid(\"param\");\n      const { estimatedMinutes = null } = c.req.valid(\"json\");\n\n      const task = await updateTaskEstimate({\n        id,\n        estimatedMinutes: normalizeEstimatedMinutes(estimatedMinutes),\n      });\n\n      return c.json(task);\n    },\n```\n\nInsertion point: a new `.put(...)` link in the single chained `new Hono()...` in\n`apps/api/src/task/index.ts`, immediately after the `/due-date/:id` link closes (after L615, before the\nblank line preceding `/title/:id`). Two new imports, both landing in biome's sorted order:\n`updateTaskEstimate from \"./controllers/update-task-estimate\"` (alphabetically after\n`update-task-due-date`, L44) and `{ normalizeEstimatedMinutes } from \"./estimated-minutes\"` (grouped with\nthe other `./` local imports).\n\nDeliberate deviation from the due-date sibling: the handler does **not** read `c.get(\"userId\")`, because the\ncontroller has no `currentUserId` parameter — it publishes nothing. See §11 ADR-3.\n"
+      },
+      {
+        "path": "apps/api/src/task/index.ts",
+        "reason": "the /due-date/:id route to clone",
+        "content": "  .put(\n    \"/due-date/:id\",\n    describeRoute({\n      operationId: \"updateTaskDueDate\",\n      tags: [\"Tasks\"],\n      description: \"Update only the due date of a task\",\n      responses: {\n        200: {\n          description: \"Task due date updated successfully\",\n          content: {\n            \"application/json\": { schema: resolver(taskSchema) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ id: v.string() })),\n    validator(\"json\", v.object({ dueDate: v.optional(v.string()) })),\n    workspaceAccess.fromTask(),\n    requireWorkspacePermission({ task: [\"update\"] }),\n    requireEntitlement,\n    async (c) => {\n      const { id } = c.req.valid(\"param\");\n      const { dueDate = null } = c.req.valid(\"json\");\n      const currentUserId = c.get(\"userId\");\n\n      const task = await updateTaskDueDate({\n        id,\n        dueDate: dueDate ? validateAndParseDate(dueDate, \"dueDate\") : null,\n        currentUserId,\n      });\n\n      return c.json(task);\n    },\n  )\n"
+      },
+      {
+        "path": "apps/api/src/task/index.ts",
+        "reason": "existing import block",
+        "content": "import bulkUpdateTasks from \"./controllers/bulk-update-tasks\";\nimport createTask from \"./controllers/create-task\";\nimport deleteTask from \"./controllers/delete-task\";\nimport exportTasks from \"./controllers/export-tasks\";\nimport getTask from \"./controllers/get-task\";\nimport getTasks from \"./controllers/get-tasks\";\nimport importTasks from \"./controllers/import-tasks\";\nimport moveTask from \"./controllers/move-task\";\nimport {\n  requireBulkTaskEntitlement,\n  requireBulkTaskPermission,\n  requireTaskAssigneePermission,\n} from \"./controllers/require-task-permission\";\nimport updateTask from \"./controllers/update-task\";\nimport updateTaskAssignee from \"./controllers/update-task-assignee\";\nimport updateTaskDescription from \"./controllers/update-task-description\";\nimport updateTaskDueDate from \"./controllers/update-task-due-date\";\nimport updateTaskPriority from \"./controllers/update-task-priority\";\nimport updateTaskStatus from \"./controllers/update-task-status\";\nimport updateTaskTitle from \"./controllers/update-task-title\";\nimport { VALID_PRIORITIES } from \"./validate-task-fields\";"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "anchor": {
+                "type": "string",
+                "description": "exact unique existing text to insert after"
+              },
+              "insert_after": {
+                "type": "string",
+                "description": "exact new text, correctly indented"
+              }
+            },
+            "required": [
+              "path",
+              "anchor",
+              "insert_after"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "route path is /estimate/:id and operationId is updateTaskEstimate",
+      "middleware chain order is exactly as specified",
+      "responses 200 uses resolver(taskSchema)",
+      "json validator is v.object({ estimatedMinutes: v.optional(v.nullable(v.number())) })",
+      "handler body is under 12 lines",
+      "each anchor occurs exactly once"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 2500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_005_api_importexport",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "api-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/export-tasks.ts",
+    "instruction": "Thread estimatedMinutes through the import/export round-trip (approved at Gate 1 OQ-1; without this an export->import cycle silently drops every estimate).\nReturn edits for THREE files:\n1) apps/api/src/task/controllers/export-tasks.ts - add estimatedMinutes to the db.select({...}) projection, AND to the emitted per-task object in the returned tasks.map(...). Pass the integer through unchanged; null stays null.\n2) apps/api/src/task/controllers/import-tasks.ts - add estimatedMinutes?: number | null to the ImportTask type; import coerceEstimatedMinutes from \"../estimated-minutes\"; call it alongside the existing coerceStatus/coercePriority calls; push its warning into the existing 'warnings' array (note the existing filter(Boolean) idiom); and write estimatedMinutes into the tx.insert(...).values({...}).\n3) apps/api/src/task/index.ts - the /import/:projectId json validator's per-task v.object gains estimatedMinutes: v.optional(v.nullable(v.number())) after dueDate.\nAn invalid estimate must NEVER fail the whole import - it coerces to null and reports via the existing per-task warning channel.\nEach anchor must occur EXACTLY ONCE in its file.\n\nHARD RULES (this is a brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and was approved by a human. Do not redesign.\n- Match the surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): thin Hono handlers, domain logic in controllers, Valibot validation, HTTPException for expected failures, requireWorkspacePermission for authz, fetchers under apps/web/src/fetchers/, TanStack Query hooks for server state, typed client from @kaneo/libs, prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields, no explanation.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "export and import payload delta",
+        "content": "### 4.5 Export payload delta\n\n`apps/api/src/task/controllers/export-tasks.ts`:\n\n- select projection (after L31): `estimatedMinutes: taskTable.estimatedMinutes,`\n- emitted object (after L87, alongside `startDate`): `estimatedMinutes: task.estimatedMinutes ?? null,`\n\nThe stored integer passes through unchanged; `null` stays `null`. No formatting, no hours conversion — the\nexport is a data interchange format, and minutes are the storage unit.\n\n### 4.6 Import payload delta\n\n`apps/api/src/task/controllers/import-tasks.ts`:\n\n1. `ImportTask` (L13-21) gains `estimatedMinutes?: number | null;` after `dueDate`.\n2. Inside the per-task loop, next to the existing coercions (after L50):\n   ```ts\n   const { estimatedMinutes, warning: estimateWarning } =\n     coerceEstimatedMinutes(taskData.estimatedMinutes);\n   ```\n3. L51 becomes:\n   ```ts\n   const warnings = [statusWarning, priorityWarning, estimateWarning].filter(Boolean);\n   ```\n4. `.values({...})` gains `estimatedMinutes,` after `dueDate` (L72).\n5. Import `{ coerceEstimatedMinutes } from \"../estimated-minutes\";`.\n\n`coerceEstimatedMinutes` **never throws**. An invalid estimate becomes `null` plus a warning surfaced\nthrough the importer's existing per-task `warnings` channel; one bad estimate never aborts the import and\nnever produces a 500 (FR-31). This is the importer's established posture, matching `coerceStatus` /\n`coercePriority` exactly in both signature and warning wording.\n\n### 4.7 Deprecated / unchanged routes\n\nNothing deprecated. **`PUT /task/:id` is deliberately untouched** (Gate 1 OQ-2, §2.8, AC-15). Its `.set()`\ndoes not mention `estimatedMinutes`, so a full update *preserves* the stored estimate. This includes the\ncolumn-header \"archive all\" path, which fires `useUpdateTask` once per task: archiving a lane does not wipe\nits estimates. A later reader must not \"fix\" this — preserve-by-omission is the chosen behaviour.\n\n---\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "coerceEstimatedMinutes contract",
+        "content": "### 5.4 `coerceEstimatedMinutes` (import path)\n\nNever throws. Same accept set as the normalizer; every reject becomes:\n\n```ts\n{ estimatedMinutes: null, warning: `Invalid estimatedMinutes ${JSON.stringify(value)} imported as no estimate` }\n```\n\n`null` and `undefined` return `{ estimatedMinutes: null }` with **no** warning — an absent estimate is\nnormal input, not a data problem. The wording mirrors `coerceStatus`'s\n`` `Unknown status \"${status}\" mapped to \"planned\"` ``.\n\n---\n"
+      },
+      {
+        "path": "apps/api/src/task/controllers/export-tasks.ts",
+        "reason": "target file",
+        "content": "import { eq, inArray } from \"drizzle-orm\";\nimport { HTTPException } from \"hono/http-exception\";\nimport db from \"../../database\";\nimport {\n  labelTable,\n  projectTable,\n  taskTable,\n  userTable,\n} from \"../../database/schema\";\n\nasync function exportTasks(projectId: string) {\n  const project = await db.query.projectTable.findFirst({\n    where: eq(projectTable.id, projectId),\n  });\n\n  if (!project) {\n    throw new HTTPException(404, {\n      message: \"Project not found\",\n    });\n  }\n\n  const tasks = await db\n    .select({\n      id: taskTable.id,\n      title: taskTable.title,\n      number: taskTable.number,\n      description: taskTable.description,\n      status: taskTable.status,\n      priority: taskTable.priority,\n      startDate: taskTable.startDate,\n      dueDate: taskTable.dueDate,\n      position: taskTable.position,\n      createdAt: taskTable.createdAt,\n      userId: taskTable.userId,\n      assigneeName: userTable.name,\n      assigneeId: userTable.id,\n    })\n    .from(taskTable)\n    .leftJoin(userTable, eq(taskTable.userId, userTable.id))\n    .where(eq(taskTable.projectId, projectId))\n    .orderBy(taskTable.position);\n\n  const taskIds = tasks.map((task) => task.id);\n\n  const labelsData =\n    taskIds.length > 0\n      ? await db\n          .select({\n            id: labelTable.id,\n            name: labelTable.name,\n            color: labelTable.color,\n            taskId: labelTable.taskId,\n          })\n          .from(labelTable)\n          .where(inArray(labelTable.taskId, taskIds))\n      : [];\n\n  const taskLabelsMap = new Map<\n    string,\n    Array<{ name: string; color: string }>\n  >();\n  for (const label of labelsData) {\n    if (label.taskId) {\n      if (!taskLabelsMap.has(label.taskId)) {\n        taskLabelsMap.set(label.taskId, []);\n      }\n      taskLabelsMap.get(label.taskId)?.push({\n        name: label.name,\n        color: label.color,\n      });\n    }\n  }\n\n  return {\n    project: {\n      name: project.name,\n      slug: project.slug,\n      description: project.description,\n      exportedAt: new Date().toISOString(),\n    },\n    tasks: tasks.map((task) => ({\n      title: task.title,\n      description: task.description || \"\",\n      status: task.status,\n      priority: task.priority || \"low\",\n      dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,\n      startDate: task.startDate ? new Date(task.startDate).toISOString() : null,\n      userId: task.userId || null,\n      labels: taskLabelsMap.get(task.id) || [],\n    })),\n  };\n}\n\nexport default exportTasks;\n"
+      },
+      {
+        "path": "apps/api/src/task/controllers/import-tasks.ts",
+        "reason": "ImportTask type, coercion calls, insert values",
+        "content": "import { and, eq } from \"drizzle-orm\";\nimport { HTTPException } from \"hono/http-exception\";\nimport db from \"../../database\";\nimport { columnTable, projectTable, taskTable } from \"../../database/schema\";\nimport { publishEvent } from \"../../events\";\nimport {\n  coercePriority,\n  coerceStatus,\n  getValidTaskStatuses,\n} from \"../validate-task-fields\";\nimport { claimTaskNumber } from \"./claim-task-numbers\";\n\nexport type ImportTask = {\n  title: string;\n  description?: string;\n  status: string;\n  priority?: string;\n  startDate?: string | null;\n  dueDate?: string | null;\n  userId?: string | null;\n};\n\nasync function importTasks(\n  projectId: string,\n  tasksToImport: ImportTask[],\n  currentUserId?: string,\n) {\n  const project = await db.query.projectTable.findFirst({\n    where: eq(projectTable.id, projectId),\n  });\n\n  if (!project) {\n    throw new HTTPException(404, {\n      message: \"Project not found\",\n    });\n  }\n\n  const validStatuses = await getValidTaskStatuses(projectId);\n\n  const results = [];\n\n  for (const taskData of tasksToImport) {\n    try {\n      const { status, warning: statusWarning } = coerceStatus(\n        taskData.status,\n        validStatuses,\n      );\n      const { priority, warning: priorityWarning } = coercePriority(\n        taskData.priority || \"low\",\n      );\n      const warnings = [statusWarning, priorityWarning].filter(Boolean);\n\n      const column = await db.query.columnTable.findFirst({\n        where: and(\n          eq(columnTable.projectId, projectId),\n          eq(columnTable.slug, status),\n        ),\n      });\n\n      const createdTask = await db.transaction(async (tx) => {\n        const taskNumber = await claimTaskNumber(projectId, tx);\n\n        const [task] = await tx\n          .insert(taskTable)\n          .values({\n            projectId,\n            userId: taskData.userId || null,\n            title: taskData.title,\n            status,\n            columnId: column?.id ?? null,\n            startDate: taskData.startDate ? new Date(taskData.startDate) : null,\n            dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,\n            description: taskData.description || \"\",\n            priority,\n            number: taskNumber,\n          })\n          .returning();\n\n        return task;\n      });"
+      },
+      {
+        "path": "apps/api/src/task/index.ts",
+        "reason": "import route json validator",
+        "content": "    validator(\"param\", v.object({ projectId: v.string() })),\n    validator(\n      \"json\",\n      v.object({\n        tasks: v.array(\n          v.object({\n            title: v.string(),\n            description: v.optional(v.string()),\n            status: v.string(),\n            priority: v.optional(v.string()),\n            startDate: v.optional(v.nullable(v.string())),\n            dueDate: v.optional(v.nullable(v.string())),\n            userId: v.optional(v.nullable(v.string())),\n          }),\n        ),\n      }),\n    ),\n    workspaceAccess.fromProject(\"projectId\"),"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "anchor": {
+                "type": "string",
+                "description": "exact unique existing text to insert after"
+              },
+              "insert_after": {
+                "type": "string",
+                "description": "exact new text, correctly indented"
+              }
+            },
+            "required": [
+              "path",
+              "anchor",
+              "insert_after"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "export adds estimatedMinutes to BOTH the select projection and the emitted object",
+      "ImportTask gains an optional nullable estimatedMinutes",
+      "import calls coerceEstimatedMinutes and adds its warning to the existing warnings array",
+      "the inserted values include estimatedMinutes",
+      "the import route validator accepts optional nullable estimatedMinutes",
+      "a bad estimate never throws out of the per-task loop"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 2500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_test_001_api_validator",
+    "phase": "tests",
+    "task_type": "test_add",
+    "module": "api-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "tests/api/task/estimated-minutes.test.ts",
+    "instruction": "Write the complete new test file tests/api/task/estimated-minutes.test.ts.\nRunner: vitest, environment node, config apps/api/vitest.config.ts (include: ../../tests/api/**/*.test.ts). This suite is DB-FREE - it must import the module under test directly by relative path, exactly like the sibling test shown.\nImport path from tests/api/task/ is \"../../../apps/api/src/task/estimated-minutes\".\nAssert EVERY row of the accept/reject table, the two verbatim messages, that thrown errors are HTTPException with status 400, and that MAX_ESTIMATED_MINUTES === 525600.\nUse describe/it/expect from vitest. To assert on the thrown status use a try/catch or expect(() => ...).toThrow() plus a separate check of the caught error's .status.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): fetchers under apps/web/src/fetchers/, server state in TanStack Query hooks, typed client from @kaneo/libs (never a parallel untyped request layer), ALL user-facing copy via static i18n keys (never a hardcoded string), prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "the exact contract under test",
+        "content": "## 5. Validation design\n\n### 5.1 The module\n\nPath: **`apps/api/src/task/estimated-minutes.ts`** — a new file, not an addition to\n`validate-task-fields.ts`, because that file imports `../database` (L3) and is therefore unimportable from\nthe DB-free `tests/api` suite. The new module imports only `hono/http-exception`.\n\nExports:\n\n```ts\nexport const MAX_ESTIMATED_MINUTES = 60 * 24 * 365; // 525_600 — one year\nexport function normalizeEstimatedMinutes(value: unknown): number | null\nexport function coerceEstimatedMinutes(value: unknown): {\n  estimatedMinutes: number | null;\n  warning?: string;\n}\n```\n\n`MAX_ESTIMATED_MINUTES` sizing (FR-6): 525,600 × 4,084 tasks in a single lane would be needed to overflow\nPostgreSQL `integer` (2,147,483,647), which is not reachable on a rendered board, and is nine orders of\nmagnitude below `Number.MAX_SAFE_INTEGER` for the client-side sum.\n\n### 5.2 Two layers, two failure modes\n\n| Layer | Catches | Produces |\n|---|---|---|\n| `validator(\"json\", v.object({ estimatedMinutes: v.optional(v.nullable(v.number())) }))` | wrong **type** — string, boolean, object, array | framework 400 before the handler runs |\n| `normalizeEstimatedMinutes` | wrong **value** — `0`, negative, non-integer, `NaN`, `Infinity`, over bound | `HTTPException(400, { message })` with a readable message |\n\nThe normalizer also re-checks the type (`typeof value !== \"number\"`) so that it is safe to call from any\ncaller, including the tests, without relying on the route validator having run. Neither layer can produce a\n500 (AC-3).\n\nNote that `v.number()` in Valibot accepts `NaN` and `Infinity` — both are `typeof \"number\"` — which is\nprecisely why the value rules cannot live in the route schema.\n\n### 5.3 `normalizeEstimatedMinutes` accept/reject table\n\nMessages, verbatim:\n\n- `TYPE_MESSAGE` = `\"estimatedMinutes must be a number or null\"`\n- `RANGE_MESSAGE` = ``` `estimatedMinutes must be a whole number of minutes between 1 and ${MAX_ESTIMATED_MINUTES}` ``` → `\"estimatedMinutes must be a whole number of minutes between 1 and 525600\"`\n\n| Input | Result | Produced by |\n|---|---|---|\n| `150` | `150` | — |\n| `1` | `1` | — |\n| `525600` | `525600` | — |\n| `null` | `null` (clear) | — |\n| `undefined` | `null` (clear) | — |\n| `0` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `-5` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `90.5` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `NaN` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `Infinity` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `525601` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `999999999` | `HTTPException(400, RANGE_MESSAGE)` | normalizer |\n| `\"abc\"` | 400 at the route (Valibot); `HTTPException(400, TYPE_MESSAGE)` if called directly | validator / normalizer |\n| `\"150\"` | 400 at the route (Valibot); `HTTPException(400, TYPE_MESSAGE)` if called directly | validator / normalizer |\n| `true` | 400 at the route (Valibot); `HTTPException(400, TYPE_MESSAGE)` if called directly | validator / normalizer |\n\nImplementation order inside the function: `null`/`undefined` → `null`; `typeof !== \"number\"` → TYPE_MESSAGE;\n`!Number.isInteger(value)` (which is false for `NaN`, `Infinity` and `90.5` alike) or\n`value < 1` or `value > MAX_ESTIMATED_MINUTES` → RANGE_MESSAGE; else the value.\n\n`undefined → null` matches the route's `const { estimatedMinutes = null } = ...` destructuring default,\nwhich is the same posture the due-date route takes at L604.\n\n### 5.4 `coerceEstimatedMinutes` (import path)\n\nNever throws. Same accept set as the normalizer; every reject becomes:\n\n```ts\n{ estimatedMinutes: null, warning: `Invalid estimatedMinutes ${JSON.stringify(value)} imported as no estimate` }\n```\n\n`null` and `undefined` return `{ estimatedMinutes: null }` with **no** warning — an absent estimate is\nnormal input, not a data problem. The wording mirrors `coerceStatus`'s\n`` `Unknown status \"${status}\" mapped to \"planned\"` ``.\n\n---\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "what T1 must assert",
+        "content": "### 10.1 Executed tests\n\n| # | File | Framework | Asserts | AC |\n|---|---|---|---|---|\n| T1 | `tests/api/task/estimated-minutes.test.ts` | vitest/node | `normalizeEstimatedMinutes` returns `150/1/525600` unchanged; `null`/`undefined` → `null`; throws `HTTPException` with `status === 400` for `0, -5, 90.5, NaN, Infinity, 525601, 999999999, \"abc\", \"150\", true`; the thrown message matches the two verbatim strings in §5.3; `MAX_ESTIMATED_MINUTES === 525600` | AC-3, AC-10 |\n| T2 | `tests/api/task/estimate-import-export.test.ts` | vitest/node | `coerceEstimatedMinutes` never throws; `[150, null, 90]` map to `[150, null, 90]` with no warnings; `0 / -5 / 90.5 / \"abc\" / 525601` each map to `null` **with** a warning; a simulated export→import cycle over the three values is lossless | AC-14 |\n| T3 | `apps/web/src/components/task/estimate.test.ts` | vitest/jsdom | Every row of the `formatEstimateHours`, `toEstimateHoursInput` and `parseEstimateHours` tables in §7, verbatim; the round-trip sample; `MAX_ESTIMATE_MINUTES === 525_600` (keeps the web bound pinned to the API bound); every row of the `sumEstimatedMinutes` table in §8 | AC-10 |\n| T4 | `apps/web/src/components/kanban-board/task-estimate-badge.test.tsx` | vitest/jsdom + RTL | `<TaskEstimateBadge minutes={150} />` renders visible text `2.5h`; `minutes={null}` and `minutes={undefined}` render **nothing** (`container.firstChild` is `null`) | AC-7 |\n| T5 | `apps/web/src/components/kanban-board/column/column-estimate-total.test.tsx` | vitest/jsdom + RTL | `tasks={[]}` → no element; `[{null},{null}]` → no element; `[{150}]` → `2.5h`; `[{150},{null},{90}]` → `4h` | AC-8 |"
+      },
+      {
+        "path": "tests/api/utils/assert-public-destination.test.ts",
+        "reason": "sibling DB-free test style and relative import depth",
+        "content": "import { describe, expect, it } from \"vitest\";\nimport { isDisallowedAddress } from \"../../../apps/api/src/utils/assert-public-destination\";\n\ndescribe(\"isDisallowedAddress\", () => {\n  it(\"blocks the ranges a webhook must never reach\", () => {\n    expect(isDisallowedAddress(\"localhost\")).toBe(true);\n    expect(isDisallowedAddress(\"127.0.0.1\")).toBe(true);\n    expect(isDisallowedAddress(\"10.0.0.1\")).toBe(true);\n    expect(isDisallowedAddress(\"172.16.0.1\")).toBe(true);\n    expect(isDisallowedAddress(\"192.168.1.1\")).toBe(true);\n    expect(isDisallowedAddress(\"169.254.169.254\")).toBe(true);\n    expect(isDisallowedAddress(\"[::1]\")).toBe(true);\n    expect(isDisallowedAddress(\"[::ffff:7f00:1]\")).toBe(true);\n  });\n\n  // RFC 6598. Several hosted Kubernetes offerings put pod and service\n  // networks in here, so on those clusters it reaches the same neighbours\n  // 10/8 does on a plain VPC.\n  it(\"blocks the shared address space\", () => {\n    expect(isDisallowedAddress(\"100.64.0.0\")).toBe(true);"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "imports only vitest and the module under test",
+      "no database import anywhere in the file",
+      "covers 150, 1, 525600, null, undefined as accepted",
+      "covers 0, -5, 90.5, NaN, Infinity, 525601, 999999999, 'abc', '150', true as rejected",
+      "asserts thrown error status is 400",
+      "asserts both verbatim messages"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_test_002_api_importexport",
+    "phase": "tests",
+    "task_type": "test_add",
+    "module": "api-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "tests/api/task/estimate-import-export.test.ts",
+    "instruction": "Write the complete new test file tests/api/task/estimate-import-export.test.ts.\nDB-free vitest/node suite. Import coerceEstimatedMinutes from \"../../../apps/api/src/task/estimated-minutes\".\nThis test guards the round-trip boundary that Gate 1 OQ-1 brought into scope: the coercion step is the only place an estimate can be silently dropped between export and import.\nAssert: coerceEstimatedMinutes never throws for any input; [150, null, 90] round-trip to [150, null, 90] with NO warnings; each of 0, -5, 90.5, \"abc\", 525601 coerces to null WITH a warning string; undefined and null produce no warning.\nAlso simulate a small export->import cycle: build a fake exported task array carrying [150, null, 90], map it through coerceEstimatedMinutes, and assert the values survive exactly.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): fetchers under apps/web/src/fetchers/, server state in TanStack Query hooks, typed client from @kaneo/libs (never a parallel untyped request layer), ALL user-facing copy via static i18n keys (never a hardcoded string), prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "export/import payload delta",
+        "content": "### 4.5 Export payload delta\n\n`apps/api/src/task/controllers/export-tasks.ts`:\n\n- select projection (after L31): `estimatedMinutes: taskTable.estimatedMinutes,`\n- emitted object (after L87, alongside `startDate`): `estimatedMinutes: task.estimatedMinutes ?? null,`\n\nThe stored integer passes through unchanged; `null` stays `null`. No formatting, no hours conversion — the\nexport is a data interchange format, and minutes are the storage unit.\n\n### 4.6 Import payload delta\n\n`apps/api/src/task/controllers/import-tasks.ts`:\n\n1. `ImportTask` (L13-21) gains `estimatedMinutes?: number | null;` after `dueDate`.\n2. Inside the per-task loop, next to the existing coercions (after L50):\n   ```ts\n   const { estimatedMinutes, warning: estimateWarning } =\n     coerceEstimatedMinutes(taskData.estimatedMinutes);\n   ```\n3. L51 becomes:\n   ```ts\n   const warnings = [statusWarning, priorityWarning, estimateWarning].filter(Boolean);\n   ```\n4. `.values({...})` gains `estimatedMinutes,` after `dueDate` (L72).\n5. Import `{ coerceEstimatedMinutes } from \"../estimated-minutes\";`.\n\n`coerceEstimatedMinutes` **never throws**. An invalid estimate becomes `null` plus a warning surfaced\nthrough the importer's existing per-task `warnings` channel; one bad estimate never aborts the import and\nnever produces a 500 (FR-31). This is the importer's established posture, matching `coerceStatus` /\n`coercePriority` exactly in both signature and warning wording.\n\n### 4.7 Deprecated / unchanged routes\n\nNothing deprecated. **`PUT /task/:id` is deliberately untouched** (Gate 1 OQ-2, §2.8, AC-15). Its `.set()`\ndoes not mention `estimatedMinutes`, so a full update *preserves* the stored estimate. This includes the\ncolumn-header \"archive all\" path, which fires `useUpdateTask` once per task: archiving a lane does not wipe\nits estimates. A later reader must not \"fix\" this — preserve-by-omission is the chosen behaviour.\n\n---\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "coerceEstimatedMinutes contract",
+        "content": "### 5.4 `coerceEstimatedMinutes` (import path)\n\nNever throws. Same accept set as the normalizer; every reject becomes:\n\n```ts\n{ estimatedMinutes: null, warning: `Invalid estimatedMinutes ${JSON.stringify(value)} imported as no estimate` }\n```\n\n`null` and `undefined` return `{ estimatedMinutes: null }` with **no** warning — an absent estimate is\nnormal input, not a data problem. The wording mirrors `coerceStatus`'s\n`` `Unknown status \"${status}\" mapped to \"planned\"` ``.\n\n---\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "what T2 must assert",
+        "content": "\nCommands: `pnpm --filter @kaneo/api test`, `pnpm --filter @kaneo/web test` (AC-10);"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "no database import",
+      "asserts the lossless [150, null, 90] cycle",
+      "asserts a warning is present for every invalid value",
+      "asserts no warning for null/undefined"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 2500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_006_web_helpers",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/estimate.ts",
+    "instruction": "Write the complete new helper module apps/web/src/components/task/estimate.ts.\nIt is pure and dependency-free: it must import NOTHING except a 'type Task' import if you need it for sumEstimatedMinutes' parameter type (import type Task from \"@/types/task\").\nPlacement note for a future reader: this lives under components/task/ rather than lib/ because apps/web/src/lib/** is outside this run's write contract. Add a brief comment saying so.\nExport: MAX_ESTIMATE_MINUTES (= 525600, pinned to the API bound), formatEstimateHours, toEstimateHoursInput, parseEstimateHours, sumEstimatedMinutes.\nImplement EVERY row of the tables in the provided sections exactly - these are asserted verbatim in tests. Pay attention to the defensive rows: formatEstimateHours returns null for 0, negative, NaN and Infinity so a stale client never paints a \"0h\" chip.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): fetchers under apps/web/src/fetchers/, server state in TanStack Query hooks, typed client from @kaneo/libs (never a parallel untyped request layer), ALL user-facing copy via static i18n keys (never a hardcoded string), prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "formatting contract and rollup contract - every row is a test assertion",
+        "content": "## 7. Formatting contract\n\nThese become test assertions verbatim.\n\n### `formatEstimateHours(minutes: number | null | undefined): string | null`\n\n| Input | Output | Note |\n|---|---|---|\n| `null` | `null` | |\n| `undefined` | `null` | |\n| `0` | `null` | defensive: never renders `\"0h\"`. `0` is unstorable, but a stale client must not paint a zero chip. |\n| `-30` | `null` | defensive |\n| `NaN` | `null` | defensive |\n| `Infinity` | `null` | defensive |\n| `20` | `\"0.33h\"` | 2 dp |\n| `90` | `\"1.5h\"` | trailing zeros stripped by `String(Number)` |\n| `120` | `\"2h\"` | no `.0` |\n| `150` | `\"2.5h\"` | |\n| `525600` | `\"8760h\"` | the bound |\n| `1` | `\"0.02h\"` | smallest storable value still renders non-zero |\n\nRule: `String(Math.round((minutes / 60) * 100) / 100) + \"h\"`, guarded by\n`typeof === \"number\" && Number.isFinite && > 0`.\n\n### `toEstimateHoursInput(minutes): string`\n\nSame rule, no `\"h\"` suffix, `\"\"` instead of `null`: `null → \"\"`, `0 → \"\"`, `150 → \"2.5\"`, `120 → \"2\"`,\n`20 → \"0.33\"`, `525600 → \"8760\"`.\n\n### `parseEstimateHours(input: string): number | null | \"invalid\"`\n\n| Input | Output | Note |\n|---|---|---|\n| `\"\"` | `null` | clear |\n| `\" \"` | `null` | trims first |\n| `\"2\"` | `120` | |\n| `\"2.5\"` | `150` | |\n| `\"  2.5  \"` | `150` | |\n| `\"0.25\"` | `15` | |\n| `\"0.1\"` | `6` | `Math.round` of `6` exactly (FR-19) |\n| `\"8760\"` | `525600` | the bound, accepted |\n| `\"0\"` | `\"invalid\"` | |\n| `\"-1\"` | `\"invalid\"` | |\n| `\"abc\"` | `\"invalid\"` | `Number(\"abc\")` is `NaN` |\n| `\"2abc\"` | `\"invalid\"` | `Number` (not `parseFloat`) — no partial parse |\n| `\"1e9\"` | `\"invalid\"` | numeric and finite, but `6e10` min exceeds the bound |\n| `\"Infinity\"` | `\"invalid\"` | not finite |\n| `\"0.001\"` | `\"invalid\"` | rounds to `0` minutes; a positive input that stores nothing is a rejection, not a clear |\n| `\"8760.5\"` | `\"invalid\"` | over the bound after conversion |\n\nRule: trim → `\"\"` returns `null` → `Number(trimmed)`; reject `!Number.isFinite` or `<= 0`; convert\n`Math.round(hours * 60)`; reject `< 1` or `> MAX_ESTIMATE_MINUTES`; else the integer.\n\n### Round-trip guarantee (asserted in tests)\n\nFor every integer `m` in `1..525600`,\n`parseEstimateHours(toEstimateHoursInput(m)) === m`. This holds exactly, not approximately: display is\n`k = round(5m/3)` hundredths of an hour, so `|3k/5 − m| ≤ 0.3 < 0.5` and `round(k·3/5) = m`. The test\nasserts it over a fixed sample (`1, 4, 7, 13, 20, 53, 59, 90, 120, 150, 525600`) rather than a loop.\n\n---\n\n## 8. Rollup contract\n\n```ts\nsumEstimatedMinutes(tasks: ReadonlyArray<{ estimatedMinutes?: number | null }>): number | null\n```\n\nRule: accumulate only members whose `estimatedMinutes` is a finite number `> 0`. If none qualified, return\n`null`; otherwise return the integer sum. **`null`, not `0`, is the empty signal** (FR-20, requirements §9.3)\n— it is what makes `ColumnEstimateTotal` return `null` and render no element.\n\n| Lane | `sumEstimatedMinutes` | `formatEstimateHours` | Header renders |\n|---|---|---|---|\n| `[]` (empty lane) | `null` | `null` | nothing — no element, no empty span, no `0h` |\n| `[{null}, {null}]` | `null` | `null` | nothing |\n| `[{}, {}]` (field absent) | `null` | `null` | nothing |\n| `[{150}]` | `150` | `\"2.5h\"` | one chip, `2.5h` |\n| `[{150}, {null}, {90}]` | `240` | `\"4h\"` | one chip, `4h` (AC-8) |\n| `[{20}, {20}, {20}]` | `60` | `\"1h\"` | one chip, `1h` — note the sum is over *minutes*, so three `0.33h` tasks correctly total `1h`, not `0.99h` |\n\nThe last row is the reason the sum operates on minutes and formats once at the end: summing formatted hours\nwould compound the 2-dp rounding error per task. ADR-1.\n\nAn all-`null` lane is deliberately indistinguishable from an empty lane for rollup purposes (FR-20).\n\n---\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "module spec",
+        "content": "### 6.3 `apps/web/src/components/task/estimate.ts` (new)\n\nDependency-free. No React, no i18n, no DOM.\n\n```ts\nexport const MAX_ESTIMATE_MINUTES = 525_600;\nexport const MAX_ESTIMATE_HOURS = 8_760;\nexport function formatEstimateHours(minutes: number | null | undefined): string | null;\nexport function toEstimateHoursInput(minutes: number | null | undefined): string;\nexport function parseEstimateHours(input: string): number | null | \"invalid\";\nexport function sumEstimatedMinutes(\n  tasks: ReadonlyArray<{ estimatedMinutes?: number | null }>,\n): number | null;\n```\n\n`formatEstimateHours` and `toEstimateHoursInput` are both thin wrappers over one private\n`hoursString(minutes): string | null` so they can never disagree:\n\n```ts\nfunction hoursString(minutes: number | null | undefined): string | null {\n  if (typeof minutes !== \"number\" || !Number.isFinite(minutes) || minutes <= 0) return null;\n  return String(Math.round((minutes / 60) * 100) / 100);\n}\n```\n\n`formatEstimateHours = (m) => { const h = hoursString(m); return h === null ? null : `${h}h`; }`\n`toEstimateHoursInput = (m) => hoursString(m) ?? \"\"`\n\n`MAX_ESTIMATE_MINUTES` is restated here rather than imported from the API package: the web app has no\nbuild-time dependency on `apps/api` source, and `@kaneo/libs` exports the client, not constants. The two\nconstants are kept honest by a test assertion (§10) rather than by a shared import.\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "why this path",
+        "content": "### 6.2 Helper placement — decided, not open\n\n`apps/web/src/lib/**` is **not** in the allowlist (NFR-7). The helpers are needed by both\n`components/task/**` (popover trigger labels, popover parse) and `components/kanban-board/**` (card badge,\nlane rollup).\n\n**Decision: one module at `apps/web/src/components/task/estimate.ts`, imported by kanban-board via\n`@/components/task/estimate`.**\n\nRejected alternatives:\n- `apps/web/src/lib/estimate.ts` — outside the write contract. Not reachable.\n- Duplicating format/parse in both component trees — two sources of truth for a rounding rule that must\n  agree between the card badge and the lane sum. Rejected outright.\n- `apps/web/src/hooks/**` (allowlisted) — these are pure functions, not hooks; parking them there to satisfy\n  a path constraint would be worse than an honest cross-directory import.\n- Splitting `sumEstimatedMinutes` into `components/kanban-board/column/` — adds a file and separates the\n  rounding rule from the sum that depends on it, for no benefit.\n\n**Is `kanban-board/**` → `components/task/**` acceptable?** Yes. Cross-feature-directory imports inside\n`components/` are already the local pattern: `column/column-header.tsx` L12 imports\n`../../shared/modals/archive-tasks-modal`, and `task-card.tsx` L45-46 imports `../ui/*`. The dependency\ndirection is board → task-domain, which is the natural direction (a board renders tasks). No cycle is\ncreated: `estimate.ts` imports nothing from the app.\n\nThis placement is contract-driven and is recorded here as such (NFR-7, requirements §9.4).\n"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "no runtime imports",
+      "MAX_ESTIMATE_MINUTES === 525600",
+      "formatEstimateHours(150) === '2.5h', (120) === '2h', (20) === '0.33h', (525600) === '8760h'",
+      "formatEstimateHours returns null for null, undefined, 0, negative, NaN, Infinity",
+      "parseEstimateHours('') === null and ('0') === 'invalid' and ('2.5') === 150",
+      "sumEstimatedMinutes returns null when no task has an estimate, never 0",
+      "a comment explains the contract-driven placement"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_test_003_web_helpers",
+    "phase": "tests",
+    "task_type": "test_add",
+    "module": "web-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/estimate.test.ts",
+    "instruction": "Write the complete new test file apps/web/src/components/task/estimate.test.ts.\nRunner: vitest, jsdom (apps/web/vitest.config.ts, include src/**/*.test.{ts,tsx}). No DOM is used here; import { describe, expect, it } from \"vitest\" and the helpers from \"./estimate\".\nAssert EVERY row of the formatEstimateHours, toEstimateHoursInput and parseEstimateHours tables verbatim, the sumEstimatedMinutes table, MAX_ESTIMATE_MINUTES === 525600, and the round-trip guarantee parseEstimateHours(toEstimateHoursInput(m)) === m over the fixed sample [1, 4, 7, 13, 20, 53, 59, 90, 120, 150, 525600].\nFor sumEstimatedMinutes, build minimal task-shaped objects; cast with 'as unknown as Task[]' if the full Task shape is inconvenient, so the test stays readable.\nPrefer it.each / a table-driven style so each row is a named assertion.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): fetchers under apps/web/src/fetchers/, server state in TanStack Query hooks, typed client from @kaneo/libs (never a parallel untyped request layer), ALL user-facing copy via static i18n keys (never a hardcoded string), prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "the exact contract, every row is an assertion",
+        "content": "## 7. Formatting contract\n\nThese become test assertions verbatim.\n\n### `formatEstimateHours(minutes: number | null | undefined): string | null`\n\n| Input | Output | Note |\n|---|---|---|\n| `null` | `null` | |\n| `undefined` | `null` | |\n| `0` | `null` | defensive: never renders `\"0h\"`. `0` is unstorable, but a stale client must not paint a zero chip. |\n| `-30` | `null` | defensive |\n| `NaN` | `null` | defensive |\n| `Infinity` | `null` | defensive |\n| `20` | `\"0.33h\"` | 2 dp |\n| `90` | `\"1.5h\"` | trailing zeros stripped by `String(Number)` |\n| `120` | `\"2h\"` | no `.0` |\n| `150` | `\"2.5h\"` | |\n| `525600` | `\"8760h\"` | the bound |\n| `1` | `\"0.02h\"` | smallest storable value still renders non-zero |\n\nRule: `String(Math.round((minutes / 60) * 100) / 100) + \"h\"`, guarded by\n`typeof === \"number\" && Number.isFinite && > 0`.\n\n### `toEstimateHoursInput(minutes): string`\n\nSame rule, no `\"h\"` suffix, `\"\"` instead of `null`: `null → \"\"`, `0 → \"\"`, `150 → \"2.5\"`, `120 → \"2\"`,\n`20 → \"0.33\"`, `525600 → \"8760\"`.\n\n### `parseEstimateHours(input: string): number | null | \"invalid\"`\n\n| Input | Output | Note |\n|---|---|---|\n| `\"\"` | `null` | clear |\n| `\" \"` | `null` | trims first |\n| `\"2\"` | `120` | |\n| `\"2.5\"` | `150` | |\n| `\"  2.5  \"` | `150` | |\n| `\"0.25\"` | `15` | |\n| `\"0.1\"` | `6` | `Math.round` of `6` exactly (FR-19) |\n| `\"8760\"` | `525600` | the bound, accepted |\n| `\"0\"` | `\"invalid\"` | |\n| `\"-1\"` | `\"invalid\"` | |\n| `\"abc\"` | `\"invalid\"` | `Number(\"abc\")` is `NaN` |\n| `\"2abc\"` | `\"invalid\"` | `Number` (not `parseFloat`) — no partial parse |\n| `\"1e9\"` | `\"invalid\"` | numeric and finite, but `6e10` min exceeds the bound |\n| `\"Infinity\"` | `\"invalid\"` | not finite |\n| `\"0.001\"` | `\"invalid\"` | rounds to `0` minutes; a positive input that stores nothing is a rejection, not a clear |\n| `\"8760.5\"` | `\"invalid\"` | over the bound after conversion |\n\nRule: trim → `\"\"` returns `null` → `Number(trimmed)`; reject `!Number.isFinite` or `<= 0`; convert\n`Math.round(hours * 60)`; reject `< 1` or `> MAX_ESTIMATE_MINUTES`; else the integer.\n\n### Round-trip guarantee (asserted in tests)\n\nFor every integer `m` in `1..525600`,\n`parseEstimateHours(toEstimateHoursInput(m)) === m`. This holds exactly, not approximately: display is\n`k = round(5m/3)` hundredths of an hour, so `|3k/5 − m| ≤ 0.3 < 0.5` and `round(k·3/5) = m`. The test\nasserts it over a fixed sample (`1, 4, 7, 13, 20, 53, 59, 90, 120, 150, 525600`) rather than a loop.\n\n---\n\n## 8. Rollup contract\n\n```ts\nsumEstimatedMinutes(tasks: ReadonlyArray<{ estimatedMinutes?: number | null }>): number | null\n```\n\nRule: accumulate only members whose `estimatedMinutes` is a finite number `> 0`. If none qualified, return\n`null`; otherwise return the integer sum. **`null`, not `0`, is the empty signal** (FR-20, requirements §9.3)\n— it is what makes `ColumnEstimateTotal` return `null` and render no element.\n\n| Lane | `sumEstimatedMinutes` | `formatEstimateHours` | Header renders |\n|---|---|---|---|\n| `[]` (empty lane) | `null` | `null` | nothing — no element, no empty span, no `0h` |\n| `[{null}, {null}]` | `null` | `null` | nothing |\n| `[{}, {}]` (field absent) | `null` | `null` | nothing |\n| `[{150}]` | `150` | `\"2.5h\"` | one chip, `2.5h` |\n| `[{150}, {null}, {90}]` | `240` | `\"4h\"` | one chip, `4h` (AC-8) |\n| `[{20}, {20}, {20}]` | `60` | `\"1h\"` | one chip, `1h` — note the sum is over *minutes*, so three `0.33h` tasks correctly total `1h`, not `0.99h` |\n\nThe last row is the reason the sum operates on minutes and formats once at the end: summing formatted hours\nwould compound the 2-dp rounding error per task. ADR-1.\n\nAn all-`null` lane is deliberately indistinguishable from an empty lane for rollup purposes (FR-20).\n\n---\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "what T3 must assert",
+        "content": "`pnpm typecheck` for `@kaneo/api` and `@kaneo/web` (AC-11);\n`pnpm exec biome check <changed paths>` — scoped, never `biome ci .`, which is pre-existing red on this"
+      },
+      {
+        "path": "apps/web/src/components/kanban-board/task-labels.test.tsx",
+        "reason": "sibling web test style",
+        "content": "import { cleanup, render, screen } from \"@testing-library/react\";\nimport { afterEach, describe, expect, it } from \"vitest\";\nimport { TaskLabels } from \"./task-labels\";\n\nafterEach(() => {\n  cleanup();\n});\n\ndescribe(\"TaskLabels\", () => {\n  it(\"renders labels supplied by the task\", () => {\n    render(\n      <TaskLabels labels={[{ id: \"label-1\", name: \"Bug\", color: \"red\" }]} />,"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "covers every row of all three function tables",
+      "covers the round-trip sample",
+      "covers sumEstimatedMinutes at zero, all-null, one, several",
+      "no network or DOM dependency"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_007_web_plumbing",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/fetchers/task/update-task-estimate.ts",
+    "instruction": "Produce THREE web plumbing files/edits as a files array. Return full content for the two new files, and for the type edit return the complete new content of the small types file.\n1) apps/web/src/types/task/index.ts (EDIT - return full new content): Task gains 'estimatedMinutes?: number | null;' after dueDate. It MUST be OPTIONAL, not required: bare Task object literals exist in files outside this run's write contract (apps/web/src/components/list-view/task-row.test.tsx), and a required field would fail pnpm typecheck at a file this run cannot legally edit. Add a short comment recording that this is contract-driven, not preferred.\n2) apps/web/src/fetchers/task/update-task-estimate.ts (NEW): uses the typed client from @kaneo/libs, calling client.task.estimate[\":id\"].$put with param { id } and json { estimatedMinutes }. Follow the sibling fetcher's error handling exactly (throw new Error(await response.text()) when !response.ok).\n3) apps/web/src/hooks/mutations/task/use-update-task-estimate.ts (NEW): useMutation + invalidateQueries. Invalidate exactly FOUR keys: [\"task\", id], [\"tasks\", projectId], [\"projects\"], [\"activities\", id]. Deliberately OMIT [\"notifications\"] - this route publishes no event, so no notification can exist to invalidate. Add a comment saying so.\nThe mutation variables shape is { taskId, projectId, estimatedMinutes } (NOT a whole Task) since the popover has all three.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- Repo conventions (AGENTS.md): fetchers under apps/web/src/fetchers/, server state in TanStack Query hooks, typed client from @kaneo/libs (never a parallel untyped request layer), ALL user-facing copy via static i18n keys (never a hardcoded string), prefer inferred types and 'type' over 'interface'. Comments explain constraints, not narrate code.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "the optional-vs-required deviation and its reason",
+        "content": "### 6.1 `apps/web/src/types/task/index.ts` (edit) — deviation flagged\n\n```ts\n  dueDate: string | null;\n  estimatedMinutes?: number | null;\n```\n\n**FR-16 specifies `estimatedMinutes: number | null` (required). This plan makes it optional.** Reason:\n`Task` is constructed as an object literal in an unknown number of places across the app, including files\n*outside* the allowlist (optimistic-update sites, view-model builders) and at least one file inside it\n(`apps/web/src/components/task/task-status-popover.test.tsx` L34-49 declares `const task: Task = {...}`).\nA required property would fail `pnpm typecheck` at every one of those literals, and the ones outside the\nallowlist could not legally be fixed by this run. The optional form matches the two existing optional\nmembers of the same type (`updatedAt?: string`, `assigneeImage?: string | null`), costs nothing — every\nconsumer in this plan already accepts `number | null | undefined` — and keeps the write contract intact.\n**Gate 2 reviewers should confirm this substitution.**\n\n### 6.2 Helper placement — decided, not open\n\n`apps/web/src/lib/**` is **not** in the allowlist (NFR-7). The helpers are needed by both\n`components/task/**` (popover trigger labels, popover parse) and `components/kanban-board/**` (card badge,\nlane rollup).\n\n**Decision: one module at `apps/web/src/components/task/estimate.ts`, imported by kanban-board via\n`@/components/task/estimate`.**\n\nRejected alternatives:\n- `apps/web/src/lib/estimate.ts` — outside the write contract. Not reachable.\n- Duplicating format/parse in both component trees — two sources of truth for a rounding rule that must\n  agree between the card badge and the lane sum. Rejected outright.\n- `apps/web/src/hooks/**` (allowlisted) — these are pure functions, not hooks; parking them there to satisfy\n  a path constraint would be worse than an honest cross-directory import.\n- Splitting `sumEstimatedMinutes` into `components/kanban-board/column/` — adds a file and separates the\n  rounding rule from the sum that depends on it, for no benefit.\n\n**Is `kanban-board/**` → `components/task/**` acceptable?** Yes. Cross-feature-directory imports inside\n`components/` are already the local pattern: `column/column-header.tsx` L12 imports\n`../../shared/modals/archive-tasks-modal`, and `task-card.tsx` L45-46 imports `../ui/*`. The dependency\ndirection is board → task-domain, which is the natural direction (a board renders tasks). No cycle is\ncreated: `estimate.ts` imports nothing from the app.\n\nThis placement is contract-driven and is recorded here as such (NFR-7, requirements §9.4).\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "fetcher and hook spec",
+        "content": "### 6.4 `apps/web/src/fetchers/task/update-task-estimate.ts` (new)\n\n```ts\nimport { client } from \"@kaneo/libs\";\n\nasync function updateTaskEstimate(taskId: string, estimatedMinutes: number | null) {\n  const response = await client.task.estimate[\":id\"].$put({\n    param: { id: taskId },\n    json: { estimatedMinutes },\n  });\n\n  if (!response.ok) {\n    const error = await response.text();\n    throw new Error(error);\n  }\n\n  return await response.json();\n}\n\nexport default updateTaskEstimate;\n```\n\nDeviation from `update-task-due-date.ts`, which takes `(taskId, task: Task)` and re-derives one field:\nthis fetcher takes only the two values it sends. Passing a whole `Task` into a single-field endpoint invites\nthe reader to believe the rest of the object is transmitted. The property accessor is\n`client.task.estimate[\":id\"]` (no bracket needed on `estimate`, unlike `[\"due-date\"]`).\n\n### 6.5 `apps/web/src/hooks/mutations/task/use-update-task-estimate.ts` (new)\n\n```ts\ntype UpdateTaskEstimateVariables = {\n  taskId: string;\n  projectId: string;\n  estimatedMinutes: number | null;\n};\n```\n\n`mutationFn: (v) => updateTaskEstimate(v.taskId, v.estimatedMinutes)`.\n`onSuccess` invalidates, per FR-18: `[\"task\", taskId]`, `[\"tasks\", projectId]`, `[\"projects\"]`,\n`[\"activities\", taskId]`.\n\n`[\"notifications\"]` — present in `use-update-task-due-date.ts` L17-19 — is **omitted**: no event is\npublished, so no notification can have been produced, and invalidating it would cause a pointless refetch\non every estimate edit. Deviation recorded here.\n\n`[\"tasks\", projectId]` is the key that refreshes the board, which is what makes both the card badge and the\nlane rollup correct for the editing client immediately (see ADR-3 for other clients).\n"
+      },
+      {
+        "path": "apps/web/src/types/task/index.ts",
+        "reason": "target file, return full new content",
+        "content": "type TaskLabel = {\n  id: string;\n  name: string;\n  color: string;\n};\n\ntype TaskExternalLink = {\n  id: string;\n  taskId: string;\n  integrationId: string;\n  resourceType: string;\n  externalId: string;\n  url: string;\n  title: string | null;\n  metadata: Record<string, unknown> | null;\n};\n\ntype Task = {\n  id: string;\n  title: string;\n  number: number | null;\n  description: string | null;\n  status: string;\n  priority: string | null;\n  startDate: string | null;\n  dueDate: string | null;\n  position: number | null;\n  createdAt: string;\n  updatedAt?: string;\n  userId: string | null;\n  assigneeId: string | null;\n  assigneeName: string | null;\n  assigneeImage?: string | null;\n  projectId: string;\n  columnId?: string | null;\n  labels?: TaskLabel[];\n  externalLinks?: TaskExternalLink[];\n};\n\nexport default Task;\n"
+      },
+      {
+        "path": "apps/web/src/fetchers/task/update-task-due-date.ts",
+        "reason": "sibling fetcher pattern",
+        "content": "import { client } from \"@kaneo/libs\";\nimport type Task from \"@/types/task\";\n\nasync function updateTaskDueDate(taskId: string, task: Task) {\n  const response = await client.task[\"due-date\"][\":id\"].$put({\n    param: { id: taskId },\n    json: {\n      dueDate: task.dueDate || \"\",\n    },\n  });\n\n  if (!response.ok) {\n    const error = await response.text();\n    throw new Error(error);\n  }\n\n  const data = await response.json();\n\n  return data;\n}\n\nexport default updateTaskDueDate;\n"
+      },
+      {
+        "path": "apps/web/src/hooks/mutations/task/use-update-task-due-date.ts",
+        "reason": "sibling hook pattern",
+        "content": "import { useMutation, useQueryClient } from \"@tanstack/react-query\";\nimport updateTaskDueDate from \"@/fetchers/task/update-task-due-date\";\nimport type Task from \"@/types/task\";\n\nexport function useUpdateTaskDueDate() {\n  const queryClient = useQueryClient();\n\n  return useMutation({\n    mutationFn: (task: Task) => updateTaskDueDate(task.id, task),\n    onSuccess: (_, variables) => {\n      queryClient.invalidateQueries({\n        queryKey: [\"task\", variables.id],\n      });\n      queryClient.invalidateQueries({\n        queryKey: [\"tasks\", variables.projectId],\n      });\n      queryClient.invalidateQueries({\n        queryKey: [\"notifications\"],\n      });\n      queryClient.invalidateQueries({\n        queryKey: [\"projects\"],\n      });\n      queryClient.invalidateQueries({\n        queryKey: [\"activities\", variables.id],\n      });\n    },\n  });\n}\n"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "content"
+            ]
+          }
+        }
+      },
+      "required": [
+        "files"
+      ]
+    },
+    "acceptance": [
+      "Task.estimatedMinutes is optional with an explanatory comment",
+      "fetcher uses client.task.estimate[':id'].$put and the typed @kaneo/libs client",
+      "hook invalidates exactly four keys and omits notifications with a comment",
+      "no untyped fetch/axios call is introduced"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_008_web_popover",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-estimate-popover.tsx",
+    "instruction": "Write the complete new component apps/web/src/components/task/task-estimate-popover.tsx.\nFollow the spec section exactly. The due-date sibling is provided as the contract to preserve.\nCRITICAL details:\n- 'if (!canEdit) return <>{children}</>;' MUST appear before the Popover, so a user without task:[\"update\"] gets an inert trigger with no popover machinery attached.\n- The Input MUST be used as <Input nativeInput ... />. apps/web/src/components/ui/input.tsx is provided: by default it renders a @base-ui/react Input primitive, and only the nativeInput escape hatch gives plain React value/onChange semantics.\n- Wrap the field in a <form onSubmit={...}> so Enter submits.\n- On open, reset local value from server state via toEstimateHoursInput(task.estimatedMinutes).\n- parseEstimateHours returning the string \"invalid\" must set an inline error and NOT dispatch the mutation.\n- Bind the label to the input with useId().\n- i18n keys available: tasks:popover.estimate.{title,placeholder,save,clear,invalid,updateSuccess,updateError}.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- ALL user-facing copy must use static i18n keys via useTranslation(); never hardcode a visible string.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "component spec",
+        "content": "### 6.6 `apps/web/src/components/task/task-estimate-popover.tsx` (new)\n\nProps: `{ task: Task; children: React.ReactNode }` — identical to `TaskDueDatePopover`.\n\nImports: `X`, `useId`/`useState` from react, `useTranslation`, `Button` from `@/components/ui/button`,\n`Input` from `@/components/ui/input`, `Popover / PopoverContent / PopoverTrigger` from\n`@/components/ui/popover`, `useUpdateTaskEstimate`, `useWorkspacePermission`, `toast` from `@/lib/toast`,\n`parseEstimateHours` / `toEstimateHoursInput` from `./estimate`, `type Task` from `@/types/task`.\n\nState: `open: boolean`, `value: string`, `invalid: boolean`.\n\nContract points that must be preserved verbatim from the due-date sibling:\n\n- `const { canUpdateTasks } = useWorkspacePermission(); const canEdit = canUpdateTasks();`\n- **`if (!canEdit) return <>{children}</>;` placed before the `Popover`** — a user without\n  `task: [\"update\"]` gets the trigger rendered inert with zero popover machinery attached.\n- `<PopoverTrigger asChild>{children}</PopoverTrigger>`\n- `toast.success(t(\"tasks:popover.estimate.updateSuccess\"))` / `toast.error(... ?? t(\"tasks:popover.estimate.updateError\"))`\n- `setOpen(false)` on success.\n\nBehaviour:\n\n- `onOpenChange`: when opening, reset `value = toEstimateHoursInput(task.estimatedMinutes)` and\n  `invalid = false`. This makes the popover always reflect server state on open, never a stale local edit.\n- Submit (form `onSubmit`, so Enter works): `const parsed = parseEstimateHours(value)`. If\n  `parsed === \"invalid\"` → `setInvalid(true)` and **return without dispatching the mutation** (FR-22).\n  Otherwise dispatch `{ taskId: task.id, projectId: task.projectId, estimatedMinutes: parsed }`.\n  `parsed === null` (empty input) is a legal clear.\n- Clear button: rendered only when `task.estimatedMinutes != null`; dispatches `estimatedMinutes: null`.\n- The input is `<Input nativeInput type=\"text\" inputMode=\"decimal\" ... />`. `nativeInput` is required:\n  `@/components/ui/input` wraps a `@base-ui/react/input` primitive by default, and the `nativeInput` escape\n  hatch (L48-54 of that file) is what makes plain `value` / `onChange` React semantics apply.\n- Label is bound with `useId()` so the input is reachable by its accessible name in tests and by\n  screen readers.\n"
+      },
+      {
+        "path": "apps/web/src/components/task/task-due-date-popover.tsx",
+        "reason": "the sibling contract to preserve",
+        "content": "import { X } from \"lucide-react\";\nimport { useState } from \"react\";\nimport { useTranslation } from \"react-i18next\";\nimport { Button } from \"@/components/ui/button\";\nimport { Calendar } from \"@/components/ui/calendar\";\nimport {\n  Popover,\n  PopoverContent,\n  PopoverTrigger,\n} from \"@/components/ui/popover\";\nimport { useUpdateTaskDueDate } from \"@/hooks/mutations/task/use-update-task-due-date\";\nimport { useWorkspacePermission } from \"@/hooks/use-workspace-permission\";\nimport { toast } from \"@/lib/toast\";\nimport type Task from \"@/types/task\";\n\ntype TaskDueDatePopoverProps = {\n  task: Task;\n  children: React.ReactNode;\n};\n\nexport default function TaskDueDatePopover({\n  task,\n  children,\n}: TaskDueDatePopoverProps) {\n  const { t } = useTranslation();\n  const [open, setOpen] = useState(false);\n  const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();\n  const { canUpdateTasks } = useWorkspacePermission();\n  const canEdit = canUpdateTasks();\n\n  const handleDateChange = async (date: Date | undefined) => {\n    try {\n      await updateTaskDueDate({\n        ...task,\n        dueDate: date?.toISOString() || null,\n      });\n      toast.success(t(\"tasks:popover.dueDate.updateSuccess\"));\n      setOpen(false);\n    } catch (error) {\n      toast.error(\n        error instanceof Error\n          ? error.message\n          : t(\"tasks:popover.dueDate.updateError\"),\n      );\n    }\n  };\n\n  if (!canEdit) return <>{children}</>;\n\n  return (\n    <Popover open={open} onOpenChange={setOpen}>\n      <PopoverTrigger asChild>{children}</PopoverTrigger>\n      <PopoverContent className=\"p-0\" align=\"start\">\n        <Calendar\n          mode=\"single\"\n          selected={task.dueDate ? new Date(task.dueDate) : undefined}\n          onSelect={handleDateChange}\n          disabled={\n            task.startDate ? { before: new Date(task.startDate) } : undefined\n          }\n          className=\"w-full bg-popover\"\n        />\n        {task.dueDate && (\n          <div className=\"pt-2 border-t border-border\">\n            <Button\n              variant=\"ghost\"\n              size=\"sm\"\n              className=\"w-full justify-start gap-2 text-muted-foreground hover:text-foreground\"\n              onClick={() => handleDateChange(undefined)}\n            >\n              <X className=\"h-4 w-4\" />\n              {t(\"tasks:popover.dueDate.clear\")}\n            </Button>\n          </div>\n        )}\n      </PopoverContent>\n    </Popover>\n  );\n}\n"
+      },
+      {
+        "path": "apps/web/src/components/ui/input.tsx",
+        "reason": "why nativeInput is required",
+        "content": "\"use client\";\n\nimport { Input as InputPrimitive } from \"@base-ui/react/input\";\nimport type { useRender } from \"@base-ui/react/use-render\";\nimport type * as React from \"react\";\n\nimport { cn } from \"@/lib/cn\";\n\ntype InputProps = Omit<\n  InputPrimitive.Props & React.RefAttributes<HTMLInputElement>,\n  \"size\"\n> & {\n  size?: \"sm\" | \"default\" | \"lg\" | number;\n  unstyled?: boolean;\n  nativeInput?: boolean;\n};\n\nfunction Input({\n  className,\n  size = \"default\",\n  unstyled = false,\n  nativeInput = false,\n  ...props\n}: InputProps) {\n  const inputClassName = cn(\n    \"h-8.5 w-full min-w-0 rounded-[inherit] px-[calc(--spacing(3)-1px)] leading-8.5 outline-none placeholder:text-muted-foreground/72 sm:h-7.5 sm:leading-7.5 [transition:background-color_5000000s_ease-in-out_0s]\",\n    size === \"sm\" &&\n      \"h-7.5 px-[calc(--spacing(2.5)-1px)] leading-7.5 sm:h-6.5 sm:leading-6.5\",\n    size === \"lg\" && \"h-9.5 leading-9.5 sm:h-8.5 sm:leading-8.5\",\n    props.type === \"search\" &&\n      \"[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none\",\n    props.type === \"file\" &&\n      \"text-muted-foreground file:me-3 file:bg-transparent file:font-medium file:text-foreground file:text-sm\",\n  );\n\n  return (\n    <span\n      className={\n        cn(\n          !unstyled &&\n            \"relative inline-flex w-full rounded-lg border border-input bg-background not-dark:bg-clip-padding text-base text-foreground shadow-xs/5 ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring has-autofill:bg-foreground/4 has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none has-focus-visible:ring-[3px] sm:text-sm dark:bg-input/32 dark:has-autofill:bg-foreground/8 dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/6%)]\",\n          className,\n        ) || undefined\n      }\n      data-size={size}\n      data-slot=\"input-control\"\n    >\n      {nativeInput ? (\n        <input\n          className={inputClassName}\n          data-slot=\"input\"\n          size={typeof size === \"number\" ? size : undefined}\n          {...(props as useRender.ElementProps<\"input\">)}\n        />\n      ) : (\n        <InputPrimitive\n          className={inputClassName}\n          data-slot=\"input\"\n          size={typeof size === \"number\" ? size : undefined}\n          {...props}\n        />\n      )}\n    </span>\n  );\n}\n\nexport { Input, type InputProps };\n"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "default-exports TaskEstimatePopover with props { task, children }",
+      "the !canEdit early return precedes the Popover",
+      "Input is used with the nativeInput prop",
+      "invalid input sets an error and does not call the mutation",
+      "clear action only rendered when task.estimatedMinutes != null",
+      "every visible string comes from t(...)"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3500
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_009_web_sidebar",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "web-task",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+    "instruction": "Produce the registration of TaskEstimatePopover in task-properties-sidebar.tsx.\nThis file renders THREE responsive variants of the same property row (compact, mobile, desktop), each already containing a TaskDueDatePopover trigger. The estimate trigger goes immediately after the due-date trigger in all three.\nReturn exactly two things:\n- import_line: the single import statement for ./task-estimate-popover, worded so it can be placed alongside the existing sibling popover imports (which are alphabetically ordered: TaskAssigneePopover, TaskDueDatePopover, TaskLabelsPopover, TaskMovePopover, TaskPriorityPopover, TaskStartDatePopover).\n- block: ONE canonical JSX block, indented with a base indent of 16 SPACES for the opening '{task && (' line. I will re-indent it for the compact variant myself. Do not emit three copies.\nThe block must mirror the neighbouring start-date trigger: {task && (<TaskEstimatePopover task={task}><Button variant=\"ghost\" size=\"sm\" className=\"justify-start h-7 px-1.5 gap-1.5\"> ... </Button></TaskEstimatePopover>)}\nInside the Button: a Clock icon from lucide-react at className=\"w-3.5 h-3.5 text-muted-foreground\", then a span using the same conditional muted styling the start-date trigger uses - showing formatEstimateHours(task.estimatedMinutes) when set, else t(\"tasks:properties.estimate\").\nAlso return icon_import: the lucide-react named import you used, so I can merge it into the existing lucide import block.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- ALL user-facing copy must use static i18n keys via useTranslation(); never hardcode a visible string.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "sidebar registration spec",
+        "content": "### 6.7 `apps/web/src/components/task/task-properties-sidebar.tsx` (edit ×5)\n\nThree import edits:\n1. Add `Clock` to the lucide-react import (L1-9), sorted after `CalendarX`, before `Copy`.\n2. Add `import { formatEstimateHours } from \"./estimate\";` — sorts before `./task-assignee-popover` (L42).\n3. Add `import TaskEstimatePopover from \"./task-estimate-popover\";` — sorts between\n   `./task-due-date-popover` (L43) and `./task-labels-popover` (L44).\n\nThree registration edits, one per responsive variant, each appended as the **last** property in its row —\nafter the `TaskDueDatePopover` block — so the existing property order is unchanged:\n\n| Variant | Marker | Insert after | Trigger className |\n|---|---|---|---|\n| compact | `{/* Compact mode */}` L141 | L326 | `justify-start h-7 px-1.5 gap-1.5` |\n| mobile | `{/* Mobile: Compact-style layout */}` L333 | L517 | `justify-start h-7 px-1.5 gap-1.5` |\n| desktop | `{/* Desktop: Title + stacked properties */}` L521 | L710 | `justify-start h-7 px-1.5 gap-1.5 w-full` |\n\nBlock (compact/mobile form; desktop adds ` w-full`):\n\n```tsx\n{task && (\n  <TaskEstimatePopover task={task}>\n    <Button\n      variant=\"ghost\"\n      size=\"sm\"\n      className=\"justify-start h-7 px-1.5 gap-1.5\"\n    >\n      <Clock className=\"w-3.5 h-3.5 text-muted-foreground\" />\n      <span\n        className={`text-xs font-semibold ${task.estimatedMinutes != null ? \"\" : \"text-muted-foreground\"}`}\n      >\n        {formatEstimateHours(task.estimatedMinutes) ??\n          t(\"tasks:properties.noEstimate\")}\n      </span>\n    </Button>\n  </TaskEstimatePopover>\n)}\n```\n\nThis mirrors the start-date trigger (L266-282 / L455-473 / L649-666) exactly, including the\n`text-muted-foreground`-when-unset conditional on the `<span>`.\n"
+      },
+      {
+        "path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+        "reason": "existing import block",
+        "content": "import {\n  Calendar,\n  CalendarClock,\n  CalendarDays,\n  CalendarX,\n  Copy,\n  GitBranch,\n  Plus,\n} from \"lucide-react\";\nimport { useTranslation } from \"react-i18next\";\nimport { Avatar, AvatarFallback, AvatarImage } from \"@/components/ui/avatar\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { Button } from \"@/components/ui/button\";\nimport { KbdSequence } from \"@/components/ui/kbd\";\nimport {\n  Tooltip,\n  TooltipContent,\n  TooltipProvider,\n  TooltipTrigger,\n} from \"@/components/ui/tooltip\";\nimport labelColors from \"@/constants/label-colors\";\nimport { useGetColumns } from \"@/hooks/queries/column/use-get-columns\";\nimport useGetGiteaIntegration from \"@/hooks/queries/gitea-integration/use-get-gitea-integration\";\nimport useGetGithubIntegration from \"@/hooks/queries/github-integration/use-get-github-integration\";\nimport useGetLabelsByTask from \"@/hooks/queries/label/use-get-labels-by-task\";\nimport useGetProject from \"@/hooks/queries/project/use-get-project\";\nimport useGetProjects from \"@/hooks/queries/project/use-get-projects\";\nimport useGetTask from \"@/hooks/queries/task/use-get-task\";\nimport { useGetActiveWorkspaceUsers } from \"@/hooks/queries/workspace-users/use-get-active-workspace-users\";\nimport { cn } from \"@/lib/cn\";\nimport { getColumnIcon } from \"@/lib/column\";\nimport {\n  dueDateStatusColors,\n  getDueDateStatus,\n  isTaskCompleted,\n} from \"@/lib/due-date-status\";\nimport { formatDateShort } from \"@/lib/format\";\nimport { getInitials } from \"@/lib/get-initials\";\nimport { getPriorityLabel, getStatusDisplayLabel } from \"@/lib/i18n/domain\";\nimport { getPriorityIcon } from \"@/lib/priority\";\nimport { toast } from \"@/lib/toast\";\nimport TaskAssigneePopover from \"./task-assignee-popover\";\nimport TaskDueDatePopover from \"./task-due-date-popover\";\nimport TaskLabelsPopover from \"./task-labels-popover\";\nimport TaskMovePopover from \"./task-move-popover\";\nimport TaskPriorityPopover from \"./task-priority-popover\";\nimport TaskStartDatePopover from \"./task-start-date-popover\";\nimport TaskStatusPopover from \"./task-status-popover\";"
+      },
+      {
+        "path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+        "reason": "the start-date and due-date triggers to mirror",
+        "content": "              )}\n              {task && (\n                <TaskStartDatePopover task={task}>\n                  <Button\n                    variant=\"ghost\"\n                    size=\"sm\"\n                    className=\"justify-start h-7 px-1.5 gap-1.5\"\n                  >\n                    <CalendarDays className=\"w-3.5 h-3.5 text-muted-foreground\" />\n                    <span\n                      className={`text-xs font-semibold ${task.startDate ? \"\" : \"text-muted-foreground\"}`}\n                    >\n                      {task.startDate\n                        ? formatDateShort(task.startDate)\n                        : t(\"tasks:properties.start\")}\n                    </span>\n                  </Button>\n                </TaskStartDatePopover>\n              )}\n              {task && (\n                <TaskDueDatePopover task={task}>\n                  <Button\n                    variant=\"ghost\"\n                    size=\"sm\"\n                    className=\"justify-start h-7 px-1.5 gap-1.5\"\n                  >\n                    {task.dueDate ? (\n                      <>\n                        {getDueDateStatus(task.dueDate, taskIsCompleted) ===\n                          \"overdue\" && (\n                          <CalendarX\n                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}\n                          />\n                        )}\n                        {getDueDateStatus(task.dueDate, taskIsCompleted) ===\n                          \"due-soon\" && (\n                          <CalendarClock\n                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}\n                          />\n                        )}\n                        {(getDueDateStatus(task.dueDate, taskIsCompleted) ===\n                          \"far-future\" ||\n                          getDueDateStatus(task.dueDate, taskIsCompleted) ===\n                            \"no-due-date\") && (\n                          <Calendar\n                            className={`w-3.5 h-3.5 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}\n                          />\n                        )}\n                        <span className=\"text-xs font-semibold\">\n                          {formatDateShort(task.dueDate)}\n                        </span>\n                      </>\n                    ) : (\n                      <>\n                        <Calendar className=\"w-3.5 h-3.5 text-muted-foreground\" />\n                        <span className=\"text-xs font-semibold text-muted-foreground\">\n                          {t(\"tasks:properties.noDate\")}\n                        </span>\n                      </>\n                    )}\n                  </Button>\n                </TaskDueDatePopover>\n              )}\n            </div>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "import_line": {
+          "type": "string"
+        },
+        "icon_import": {
+          "type": "string"
+        },
+        "block": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "import_line",
+        "icon_import",
+        "block"
+      ]
+    },
+    "acceptance": [
+      "block opens with '{task && (' at exactly 16 spaces of indent",
+      "uses formatEstimateHours from ./estimate",
+      "placeholder copy comes from t('tasks:properties.estimate')",
+      "Button className matches the sibling triggers exactly",
+      "exactly one block is returned"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 2000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_010_web_badge",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-board",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/task-estimate-badge.tsx",
+    "instruction": "Produce the kanban card estimate badge as a files array plus one edit.\n1) NEW apps/web/src/components/kanban-board/task-estimate-badge.tsx - a tiny presentational component, props { minutes: number | null | undefined }. It calls formatEstimateHours from \"@/components/task/estimate\" and returns null when that returns null, so an unset task renders NOTHING in the DOM. When set it renders a span styled EXACTLY like the sibling badges in the card's badge row: inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground. Include a Clock icon from lucide-react at w-3 h-3. It must be exported as a named export AND usable without any provider (it is unit-tested in isolation), so it must NOT call useTranslation - the rendered text is purely the formatted value.\n2) NEW apps/web/src/components/kanban-board/task-estimate-badge.test.tsx - vitest/jsdom + @testing-library/react. Assert: minutes={150} renders visible text \"2.5h\"; minutes={null} and minutes={undefined} render nothing (container.firstChild is null). Use the afterEach(cleanup) idiom from the sibling test.\nReturn these two as 'files'. Also return 'edit' describing the one-line insertion into task-card.tsx: render <TaskEstimateBadge minutes={task.estimatedMinutes} /> inside the existing badge row, immediately after the due-date block, plus the import. anchor must be an exact substring occurring EXACTLY ONCE in task-card.tsx.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- ALL user-facing copy must use static i18n keys via useTranslation(); never hardcode a visible string.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "badge and card spec",
+        "content": "### 6.8 `apps/web/src/components/kanban-board/task-estimate-badge.tsx` (new)\n\n```tsx\ntype TaskEstimateBadgeProps = { minutes?: number | null };\n\nexport function TaskEstimateBadge({ minutes }: TaskEstimateBadgeProps) {\n  const { t } = useTranslation();\n  const label = formatEstimateHours(minutes);\n  if (label === null) return null;\n  return (\n    <span\n      className=\"inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground\"\n      title={t(\"tasks:properties.estimate\")}\n    >\n      <Clock className=\"w-3 h-3\" />\n      <span>{label}</span>\n    </span>\n  );\n}\n```\n\nClass list is copied verbatim from the sibling priority badge (`task-card.tsx` L261) so the row stays\nvisually homogeneous. `w-3 h-3` icon matches the due-date badge icons (L271-277).\n\n**Why a separate component rather than inlining the JSX in `task-card.tsx`:** `TaskCard` pulls\n`useSortable` (needs a DnD context), `useNavigate` (needs a router), three zustand stores and two query\nhooks. Mounting it in a unit test costs six mocks and tests nothing about the estimate. A presentational\ncomponent makes AC-7 a two-line executed assertion. Precedent: `task-labels.tsx` / `task-labels.test.tsx`\nin the same directory.\n\n### 6.9 `apps/web/src/components/kanban-board/task-card.tsx` (edit)\n\nOne import (`import { TaskEstimateBadge } from \"./task-estimate-badge\";`, sorted next to `./task-labels`\nL48) and one JSX line inside the existing badge row (`<div className=\"flex items-center gap-1.5\">`, L259),\nplaced after the due-date block closes (after L280) and before the pull-request block (L282):\n\n```tsx\n              <TaskEstimateBadge minutes={task.estimatedMinutes} />\n```\n\nNo user-preference gate. `showPriority` / `showDueDates` / `showLabels` exist because those fields are\nalways populated and therefore always noisy; an estimate is opt-in per task and renders nothing when unset,\nso a preference toggle would be dead weight. Adding one to `useUserPreferencesStore` would also reach\noutside the allowlist. When `estimatedMinutes` is `null` or absent the component returns `null` and the\ncard's DOM is exactly what it is today (FR-24, NFR-1).\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "formatEstimateHours output table",
+        "content": "## 7. Formatting contract\n\nThese become test assertions verbatim.\n\n### `formatEstimateHours(minutes: number | null | undefined): string | null`\n\n| Input | Output | Note |\n|---|---|---|\n| `null` | `null` | |\n| `undefined` | `null` | |\n| `0` | `null` | defensive: never renders `\"0h\"`. `0` is unstorable, but a stale client must not paint a zero chip. |\n| `-30` | `null` | defensive |\n| `NaN` | `null` | defensive |\n| `Infinity` | `null` | defensive |\n| `20` | `\"0.33h\"` | 2 dp |\n| `90` | `\"1.5h\"` | trailing zeros stripped by `String(Number)` |\n| `120` | `\"2h\"` | no `.0` |\n| `150` | `\"2.5h\"` | |\n| `525600` | `\"8760h\"` | the bound |\n| `1` | `\"0.02h\"` | smallest storable value still renders non-zero |\n\nRule: `String(Math.round((minutes / 60) * 100) / 100) + \"h\"`, guarded by\n`typeof === \"number\" && Number.isFinite && > 0`.\n\n### `toEstimateHoursInput(minutes): string`"
+      },
+      {
+        "path": "apps/web/src/components/kanban-board/task-card.tsx",
+        "reason": "the badge row and sibling badge styling",
+        "content": "            {showLabels && (\n              <div className=\"mb-2.5\">\n                <TaskLabels labels={task.labels ?? []} />\n              </div>\n            )}\n\n            <div className=\"flex items-center gap-1.5\">\n              {showPriority && (\n                <span className=\"inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground\">\n                  {getPriorityIcon(task.priority ?? \"\")}\n                </span>\n              )}\n\n              {showDueDates && task.dueDate && (\n                <div\n                  className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}\n                >\n                  {getDueDateStatus(task.dueDate, taskIsCompleted) ===\n                    \"overdue\" && <CalendarX className=\"w-3 h-3\" />}\n                  {getDueDateStatus(task.dueDate, taskIsCompleted) ===\n                    \"due-soon\" && <CalendarClock className=\"w-3 h-3\" />}\n                  {(getDueDateStatus(task.dueDate, taskIsCompleted) ===\n                    \"far-future\" ||\n                    getDueDateStatus(task.dueDate, taskIsCompleted) ===\n                      \"no-due-date\") && <Calendar className=\"w-3 h-3\" />}\n                  <span>{format(new Date(task.dueDate), \"MMM d\")}</span>\n                </div>\n              )}\n\n              {pullRequests.length === 1 && (\n                <HoverCard openDelay={200} closeDelay={100}>\n                  <HoverCardTrigger asChild>\n                    <button"
+      },
+      {
+        "path": "apps/web/src/components/kanban-board/task-labels.test.tsx",
+        "reason": "sibling leaf-component test style",
+        "content": "import { cleanup, render, screen } from \"@testing-library/react\";\nimport { afterEach, describe, expect, it } from \"vitest\";\nimport { TaskLabels } from \"./task-labels\";\n\nafterEach(() => {\n  cleanup();\n});\n\ndescribe(\"TaskLabels\", () => {\n  it(\"renders labels supplied by the task\", () => {\n    render(\n      <TaskLabels labels={[{ id: \"label-1\", name: \"Bug\", color: \"red\" }]} />,\n    );\n\n    expect(screen.getByText(\"Bug\")).toBeVisible();\n  });\n});\n"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "content"
+            ]
+          }
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "anchor": {
+              "type": "string"
+            },
+            "insert_after": {
+              "type": "string"
+            },
+            "import_line": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "anchor",
+            "insert_after",
+            "import_line"
+          ]
+        }
+      },
+      "required": [
+        "files",
+        "edit"
+      ]
+    },
+    "acceptance": [
+      "badge returns null for null and undefined minutes",
+      "badge does not use useTranslation",
+      "test asserts container.firstChild is null for the unset cases",
+      "card edit anchor occurs exactly once"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_011_web_rollup",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-board",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-estimate-total.tsx",
+    "instruction": "Produce the per-lane estimate rollup as a files array plus one edit.\n1) NEW apps/web/src/components/kanban-board/column/column-estimate-total.tsx - presentational, props { tasks: Task[] }. It calls sumEstimatedMinutes from \"@/components/task/estimate\"; when that returns null it returns null so the lane header renders NOTHING AT ALL - not an empty span, not a zero. This is the single most important behaviour in this packet. When non-null it renders a chip styled EXACTLY like the existing task-count chip beside it: rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground, containing formatEstimateHours(sum). Give the chip a title attribute for hover context using t(\"tasks:kanban.laneEstimate\", { value }) - this component MAY use useTranslation since only the title uses copy; keep the visible text purely the formatted value so the test needs no i18n provider.\n2) NEW apps/web/src/components/kanban-board/column/column-estimate-total.test.tsx - vitest/jsdom + @testing-library/react. Assert four cases: tasks={[]} renders nothing; two tasks both with null estimates render nothing; one task with 150 renders \"2.5h\"; [150, null, 90] renders \"4h\". Mock react-i18next with the { useTranslation: () => ({ t: (key) => key }) } idiom so no provider is needed.\nReturn these two as 'files'. Also return 'edit' for column-header.tsx: render <ColumnEstimateTotal tasks={column.tasks} /> immediately after the existing task-count chip span, plus the import. anchor must occur EXACTLY ONCE.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- ALL user-facing copy must use static i18n keys via useTranslation(); never hardcode a visible string.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "rollup component and header spec",
+        "content": "### 6.10 `apps/web/src/components/kanban-board/column/column-estimate-total.tsx` (new)\n\n```tsx\ntype ColumnEstimateTotalProps = {\n  tasks: ReadonlyArray<{ estimatedMinutes?: number | null }>;\n};\n\nexport function ColumnEstimateTotal({ tasks }: ColumnEstimateTotalProps) {\n  const { t } = useTranslation();\n  const label = formatEstimateHours(sumEstimatedMinutes(tasks));\n  if (label === null) return null;\n  return (\n    <span\n      className=\"rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\"\n      title={t(\"tasks:kanban.laneEstimate\", { value: label })}\n    >\n      {label}\n    </span>\n  );\n}\n```\n\nClass list is copied verbatim from the existing task-count chip (`column-header.tsx` L62) so the two chips\nread as a pair. The structural prop type (not `Task[]`) keeps the component testable with two-field fixtures\nand is satisfied by `ProjectWithTasks[\"columns\"][number][\"tasks\"]`.\n\n### 6.11 `apps/web/src/components/kanban-board/column/column-header.tsx` (edit)\n\nOne import (`import { ColumnEstimateTotal } from \"./column-estimate-total\";`) and one line inside the\nexisting `<div className=\"flex min-w-0 items-center gap-2\">`, immediately after the count chip (after L64):\n\n```tsx\n          <ColumnEstimateTotal tasks={column.tasks} />\n```\n\nNo new hook, no `useMemo`, no effect, no query key (FR-26, NFR-2). The sum runs inside the header's existing\nrender pass over an array the component already holds. `ColumnHeader` re-renders exactly when it does today.\n\n---\n"
+      },
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "rollup contract table",
+        "content": "## 8. Rollup contract\n\n```ts\nsumEstimatedMinutes(tasks: ReadonlyArray<{ estimatedMinutes?: number | null }>): number | null\n```\n\nRule: accumulate only members whose `estimatedMinutes` is a finite number `> 0`. If none qualified, return\n`null`; otherwise return the integer sum. **`null`, not `0`, is the empty signal** (FR-20, requirements §9.3)\n— it is what makes `ColumnEstimateTotal` return `null` and render no element.\n\n| Lane | `sumEstimatedMinutes` | `formatEstimateHours` | Header renders |\n|---|---|---|---|\n| `[]` (empty lane) | `null` | `null` | nothing — no element, no empty span, no `0h` |\n| `[{null}, {null}]` | `null` | `null` | nothing |\n| `[{}, {}]` (field absent) | `null` | `null` | nothing |\n| `[{150}]` | `150` | `\"2.5h\"` | one chip, `2.5h` |\n| `[{150}, {null}, {90}]` | `240` | `\"4h\"` | one chip, `4h` (AC-8) |\n| `[{20}, {20}, {20}]` | `60` | `\"1h\"` | one chip, `1h` — note the sum is over *minutes*, so three `0.33h` tasks correctly total `1h`, not `0.99h` |\n\nThe last row is the reason the sum operates on minutes and formats once at the end: summing formatted hours\nwould compound the 2-dp rounding error per task. ADR-1.\n\nAn all-`null` lane is deliberately indistinguishable from an empty lane for rollup purposes (FR-20).\n\n---\n"
+      },
+      {
+        "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+        "reason": "target file and the count chip to mirror",
+        "content": "import { produce } from \"immer\";\nimport { Archive, Plus } from \"lucide-react\";\nimport { useState } from \"react\";\nimport { useTranslation } from \"react-i18next\";\nimport CreateTaskModal from \"@/components/shared/modals/create-task-modal\";\nimport { useUpdateTask } from \"@/hooks/mutations/task/use-update-task\";\nimport { useWorkspacePermission } from \"@/hooks/use-workspace-permission\";\nimport { getColumnIcon } from \"@/lib/column\";\nimport { toast } from \"@/lib/toast\";\nimport useProjectStore from \"@/store/project\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport { ArchiveTasksModal } from \"../../shared/modals/archive-tasks-modal\";\n\ntype ColumnHeaderProps = {\n  column: ProjectWithTasks[\"columns\"][number];\n};\n\nexport function ColumnHeader({ column }: ColumnHeaderProps) {\n  const { t } = useTranslation();\n  const { project, setProject } = useProjectStore();\n  const { mutate: updateTask } = useUpdateTask();\n  const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();\n  const canTask = canUpdateTasks();\n  const canCreate = canCreateTasks();\n\n  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);\n  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);\n\n  const handleConfirmArchive = () => {\n    if (!column.isFinal || !project) return;\n\n    const updatedProject = produce(project, (draft) => {\n      const archivedColumn = draft?.columns?.find(\n        (col) => col.id === column.id,\n      );\n      if (!archivedColumn) return;\n\n      for (const task of archivedColumn.tasks) {\n        updateTask({\n          ...task,\n          status: \"archived\",\n        });\n      }\n\n      archivedColumn.tasks = [];\n    });\n\n    setProject(updatedProject);\n    toast.success(t(\"tasks:archive.success\", { count: column.tasks.length }));\n    setIsArchiveModalOpen(false);\n  };\n\n  return (\n    <div className=\"flex items-center justify-between gap-2\">\n      <div className=\"flex min-w-0 items-center gap-2\">\n        <span className=\"text-muted-foreground\">\n          {getColumnIcon(column.id, column.isFinal, column.icon)}\n        </span>\n        <span className=\"truncate text-sm font-medium text-foreground/95\">\n          {column.name}\n        </span>\n        <span className=\"rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\">\n          {column.tasks.length}\n        </span>\n      </div>\n\n      <div className=\"flex items-center\">\n        {canTask && column.isFinal && column.tasks.length > 0 && (\n          <button\n            type=\"button\"\n            onClick={() => setIsArchiveModalOpen(true)}\n            className=\"flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-colors hover:bg-accent/50\"\n            title={t(\"tasks:listView.archiveAllTooltip\")}\n          >\n            <Archive className=\"w-4 h-4 text-muted-foreground\" />\n          </button>\n        )}\n        {canCreate && (\n          <button\n            type=\"button\"\n            onClick={() => setIsTaskModalOpen(true)}\n            className=\"flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-colors hover:bg-accent/50\"\n            title={t(\"tasks:kanban.addTask\")}\n          >\n            <Plus className=\"w-4 h-4 text-muted-foreground\" />\n          </button>\n        )}\n      </div>\n\n      <CreateTaskModal\n        open={isTaskModalOpen}\n        onClose={() => setIsTaskModalOpen(false)}\n        projectId={project?.id}\n        status={column.id}\n      />\n\n      <ArchiveTasksModal\n        open={isArchiveModalOpen}\n        onClose={() => setIsArchiveModalOpen(false)}\n        onConfirm={handleConfirmArchive}\n        taskCount={column.tasks.length}\n      />\n    </div>\n  );\n}\n"
+      },
+      {
+        "path": "apps/web/src/components/task/task-status-popover.test.tsx",
+        "reason": "the react-i18next mock idiom",
+        "content": "}));\n\nvi.mock(\"react-i18next\", () => ({\n  useTranslation: () => ({ t: (key: string) => key }),\n}));\n"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "content"
+            ]
+          }
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "anchor": {
+              "type": "string"
+            },
+            "insert_after": {
+              "type": "string"
+            },
+            "import_line": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "anchor",
+            "insert_after",
+            "import_line"
+          ]
+        }
+      },
+      "required": [
+        "files",
+        "edit"
+      ]
+    },
+    "acceptance": [
+      "returns null - rendering nothing - when the lane has no estimates",
+      "test covers empty, all-null, one, several",
+      "visible text needs no i18n provider",
+      "header edit anchor occurs exactly once"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_012_i18n",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "i18n",
+    "pass_id": "20260825-084051-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "i18n/en-US.json",
+    "instruction": "Emit the new i18n keys for this feature as a FLAT map of dotted key paths to English values.\nReturn exactly the 10 keys specified in the plan section, no more and no fewer. Key paths use dots and start with the namespace, e.g. \"tasks.properties.estimate\".\nDo NOT return JSON file content - return only the flat map. I apply it to i18n/en-US.json with the repo's own scripts/i18n/shared.mjs helpers so formatting and ordering match the repo exactly, and then propagate the same 10 paths to the 16 non-default locales.\nThe values must read naturally as product UI copy and match the wording style of the existing sibling keys shown.\n\nHARD RULES (brownfield run on an existing repo):\n- Follow the change_plan section given to you EXACTLY. It is authoritative and human-approved. Do not redesign.\n- Match surrounding repo style precisely: tabs vs spaces, quote style, import ordering, trailing commas. Biome formats this repo.\n- ALL user-facing copy must use static i18n keys via useTranslation(); never hardcode a visible string.\n- Emit ONLY what the output schema asks for. No prose, no markdown fences inside string fields.\n- Never invent an import that does not exist in this repo. Only use imports shown in the provided slices.",
+    "inputs": [
+      {
+        "path": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours/change_plan.md",
+        "reason": "the exact key list, values and placement",
+        "content": "### 9.1 New keys — exact values and exact positions\n\n**`tasks.properties`** (object at L1728-1736) — append after `\"noDate\"` (L1735):\n\n```json\n\t\t\t\"estimate\": \"Estimate\",\n\t\t\t\"noEstimate\": \"No estimate\"\n```\n\n**`tasks.popover`** (object at L1748-1791) — insert a new `estimate` object after the `startDate` block\n(closes L1768), before `\"labels\"` (L1769). Position mirrors the sidebar's property order:\n\n```json\n\t\t\t\"estimate\": {\n\t\t\t\t\"title\": \"Estimate (hours)\",\n\t\t\t\t\"placeholder\": \"e.g. 2.5\",\n\t\t\t\t\"save\": \"Save\",\n\t\t\t\t\"clear\": \"Clear estimate\",\n\t\t\t\t\"invalid\": \"Enter hours greater than 0 and up to 8760.\",\n\t\t\t\t\"updateSuccess\": \"Task estimate updated successfully\",\n\t\t\t\t\"updateError\": \"Failed to update task estimate\"\n\t\t\t},\n```\n\n**`tasks.kanban`** (object at L1884-1886) — append after `\"addTask\"` (L1885):\n\n```json\n\t\t\t\"laneEstimate\": \"Estimated: {{value}}\"\n```\n\nTen keys total. `i18n:check` compares flattened key *sets*, so position does not affect the check; position\nis chosen for review readability and to keep siblings adjacent.\n\nNo new namespace. No new top-level key. `tasks.popover.estimate.updateSuccess` / `updateError` deliberately\nmirror the wording of `tasks.popover.dueDate.*` (L1760-1761).\n\nThe `\"h\"` suffix emitted by `formatEstimateHours` is treated as a formatting symbol, not copy (FR-29). If\nGate 2 disagrees it becomes an eleventh key, `tasks.properties.hoursSuffix`, consumed inside `estimate.ts`\nvia an injected argument — flagged, not assumed.\n"
+      },
+      {
+        "path": "i18n/en-US.json",
+        "reason": "existing sibling key wording",
+        "content": "{\n  \"tasks\": {\n    \"properties\": {\n      \"title\": \"Properties\",\n      \"labels\": \"Labels\",\n      \"copyTaskLink\": \"Copy task link\",\n      \"copyTaskBranch\": \"Copy task branch\",\n      \"start\": \"Start\",\n      \"startDate\": \"Start date\",\n      \"noDate\": \"No date\"\n    },\n    \"popover\": {\n      \"dueDate\": {\n        \"updateSuccess\": \"Task due date updated successfully\",\n        \"updateError\": \"Failed to update task due date\",\n        \"clear\": \"Clear date\"\n      }\n    },\n    \"kanban\": {\n      \"addTask\": \"Add task\"\n    }\n  }\n}"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "keys": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "keys"
+      ]
+    },
+    "acceptance": [
+      "exactly 10 keys",
+      "all key paths start with 'tasks.'",
+      "includes tasks.properties.estimate, tasks.properties.noEstimate, tasks.kanban.laneEstimate",
+      "includes the seven tasks.popover.estimate.* keys",
+      "tasks.kanban.laneEstimate contains the {{value}} interpolation placeholder"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 1200
+    },
+    "retry_count": 0
+  }
+]

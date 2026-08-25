@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "note": "Scoped to this branch only. A benchmark arm must not carry another arm's ledger entries.",
+  "runs": [
+    {
+      "run_id": "20260825-084051-feature-extend-estimated-hours",
+      "date": "2026-08-25",
+      "mode": "brownfield",
+      "intent": "feature-extend",
+      "policy": "opus-only-v5",
+      "auth_mode": "estimated",
+      "branch": "feature-extend-2/opus-only",
+      "base": "5d1fc910",
+      "files_changed": 44,
+      "tests_after": {
+        "api": "60 files / 384 tests",
+        "web": "181 tests",
+        "typecheck": "6/6"
+      },
+      "cost_usd": 9.5535,
+      "cost_split": {
+        "dispatched_vendor": 4.755,
+        "in_session_estimated": 4.7985
+      },
+      "packets": {
+        "planned": 15,
+        "executed": 15,
+        "first_shot": 15,
+        "retries": 0,
+        "escalations": 0,
+        "refinement_packets": 1
+      },
+      "gates": {
+        "gate_0": "approved",
+        "gate_1": "approved",
+        "gate_2": "approved",
+        "gate_3": "approved",
+        "gate_4": "accepted"
+      },
+      "reviews": {
+        "senior": {
+          "verdict": "approve with nits",
+          "blocking": 0,
+          "nits": 10,
+          "nits_actioned": 9
+        },
+        "security": {
+          "verdict": "pass",
+          "blocking": 0,
+          "observations": 3,
+          "pre_existing_noted": 2
+        }
+      },
+      "migration": {
+        "file": "apps/api/drizzle/0043_adorable_micromacro.sql",
+        "journal_diff": "7 insertions, 0 deletions",
+        "applied_to_populated_table": true
+      },
+      "known_gaps": [
+        "No executed test covers the middleware chain on PUT /task/estimate/:id. A regression deleting requireWorkspacePermission({ task: ['update'] }) from that route would pass typecheck, scoped biome, API tests and web tests alike. Deliberate: Gate 1 OQ-4 chose benchmark consistency over widening the allowlist to tests/api-integration/**, even though this branch's fresh database could have run a real integration test.",
+        "The lane rollup is not realtime for other viewers: no publishEvent is emitted (Gate 1 OQ-5), so a teammate's board shows the old lane total until their next refetch. This diverges from due-date, priority, title and assignee, which all publish.",
+        "The 16 non-default locales carry English placeholder strings for the 10 new keys (Gate 1 OQ-3)."
+      ],
+      "follow_ups": [
+        {
+          "severity": "high",
+          "title": "GET /task/export/:projectId has no requireWorkspacePermission"
+        },
+        {
+          "severity": "low",
+          "title": "taskSchema / search response drift (S-2)"
+        },
+        {
+          "severity": "info",
+          "title": "pnpm i18n:check is red at baseline"
+        },
+        {
+          "severity": "info",
+          "title": "2 high transitive advisories under better-auth"
+        }
+      ],
+      "artifacts_dir": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours",
+      "outcome": "completed",
+      "finalized": true
+    }
+  ]
+}

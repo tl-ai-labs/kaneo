@@ -1,0 +1,4 @@
+114c5adab97ba76eebd659b691689c61  i18n/de-DE.json
+fd7444926786861153562e9cf6ffd695  i18n/el-GR.json
+6166ed58a735e9151e2c602caab76738  i18n/en-US.json
+278cbc01f374bc29a85e0398156cdca3  i18n/es-ES.json

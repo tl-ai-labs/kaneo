@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "run_id": "20260825-084051-feature-extend-estimated-hours",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "opus-only-v5",
+  "auth_mode": "estimated",
+  "phase": "generate_final_report",
+  "state": "finalized",
+  "terminal": true,
+  "outcome": "completed",
+  "finalized_at": "2026-08-25",
+  "gates": {
+    "gate_0": "approved",
+    "gate_1": "approved",
+    "gate_2": "approved",
+    "gate_3": "approved",
+    "gate_4": "accepted"
+  },
+  "artifacts_dir": ".sdlc/runs/20260825-084051-feature-extend-estimated-hours",
+  "note": "Run closed. All four gates approved, Gate 4 accepted by the user. 45 files changed and left uncommitted in the working tree by request: no commit, no push, no PR. write-contract.json is active:false."
+}
