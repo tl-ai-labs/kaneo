@@ -1,0 +1,55 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_arch_001",
+  "phase": "architecture_design",
+  "task_type": "delta_change_plan",
+  "module": "column",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-20T12:58:29.235Z",
+  "duration_ms": 302241,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.342481,
+  "tokens": {
+    "input": 99193,
+    "input_cached": 12619,
+    "output": 21311,
+    "output_reasoning": 12105
+  },
+  "tool_calls": {
+    "count": 1,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260820-123148-feature-extend-lane-wip-limit/change_plan.md"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260820-123148-feature-extend-lane-wip-limit/change_plan.md",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1675,
+    "scanned": 1675,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_arch_001.md",
+    "usage": "worker-usage-tp_arch_001.json"
+  }
+}

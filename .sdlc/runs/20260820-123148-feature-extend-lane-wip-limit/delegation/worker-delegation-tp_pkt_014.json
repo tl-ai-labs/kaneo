@@ -1,0 +1,57 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_pkt_014",
+  "phase": "tests",
+  "task_type": "test_add",
+  "module": "api-column",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-21T04:36:03.400Z",
+  "duration_ms": 47057,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.080262,
+  "tokens": {
+    "input": 8209,
+    "input_cached": 24589,
+    "output": 7140,
+    "output_reasoning": 4641
+  },
+  "tool_calls": {
+    "count": 1,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/tests/api-integration/column-wip-limit.test.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests/api-integration/column-wip-limit.test.ts",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "tests/api-integration/column-wip-limit.test.ts"
+    ],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1680,
+    "scanned": 1681,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_pkt_014.md",
+    "usage": "worker-usage-tp_pkt_014.json"
+  }
+}
