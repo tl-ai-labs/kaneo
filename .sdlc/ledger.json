@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "project": "kaneo",
+  "runs": [
+    {
+      "run_id": "20260824-095555-feature-extend-wip-limits",
+      "date": "2026-08-24",
+      "mode": "brownfield",
+      "intent": "feature-extend",
+      "policy": "opus-plus-flash-v37",
+      "auth_mode": "estimated",
+      "outcome": "accepted",
+      "gate": "gate-4",
+      "files_changed": 39,
+      "tests_after": {
+        "api": "399/399",
+        "web": "118/118",
+        "integration": "not run (no Postgres)"
+      },
+      "cost_usd": 2.9239,
+      "mechanical_share": {
+        "events": 29,
+        "of_events": 35,
+        "pct_of_events": 82.9,
+        "pct_of_cost": 9.9
+      },
+      "committed": false,
+      "rollback": {
+        "anchor": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+        "branch": "feature-extend-1/opus-flash",
+        "command": "/mmo:revert 20260824-095555-feature-extend-wip-limits"
+      },
+      "artifacts": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/",
+      "follow_ups": [
+        {
+          "id": "policy-task-type-gap",
+          "priority": "high",
+          "scope": "plugin",
+          "what": "opus-plus-flash-v37 codegen rule does not match brownfield primitives new_file_add / existing_file_edit; such packets fall through to default: opus, making brownfield runs ~10x more expensive."
+        },
+        {
+          "id": "biome-sdlc-exclusion",
+          "priority": "medium",
+          "scope": "repo",
+          "what": "biome.json lacks a .sdlc exclusion while vcs.useIgnoreFile is false, so `biome ci .` fails on plugin artifacts."
+        },
+        {
+          "id": "parked-integration-test",
+          "priority": "high",
+          "scope": "repo",
+          "what": "column authz integration test written but never executed and never placed; tests/api-integration/** was never in the allowlist. AC-3 has no executed test defending the guard chain.",
+          "staged_at": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/pending/tests/api-integration/column-wip-limit.test.ts"
+        },
+        {
+          "id": "user-docs",
+          "priority": "medium",
+          "scope": "repo",
+          "what": "WIP limit is undocumented; apps/docs/** and apps/site/** were off-limits."
+        },
+        {
+          "id": "i18n-schema-stale",
+          "priority": "low",
+          "scope": "repo",
+          "what": "i18n/schema.json stale; pre-existing drift, not caused by this run."
+        },
+        {
+          "id": "public-project-wiplimit",
+          "priority": "low",
+          "scope": "repo",
+          "accepted": true,
+          "what": "wipLimit present on the anonymous GET /api/public-project/:id payload; reviewed and accepted at Gate 3."
+        }
+      ]
+    }
+  ]
+}
