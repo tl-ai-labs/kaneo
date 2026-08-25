@@ -1,0 +1,78 @@
+MMO: 2026-08-21T09:54:43.580Z INFO   run.start run_id=20260821-094808-feature-extend-lane-wip-limit mode=brownfield intent=feature-extend policy=opus-plus-sonnet-max auth_mode=vendor code_dir=/home/sangeetha/projects/kaneo output_dir=.sdlc/runs/20260821-094808-feature-extend-lane-wip-limit
+MMO: 2026-08-21T09:55:48.973Z INFO   phase.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=requirements_analysis form=intent-specific
+MMO: 2026-08-21T09:57:03.253Z INFO   route.decide packet_id=tp_req_001 phase=requirements_analysis intent=feature-extend task_type=delta_requirements module=column-wip-limit rule_index=0 rule_reason="Judgment-heavy, low volume" model_id=opus
+MMO: 2026-08-21T09:57:03.253Z INFO   dispatch.start packet_id=tp_req_001 model_id=opus max_out=6000 max_in=12000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T09:58:53.103Z INFO   dispatch.end packet_id=tp_req_001 model_id=opus ok=true terminal_reason=success tokens_in=20332 tokens_out=7566 tokens_cached=68198 cost_usd=0.43040100000000003 latency_ms=109846 attempts=1
+MMO: 2026-08-21T10:00:22.975Z INFO   phase.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=requirements_analysis form=intent-specific
+MMO: 2026-08-21T10:00:23.015Z INFO   gate.open run_id=20260821-094808-feature-extend-lane-wip-limit gate=gate-1 title="Requirements Approval"
+MMO: 2026-08-21T10:01:56.031Z INFO   gate.resolved run_id=20260821-094808-feature-extend-lane-wip-limit gate=gate-1 response=approved
+MMO: 2026-08-21T10:01:56.066Z INFO   phase.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=change_plan form=intent-specific
+MMO: 2026-08-21T10:04:43.155Z INFO   route.decide packet_id=tp_plan_001 phase=change_plan intent=feature-extend task_type=delta_design module=column-wip-limit rule_index=6 rule_reason="Judgment: delta design for feature-extend / refactor / deps" model_id=opus
+MMO: 2026-08-21T10:04:43.155Z INFO   dispatch.start packet_id=tp_plan_001 model_id=opus max_out=9000 max_in=20000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T10:09:43.203Z ERROR  dispatch.error packet_id=tp_plan_001 model_id=opus error_class=DispatchFailed message="claude-cli timeout after 300s"
+MMO: 2026-08-21T10:10:52.479Z INFO   route.decide packet_id=tp_plan_002a phase=change_plan intent=feature-extend task_type=delta_design module=column-wip-limit rule_index=6 rule_reason="Judgment: delta design for feature-extend / refactor / deps" model_id=opus
+MMO: 2026-08-21T10:10:52.479Z INFO   dispatch.start packet_id=tp_plan_002a model_id=opus max_out=5000 max_in=20000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T10:11:51.724Z INFO   dispatch.end packet_id=tp_plan_002a model_id=opus ok=true terminal_reason=success tokens_in=15022 tokens_out=4847 tokens_cached=30224 cost_usd=0.29154599999999997 latency_ms=59244 attempts=1
+MMO: 2026-08-21T10:13:54.051Z INFO   route.decide packet_id=tp_plan_002b phase=change_plan intent=feature-extend task_type=delta_design_tests module=column-wip-limit rule_index=6 rule_reason="Judgment: delta design for feature-extend / refactor / deps" model_id=opus
+MMO: 2026-08-21T10:13:54.051Z INFO   dispatch.start packet_id=tp_plan_002b model_id=opus max_out=4500 max_in=20000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T10:15:21.732Z INFO   dispatch.end packet_id=tp_plan_002b model_id=opus ok=true terminal_reason=success tokens_in=14827 tokens_out=6033 tokens_cached=30224 cost_usd=0.31869400000000003 latency_ms=87681 attempts=1
+MMO: 2026-08-21T10:18:18.730Z INFO   phase.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=change_plan form=intent-specific
+MMO: 2026-08-21T10:18:18.769Z INFO   gate.open run_id=20260821-094808-feature-extend-lane-wip-limit gate=gate-2 title="Architecture Approval"
+MMO: 2026-08-21T10:24:31.568Z INFO   gate.resolved run_id=20260821-094808-feature-extend-lane-wip-limit gate=gate-2 response=approved
+MMO: 2026-08-21T10:24:31.610Z INFO   phase.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=plan_task_packets form=default
+MMO: 2026-08-21T10:25:33.626Z INFO   phase.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=plan_task_packets form=default
+MMO: 2026-08-21T10:25:33.663Z INFO   phase.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=execute_packets form=default
+MMO: 2026-08-21T10:26:33.110Z INFO   route.decide packet_id=tp_p1_api_contract phase=codegen intent=feature-extend task_type=controller_handler module=column-api rule_index=7 rule_reason="Schema-driven boilerplate — Sonnet 5 via Max subscription" model_id=sonnet
+MMO: 2026-08-21T10:26:33.110Z INFO   dispatch.start packet_id=tp_p1_api_contract model_id=sonnet max_out=7000 max_in=14000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T10:27:36.799Z INFO   dispatch.end packet_id=tp_p1_api_contract model_id=sonnet ok=true terminal_reason=success tokens_in=14533 tokens_out=9573 tokens_cached=30224 cost_usd=0.24501320000000001 latency_ms=63689 attempts=1
+MMO: 2026-08-21T10:29:56.796Z INFO   route.decide packet_id=tp_p2_web_data_i18n phase=codegen intent=feature-extend task_type=api_client module=column-web-data rule_index=7 rule_reason="Schema-driven boilerplate — Sonnet 5 via Max subscription" model_id=sonnet
+MMO: 2026-08-21T10:29:56.797Z INFO   dispatch.start packet_id=tp_p2_web_data_i18n model_id=sonnet max_out=3000 max_in=8000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T10:30:15.979Z INFO   dispatch.end packet_id=tp_p2_web_data_i18n model_id=sonnet ok=true terminal_reason=success tokens_in=17792 tokens_out=2256 tokens_cached=24424 cost_usd=0.1508962 latency_ms=19182 attempts=1
+MMO: 2026-08-21T10:32:08.171Z INFO   route.decide packet_id=tp_p3_ui phase=codegen intent=feature-extend task_type=react_component module=column-ui rule_index=7 rule_reason="Schema-driven boilerplate — Sonnet 5 via Max subscription" model_id=sonnet
+MMO: 2026-08-21T10:32:08.171Z INFO   dispatch.start packet_id=tp_p3_ui model_id=sonnet max_out=5000 max_in=12000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T10:33:04.191Z INFO   dispatch.end packet_id=tp_p3_ui model_id=sonnet ok=true terminal_reason=success tokens_in=19095 tokens_out=7767 tokens_cached=24424 cost_usd=0.2420932 latency_ms=56020 attempts=1
+MMO: 2026-08-21T10:36:09.877Z INFO   route.decide packet_id=tp_p4_api_tests phase=tests intent=feature-extend task_type=test_add module=column-api rule_index=8 rule_reason="Scaffold-heavy, pattern-based" model_id=sonnet
+MMO: 2026-08-21T10:36:09.878Z INFO   dispatch.start packet_id=tp_p4_api_tests model_id=sonnet max_out=9000 max_in=16000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T10:39:14.979Z INFO   dispatch.end packet_id=tp_p4_api_tests model_id=sonnet ok=true terminal_reason=success tokens_in=19603 tokens_out=25510 tokens_cached=24424 cost_usd=0.5115842 latency_ms=185100 attempts=1
+MMO: 2026-08-21T10:39:16.953Z INFO   route.decide packet_id=tp_p5_web_tests phase=tests intent=feature-extend task_type=test_add module=column-ui rule_index=8 rule_reason="Scaffold-heavy, pattern-based" model_id=sonnet
+MMO: 2026-08-21T10:39:16.955Z INFO   dispatch.start packet_id=tp_p5_web_tests model_id=sonnet max_out=9000 max_in=16000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-21T10:42:23.234Z INFO   dispatch.end packet_id=tp_p5_web_tests model_id=sonnet ok=true terminal_reason=success tokens_in=14590 tokens_out=22015 tokens_cached=30559 cost_usd=0.43175969999999997 latency_ms=186281 attempts=1
+MMO: 2026-08-21T10:45:48.851Z INFO   phase.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=execute_packets form=default
+MMO: 2026-08-21T10:45:48.887Z INFO   phase.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=test_run form=default
+MMO: 2026-08-21T10:52:25.694Z INFO   phase.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=test_run form=default
+MMO: 2026-08-21T10:52:33.641Z INFO   phase.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=senior_code_review form=default
+MMO: 2026-08-21T10:52:33.728Z INFO   delegate.subagent.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=senior_code_review subagent=senior-reviewer
+MMO: 2026-08-21T10:52:33.771Z INFO   phase.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=security_review form=default
+MMO: 2026-08-21T10:52:33.814Z INFO   delegate.subagent.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=security_review subagent=security-reviewer
+MMO: 2026-08-21T11:03:06.656Z INFO   delegate.subagent.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=senior_code_review subagent=senior-reviewer ok=true artifact_path=.sdlc/runs/20260821-094808-feature-extend-lane-wip-limit/review.md
+MMO: 2026-08-21T11:03:06.698Z INFO   phase.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=senior_code_review form=default
+MMO: 2026-08-21T11:03:06.741Z INFO   delegate.subagent.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=security_review subagent=security-reviewer ok=true artifact_path=.sdlc/runs/20260821-094808-feature-extend-lane-wip-limit/security_review.md
+MMO: 2026-08-21T11:03:06.781Z INFO   phase.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=security_review form=default
+MMO: 2026-08-21T11:03:06.823Z INFO   gate.open run_id=20260821-094808-feature-extend-lane-wip-limit gate=gate-3 title="Security Review"
+MMO: 2026-08-21T11:15:06.528Z INFO   gate.resolved run_id=20260821-094808-feature-extend-lane-wip-limit gate=gate-3 response=approved
+MMO: 2026-08-21T11:18:33.026Z INFO   phase.start run_id=20260821-094808-feature-extend-lane-wip-limit phase=generate_final_report form=default
+MMO: 2026-08-21T11:20:55.424Z INFO   phase.end run_id=20260821-094808-feature-extend-lane-wip-limit phase=generate_final_report form=default
+MMO: 2026-08-21T11:20:55.461Z INFO   gate.open run_id=20260821-094808-feature-extend-lane-wip-limit gate=gate-4 title="Final Acceptance"
+MMO: 2026-08-21T11:20:55.498Z INFO   run.end run_id=20260821-094808-feature-extend-lane-wip-limit outcome=completed total_cost_usd=2.7070
+MMO: 2026-08-24T04:22:25.437Z INFO   policy.load policy_name=opus-plus-flash-v37 resolved_path=/home/sangeetha/.claude/plugins/cache/tilicho-ai-labs/mmo/0.6.0/config/policies/opus-plus-flash-v37.yaml source=path version=1 model_count=3 rule_count=13
+MMO: 2026-08-24T04:22:25.446Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-24T04:22:25.492Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-24T04:22:25.493Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-24T04:22:25.493Z INFO   preflight.model model_id=flash-completion adapter=mcp:model-dispatch ok=true
+MMO: 2026-08-24T04:22:25.493Z INFO   preflight.model model_id=flash-agsdk-worker ok=true classification=not_selected
+MMO: 2026-08-24T04:22:25.493Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-24T04:25:14.457Z WARN   packet.validate.fail packet_id=smoke-flash-1 missing_fields="inputs,outputSchema,budget,pass_id"
+MMO: 2026-08-24T04:25:21.052Z WARN   packet.validate.fail packet_id=smoke-flash-1 missing_fields=inputs
+MMO: 2026-08-24T04:25:27.281Z INFO   route.decide packet_id=smoke-flash-1 phase=codegen task_type=smoke module=preflight-smoke rule_index=-1 rule_reason="Unrecognized task — fail safe to premium" model_id=opus
+MMO: 2026-08-24T04:25:27.281Z INFO   dispatch.start packet_id=smoke-flash-1 model_id=opus max_out=100 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-24T04:25:33.418Z INFO   route.decide packet_id=smoke-flash-1 phase=codegen task_type=smoke module=preflight-smoke rule_index=-1 rule_reason="Unrecognized task — fail safe to premium" model_id=opus
+MMO: 2026-08-24T04:25:33.418Z INFO   dispatch.start packet_id=smoke-flash-1 model_id=opus max_out=100 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-24T04:25:40.103Z INFO   dispatch.end packet_id=smoke-flash-1 model_id=opus ok=true terminal_reason=success tokens_in=15626 tokens_out=13 tokens_cached=24432 cost_usd=0.16989100000000001 latency_ms=6685 attempts=1
+MMO: 2026-08-24T04:25:52.530Z INFO   route.decide packet_id=smoke-flash-2 phase=tests task_type=test_add module=preflight-smoke rule_index=8 rule_reason="Scaffold-heavy, pattern-based" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-24T04:25:52.530Z INFO   dispatch.start packet_id=smoke-flash-2 model_id=flash-completion max_out=100 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-24T04:25:59.162Z INFO   dispatch.end packet_id=smoke-flash-2 model_id=flash-completion ok=true terminal_reason=success tokens_in=256 tokens_out=183 tokens_cached=0 cost_usd=0.002031 latency_ms=6632 attempts=2
+MMO: 2026-08-24T04:35:15.271Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-24T04:35:15.271Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-24T04:35:15.272Z INFO   preflight.model model_id=flash-completion adapter=mcp:model-dispatch ok=true
+MMO: 2026-08-24T04:35:15.272Z INFO   preflight.model model_id=flash-agsdk-worker ok=true classification=not_selected
+MMO: 2026-08-24T04:35:15.272Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
