@@ -1,0 +1,470 @@
+{
+  "schema_version": 1,
+  "run_id": "20260824-095555-feature-extend-wip-limits",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": null,
+  "commits": [],
+  "files_touched": [
+    {
+      "path": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/requirements.md",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:f58e49c393129ca7997d95fc7b90bced7d8018020c7f49762ee2ea4db4b4fc81",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "direct_requirements",
+      "written_at": "2026-08-24T10:10:35.851Z"
+    },
+    {
+      "path": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/change_plan.md",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:ff245f62d04def2eaa0fae05a8d3602a4e3eda431342f19dfb09cb83251fbc15",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "direct_architecture",
+      "written_at": "2026-08-24T10:29:03.975Z"
+    },
+    {
+      "path": "apps/api/src/database/schema.ts",
+      "existed_before": true,
+      "sha_before": "sha256:54a934956aef8af8ec867205724021e2d016f9b0c1ba2ae74c3d4fac30fc91b4",
+      "sha_after": "sha256:05c377a5bb455a07cd8bf7d94661bfe7603f223f1b3efeef349836641465a8b2",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_001",
+      "written_at": "2026-08-24T10:35:58.563Z"
+    },
+    {
+      "path": "apps/api/src/column/validators.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:7b28025499e5df1251c32aab3cf5e72e482dcc03367748efa1ea042c99f3fa21",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_codegen_002",
+      "written_at": "2026-08-24T10:35:58.599Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/_journal.json",
+      "existed_before": true,
+      "sha_before": "sha256:6242f9840ae540dbbc16878b7911f5837c9a79987d4d8fc26b98d43b1b239d71",
+      "sha_after": "sha256:51a4ca3f00f52859cc18779a29df386005c913264a3c079f98256bb78d909b08",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_001_migration",
+      "written_at": "2026-08-24T10:37:17.243Z"
+    },
+    {
+      "path": "apps/api/drizzle/0043_living_karen_page.sql",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:4e298c825082f0a0044c9d3c132c938485490647b9d3dab86dd804b70f430648",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_codegen_001_migration",
+      "written_at": "2026-08-24T10:37:17.125Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/0043_snapshot.json",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:ccfc756f5367b38c75cbd4aa511da09ebd368b09ddf16448929a3899e5d98f11",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_codegen_001_migration",
+      "written_at": "2026-08-24T10:37:17.205Z"
+    },
+    {
+      "path": "apps/api/src/column/controllers/create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:5163e758f79d2a87602b825b4502ebdfbbacf8364f3db3298246fbc7dfe96c3f",
+      "sha_after": "sha256:aca4b4d0452b564b642da050e904a53b79aeffe02e3abfd57060493a3205f7da",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_003",
+      "written_at": "2026-08-24T10:39:01.297Z"
+    },
+    {
+      "path": "apps/api/src/column/controllers/update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:7b52c5be905599b34c76b613d25544c4449e2510aa97aea127a66c356158c9bc",
+      "sha_after": "sha256:5a312c1c8c2522327decc99965e5b5cdb433a2e5185b53b256b865d28a7283cc",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_004",
+      "written_at": "2026-08-24T10:39:01.334Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/get-tasks.ts",
+      "existed_before": true,
+      "sha_before": "sha256:41b8a1714187c8ccd2ab62ca0d317aad1d230ea663100abeb3715272ed691d96",
+      "sha_after": "sha256:ad9c3153e0af5010586ddd8c52f138f06b656a6829e54d7d9df7a44c523c91a6",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_006",
+      "written_at": "2026-08-24T10:39:01.373Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/_journal.json",
+      "existed_before": true,
+      "sha_before": "sha256:8cbe2d410bd02cdbc5aef4a0d72e53bc9780f66b1ced932f7e264bea58af6955",
+      "sha_after": "sha256:8cbe2d410bd02cdbc5aef4a0d72e53bc9780f66b1ced932f7e264bea58af6955",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/backups/apps__api__drizzle__meta___journal.json",
+      "packet_id": "tp_codegen_001_migration_regen",
+      "written_at": "2026-08-24T10:40:24.545Z"
+    },
+    {
+      "path": "apps/api/drizzle/0043_broken_weapon_omega.sql",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:4e298c825082f0a0044c9d3c132c938485490647b9d3dab86dd804b70f430648",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_codegen_001_migration_regen",
+      "written_at": "2026-08-24T10:40:24.434Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/0043_snapshot.json",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:6892171007d5d0425b2b3860142a5be0c7937ac682831f20a9bacdfcf0968b15",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_codegen_001_migration_regen",
+      "written_at": "2026-08-24T10:40:24.509Z"
+    },
+    {
+      "path": "i18n/en-US.json",
+      "existed_before": true,
+      "sha_before": "sha256:cdf16d5924db4dfe140bf8ec73dce566b1fe80669a1fa4587fcbd4517757a092",
+      "sha_after": "sha256:3c107271fe0887f09a9237186b7cc7427bb276ddce50bbc2ecf3aff81aa7d4f7",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007",
+      "written_at": "2026-08-24T10:41:37.460Z"
+    },
+    {
+      "path": "i18n/de-DE.json",
+      "existed_before": true,
+      "sha_before": "sha256:e66353646385f4d4d5c7ddd0a0cf91ddd9862b9f7ffe7ef8255a22527528170a",
+      "sha_after": "sha256:434b82fec18657233b49abce1951446438fb3c599abc3acda253af06781fa199",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.216Z"
+    },
+    {
+      "path": "i18n/el-GR.json",
+      "existed_before": true,
+      "sha_before": "sha256:eb8a4be7907c0cdecd3a1e0b16a8e126b8e433d08c380ece30569ee9a33cc7d8",
+      "sha_after": "sha256:a99aefedf713d4300b9e9aa83a21235fcb626477f1808ce76b86e04798df76e1",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.252Z"
+    },
+    {
+      "path": "i18n/es-ES.json",
+      "existed_before": true,
+      "sha_before": "sha256:2324a03ca56d48c4376ced3e0a0f47a127020dcb93668dab8f5622285c34b5c5",
+      "sha_after": "sha256:e9d67cef79c9f02b040c05f974834d58f246899b4107092cfe8dbc5f2568344b",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.284Z"
+    },
+    {
+      "path": "i18n/fr-FR.json",
+      "existed_before": true,
+      "sha_before": "sha256:00437855640463a939db8617d1d4712c270ec78874d0f5f1cd19ea25502fe2a0",
+      "sha_after": "sha256:7d54cc27abd8da99288f1e436e92804fd13e2479a1cfd03c08d3543d2a5d5811",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.323Z"
+    },
+    {
+      "path": "i18n/hi-IN.json",
+      "existed_before": true,
+      "sha_before": "sha256:85aa16733ef1f12ac45f58fc6aeed6aefaf74ae4978c46305ea586fa11912ef4",
+      "sha_after": "sha256:d31963ea219868f95fe4e08303c05a0ef842417a0f72915a719cf04be7e8a1f6",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.361Z"
+    },
+    {
+      "path": "i18n/id-ID.json",
+      "existed_before": true,
+      "sha_before": "sha256:7df68697b2bac981c3e39a943ed748a5d0467e77ebbc32d539a9e4bd1eaf7604",
+      "sha_after": "sha256:fa286edde0988d552f4f8b64c183bf0538e984a74cdb2e4d4e7a56df909f4dfc",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.401Z"
+    },
+    {
+      "path": "i18n/it-IT.json",
+      "existed_before": true,
+      "sha_before": "sha256:d7297e208d7959235e6e4d33996697b0c003aabc71e1e4823151786b36063cf5",
+      "sha_after": "sha256:d4d1946b535c1bb9e516470aadcf8306baac8db8315232ee737b4375061ea2b1",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.437Z"
+    },
+    {
+      "path": "i18n/ko-KR.json",
+      "existed_before": true,
+      "sha_before": "sha256:f7e7399525c149bf76723ef30440ced8b79687a0b6b677a1c3f55f10965ce70e",
+      "sha_after": "sha256:c1ca9ebb713aed455c1da24f2dae1ffcac6e431968ed404ea4343eb2481bb83c",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.473Z"
+    },
+    {
+      "path": "i18n/mk-MK.json",
+      "existed_before": true,
+      "sha_before": "sha256:0f065480ad4736d0a849a253df61d980a0ea538512fb44cf80423a6ea5277003",
+      "sha_after": "sha256:6fef274b47f866994cfaac533cac71a479c925f2836cba4200f94ae74bfbb1c8",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.509Z"
+    },
+    {
+      "path": "i18n/nl-NL.json",
+      "existed_before": true,
+      "sha_before": "sha256:e7ac281a88bf77c8be736e2472e2320c10606637a2796c46ba3c993e8741be10",
+      "sha_after": "sha256:7a33a56a00be6c9ebdcf889508c9708b071205ae44b8f6439fda1068466f6e33",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.544Z"
+    },
+    {
+      "path": "i18n/pt-BR.json",
+      "existed_before": true,
+      "sha_before": "sha256:1be64b47793c03c633511b0ce1d3b9441cc2bb61960af3ccf8c26e37b71588c2",
+      "sha_after": "sha256:4b21259337edb2fedd5969be7dd79283733337d2e810ccb7ec533a5d7d8c81f1",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.579Z"
+    },
+    {
+      "path": "i18n/ru-RU.json",
+      "existed_before": true,
+      "sha_before": "sha256:38d67c3e1f7a0d6a5f8ee2e1f9ff1fae4f521dbe75d8c13cf773ed6321785766",
+      "sha_after": "sha256:9cdf32c88f0a414ad966b2c0e80b1ccff82242fee542af340d00fc34c4b40e79",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.613Z"
+    },
+    {
+      "path": "i18n/schema.json",
+      "existed_before": true,
+      "sha_before": "sha256:4d947ba9b221618816b8240531200e7f9ea40203d45849d6170fb0a2ed898000",
+      "sha_after": null,
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": null
+    },
+    {
+      "path": "i18n/tr-TR.json",
+      "existed_before": true,
+      "sha_before": "sha256:eed957b6fef09d2f9f5868142d5825272aa47fc7962dbd95f7b0033fdf2d1abd",
+      "sha_after": "sha256:9ed81cd64e4df18736d86380f5f25531bb9b2b240d796443c8dbd7bf540c4359",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.648Z"
+    },
+    {
+      "path": "i18n/uk-UA.json",
+      "existed_before": true,
+      "sha_before": "sha256:ff31e076f506a747bd29b6b63a8835e8ca2d526ef5f515ab8b20f0dd48af6d21",
+      "sha_after": "sha256:47b1ac2a12f6956213fc9240377ea6461f15ebf08da7d8643fc6bfe40fd03d4a",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.683Z"
+    },
+    {
+      "path": "i18n/vi-VN.json",
+      "existed_before": true,
+      "sha_before": "sha256:bade97630664891a78d9f605d5ebc7c5f221de236bea2dabce5c10fbe891a0c0",
+      "sha_after": "sha256:19ed45cb050f962fff6868b7cfedb0a365a92535f9068ebfc80e60d05652dc19",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.720Z"
+    },
+    {
+      "path": "i18n/zh-CN.json",
+      "existed_before": true,
+      "sha_before": "sha256:6852020ae8cbf867b9d2a5791d4867076b44a1be861ded2e8a069476c72e0ac0",
+      "sha_after": "sha256:dcf70cfb8dfc999f5ce6c15cec23be28042ce743a4d3f70b08fef33e686de39e",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:49.758Z"
+    },
+    {
+      "path": "i18n/schema.json",
+      "existed_before": true,
+      "sha_before": "sha256:4d947ba9b221618816b8240531200e7f9ea40203d45849d6170fb0a2ed898000",
+      "sha_after": "sha256:5751748e65a8e94b02e26707cb9df73dad13903b066442ef05dfdb0f5311946d",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_007_i18n_tooling",
+      "written_at": "2026-08-24T10:42:51.072Z"
+    },
+    {
+      "path": "apps/web/src/fetchers/column/create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:d77bb09313ad23e2079c18b26f89ab4faea626c83699d492ae37ef80638da711",
+      "sha_after": "sha256:989f881db7211aec2eb6671fd78a025f102b88d89523fb5d0aceaff1092a65b7",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_008",
+      "written_at": "2026-08-24T10:46:01.055Z"
+    },
+    {
+      "path": "apps/web/src/fetchers/column/update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:a08b659f93049d4c756419def65a34c74fe0d612f927a3aae99ed3f4d7174ff0",
+      "sha_after": "sha256:787856da167edcc2c0d5087511c93c33113de2ad9c069e1520afd4115bdb7c38",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_009",
+      "written_at": "2026-08-24T10:46:01.091Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/column/use-create-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:e074b382a365982c88e2f68410cd0ea62688c74777daa64784224936bc32267a",
+      "sha_after": "sha256:ab925853ddaa6c0672b70923ca019cee3a2705013d6e1a8b3f010c6e63f5ce22",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_010",
+      "written_at": "2026-08-24T10:46:01.129Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/column/use-update-column.ts",
+      "existed_before": true,
+      "sha_before": "sha256:ed52e891e998cac58c1396bd3982a9b1cfe9993232dfbb79f60ec5e71cb41331",
+      "sha_after": "sha256:a15eda387676e13aae827fac0c37857a3b502d3b014982e7c0c98cabb71fe192",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_011",
+      "written_at": "2026-08-24T10:46:01.171Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-task-count-badge.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:02cfb0f5f078ab9b0624c2b6aa47b1887edfc7af15bb0b682f0d44dc5839ac69",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_codegen_012",
+      "written_at": "2026-08-24T10:49:18.121Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:c7eb59de90cc57961067be7ec101b4b9305c25e31ee3e7bc65c26b69c46c9f58",
+      "sha_after": "sha256:e74cabcb1847333220826edfa620bbf3996d461991dd0424ecdf249c444b1a50",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_013",
+      "written_at": "2026-08-24T10:49:18.156Z"
+    },
+    {
+      "path": "apps/api/src/column/index.ts",
+      "existed_before": true,
+      "sha_before": "sha256:585ca017a121f5f74c584d6e7d7e982a60a6b058e7d1806cdd86d42b04812e76",
+      "sha_after": "sha256:1c83db5bef148216b0726f52fc890d54b8c09a8728576bdb923f896883841eda",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_005a",
+      "written_at": "2026-08-24T10:52:05.546Z"
+    },
+    {
+      "path": "apps/web/src/components/project/column-editor.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:fedce18595c23f996eade0c28c5a1d44f07d082b8a4409125ee22485720fa9f4",
+      "sha_after": "sha256:35315d4c491278312fb3ea24c845563b9d6a1af840912886f138e10ff10fb9ef",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_014a",
+      "written_at": "2026-08-24T10:52:24.992Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/label/sync-task-labels-cache.test.ts",
+      "existed_before": true,
+      "sha_before": "sha256:1749c226ef04f55ea6338793430bc2c8a336bf9a64bbe67a8d8a7cc42506a966",
+      "sha_after": "sha256:cc4a5c0c9df66ee7ddf7b7fc3f92880e7b61f21e816334ccfcfcf32aa3a0b917",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_debug_019",
+      "written_at": "2026-08-24T10:55:15.991Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:eb005cd71ff66234b5eaad6852db5e77a4eecfbfbf711dc735eb75e0905f596e",
+      "sha_after": "sha256:53464bf95960efcea26c7a410fa8395b71d73f3eff687f66a5d7b0cf7a5ea836",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_debug_020",
+      "written_at": "2026-08-24T10:55:16.029Z"
+    },
+    {
+      "path": "tests/api/column/wip-limit-validator.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:8df0418da6ce7a63cdfd1102dd883909a5e01f044e4eead8e835dd519b0b06ee",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_tests_015",
+      "written_at": "2026-08-24T10:58:12.511Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-task-count-badge.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:14849f8f88611aacbc1ee365708c6921ae41daec01c3f71d0a53719fadcb83af",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_tests_018",
+      "written_at": "2026-08-24T10:58:12.547Z"
+    },
+    {
+      "path": "tests/api/column/wip-limit-persistence.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:1091761e9130ba5c267b49462d162a5eb114d932742c9090a2f588ba4154b67c",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_tests_016",
+      "written_at": "2026-08-24T10:58:40.647Z"
+    },
+    {
+      "path": "tests/api/column/wip-limit-authz.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:0bc766aea80f5587a968847b05061f683c763d82696b74b04d2e1983a7621e41",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_tests_017",
+      "written_at": "2026-08-24T10:58:40.683Z"
+    }
+  ]
+}

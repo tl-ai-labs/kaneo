@@ -1,0 +1,895 @@
+[
+  {
+    "id": "tp_codegen_001",
+    "phase": "codegen",
+    "task_type": "entity",
+    "subtype": "existing_file_edit",
+    "module": "api-database",
+    "artifact_path": "apps/api/src/database/schema.ts",
+    "instruction": "Add a nullable work-in-progress limit column to the drizzle `columnTable`. Insert EXACTLY these two lines between the existing `isFinal:` line and the existing `createdAt:` line, at the same 4-space indentation:\n    // Soft work-in-progress cap for the lane. NULL means no limit; never enforced server-side.\n    wipLimit: integer(\"wip_limit\"),\nNo .notNull(), no .default(), no index. `integer` is already imported. Do not touch the table's index clause or any other table. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/api/src/database/schema.ts",
+        "content": "export const columnTable = pgTable(\n  \"column\",\n  {\n    id: text(\"id\")\n      .$defaultFn(() => createId())\n      .primaryKey(),\n    projectId: text(\"project_id\")\n      .notNull()\n      .references(() => projectTable.id, {\n        onDelete: \"cascade\",\n        onUpdate: \"cascade\",\n      }),\n    name: text(\"name\").notNull(),\n    slug: text(\"slug\").notNull(),\n    position: integer(\"position\").notNull().default(0),\n    icon: text(\"icon\"),\n    color: text(\"color\"),\n    isFinal: boolean(\"is_final\").default(false).notNull(),\n    createdAt: timestamp(\"created_at\", { mode: \"date\" }).defaultNow().notNull(),\n    updatedAt: timestamp(\"updated_at\", { mode: \"date\" })\n      .defaultNow()\n      .$onUpdate(() => new Date())\n      .notNull(),\n  },\n  (table) => [index(\"column_projectId_idx\").on(table.projectId)],\n);\n\n",
+        "reason": "columnTable definition \u2014 the only table to change"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "columnTable gains `wipLimit: integer(\"wip_limit\")` between isFinal and createdAt",
+      "No .notNull(), no .default(), no index on the new column",
+      "No other table or line in schema.ts is modified"
+    ],
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 1500
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_002",
+    "phase": "codegen",
+    "task_type": "dto",
+    "subtype": "new_file_add",
+    "module": "api-column",
+    "artifact_path": "apps/api/src/column/validators.ts",
+    "instruction": "Create a new file exporting exactly one named Valibot schema and nothing else. Content must be:\n\nimport * as v from \"valibot\";\n\n/**\n * Soft work-in-progress cap for a column.\n * Positive integer sets the cap; `null` clears it; omitting the field on update\n * leaves the stored value untouched. Advisory only \u2014 never enforced.\n */\nexport const wipLimitSchema = v.optional(\n  v.nullable(v.pipe(v.number(), v.integer(), v.minValue(1))),\n);\n\nDo NOT add any other export. Do NOT migrate the module's existing name/icon/color/isFinal validators here. Return ONLY {\"content\": \"<full file text>\"}.",
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "File exports exactly one symbol: wipLimitSchema",
+      "Schema is v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(1))))",
+      "No other validator is moved into this file"
+    ],
+    "budget": {
+      "maxInputTokens": 1500,
+      "maxOutputTokens": 800
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_003",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "subtype": "existing_file_edit",
+    "module": "api-column",
+    "artifact_path": "apps/api/src/column/controllers/create-column.ts",
+    "instruction": "Thread an optional wipLimit through createColumn. Two changes only:\n1) The destructured parameter list gains `wipLimit,` after `isFinal,`, and the inline type gains `wipLimit?: number | null;` after `isFinal?: boolean;`.\n2) The `.values({...})` object gains `wipLimit: wipLimit ?? null,` after `isFinal: isFinal ?? false,`.\nUse `?? null`, never `|| null`. Do NOT change toSlug, the reserved-slug check, the duplicate-slug check, or the MAX(position) query. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/api/src/column/controllers/create-column.ts",
+        "content": "import { eq, sql } from \"drizzle-orm\";\nimport { HTTPException } from \"hono/http-exception\";\nimport db from \"../../database\";\nimport { columnTable } from \"../../database/schema\";\nimport { VIRTUAL_STATUSES } from \"../../task/validate-task-fields\";\n\nexport function toSlug(name: string): string {\n  const slug = name\n    .normalize(\"NFKC\")\n    .toLowerCase()\n    .trim()\n    .replace(/[^\\p{L}\\p{M}\\p{N}]+/gu, \"-\")\n    .replace(/^-+|-+$/g, \"\");\n\n  return /[\\p{L}\\p{N}]/u.test(slug) ? slug : \"\";\n}\n\nasync function createColumn({\n  projectId,\n  name,\n  icon,\n  color,\n  isFinal,\n}: {\n  projectId: string;\n  name: string;\n  icon?: string;\n  color?: string;\n  isFinal?: boolean;\n}) {\n  const slug = toSlug(name);\n\n  if (!slug) {\n    throw new HTTPException(400, {\n      message: \"Column name must contain at least one alphanumeric character\",\n    });\n  }\n\n  if ((VIRTUAL_STATUSES as readonly string[]).includes(slug)) {\n    throw new HTTPException(409, {\n      message: `Column slug \"${slug}\" is reserved for virtual task statuses`,\n    });\n  }\n\n  const existing = await db\n    .select({ id: columnTable.id })\n    .from(columnTable)\n    .where(\n      sql`${columnTable.projectId} = ${projectId} AND ${columnTable.slug} = ${slug}`,\n    );\n\n  if (existing.length > 0) {\n    throw new HTTPException(409, {\n      message: `Column with slug \"${slug}\" already exists in this project`,\n    });\n  }\n\n  const [maxPos] = await db\n    .select({\n      maxPosition: sql<number>`COALESCE(MAX(${columnTable.position}), -1)`,\n    })\n    .from(columnTable)\n    .where(eq(columnTable.projectId, projectId));\n\n  const position = (maxPos?.maxPosition ?? -1) + 1;\n\n  const [created] = await db\n    .insert(columnTable)\n    .values({\n      projectId,\n      name,\n      slug,\n      position,\n      icon: icon || null,\n      color: color || null,\n      isFinal: isFinal ?? false,\n    })\n    .returning();\n\n  if (!created) {\n    throw new HTTPException(500, { message: \"Failed to create column\" });\n  }\n\n  return created;\n}\n\nexport default createColumn;\n",
+        "reason": "file to edit \u2014 small, shown whole for exact anchors"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "createColumn accepts wipLimit?: number | null",
+      ".values() includes wipLimit: wipLimit ?? null",
+      "toSlug and all existing validation logic are byte-identical"
+    ],
+    "budget": {
+      "maxInputTokens": 3000,
+      "maxOutputTokens": 1500
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_004",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "subtype": "existing_file_edit",
+    "module": "api-column",
+    "artifact_path": "apps/api/src/column/controllers/update-column.ts",
+    "instruction": "Thread an optional wipLimit through updateColumn. Two changes only:\n1) The `data` parameter type gains `wipLimit?: number | null;` after `isFinal?: boolean;`.\n2) The `.set({...})` object gains this conditional spread immediately after the isFinal spread:\n      ...(data.wipLimit !== undefined && { wipLimit: data.wipLimit }),\nThis is deliberate: an explicit null satisfies `!== undefined` and therefore clears the column, while an omitted field leaves the stored value untouched. Do NOT change the findFirst lookup or the 404/500 error handling. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/api/src/column/controllers/update-column.ts",
+        "content": "import { eq } from \"drizzle-orm\";\nimport { HTTPException } from \"hono/http-exception\";\nimport db from \"../../database\";\nimport { columnTable } from \"../../database/schema\";\n\nasync function updateColumn(\n  id: string,\n  data: {\n    name?: string;\n    icon?: string | null;\n    color?: string | null;\n    isFinal?: boolean;\n  },\n) {\n  const existing = await db.query.columnTable.findFirst({\n    where: eq(columnTable.id, id),\n  });\n\n  if (!existing) {\n    throw new HTTPException(404, { message: \"Column not found\" });\n  }\n\n  const [updated] = await db\n    .update(columnTable)\n    .set({\n      ...(data.name !== undefined && { name: data.name }),\n      ...(data.icon !== undefined && { icon: data.icon }),\n      ...(data.color !== undefined && { color: data.color }),\n      ...(data.isFinal !== undefined && { isFinal: data.isFinal }),\n    })\n    .where(eq(columnTable.id, id))\n    .returning();\n\n  if (!updated) {\n    throw new HTTPException(500, { message: \"Failed to update column\" });\n  }\n\n  return updated;\n}\n\nexport default updateColumn;\n",
+        "reason": "file to edit \u2014 small, shown whole for exact anchors"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "data type gains wipLimit?: number | null",
+      ".set() gains ...(data.wipLimit !== undefined && { wipLimit: data.wipLimit })",
+      "Explicit null clears; omission leaves untouched"
+    ],
+    "budget": {
+      "maxInputTokens": 3000,
+      "maxOutputTokens": 1500
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_005",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "subtype": "existing_file_edit",
+    "module": "api-column",
+    "artifact_path": "apps/api/src/column/index.ts",
+    "instruction": "Wire wipLimit into the column routes. Four changes only:\n1) Add `import { wipLimitSchema } from \"./validators\";` alongside the other relative imports.\n2) POST /:projectId json validator object gains `wipLimit: wipLimitSchema,` after `isFinal: v.optional(v.boolean()),`.\n3) POST handler: destructure `wipLimit` from c.req.valid(\"json\") and pass `wipLimit,` into createColumn({...}).\n4) PUT /:id json validator object gains `wipLimit: wipLimitSchema,` after its `isFinal: v.optional(v.boolean()),`.\n   The PUT handler body is UNCHANGED \u2014 it already forwards the whole validated object.\nAlso update the two describeRoute descriptions:\n  createColumn -> \"Create a new column in a project. Optional wipLimit sets a soft work-in-progress cap as a positive integer; omit it or send null for no limit. The cap is advisory \u2014 the API never rejects a task for exceeding it.\"\n  updateColumn -> \"Update a column. Send wipLimit as a positive integer to set the soft work-in-progress cap, null to clear it, or omit it to leave it unchanged. The cap is advisory and is never enforced.\"\nDo NOT change any middleware, any permission check, the reorder or delete routes, or the resolver(v.any()) response blocks. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/api/src/column/index.ts",
+        "content": "import { Hono } from \"hono\";\nimport { describeRoute, resolver, validator } from \"hono-openapi\";\nimport * as v from \"valibot\";\nimport { requireWorkspacePermission } from \"../utils/require-workspace-permission\";\nimport { workspaceAccess } from \"../utils/workspace-access-middleware\";\nimport createColumn from \"./controllers/create-column\";\nimport deleteColumn from \"./controllers/delete-column\";\nimport getColumns from \"./controllers/get-columns\";\nimport reorderColumns from \"./controllers/reorder-columns\";\nimport updateColumn from \"./controllers/update-column\";\n\nconst column = new Hono<{\n  Variables: {\n    userId: string;\n  };\n}>()\n  .get(\n    \"/:projectId\",\n    describeRoute({\n      operationId: \"getColumns\",\n      tags: [\"Columns\"],\n      description: \"Get all columns for a project\",\n      responses: {\n        200: {\n          description: \"List of columns ordered by position\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ projectId: v.string() })),\n    workspaceAccess.fromProject(\"projectId\"),\n    async (c) => {\n      const { projectId } = c.req.valid(\"param\");\n      const columns = await getColumns(projectId);\n      return c.json(columns);\n    },\n  )\n  .post(\n    \"/:projectId\",\n    describeRoute({\n      operationId: \"createColumn\",\n      tags: [\"Columns\"],\n      description: \"Create a new column in a project\",\n      responses: {\n        200: {\n          description: \"Column created successfully\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ projectId: v.string() })),\n    validator(\n      \"json\",\n      v.object({\n        name: v.string(),\n        icon: v.optional(v.string()),\n        color: v.optional(v.string()),\n        isFinal: v.optional(v.boolean()),\n      }),\n    ),\n    workspaceAccess.fromProject(\"projectId\"),\n    requireWorkspacePermission({ project: [\"update\"] }),\n    async (c) => {\n      const { projectId } = c.req.valid(\"param\");\n      const { name, icon, color, isFinal } = c.req.valid(\"json\");\n      const result = await createColumn({\n        projectId,\n        name,\n        icon,\n        color,\n        isFinal,\n      });\n      return c.json(result);\n    },\n  )\n  .put(\n    \"/reorder/:projectId\",\n    describeRoute({\n      operationId: \"reorderColumns\",\n      tags: [\"Columns\"],\n      description: \"Reorder columns in a project\",\n      responses: {\n        200: {\n          description: \"Columns reordered successfully\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ projectId: v.string() })),\n    validator(\n      \"json\",\n      v.object({\n        columns: v.array(\n          v.object({\n            id: v.string(),\n            position: v.number(),\n          }),\n        ),\n      }),\n    ),\n    workspaceAccess.fromProject(\"projectId\"),\n    requireWorkspacePermission({ project: [\"update\"] }),\n    async (c) => {\n      const { projectId } = c.req.valid(\"param\");\n      const { columns } = c.req.valid(\"json\");\n      const result = await reorderColumns(projectId, columns);\n      return c.json(result);\n    },\n  )\n  .put(\n    \"/:id\",\n    describeRoute({\n      operationId: \"updateColumn\",\n      tags: [\"Columns\"],\n      description: \"Update a column\",\n      responses: {\n        200: {\n          description: \"Column updated successfully\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ id: v.string() })),\n    validator(\n      \"json\",\n      v.object({\n        name: v.optional(v.string()),\n        icon: v.optional(v.nullable(v.string())),\n        color: v.optional(v.nullable(v.string())),\n        isFinal: v.optional(v.boolean()),\n      }),\n    ),\n    workspaceAccess.fromColumn(\"id\"),\n    requireWorkspacePermission({ project: [\"update\"] }),\n    async (c) => {\n      const { id } = c.req.valid(\"param\");\n      const data = c.req.valid(\"json\");\n      const result = await updateColumn(id, data);\n      return c.json(result);\n    },\n  )\n  .delete(\n    \"/:id\",\n    describeRoute({\n      operationId: \"deleteColumn\",\n      tags: [\"Columns\"],\n      description: \"Delete a column\",\n      responses: {\n        200: {\n          description: \"Column deleted successfully\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ id: v.string() })),\n    workspaceAccess.fromColumn(\"id\"),\n    requireWorkspacePermission({ project: [\"update\"] }),\n    async (c) => {\n      const { id } = c.req.valid(\"param\");\n      const result = await deleteColumn(id);\n      return c.json(result);\n    },\n  );\n\nexport default column;\n",
+        "reason": "file to edit \u2014 route definitions with exact anchors"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "wipLimitSchema imported from ./validators and used in BOTH the POST and PUT json validators",
+      "POST handler destructures and forwards wipLimit; PUT handler body unchanged",
+      "Both describeRoute descriptions updated verbatim",
+      "workspaceAccess and requireWorkspacePermission middleware untouched on every route"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 2500
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_006",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "subtype": "existing_file_edit",
+    "module": "api-task",
+    "artifact_path": "apps/api/src/task/controllers/get-tasks.ts",
+    "instruction": "Add ONE line to the projectColumns projection so the board payload carries the WIP limit. Insert\n    wipLimit: column.wipLimit,\nimmediately after `isFinal: column.isFinal,` and immediately before `tasks:` inside `projectColumns.map((column) => ({ ... }))`.\nThis is the ONLY permitted edit to this file and the only permitted file under apps/api/src/task/. Do NOT touch archivedTasks, plannedTasks, pagination, the label/externalLink maps, or the returned project fields. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/controllers/get-tasks.ts",
+        "content": "  }\n\n  const projectColumns = await db\n    .select()\n    .from(columnTable)\n    .where(eq(columnTable.projectId, projectId))\n    .orderBy(asc(columnTable.position));\n\n  const columns = projectColumns.map((column) => ({\n    id: column.slug,\n    slug: column.slug,\n    name: column.name,\n    icon: column.icon,\n    isFinal: column.isFinal,\n    tasks: paginatedTasks\n      .filter((task) => task.status === column.slug)\n      .map((task) => ({\n        ...task,\n        labels: taskLabelsMap.get(task.id) || [],\n        externalLinks: taskExternalLinksMap.get(task.id) || [],\n      })),\n  }));\n\n  const archivedTasks = paginatedTasks\n    .filter((task) => task.status === \"archived\")\n",
+        "reason": "the projectColumns projection to extend"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "Exactly one line added: wipLimit: column.wipLimit,",
+      "It sits between isFinal and tasks in the projection",
+      "Nothing else in get-tasks.ts changes"
+    ],
+    "budget": {
+      "maxInputTokens": 3000,
+      "maxOutputTokens": 1000
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_007",
+    "phase": "codegen",
+    "task_type": "frontend_config",
+    "subtype": "existing_file_edit",
+    "module": "i18n",
+    "artifact_path": "i18n/en-US.json",
+    "instruction": "Add eight new static i18n keys to the English source of truth. THE FILE IS TAB-INDENTED \u2014 every old_string and new_string must use TAB characters exactly as in the supplied slices, never spaces.\n\nInside the existing settings.columnEditor object add six keys:\n  \"wipLimit\": \"WIP\"\n  \"wipLimitPlaceholder\": \"\\u221e\"\n  \"wipLimitAria\": \"Work-in-progress limit for {{name}}\"\n  \"wipLimitTooltip\": \"Soft work-in-progress limit. The board shows an over-limit indicator; nothing is blocked.\"\n  \"toastWipLimitUpdated\": \"WIP limit updated\"\n  \"toastWipLimitCleared\": \"WIP limit cleared\"\n\nInside the existing tasks.kanban object add one nested object:\n  \"wipLimit\": { \"withinLabel\": \"{{current}} of {{limit}} tasks\", \"overLabel\": \"{{current}} of {{limit}} tasks, over the WIP limit\" }\n\nInterpolation variables are `current` and `limit` \u2014 NEVER `count`, which i18next treats as a plural trigger. Do NOT add a toastWipLimitError key (toastUpdateError already exists and is reused). Do NOT touch any other key, any other namespace, or any other locale file. Keep JSON valid. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "i18n/en-US.json (lines 883-905)",
+        "content": "\t\t\"columnEditor\": {\n\t\t\t\"toastCreated\": \"Column created\",\n\t\t\t\"toastCreateError\": \"Failed to create column\",\n\t\t\t\"toastRenamed\": \"Column renamed\",\n\t\t\t\"toastRenameError\": \"Failed to update column\",\n\t\t\t\"toastFinalOn\": \"Column marked as final\",\n\t\t\t\"toastFinalOff\": \"Column unmarked as final\",\n\t\t\t\"toastUpdateError\": \"Failed to update column\",\n\t\t\t\"toastIconUpdated\": \"Column icon updated\",\n\t\t\t\"toastDeleted\": \"Column deleted\",\n\t\t\t\"toastDeleteError\": \"Failed to delete column\",\n\t\t\t\"loading\": \"Loading columns...\",\n\t\t\t\"pickIconTitle\": \"Pick column icon\",\n\t\t\t\"searchIconsPlaceholder\": \"Search icons...\",\n\t\t\t\"doneColumnTooltip\": \"Treat this as a done column\",\n\t\t\t\"doneColumn\": \"Done column\",\n\t\t\t\"markDoneAria\": \"Mark {{name}} as done column\",\n\t\t\t\"on\": \"On\",\n\t\t\t\"off\": \"Off\",\n\t\t\t\"newColumnPlaceholder\": \"New column name...\",\n\t\t\t\"add\": \"Add\"\n\t\t},\n\t\t\"githubIntegration\": {",
+        "reason": "RAW tab-indented settings.columnEditor block \u2014 copy indentation and anchors verbatim from here"
+      },
+      {
+        "path": "i18n/en-US.json (lines 1884-1887)",
+        "content": "\t\t\"kanban\": {\n\t\t\t\"addTask\": \"Add task\"\n\t\t},\n\t\t\"pr\": {",
+        "reason": "RAW tab-indented tasks.kanban block \u2014 copy indentation and anchors verbatim from here"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "Six settings.columnEditor keys and one tasks.kanban.wipLimit object added",
+      "Tab indentation preserved; file remains valid JSON",
+      "Interpolation vars are current/limit, never count",
+      "No existing key is modified or removed"
+    ],
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 2000
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_008",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "existing_file_edit",
+    "module": "web-fetchers",
+    "artifact_path": "apps/web/src/fetchers/column/create-column.ts",
+    "instruction": "TYPE-ONLY widening. Add `wipLimit?: number | null;` to the inline `data` object type, immediately after `isFinal?: boolean;`, at the same indentation. There is NO runtime change: the function already forwards its data object opaquely. Do NOT add or change any onSuccess/invalidateQueries call, any import, or any statement. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/web/src/fetchers/column/create-column.ts",
+        "content": "import { client } from \"@kaneo/libs\";\n\nasync function createColumn(\n  projectId: string,\n  data: { name: string; icon?: string; color?: string; isFinal?: boolean },\n) {\n  const response = await client.column[\":projectId\"].$post({\n    param: { projectId },\n    json: data,\n  });\n\n  if (!response.ok) {\n    const error = await response.text();\n    throw new Error(error);\n  }\n\n  return response.json();\n}\n\nexport default createColumn;\n",
+        "reason": "file to edit \u2014 small, shown whole for exact anchors"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "data type gains wipLimit?: number | null",
+      "Zero runtime lines changed",
+      "No cache-invalidation change"
+    ],
+    "budget": {
+      "maxInputTokens": 2500,
+      "maxOutputTokens": 1200
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_009",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "existing_file_edit",
+    "module": "web-fetchers",
+    "artifact_path": "apps/web/src/fetchers/column/update-column.ts",
+    "instruction": "TYPE-ONLY widening. Add `wipLimit?: number | null;` to the inline `data` object type, immediately after `isFinal?: boolean;`, at the same indentation. There is NO runtime change: the function already forwards its data object opaquely. Do NOT add or change any onSuccess/invalidateQueries call, any import, or any statement. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/web/src/fetchers/column/update-column.ts",
+        "content": "import { client } from \"@kaneo/libs\";\n\nasync function updateColumn(\n  id: string,\n  data: {\n    name?: string;\n    icon?: string | null;\n    color?: string | null;\n    isFinal?: boolean;\n  },\n) {\n  const response = await client.column[\":id\"].$put({\n    param: { id },\n    json: data,\n  });\n\n  if (!response.ok) {\n    const error = await response.text();\n    throw new Error(error);\n  }\n\n  return response.json();\n}\n\nexport default updateColumn;\n",
+        "reason": "file to edit \u2014 small, shown whole for exact anchors"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "data type gains wipLimit?: number | null",
+      "Zero runtime lines changed",
+      "No cache-invalidation change"
+    ],
+    "budget": {
+      "maxInputTokens": 2500,
+      "maxOutputTokens": 1200
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_010",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "existing_file_edit",
+    "module": "web-hooks",
+    "artifact_path": "apps/web/src/hooks/mutations/column/use-create-column.ts",
+    "instruction": "TYPE-ONLY widening. Add `wipLimit?: number | null;` to the inline `data` object type, immediately after `isFinal?: boolean;`, at the same indentation. There is NO runtime change: the function already forwards its data object opaquely. Do NOT add or change any onSuccess/invalidateQueries call, any import, or any statement. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/web/src/hooks/mutations/column/use-create-column.ts",
+        "content": "import { useMutation, useQueryClient } from \"@tanstack/react-query\";\nimport createColumn from \"@/fetchers/column/create-column\";\n\nexport function useCreateColumn() {\n  const queryClient = useQueryClient();\n\n  return useMutation({\n    mutationFn: ({\n      projectId,\n      data,\n    }: {\n      projectId: string;\n      data: { name: string; icon?: string; color?: string; isFinal?: boolean };\n    }) => createColumn(projectId, data),\n    onSuccess: async () => {\n      await queryClient.invalidateQueries({ refetchType: \"all\" });\n    },\n  });\n}\n",
+        "reason": "file to edit \u2014 small, shown whole for exact anchors"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "data type gains wipLimit?: number | null",
+      "Zero runtime lines changed",
+      "No cache-invalidation change"
+    ],
+    "budget": {
+      "maxInputTokens": 2500,
+      "maxOutputTokens": 1200
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_011",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "existing_file_edit",
+    "module": "web-hooks",
+    "artifact_path": "apps/web/src/hooks/mutations/column/use-update-column.ts",
+    "instruction": "TYPE-ONLY widening. Add `wipLimit?: number | null;` to the inline `data` object type, immediately after `isFinal?: boolean;`, at the same indentation. There is NO runtime change: the function already forwards its data object opaquely. Do NOT add or change any onSuccess/invalidateQueries call, any import, or any statement. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/web/src/hooks/mutations/column/use-update-column.ts",
+        "content": "import { useMutation, useQueryClient } from \"@tanstack/react-query\";\nimport updateColumn from \"@/fetchers/column/update-column\";\n\nexport function useUpdateColumn() {\n  const queryClient = useQueryClient();\n\n  return useMutation({\n    mutationFn: ({\n      id,\n      data,\n    }: {\n      id: string;\n      projectId: string;\n      data: {\n        name?: string;\n        icon?: string | null;\n        color?: string | null;\n        isFinal?: boolean;\n      };\n    }) => updateColumn(id, data),\n    onSuccess: async (_, variables) => {\n      await Promise.all([\n        queryClient.invalidateQueries({\n          queryKey: [\"columns\", variables.projectId],\n          refetchType: \"all\",\n        }),\n        queryClient.invalidateQueries({\n          queryKey: [\"tasks\", variables.projectId],\n          refetchType: \"all\",\n        }),\n      ]);\n    },\n  });\n}\n",
+        "reason": "file to edit \u2014 small, shown whole for exact anchors"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "data type gains wipLimit?: number | null",
+      "Zero runtime lines changed",
+      "No cache-invalidation change"
+    ],
+    "budget": {
+      "maxInputTokens": 2500,
+      "maxOutputTokens": 1200
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_012",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "new_file_add",
+    "module": "web-board",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-task-count-badge.tsx",
+    "instruction": "Create a pure presentational badge component. Reproduce this source EXACTLY \u2014 it is the approved design, not a sketch. The no-limit early return must be byte-identical to the badge it replaces; do not convert it into a cn() ternary, do not reorder its classes, do not add attributes to it.\n\nimport { AlertTriangle } from \"lucide-react\";\nimport { useTranslation } from \"react-i18next\";\nimport { cn } from \"@/lib/utils\";\n\ntype ColumnTaskCountBadgeProps = {\n  count: number;\n  wipLimit?: number | null;\n};\n\nexport function ColumnTaskCountBadge({\n  count,\n  wipLimit,\n}: ColumnTaskCountBadgeProps) {\n  const { t } = useTranslation();\n\n  // No limit: render byte-identically to the pre-WIP-limit badge.\n  if (wipLimit == null) {\n    return (\n      <span className=\"rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\">\n        {count}\n      </span>\n    );\n  }\n\n  const isOverCap = count > wipLimit;\n  const label = isOverCap\n    ? t(\"tasks:kanban.wipLimit.overLabel\", { current: count, limit: wipLimit })\n    : t(\"tasks:kanban.wipLimit.withinLabel\", {\n        current: count,\n        limit: wipLimit,\n      });\n\n  return (\n    <span\n      data-over-limit={isOverCap ? \"true\" : \"false\"}\n      title={label}\n      aria-label={label}\n      className={cn(\n        \"inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium tabular-nums\",\n        isOverCap\n          ? \"bg-destructive/10 text-destructive ring-1 ring-destructive/30\"\n          : \"bg-muted text-muted-foreground\",\n      )}\n    >\n      {isOverCap ? (\n        <AlertTriangle aria-hidden=\"true\" className=\"h-3 w-3 shrink-0\" />\n      ) : null}\n      {`${count}/${wipLimit}`}\n    </span>\n  );\n}\n\nReturn ONLY {\"content\": \"<full file text>\"}.",
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "wipLimit == null returns a span whose className is exactly 'rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground' with no title, aria-label, data attribute or icon",
+      "At-cap (count === wipLimit) is NOT over-cap; boundary is strictly >",
+      "Over-cap adds data-over-limit=true, an aria-hidden AlertTriangle, and destructive tokens",
+      "Count and limit render as one text node `${count}/${wipLimit}`",
+      "No raw hex colors; only existing design tokens"
+    ],
+    "budget": {
+      "maxInputTokens": 3000,
+      "maxOutputTokens": 2000
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_013",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "existing_file_edit",
+    "module": "web-board",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "instruction": "Swap the inline count badge for the extracted component. EXACTLY two edits:\n1) Add `import { ColumnTaskCountBadge } from \"./column-task-count-badge\";` next to the existing relative imports at the top.\n2) Replace the three-line count <span> with:\n        <ColumnTaskCountBadge\n          count={column.tasks.length}\n          wipLimit={column.wipLimit}\n        />\nNothing else changes. Do NOT touch handleConfirmArchive, the archive button's `canTask && column.isFinal && column.tasks.length > 0` condition, the create-task button's canCreate condition, CreateTaskModal, or ArchiveTasksModal. Do NOT add any wipLimit condition to any handler \u2014 the limit is advisory and must never block anything. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+        "content": "import { produce } from \"immer\";\nimport { Archive, Plus } from \"lucide-react\";\nimport { useState } from \"react\";\nimport { useTranslation } from \"react-i18next\";\nimport CreateTaskModal from \"@/components/shared/modals/create-task-modal\";\nimport { useUpdateTask } from \"@/hooks/mutations/task/use-update-task\";\nimport { useWorkspacePermission } from \"@/hooks/use-workspace-permission\";\nimport { getColumnIcon } from \"@/lib/column\";\nimport { toast } from \"@/lib/toast\";\nimport useProjectStore from \"@/store/project\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport { ArchiveTasksModal } from \"../../shared/modals/archive-tasks-modal\";\n\ntype ColumnHeaderProps = {\n  column: ProjectWithTasks[\"columns\"][number];\n};\n\nexport function ColumnHeader({ column }: ColumnHeaderProps) {\n  const { t } = useTranslation();\n  const { project, setProject } = useProjectStore();\n  const { mutate: updateTask } = useUpdateTask();\n  const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();\n  const canTask = canUpdateTasks();\n  const canCreate = canCreateTasks();\n\n  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);\n  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);\n\n  const handleConfirmArchive = () => {\n    if (!column.isFinal || !project) return;\n\n    const updatedProject = produce(project, (draft) => {\n      const archivedColumn = draft?.columns?.find(\n        (col) => col.id === column.id,\n      );\n      if (!archivedColumn) return;\n\n      for (const task of archivedColumn.tasks) {\n        updateTask({\n          ...task,\n          status: \"archived\",\n        });\n      }\n\n      archivedColumn.tasks = [];\n    });\n\n    setProject(updatedProject);\n    toast.success(t(\"tasks:archive.success\", { count: column.tasks.length }));\n    setIsArchiveModalOpen(false);\n  };\n\n  return (\n    <div className=\"flex items-center justify-between gap-2\">\n      <div className=\"flex min-w-0 items-center gap-2\">\n        <span className=\"text-muted-foreground\">\n          {getColumnIcon(column.id, column.isFinal, column.icon)}\n        </span>\n        <span className=\"truncate text-sm font-medium text-foreground/95\">\n          {column.name}\n        </span>\n        <span className=\"rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\">\n          {column.tasks.length}\n        </span>\n      </div>\n\n      <div className=\"flex items-center\">\n        {canTask && column.isFinal && column.tasks.length > 0 && (\n          <button\n            type=\"button\"\n            onClick={() => setIsArchiveModalOpen(true)}\n            className=\"flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-colors hover:bg-accent/50\"\n            title={t(\"tasks:listView.archiveAllTooltip\")}\n          >\n            <Archive className=\"w-4 h-4 text-muted-foreground\" />\n          </button>\n        )}\n        {canCreate && (\n          <button\n            type=\"button\"\n            onClick={() => setIsTaskModalOpen(true)}\n            className=\"flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-colors hover:bg-accent/50\"\n            title={t(\"tasks:kanban.addTask\")}\n          >\n            <Plus className=\"w-4 h-4 text-muted-foreground\" />\n          </button>\n        )}\n      </div>\n\n      <CreateTaskModal\n        open={isTaskModalOpen}\n        onClose={() => setIsTaskModalOpen(false)}\n        projectId={project?.id}\n        status={column.id}\n      />\n\n      <ArchiveTasksModal\n        open={isArchiveModalOpen}\n        onClose={() => setIsArchiveModalOpen(false)}\n        onConfirm={handleConfirmArchive}\n        taskCount={column.tasks.length}\n      />\n    </div>\n  );\n}\n",
+        "reason": "file to edit \u2014 exact anchors"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "Exactly two edits: one import, one span replacement",
+      "No handler gains a wipLimit condition",
+      "Count source stays column.tasks.length"
+    ],
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 1500
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_codegen_014",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "existing_file_edit",
+    "module": "web-settings",
+    "artifact_path": "apps/web/src/components/project/column-editor.tsx",
+    "instruction": "Add a per-column WIP limit input to the editor row. TWO edits.\n\nEDIT 1 \u2014 insert these two handlers immediately after handleToggleFinal (before handleUpdateIcon), keeping the file's try/catch + toast shape:\n\n  const commitWipLimit = async (id: string, wipLimit: number | null) => {\n    try {\n      await updateColumn({ id, projectId, data: { wipLimit } });\n      toast.success(\n        wipLimit === null\n          ? t(\"settings:columnEditor.toastWipLimitCleared\")\n          : t(\"settings:columnEditor.toastWipLimitUpdated\"),\n      );\n    } catch (error) {\n      toast.error(\n        error instanceof Error\n          ? error.message\n          : t(\"settings:columnEditor.toastUpdateError\"),\n      );\n    }\n  };\n\n  const handleUpdateWipLimit = (\n    id: string,\n    current: number | null,\n    input: HTMLInputElement,\n  ) => {\n    const raw = input.value.trim();\n\n    if (raw === \"\") {\n      if (current === null) return;\n      void commitWipLimit(id, null);\n      return;\n    }\n\n    const parsed = Number(raw);\n\n    // Client-side guard only; the Valibot validator on PUT /column/:id is the authority.\n    if (!Number.isInteger(parsed) || parsed < 1) {\n      input.value = current === null ? \"\" : String(current);\n      return;\n    }\n\n    if (parsed === current) return;\n\n    void commitWipLimit(id, parsed);\n  };\n\nCRITICAL: handleUpdateWipLimit MUST stay synchronous and MUST receive the element as an argument. React nulls e.currentTarget after the handler returns, so any await before reading/writing input.value silently no-ops. Do not make it async. Do not inline it. The empty-string check MUST run before Number(raw), because Number(\"\") is 0.\n\nEDIT 2 \u2014 inside the per-row controls container `<div className=\"flex items-center gap-1.5 shrink-0\">`, insert this as its FIRST child, immediately before the existing Done-column div:\n\n              <div\n                className=\"flex items-center gap-1.5\"\n                title={t(\"settings:columnEditor.wipLimitTooltip\")}\n              >\n                <span className=\"text-xs text-muted-foreground whitespace-nowrap\">\n                  {t(\"settings:columnEditor.wipLimit\")}\n                </span>\n                <Input\n                  type=\"number\"\n                  min={1}\n                  step={1}\n                  inputMode=\"numeric\"\n                  defaultValue={col.wipLimit ?? \"\"}\n                  disabled={!canEdit}\n                  aria-label={t(\"settings:columnEditor.wipLimitAria\", {\n                    name: col.name,\n                  })}\n                  placeholder={t(\"settings:columnEditor.wipLimitPlaceholder\")}\n                  className=\"h-8 w-16 text-sm\"\n                  onBlur={(e) =>\n                    handleUpdateWipLimit(\n                      col.id,\n                      col.wipLimit ?? null,\n                      e.currentTarget,\n                    )\n                  }\n                  onKeyDown={(e) => {\n                    if (e.key === \"Enter\") {\n                      e.preventDefault();\n                      e.currentTarget.blur();\n                    }\n                  }}\n                />\n              </div>\n\nNo onChange handler. No new useState. No new import (Input, useTranslation, toast, updateColumn are all already in scope). Do NOT modify the bottom 'add a new column' row, handleCreate, handleRename, handleUpdateIcon, handleDelete, or any drag handler. Return ONLY a JSON object {\"edits\":[{\"old_string\",\"new_string\"}]}. Each old_string MUST be copied character-for-character from the supplied file slice, including leading indentation, and MUST be unique in the file. Do NOT return the whole file. Do NOT reformat, reorder, or touch anything outside the stated change.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/project/column-editor.tsx",
+        "content": "  const handleToggleFinal = async (id: string, isFinal: boolean) => {\n    try {\n      await updateColumn({ id, projectId, data: { isFinal } });\n      toast.success(\n        isFinal\n          ? t(\"settings:columnEditor.toastFinalOn\")\n          : t(\"settings:columnEditor.toastFinalOff\"),\n      );\n    } catch (error) {\n      toast.error(\n        error instanceof Error\n          ? error.message\n          : t(\"settings:columnEditor.toastUpdateError\"),\n      );\n    }\n  };\n\n  const handleUpdateIcon = async (id: string, icon: string) => {\n    try {\n      await updateColumn({ id, projectId, data: { icon } });\n      setIconPickerColumnId(null);\n      setIconSearch(\"\");\n      toast.success(t(\"settings:columnEditor.toastIconUpdated\"));\n    } catch (error) {\n      toast.error(\n        error instanceof Error\n          ? error.message\n          : t(\"settings:columnEditor.toastUpdateError\"),\n      );\n    }\n  };\n\n  const handleDelete = async (id: string) => {\n    try {\n      await deleteColumn({ id, projectId });\n",
+        "reason": "handleToggleFinal / handleUpdateIcon boundary \u2014 insertion point for EDIT 1"
+      },
+      {
+        "path": "apps/web/src/components/project/column-editor.tsx",
+        "content": "            <Input\n              defaultValue={col.name}\n              className=\"h-8 text-sm flex-1\"\n              disabled={!canEdit}\n              onBlur={(e) => {\n                if (e.target.value !== col.name) {\n                  handleRename(col.id, e.target.value);\n                }\n              }}\n              onKeyDown={(e) => {\n                if (e.key === \"Enter\") {\n                  e.preventDefault();\n                  e.currentTarget.blur();\n                }\n              }}\n            />\n            <div className=\"flex items-center gap-1.5 shrink-0\">\n              <div\n                className=\"flex items-center gap-2\"\n                title={t(\"settings:columnEditor.doneColumnTooltip\")}\n              >\n                {col.isFinal ? (\n                  <CheckCircle2 className=\"w-3.5 h-3.5 text-muted-foreground\" />\n                ) : (\n                  <Circle className=\"w-3.5 h-3.5 text-muted-foreground\" />\n                )}\n                <span className=\"text-xs text-muted-foreground whitespace-nowrap\">\n                  {t(\"settings:columnEditor.doneColumn\")}\n                </span>\n                <Switch\n                  checked={col.isFinal}\n                  onCheckedChange={\n                    canEdit\n                      ? (checked) => handleToggleFinal(col.id, checked)\n                      : undefined\n                  }\n                  disabled={!canEdit}\n                  aria-label={t(\"settings:columnEditor.markDoneAria\", {\n                    name: col.name,\n                  })}\n                  className=\"scale-75\"\n                />\n                <span className=\"text-[11px] text-muted-foreground w-8\">\n                  {col.isFinal\n                    ? t(\"settings:columnEditor.on\")\n                    : t(\"settings:columnEditor.off\")}\n                </span>\n              </div>\n              {canEdit && (\n                <Button\n                  variant=\"ghost\"\n                  size=\"sm\"\n                  className=\"h-7 w-7 p-0 text-muted-foreground hover:text-destructive\"\n                  onClick={() => handleDelete(col.id)}\n                >\n                  <Trash2 className=\"w-3.5 h-3.5\" />\n                </Button>\n              )}\n            </div>\n          </div>\n        ))}\n      </div>\n\n",
+        "reason": "row controls container \u2014 insertion point for EDIT 2"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "commitWipLimit and handleUpdateWipLimit added; handleUpdateWipLimit is synchronous and takes the input element as an argument",
+      "Empty-string branch precedes Number(raw)",
+      "Input is uncontrolled (defaultValue), disabled when !canEdit, commits on blur and on Enter, no onChange",
+      "Invalid input reverts without firing a mutation",
+      "The add-new-column row and every other handler are unchanged"
+    ],
+    "budget": {
+      "maxInputTokens": 8000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_tests_015",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "api-column",
+    "artifact_path": "tests/api/column/wip-limit-validator.test.ts",
+    "instruction": "Write a dependency-free vitest unit test for the wipLimit Valibot schema. Node environment, NO database, NO Hono app. Import `{ wipLimitSchema }` from \"../../../apps/api/src/column/validators\" and `* as v from \"valibot\"`. Wrap it as `const schema = v.object({ wipLimit: wipLimitSchema });` so the test mirrors real route usage.\nCases: parse accepts 3; accepts 1 (lower boundary); accepts null; accepts {} with wipLimit undefined; and throws for 0, -1, 2.5, \"3\", true, and Number.NaN.\nStyle: mirror tests/api/column/to-slug.test.ts \u2014 describe/it/expect from vitest, no setup file. Return ONLY {\"content\": \"<full file text>\"}.",
+    "inputs": [
+      {
+        "path": "tests/api/column/to-slug.test.ts",
+        "content": "import { describe, expect, it } from \"vitest\";\nimport { toSlug } from \"../../../apps/api/src/column/controllers/create-column\";\n\ndescribe(\"toSlug\", () => {\n  it(\"slugifies Latin names\", () => {\n    expect(toSlug(\"To Do\")).toBe(\"to-do\");\n    expect(toSlug(\"  In Progress!  \")).toBe(\"in-progress\");\n  });\n\n  it(\"keeps non-Latin scripts instead of producing an empty slug\", () => {\n    expect(toSlug(\"\u0442\u0435\u0441\u0442\")).toBe(\"\u0442\u0435\u0441\u0442\");\n    expect(toSlug(\"\u0412 \u0440\u0430\u0431\u043e\u0442\u0435\")).toBe(\"\u0432-\u0440\u0430\u0431\u043e\u0442\u0435\");\n    expect(toSlug(\"\u6d4b\u8bd5\")).toBe(\"\u6d4b\u8bd5\");\n    expect(toSlug(\"\u0642\u064a\u062f \u0627\u0644\u062a\u0646\u0641\u064a\u0630\")).toBe(\"\u0642\u064a\u062f-\u0627\u0644\u062a\u0646\u0641\u064a\u0630\");\n  });\n\n  it(\"mixes scripts and numbers\", () => {\n    expect(toSlug(\"\u0421\u043f\u0440\u0438\u043d\u0442 2\")).toBe(\"\u0441\u043f\u0440\u0438\u043d\u0442-2\");\n  });\n\n  it(\"folds full-width characters via NFKC normalization\", () => {\n    expect(toSlug(\"\uff21\uff22\uff23\")).toBe(\"abc\");\n  });\n\n  it(\"keeps combining marks attached to their base letters\", () => {\n    expect(toSlug(\"\u0130zmir\")).toBe(\"i\u0307zmir\");\n    expect(toSlug(\"\u0939\u093f\u0928\u094d\u0926\u0940\")).toBe(\"\u0939\u093f\u0928\u094d\u0926\u0940\");\n  });\n\n  it(\"returns an empty slug for names with no letters or numbers\", () => {\n    expect(toSlug(\"!!!\")).toBe(\"\");\n    expect(toSlug(\"- - -\")).toBe(\"\");\n  });\n\n  it(\"returns an empty slug for names made only of combining marks\", () => {\n    expect(toSlug(\"\u0301\u0301\")).toBe(\"\");\n    expect(toSlug(\" \u0307 \")).toBe(\"\");\n  });\n});\n",
+        "reason": "existing sibling test \u2014 mirror this style exactly"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "10 cases: 4 accepted (3, 1, null, omitted) and 6 rejected (0, -1, 2.5, '3', true, NaN)",
+      "No database import, no Hono app import",
+      "Imports wipLimitSchema from ../../../apps/api/src/column/validators"
+    ],
+    "budget": {
+      "maxInputTokens": 2500,
+      "maxOutputTokens": 2500
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_tests_016",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "api-column",
+    "artifact_path": "tests/api/column/wip-limit-persistence.test.ts",
+    "instruction": "Write a vitest unit test proving wipLimit persistence, with the database module mocked. USE vi.hoisted() for the mock functions \u2014 vi.mock factories are hoisted above const declarations and a factory closing over a plain const throws 'Cannot access before initialization'. This is the single most likely failure in this file.\n\nMock \"../../../apps/api/src/database\" with a default export exposing:\n  query.columnTable.findFirst -> mocks.findFirst\n  select: () => ({ from: () => ({ where: async () => [] }) })   // no duplicate slug, position 0\n  insert: () => ({ values: (v) => { mocks.insertValues(v); return { returning: async () => [{ id: \"col-1\", ...v }] }; } })\n  update: () => ({ set: (v) => { mocks.updateSet(v); return { where: () => ({ returning: async () => [{ id: \"col-1\", ...v }] }) }; } })\nbeforeEach clears the mocks and sets findFirst to resolve { id: \"col-1\", name: \"Doing\", wipLimit: 4 }.\n\ndescribe createColumn (default import from ../../../apps/api/src/column/controllers/create-column):\n  - wipLimit 3 -> insertValues called with wipLimit === 3\n  - wipLimit omitted -> wipLimit === null\n  - wipLimit null -> wipLimit === null\n  - unrelated fields still land: slug === \"doing\", position === 0, isFinal === false\n\ndescribe updateColumn (default import from ../../../apps/api/src/column/controllers/update-column):\n  - { wipLimit: 5 } -> updateSet called with wipLimit === 5\n  - { wipLimit: null } -> assert `\"wipLimit\" in values` is TRUE and the value is null (key presence, not just value)\n  - { name: \"Doing\" } -> `\"wipLimit\" in values` is FALSE\n  - {} -> `\"wipLimit\" in values` is FALSE\n\ndescribe columnTable.wipLimit (import { columnTable } from ../../../apps/api/src/database/schema; drizzle table objects are inert, no mock needed):\n  - name === \"wip_limit\", notNull === false, hasDefault === false\n  - add a comment stating this is the FR-9 proof: getColumns does db.select() with no projection, so every column on the table object is returned \u2014 do NOT turn this into a DB test.\n\nReturn ONLY {\"content\": \"<full file text>\"}.",
+    "inputs": [
+      {
+        "path": "tests/api/time-entry/update-time-entry.test.ts",
+        "content": "import { beforeEach, describe, expect, it, type Mock, vi } from \"vitest\";\n\nconst mockSelect = vi.fn();\nconst mockUpdate = vi.fn();\n\nvi.mock(\"../../../apps/api/src/database\", () => ({\n  default: {\n    select: (...args: unknown[]) => mockSelect(...args),\n    update: (...args: unknown[]) => mockUpdate(...args),\n  },\n}));\n\nimport updateTimeEntry from \"../../../apps/api/src/time-entry/controllers/update-time-entry\";\n\nfunction makeSelectMock(rows: unknown[]) {\n  const chain: Record<string, Mock> = {\n    from: vi.fn(() => chain),\n    where: vi.fn(() => Promise.resolve(rows)),\n  };\n  return chain;\n}\n\nfunction makeUpdateMock(updatedRow: unknown) {\n  const returning = vi.fn(() => Promise.resolve([updatedRow]));\n  const where = vi.fn(() => ({ returning }));\n  const set = vi.fn(() => ({ where }));\n  return { set, where, returning };\n}\n\ndescribe(\"updateTimeEntry\", () => {\n  beforeEach(() => {\n    vi.resetAllMocks();\n  });\n\n  it(\"preserves a stored endTime and duration when endTime is omitted\", async () => {\n    const storedStartTime = new Date(\"2026-08-10T10:00:00.000Z\");\n    const storedEndTime = new Date(\"2026-08-10T11:00:00.000Z\");\n    const nextStartTime = new Date(\"2026-08-10T10:15:00.000Z\");\n    const updatedRow = {\n      id: \"time-entry-1\",\n      startTime: nextStartTime,\n      endTime: storedEndTime,\n      duration: 2700,\n      description: \"renamed\",\n    };\n    const updateChain = makeUpdateMock(updatedRow);\n\n    mockSelect.mockReturnValue(\n      makeSelectMock([\n        {\n          id: \"time-entry-1\",\n          startTime: storedStartTime,\n          endTime: storedEndTime,\n          duration: 3600,\n        },\n      ]),\n    );\n    mockUpdate.mockReturnValue(updateChain);\n\n    await updateTimeEntry({\n      timeEntryId: \"time-entry-1\",\n      startTime: nextStartTime,\n      description: \"renamed\",\n    });\n\n    expect(updateChain.set).toHaveBeenCalledWith({\n      startTime: nextStartTime,\n      endTime: storedEndTime,\n      duration: 2700,\n      description: \"renamed\",\n    });\n  });\n\n  it(\"rejects a startTime later than the preserved endTime\", async () => {\n    const updateChain = makeUpdateMock({});\n\n    mockSelect.mockReturnValue(\n      makeSelectMock([\n        {\n          id: \"time-entry-1\",\n          startTime: new Date(\"2026-08-10T10:00:00.000Z\"),\n          endTime: new Date(\"2026-08-10T11:00:00.000Z\"),\n          duration: 3600,\n        },\n      ]),\n    );\n    mockUpdate.mockReturnValue(updateChain);\n\n    await expect(\n      updateTimeEntry({\n        timeEntryId: \"time-entry-1\",\n        startTime: new Date(\"2026-08-10T12:00:00.000Z\"),\n      }),\n    ).rejects.toMatchObject({ status: 400 });\n\n    expect(updateChain.set).not.toHaveBeenCalled();\n  });\n\n  it(\"rejects a startTime later than an endTime supplied in the same update\", async () => {\n    const updateChain = makeUpdateMock({});\n\n    mockSelect.mockReturnValue(\n      makeSelectMock([\n        {\n          id: \"time-entry-1\",\n          startTime: new Date(\"2026-08-10T10:00:00.000Z\"),\n          endTime: null,\n          duration: null,\n        },\n      ]),\n    );\n    mockUpdate.mockReturnValue(updateChain);\n\n    await expect(\n      updateTimeEntry({\n        timeEntryId: \"time-entry-1\",\n        startTime: new Date(\"2026-08-10T12:00:00.000Z\"),\n        endTime: new Date(\"2026-08-10T11:00:00.000Z\"),\n      }),\n    ).rejects.toMatchObject({ status: 400 });\n\n    expect(updateChain.set).not.toHaveBeenCalled();\n  });\n\n  it(\"still allows an open entry to have its startTime moved forward\", async () => {\n    const nextStartTime = new Date(\"2026-08-10T12:00:00.000Z\");\n    const updateChain = makeUpdateMock({ id: \"time-entry-1\" });\n\n    mockSelect.mockReturnValue(\n      makeSelectMock([\n        {\n          id: \"time-entry-1\",\n          startTime: new Date(\"2026-08-10T10:00:00.000Z\"),\n          endTime: null,\n          duration: null,\n        },\n      ]),\n    );\n    mockUpdate.mockReturnValue(updateChain);\n\n    await updateTimeEntry({\n      timeEntryId: \"time-entry-1\",\n      startTime: nextStartTime,\n    });\n\n    expect(updateChain.set).toHaveBeenCalledWith({\n      startTime: nextStartTime,\n      endTime: null,\n      duration: null,\n    });\n  });\n});\n",
+        "reason": "existing db-mocking idiom in this repo \u2014 mirror the structure"
+      },
+      {
+        "path": "apps/api/src/column/controllers/update-column.ts",
+        "content": "import { eq } from \"drizzle-orm\";\nimport { HTTPException } from \"hono/http-exception\";\nimport db from \"../../database\";\nimport { columnTable } from \"../../database/schema\";\n\nasync function updateColumn(\n  id: string,\n  data: {\n    name?: string;\n    icon?: string | null;\n    color?: string | null;\n    isFinal?: boolean;\n  },\n) {\n  const existing = await db.query.columnTable.findFirst({\n    where: eq(columnTable.id, id),\n  });\n\n  if (!existing) {\n    throw new HTTPException(404, { message: \"Column not found\" });\n  }\n\n  const [updated] = await db\n    .update(columnTable)\n    .set({\n      ...(data.name !== undefined && { name: data.name }),\n      ...(data.icon !== undefined && { icon: data.icon }),\n      ...(data.color !== undefined && { color: data.color }),\n      ...(data.isFinal !== undefined && { isFinal: data.isFinal }),\n    })\n    .where(eq(columnTable.id, id))\n    .returning();\n\n  if (!updated) {\n    throw new HTTPException(500, { message: \"Failed to update column\" });\n  }\n\n  return updated;\n}\n\nexport default updateColumn;\n",
+        "reason": "controller under test \u2014 exact call shape"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "Uses vi.hoisted() for every mock fn referenced inside a vi.mock factory",
+      "Covers 4 createColumn cases, 4 updateColumn cases, 3 schema-metadata cases",
+      "The null-clears case asserts key presence via `in`, not just the value",
+      "No real database connection is opened"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3500
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_tests_017",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "api-column",
+    "artifact_path": "tests/api/column/wip-limit-authz.test.ts",
+    "instruction": "Write a vitest test that guards the authorization middleware chain on the column routes without a database. Import the default Hono app from \"../../../apps/api/src/column\" and inspect `column.routes`.\nAssert that the entries for `PUT /:id` and for `POST /:projectId` each have AT LEAST 6 registered handlers (describeRoute, param validator, json validator, workspaceAccess, requireWorkspacePermission, final handler).\nUse toBeGreaterThanOrEqual, NEVER exact equality \u2014 the assertion's job is to catch a DELETED guard, and an exact count would break the next legitimate middleware addition. Add a comment stating that intent explicitly.\nReturn ONLY {\"content\": \"<full file text>\"}.",
+    "inputs": [
+      {
+        "path": "apps/api/src/column/index.ts",
+        "content": "import { Hono } from \"hono\";\nimport { describeRoute, resolver, validator } from \"hono-openapi\";\nimport * as v from \"valibot\";\nimport { requireWorkspacePermission } from \"../utils/require-workspace-permission\";\nimport { workspaceAccess } from \"../utils/workspace-access-middleware\";\nimport createColumn from \"./controllers/create-column\";\nimport deleteColumn from \"./controllers/delete-column\";\nimport getColumns from \"./controllers/get-columns\";\nimport reorderColumns from \"./controllers/reorder-columns\";\nimport updateColumn from \"./controllers/update-column\";\n\nconst column = new Hono<{\n  Variables: {\n    userId: string;\n  };\n}>()\n  .get(\n    \"/:projectId\",\n    describeRoute({\n      operationId: \"getColumns\",\n      tags: [\"Columns\"],\n      description: \"Get all columns for a project\",\n      responses: {\n        200: {\n          description: \"List of columns ordered by position\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ projectId: v.string() })),\n    workspaceAccess.fromProject(\"projectId\"),\n    async (c) => {\n      const { projectId } = c.req.valid(\"param\");\n      const columns = await getColumns(projectId);\n      return c.json(columns);\n    },\n  )\n  .post(\n    \"/:projectId\",\n    describeRoute({\n      operationId: \"createColumn\",\n      tags: [\"Columns\"],\n      description: \"Create a new column in a project\",\n      responses: {\n        200: {\n          description: \"Column created successfully\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ projectId: v.string() })),\n    validator(\n      \"json\",\n      v.object({\n        name: v.string(),\n        icon: v.optional(v.string()),\n        color: v.optional(v.string()),\n        isFinal: v.optional(v.boolean()),\n      }),\n    ),\n    workspaceAccess.fromProject(\"projectId\"),\n    requireWorkspacePermission({ project: [\"update\"] }),\n    async (c) => {\n      const { projectId } = c.req.valid(\"param\");\n      const { name, icon, color, isFinal } = c.req.valid(\"json\");\n      const result = await createColumn({\n        projectId,\n        name,\n        icon,\n        color,\n        isFinal,\n      });\n      return c.json(result);\n    },\n  )\n  .put(\n    \"/reorder/:projectId\",\n    describeRoute({\n      operationId: \"reorderColumns\",\n      tags: [\"Columns\"],\n      description: \"Reorder columns in a project\",\n      responses: {\n        200: {\n          description: \"Columns reordered successfully\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ projectId: v.string() })),\n    validator(\n      \"json\",\n      v.object({\n        columns: v.array(\n          v.object({\n            id: v.string(),\n            position: v.number(),\n          }),\n        ),\n      }),\n    ),\n    workspaceAccess.fromProject(\"projectId\"),\n    requireWorkspacePermission({ project: [\"update\"] }),\n    async (c) => {\n      const { projectId } = c.req.valid(\"param\");\n      const { columns } = c.req.valid(\"json\");\n      const result = await reorderColumns(projectId, columns);\n      return c.json(result);\n    },\n  )\n  .put(\n    \"/:id\",\n    describeRoute({\n      operationId: \"updateColumn\",\n      tags: [\"Columns\"],\n      description: \"Update a column\",\n      responses: {\n        200: {\n          description: \"Column updated successfully\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ id: v.string() })),\n    validator(\n      \"json\",\n      v.object({\n        name: v.optional(v.string()),\n        icon: v.optional(v.nullable(v.string())),\n        color: v.optional(v.nullable(v.string())),\n        isFinal: v.optional(v.boolean()),\n      }),\n    ),\n    workspaceAccess.fromColumn(\"id\"),\n    requireWorkspacePermission({ project: [\"update\"] }),\n    async (c) => {\n      const { id } = c.req.valid(\"param\");\n      const data = c.req.valid(\"json\");\n      const result = await updateColumn(id, data);\n      return c.json(result);\n    },\n  )\n  .delete(\n    \"/:id\",\n    describeRoute({\n      operationId: \"deleteColumn\",\n      tags: [\"Columns\"],\n      description: \"Delete a column\",\n      responses: {\n        200: {\n          description: \"Column deleted successfully\",\n          content: {\n            \"application/json\": { schema: resolver(v.any()) },\n          },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ id: v.string() })),\n    workspaceAccess.fromColumn(\"id\"),\n    requireWorkspacePermission({ project: [\"update\"] }),\n    async (c) => {\n      const { id } = c.req.valid(\"param\");\n      const result = await deleteColumn(id);\n      return c.json(result);\n    },\n  );\n\nexport default column;\n",
+        "reason": "the routes under guard \u2014 shows the middleware chain being asserted"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "Asserts >= 6 handlers on both PUT /:id and POST /:projectId",
+      "Uses toBeGreaterThanOrEqual with a comment explaining why not exact equality",
+      "No database, no network"
+    ],
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 2000
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  },
+  {
+    "id": "tp_tests_018",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "web-board",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-task-count-badge.test.tsx",
+    "instruction": "Write a vitest + @testing-library/react component test for ColumnTaskCountBadge. jsdom environment; the web setup file only imports jest-dom, so i18next is NOT initialized \u2014 mock react-i18next at module level:\n\nvi.mock(\"react-i18next\", () => ({\n  useTranslation: () => ({\n    t: (key: string, options?: Record<string, unknown>) =>\n      options ? `${key}|${JSON.stringify(options)}` : key,\n  }),\n}));\n\nImport { ColumnTaskCountBadge } from \"./column-task-count-badge\"; cleanup() in afterEach.\n\nSix cases:\n1. wipLimit={null}, count={7} \u2014 getByText(\"7\") visible; queryByText(\"7/3\") null; the element's className is EXACTLY \"rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\" (exact string equality \u2014 this is the byte-identity guard for existing installs); getAttribute(\"data-over-limit\") is null; getAttribute(\"aria-label\") is null.\n2. wipLimit prop omitted entirely \u2014 same assertions as case 1.\n3. count={2} wipLimit={5} \u2014 getByText(\"2/5\"); data-over-limit === \"false\"; aria-label contains \"tasks:kanban.wipLimit.withinLabel\" and {\"current\":2,\"limit\":5}.\n4. count={5} wipLimit={5} \u2014 getByText(\"5/5\"); data-over-limit === \"false\"; aria-label uses withinLabel NOT overLabel. This is the at-cap boundary test.\n5. count={7} wipLimit={5} \u2014 getByText(\"7/5\"); data-over-limit === \"true\"; aria-label contains \"tasks:kanban.wipLimit.overLabel\" and {\"current\":7,\"limit\":5}; className contains \"text-destructive\".\n6. WCAG guard: the over-cap render contains an svg[aria-hidden=\"true\"] AND a non-empty aria-label; the under-cap render contains no svg.\n\nUse screen.getByText for the no-limit cases and container.querySelector(\"[data-over-limit]\") for the limited cases. Do NOT add a data-testid. Mock nothing except react-i18next \u2014 the component touches no store, no query client, no router. Return ONLY {\"content\": \"<full file text>\"}.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/kanban-board/task-labels.test.tsx",
+        "content": "import { cleanup, render, screen } from \"@testing-library/react\";\nimport { afterEach, describe, expect, it } from \"vitest\";\nimport { TaskLabels } from \"./task-labels\";\n\nafterEach(() => {\n  cleanup();\n});\n\ndescribe(\"TaskLabels\", () => {\n  it(\"renders labels supplied by the task\", () => {\n    render(\n      <TaskLabels labels={[{ id: \"label-1\", name: \"Bug\", color: \"red\" }]} />,\n    );\n\n    expect(screen.getByText(\"Bug\")).toBeVisible();\n  });\n});\n",
+        "reason": "existing sibling component test \u2014 mirror this style"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "Six cases covering no-limit (null and omitted), under, at, over, and the WCAG non-color guard",
+      "Case 1 asserts className by exact string equality",
+      "At-cap asserts withinLabel, not overLabel",
+      "Only react-i18next is mocked"
+    ],
+    "budget": {
+      "maxInputTokens": 3000,
+      "maxOutputTokens": 3500
+    },
+    "retry_count": 0,
+    "pass_id": "20260824-095555-feature-extend-wip-limits",
+    "intent": "feature-extend"
+  }
+]

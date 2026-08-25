@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "run_id": "20260824-095555-feature-extend-wip-limits",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": {
+    "name": "opus-plus-flash-v37",
+    "version": 1,
+    "premium": "claude-opus-5 (claude-cli)",
+    "mechanical": "gemini-3.7-flash (vertex-adc, ai-studies-console/global)",
+    "hard_cost_cap_usd": 50
+  },
+  "auth_mode": "estimated",
+  "provenance_note": "Direct-tier (Opus) events are char/3.8 estimates with provenance:estimated; mechanical-tier events carry vendor-reported tokens with provenance:vendor.",
+  "outcome": "completed",
+  "gates": {
+    "gate-0": "approved (pre-run)",
+    "gate-1": "approved",
+    "gate-2": "approved",
+    "gate-3": "approved",
+    "gate-4": "accepted"
+  },
+  "totals": {
+    "events": 35,
+    "cost_usd": 2.9239,
+    "input_tokens": 309816,
+    "output_tokens": 73417
+  },
+  "by_model": {
+    "claude-opus-5": {
+      "events": 6,
+      "cost_usd": 2.634629,
+      "input_tokens": 287820,
+      "output_tokens": 44940
+    },
+    "gemini-3.7-flash": {
+      "events": 29,
+      "cost_usd": 0.289294,
+      "input_tokens": 21996,
+      "output_tokens": 28477
+    }
+  },
+  "by_phase": {
+    "codegen": {
+      "events": 19,
+      "cost_usd": 0.282441
+    },
+    "tests": {
+      "events": 5,
+      "cost_usd": 0.090436
+    },
+    "requirements_analysis": {
+      "events": 1,
+      "cost_usd": 0.26168
+    },
+    "architecture_design": {
+      "events": 1,
+      "cost_usd": 0.7818
+    },
+    "plan_task_packets": {
+      "events": 1,
+      "cost_usd": 0.25005
+    },
+    "debug": {
+      "events": 6,
+      "cost_usd": 0.051771
+    },
+    "senior_code_review": {
+      "events": 1,
+      "cost_usd": 0.571
+    },
+    "security_review": {
+      "events": 1,
+      "cost_usd": 0.634745
+    }
+  },
+  "mechanical_tier_share": {
+    "events": 29,
+    "pct_of_events": 82.9,
+    "cost_usd": 0.289294,
+    "pct_of_cost": 9.9
+  },
+  "failed_attempts": [
+    {
+      "task_id": "tp_codegen_005",
+      "attempt": 1,
+      "reason": "output_cap",
+      "error": ""
+    },
+    {
+      "task_id": "tp_codegen_005",
+      "attempt": 2,
+      "reason": "output_cap",
+      "error": "{\"error\":{\"code\":429,\"message\":\"Resource exhausted. Please try again later. Please refer to https://cloud.google.com/ver"
+    },
+    {
+      "task_id": "tp_debug_022",
+      "attempt": 1,
+      "reason": "output_cap",
+      "error": ""
+    }
+  ],
+  "unmeasured": [
+    {
+      "what": "senior_code_review attempt 1",
+      "why": "died on a transport error before writing any artifact; the harness reported no token usage, so its cost is NOT included in totals"
+    }
+  ],
+  "verification": {
+    "api_tests": "60 files / 399 tests passed (baseline 58 / 374)",
+    "web_tests": "37 files / 118 tests passed (baseline 36 / 112)",
+    "api_typecheck": "pass",
+    "web_typecheck": "pass",
+    "biome_changed_paths": "pass (37 files, 0 errors)",
+    "biome_ci_tracked_source": "pass (apps packages tests i18n: 0 errors, 78 pre-existing warnings in files this run did not touch)",
+    "biome_ci_dot": "FAILS with 12 errors, all in untracked .sdlc/ plugin artifacts (biome ci .sdlc alone: 17 files checked, 12 errors). biome ci apps packages tests i18n: 1183 files checked, 0 errors, 78 pre-existing warnings. .sdlc is gitignored and `git ls-files .sdlc` is empty, so a CI checkout never sees them.",
+    "drizzle_kit_check": "Everything's fine",
+    "integration_tests": "NOT RUN - Postgres unavailable (recorded at Gate 0)"
+  },
+  "artifacts": {
+    "requirements.md": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/requirements.md",
+    "change_plan.md": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/change_plan.md",
+    "packets.json": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/packets.json",
+    "review.md": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/review.md",
+    "security_review.md": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/security_review.md",
+    "telemetry.jsonl": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/telemetry.jsonl",
+    "provenance.json": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/provenance.json",
+    "provenance.pre-repair.json": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/provenance.pre-repair.json",
+    "manifest.json": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/manifest.json",
+    "SUMMARY.md": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/SUMMARY.md"
+  },
+  "staged_not_applied": {
+    "path": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/pending/tests/api-integration/column-wip-limit.test.ts",
+    "target": "tests/api-integration/column-wip-limit.test.ts",
+    "blocked_by": "tests/api-integration/** is absent from the write-contract allowlist (only tests/api/** is present)",
+    "decision": "Left parked by user decision at Gate 4. NOT placed into the repo test tree. Never executed in any environment. AC-3 therefore has no executed test defending the authz guard chain \u2014 correct by inspection only."
+  },
+  "files_changed": {
+    "count": 39,
+    "paths": [
+      ".gitignore",
+      "apps/api/drizzle/0043_broken_weapon_omega.sql",
+      "apps/api/drizzle/meta/0043_snapshot.json",
+      "apps/api/drizzle/meta/_journal.json",
+      "apps/api/src/column/controllers/create-column.ts",
+      "apps/api/src/column/controllers/update-column.ts",
+      "apps/api/src/column/index.ts",
+      "apps/api/src/column/validators.ts",
+      "apps/api/src/database/schema.ts",
+      "apps/api/src/task/controllers/get-tasks.ts",
+      "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "apps/web/src/components/kanban-board/column/column-task-count-badge.test.tsx",
+      "apps/web/src/components/kanban-board/column/column-task-count-badge.tsx",
+      "apps/web/src/components/project/column-editor.tsx",
+      "apps/web/src/fetchers/column/create-column.ts",
+      "apps/web/src/fetchers/column/update-column.ts",
+      "apps/web/src/hooks/mutations/column/use-create-column.ts",
+      "apps/web/src/hooks/mutations/column/use-update-column.ts",
+      "apps/web/src/hooks/mutations/label/sync-task-labels-cache.test.ts",
+      "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "i18n/de-DE.json",
+      "i18n/el-GR.json",
+      "i18n/en-US.json",
+      "i18n/es-ES.json",
+      "i18n/fr-FR.json",
+      "i18n/hi-IN.json",
+      "i18n/id-ID.json",
+      "i18n/it-IT.json",
+      "i18n/ko-KR.json",
+      "i18n/mk-MK.json",
+      "i18n/nl-NL.json",
+      "i18n/pt-BR.json",
+      "i18n/ru-RU.json",
+      "i18n/tr-TR.json",
+      "i18n/uk-UA.json",
+      "i18n/vi-VN.json",
+      "i18n/zh-CN.json",
+      "tests/api/column/wip-limit-persistence.test.ts",
+      "tests/api/column/wip-limit-validator.test.ts"
+    ]
+  },
+  "provenance": {
+    "entries": 47,
+    "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "commits": [],
+    "repaired": true
+  },
+  "rollback": {
+    "anchor": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "branch": "feature-extend-1/opus-flash",
+    "command": "/mmo:revert 20260824-095555-feature-extend-wip-limits"
+  },
+  "finalized": true,
+  "gitignore_note": "The .gitignore change is NOT a run artifact: it was made out-of-band at Gate 0, before this run began, and is correctly absent from provenance.json. .gitignore is in the confirmed allowlist.",
+  "follow_ups": [
+    {
+      "id": "policy-task-type-gap",
+      "priority": "high",
+      "scope": "plugin",
+      "what": "opus-plus-flash-v37 codegen rule does not match brownfield primitives new_file_add / existing_file_edit; such packets fall through to default: opus, making brownfield runs ~10x more expensive."
+    },
+    {
+      "id": "biome-sdlc-exclusion",
+      "priority": "medium",
+      "scope": "repo",
+      "what": "biome.json lacks a .sdlc exclusion while vcs.useIgnoreFile is false, so `biome ci .` fails on plugin artifacts."
+    },
+    {
+      "id": "parked-integration-test",
+      "priority": "high",
+      "scope": "repo",
+      "what": "column authz integration test written but never executed and never placed; tests/api-integration/** was never in the allowlist. AC-3 has no executed test defending the guard chain.",
+      "staged_at": ".sdlc/runs/20260824-095555-feature-extend-wip-limits/pending/tests/api-integration/column-wip-limit.test.ts"
+    },
+    {
+      "id": "user-docs",
+      "priority": "medium",
+      "scope": "repo",
+      "what": "WIP limit is undocumented; apps/docs/** and apps/site/** were off-limits."
+    },
+    {
+      "id": "i18n-schema-stale",
+      "priority": "low",
+      "scope": "repo",
+      "what": "i18n/schema.json stale; pre-existing drift, not caused by this run."
+    },
+    {
+      "id": "public-project-wiplimit",
+      "priority": "low",
+      "scope": "repo",
+      "accepted": true,
+      "what": "wipLimit present on the anonymous GET /api/public-project/:id payload; reviewed and accepted at Gate 3."
+    }
+  ],
+  "closeout": {
+    "ledger_md": ".sdlc/ledger.md",
+    "ledger_json": ".sdlc/ledger.json",
+    "fingerprint": ".sdlc/CLAUDE-SDLC.md",
+    "write_contract_active": false
+  }
+}
