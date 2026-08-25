@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "run_id": "20260824-042617-feature-extend-task-hours",
+      "date": "2026-08-24",
+      "mode": "brownfield",
+      "intent": "feature-extend",
+      "policy": "opus-plus-flash-v37",
+      "auth_mode": "vendor",
+      "outcome": "accepted",
+      "gate": "gate-4",
+      "phases_complete": 9,
+      "cost_usd": 5.9899,
+      "events": 31,
+      "failed_dispatches": 8,
+      "committed": true,
+      "commit": "33e24240",
+      "base_commit": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+      "branch": "feature-extend-2/opus-flash",
+      "verification": {
+        "biome_ci_source": "pass - 1186 files, 0 errors, 78 pre-existing warnings",
+        "typecheck": "pass 6/6",
+        "api_unit": "pass 391/391 across 60 files",
+        "web_unit": "pass 132/132 across 39 files",
+        "api_integration": "pass 187/187 across 30 files",
+        "i18n_check": "red - pre-existing baseline gaps plus expected widening from 15 new en-US keys"
+      },
+      "artifacts": "runs/20260824-042617-feature-extend-task-hours/SUMMARY.md"
+    }
+  ]
+}

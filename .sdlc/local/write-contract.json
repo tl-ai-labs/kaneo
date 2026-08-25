@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active": true,
+  "active": false,
   "mode": "brownfield",
   "run_id": "20260824-042617-feature-extend-task-hours",
   "strict": true,
@@ -72,5 +72,6 @@
     "dropzone": "column-dropzone.tsx is off-limits: the rollup is display-only and must not affect drop behaviour.",
     "i18n": "i18n/en-US.json is the editable source of truth. i18n/schema.json is generated. The other 16 locale files are translated separately and must not be hand-filled.",
     "gitignore": "Deliberately NOT allowlisted. The .sdlc/ and .hook-logs/ exclusions for .gitignore and biome.json are applied at commit time, outside the run."
-  }
+  },
+  "closed_note": "Deactivated at close-out cleanup. The run reached status=accepted at 2026-08-24T09:12:22.737Z with 9 phases complete, but step 7's write-contract deactivation never ran, leaving a finished run's allowlist enforced by the PreToolUse hook."
 }

@@ -84,5 +84,6 @@
       "captured_closeout": "Confirmed: this commit contains manifest.json with committed=true and commit.short=33e24240, the full file_count_reconciliation block, and SUMMARY.md section 10. The operator held it until the closeout writes had settled, as intended.",
       "self_reference_note": "This very record (sdlc_committed=true plus the 845f0940 SHA) is written AFTER 845f0940 and is therefore NOT inside it - a file cannot contain the hash of the commit that contains it. Expect exactly one small dirty delta in .sdlc/ after this update: state.json, manifest.json and provenance.json each gaining this block. It needs no further commit unless the operator wants the closing SHA on disk."
     }
-  }
+  },
+  "state": "completed"
 }
