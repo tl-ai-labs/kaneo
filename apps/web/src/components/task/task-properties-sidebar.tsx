@@ -5,6 +5,7 @@ import {
   CalendarX,
   Copy,
   GitBranch,
+  Hourglass,
   Plus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -34,13 +35,14 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
-import { formatDateShort } from "@/lib/format";
+import { formatDateShort, formatEstimatedHours } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
+import TaskEstimatedHoursPopover from "./task-estimated-hours-popover";
 import TaskLabelsPopover from "./task-labels-popover";
 import TaskMovePopover from "./task-move-popover";
 import TaskPriorityPopover from "./task-priority-popover";
@@ -324,6 +326,26 @@ export default function TaskPropertiesSidebar({
                   </Button>
                 </TaskDueDatePopover>
               )}
+              {task && (
+                <TaskEstimatedHoursPopover task={task}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start h-7 px-1.5 gap-1.5"
+                  >
+                    <Hourglass className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span
+                      className={`text-xs font-semibold ${task.estimatedHours != null ? "" : "text-muted-foreground"}`}
+                    >
+                      {task.estimatedHours != null
+                        ? t("tasks:properties.estimatedHoursValue", {
+                            hours: formatEstimatedHours(task.estimatedHours),
+                          })
+                        : t("tasks:properties.noEstimate")}
+                    </span>
+                  </Button>
+                </TaskEstimatedHoursPopover>
+              )}
             </div>
           </div>
         )}
@@ -514,6 +536,26 @@ export default function TaskPropertiesSidebar({
                       )}
                     </Button>
                   </TaskDueDatePopover>
+                )}
+                {task && (
+                  <TaskEstimatedHoursPopover task={task}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-7 px-1.5 gap-1.5"
+                    >
+                      <Hourglass className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span
+                        className={`text-xs font-semibold ${task.estimatedHours != null ? "" : "text-muted-foreground"}`}
+                      >
+                        {task.estimatedHours != null
+                          ? t("tasks:properties.estimatedHoursValue", {
+                              hours: formatEstimatedHours(task.estimatedHours),
+                            })
+                          : t("tasks:properties.noEstimate")}
+                      </span>
+                    </Button>
+                  </TaskEstimatedHoursPopover>
                 )}
               </div>
             </div>
@@ -707,6 +749,26 @@ export default function TaskPropertiesSidebar({
                       )}
                     </Button>
                   </TaskDueDatePopover>
+                )}
+                {task && (
+                  <TaskEstimatedHoursPopover task={task}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-7 px-1.5 gap-1.5 w-full"
+                    >
+                      <Hourglass className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span
+                        className={`text-xs font-semibold ${task.estimatedHours != null ? "" : "text-muted-foreground"}`}
+                      >
+                        {task.estimatedHours != null
+                          ? t("tasks:properties.estimatedHoursValue", {
+                              hours: formatEstimatedHours(task.estimatedHours),
+                            })
+                          : t("tasks:properties.noEstimate")}
+                      </span>
+                    </Button>
+                  </TaskEstimatedHoursPopover>
                 )}
               </div>
             </div>

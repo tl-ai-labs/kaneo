@@ -17,6 +17,7 @@ export type ImportTask = {
   priority?: string;
   startDate?: string | null;
   dueDate?: string | null;
+  estimatedHours?: number | null;
   userId?: string | null;
 };
 
@@ -72,6 +73,7 @@ async function importTasks(
             dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
             description: taskData.description || "",
             priority,
+            estimatedHours: taskData.estimatedHours ?? null,
             number: taskNumber,
           })
           .returning();

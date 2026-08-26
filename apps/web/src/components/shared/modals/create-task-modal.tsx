@@ -4,6 +4,7 @@ import {
   CalendarIcon,
   Check,
   FolderKanban,
+  Hourglass,
   Plus,
   Search,
   Tag,
@@ -37,6 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import updateTaskEstimatedHours from "@/fetchers/task/update-task-estimated-hours";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
@@ -47,7 +49,12 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
-import { formatDateMedium } from "@/lib/format";
+import {
+  estimatedHoursForRequest,
+  MAX_ESTIMATED_HOURS,
+  parseEstimatedHoursInput,
+} from "@/lib/estimated-hours";
+import { formatDateMedium, formatEstimatedHours } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -188,6 +195,8 @@ function CreateTaskModal({
   const [assigneeId, setAssigneeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [estimatedHours, setEstimatedHours] = useState("");
+  const [estimatedHoursOpen, setEstimatedHoursOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [draftTask, setDraftTask] = useState<Task | null>(null);
@@ -250,6 +259,7 @@ function CreateTaskModal({
     setAssigneeId("");
     setStartDate(undefined);
     setDueDate(undefined);
+    setEstimatedHours("");
     setCreateMore(false);
     setLabels([]);
     setLabelsStep("select");
@@ -348,6 +358,7 @@ function CreateTaskModal({
       startDate: startDate ? startDate.toISOString() : undefined,
       dueDate: dueDate ? dueDate.toISOString() : undefined,
       status: draftStatus,
+      estimatedHours: estimatedHoursForRequest(estimatedHours),
     }).then((task) => normalizeTask(task));
 
     draftCreationPromiseRef.current = draftPromise;
@@ -373,6 +384,7 @@ function CreateTaskModal({
     draftTask,
     startDate,
     dueDate,
+    estimatedHours,
     priority,
     resolvedProjectId,
     title,
@@ -386,6 +398,26 @@ function CreateTaskModal({
     try {
       const taskStatus = status ?? "to-do";
       didSubmitRef.current = true;
+
+      const submitEstimate = parseEstimatedHoursInput(estimatedHours);
+      if (!submitEstimate.ok) {
+        toast.error(t("tasks:popover.estimatedHours.invalid"));
+        didSubmitRef.current = false;
+        return;
+      }
+      // The estimate is reconciled through the dedicated single-field route
+      // rather than the whole-task PUT: that route is a full replace, and
+      // sending an explicit null through it would wipe estimates on every
+      // kanban drag.
+      if (
+        draftTask &&
+        submitEstimate.value !== (draftTask.estimatedHours ?? null)
+      ) {
+        // Fetcher rather than the mutation hook: the updateTask call below
+        // already invalidates every affected query key, and this modal's
+        // existing test harness does not provide a QueryClient.
+        await updateTaskEstimatedHours(draftTask.id, submitEstimate.value);
+      }
 
       const savedTask = draftTask
         ? normalizeTask(
@@ -411,6 +443,7 @@ function CreateTaskModal({
               startDate: startDate ? startDate.toISOString() : undefined,
               dueDate: dueDate ? dueDate.toISOString() : undefined,
               status: taskStatus,
+              estimatedHours: estimatedHoursForRequest(estimatedHours),
             }),
           );
 
@@ -442,6 +475,7 @@ function CreateTaskModal({
         setAssigneeId("");
         setStartDate(undefined);
         setDueDate(undefined);
+        setEstimatedHours("");
         setLabels([]);
         setLabelsStep("select");
         setSearchValue("");
@@ -596,6 +630,8 @@ function CreateTaskModal({
   // the modal even if a stale trigger somehow opens it (e.g., keyboard
   // shortcut after the capability has changed).
   if (!canCreateTaskCapability) return null;
+
+  const parsedEstimate = parseEstimatedHoursInput(estimatedHours);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -921,6 +957,54 @@ function CreateTaskModal({
                         {t("common:modals.createTask.clearDueDate")}
                       </Button>
                     </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+
+              <Popover
+                open={estimatedHoursOpen}
+                onOpenChange={setEstimatedHoursOpen}
+              >
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
+                      estimatedHours.trim() !== ""
+                        ? "bg-accent/30 text-foreground"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    <Hourglass className="w-3.5 h-3.5" />
+                    <span>
+                      {parsedEstimate.ok && parsedEstimate.value != null
+                        ? t("tasks:properties.estimatedHoursValue", {
+                            hours: formatEstimatedHours(parsedEstimate.value),
+                          })
+                        : t("tasks:properties.estimatedHours")}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="p-2 w-48" align="start">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={MAX_ESTIMATED_HOURS}
+                    step={0.25}
+                    value={estimatedHours}
+                    onChange={(e) => setEstimatedHours(e.target.value)}
+                    placeholder={t("tasks:popover.estimatedHours.placeholder")}
+                  />
+                  {estimatedHours.trim() !== "" && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs mt-2"
+                      onClick={() => setEstimatedHours("")}
+                    >
+                      {t("tasks:popover.estimatedHours.clear")}
+                    </Button>
                   )}
                 </PopoverContent>
               </Popover>

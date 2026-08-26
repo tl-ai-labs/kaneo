@@ -16,6 +16,7 @@ async function createTask({
   dueDate,
   description,
   priority,
+  estimatedHours,
 }: {
   projectId: string;
   currentUserId: string;
@@ -26,6 +27,7 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  estimatedHours?: number | null;
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
@@ -81,6 +83,7 @@ async function createTask({
         dueDate: dueDate || null,
         description: description || "",
         priority: resolvedPriority,
+        estimatedHours: estimatedHours ?? null,
         number: taskNumber,
         position: nextPosition,
       })

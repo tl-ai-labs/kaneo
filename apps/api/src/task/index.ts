@@ -42,10 +42,15 @@ import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
+import updateTaskEstimatedHours from "./controllers/update-task-estimated-hours";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
-import { VALID_PRIORITIES } from "./validate-task-fields";
+import {
+  nullableEstimatedHoursSchema,
+  optionalEstimatedHoursSchema,
+  VALID_PRIORITIES,
+} from "./validate-task-fields";
 
 const task = new Hono<{
   Variables: {
@@ -177,7 +182,8 @@ const task = new Hono<{
     describeRoute({
       operationId: "createTask",
       tags: ["Tasks"],
-      description: "Create a new task in a project",
+      description:
+        "Create a new task in a project, optionally with an estimate in hours",
       responses: {
         200: {
           description: "Task created successfully",
@@ -197,6 +203,7 @@ const task = new Hono<{
         priority: v.picklist(VALID_PRIORITIES),
         status: v.string(),
         userId: v.optional(v.string()),
+        estimatedHours: optionalEstimatedHoursSchema,
       }),
     ),
     workspaceAccess.fromProject("projectId"),
@@ -212,6 +219,7 @@ const task = new Hono<{
         priority,
         status,
         userId,
+        estimatedHours,
       } = c.req.valid("json");
 
       const parsedStartDate =
@@ -235,6 +243,7 @@ const task = new Hono<{
         dueDate: parsedDueDate,
         priority,
         status,
+        estimatedHours,
       });
 
       return c.json(task);
@@ -319,7 +328,7 @@ const task = new Hono<{
     describeRoute({
       operationId: "updateTask",
       tags: ["Tasks"],
-      description: "Update all fields of a task",
+      description: "Update all fields of a task, including its estimated hours",
       responses: {
         200: {
           description: "Task updated successfully",
@@ -342,6 +351,7 @@ const task = new Hono<{
         projectId: v.string(),
         position: v.number(),
         userId: v.optional(v.string()),
+        estimatedHours: optionalEstimatedHoursSchema,
       }),
     ),
     workspaceAccess.fromTask(),
@@ -360,6 +370,7 @@ const task = new Hono<{
         projectId,
         position,
         userId,
+        estimatedHours,
       } = c.req.valid("json");
 
       const currentUserId = c.get("userId");
@@ -375,19 +386,20 @@ const task = new Hono<{
 
       validateDateRange(parsedStartDate, parsedDueDate);
 
-      const task = await updateTask(
+      const task = await updateTask({
         id,
         title,
         status,
-        parsedStartDate,
-        parsedDueDate,
+        startDate: parsedStartDate,
+        dueDate: parsedDueDate,
         projectId,
         description,
         priority,
         position,
         userId,
+        estimatedHours,
         currentUserId,
-      );
+      });
 
       return c.json(task);
     },
@@ -445,6 +457,7 @@ const task = new Hono<{
             startDate: v.optional(v.nullable(v.string())),
             dueDate: v.optional(v.nullable(v.string())),
             userId: v.optional(v.nullable(v.string())),
+            estimatedHours: optionalEstimatedHoursSchema,
           }),
         ),
       }),
@@ -607,6 +620,44 @@ const task = new Hono<{
       const task = await updateTaskDueDate({
         id,
         dueDate: dueDate ? validateAndParseDate(dueDate, "dueDate") : null,
+        currentUserId,
+      });
+
+      return c.json(task);
+    },
+  )
+
+  .put(
+    "/estimated-hours/:id",
+    describeRoute({
+      operationId: "updateTaskEstimatedHours",
+      tags: ["Tasks"],
+      description: "Update only the estimated hours of a task",
+      responses: {
+        200: {
+          description: "Task estimated hours updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator(
+      "json",
+      v.object({ estimatedHours: nullableEstimatedHoursSchema }),
+    ),
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { estimatedHours } = c.req.valid("json");
+      const currentUserId = c.get("userId");
+
+      const task = await updateTaskEstimatedHours({
+        id,
+        estimatedHours,
         currentUserId,
       });
 

@@ -87,3 +87,9 @@ export function formatRelativeTime(
 
   return formatter.format(0, "second");
 }
+
+export function formatEstimatedHours(value: number, locale?: string) {
+  return new Intl.NumberFormat(getLocale(locale), {
+    maximumFractionDigits: 2,
+  }).format(value);
+}

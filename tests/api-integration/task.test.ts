@@ -414,3 +414,313 @@ describe("API integration: task creation", () => {
     },
   );
 });
+
+describe("API integration: task estimated hours", () => {
+  beforeEach(async () => {
+    await resetTestDatabase();
+  });
+
+  async function seedTask(estimatedHours?: number | null) {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const body: Record<string, unknown> = {
+      title: "Some task",
+      description: "desc",
+      priority: "low",
+      status: "to-do",
+    };
+    if (estimatedHours !== undefined) {
+      body.estimatedHours = estimatedHours;
+    }
+
+    const response = await app.request(`/api/task/${project.id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const task = (await response.json()) as {
+      id: string;
+      title: string;
+      description: string;
+      priority: string;
+      status: string;
+      projectId: string;
+      position: number;
+      estimatedHours: number | null;
+    };
+
+    return { member, project, columns, app, task };
+  }
+
+  it("creates a task with a null estimate when the field is omitted", async () => {
+    const { task } = await seedTask();
+
+    expect(task.estimatedHours).toBeNull();
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+
+    expect(persistedTask?.estimatedHours).toBeNull();
+  });
+
+  it("persists a fractional estimate supplied at creation", async () => {
+    const { task } = await seedTask(2.5);
+
+    expect(task.estimatedHours).toBe(2.5);
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+
+    expect(persistedTask?.estimatedHours).toBe(2.5);
+    expect(typeof persistedTask?.estimatedHours).toBe("number");
+  });
+
+  it("sets, changes and clears the estimate through the single-field route", async () => {
+    const { task, app } = await seedTask();
+
+    const setResponse = await app.request(
+      `/api/task/estimated-hours/${task.id}`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ estimatedHours: 0.5 }),
+      },
+    );
+
+    expect(setResponse.status).toBe(200);
+    const setPayload = (await setResponse.json()) as {
+      estimatedHours: number | null;
+    };
+    expect(setPayload.estimatedHours).toBe(0.5);
+
+    const changeResponse = await app.request(
+      `/api/task/estimated-hours/${task.id}`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ estimatedHours: 3.25 }),
+      },
+    );
+
+    expect(changeResponse.status).toBe(200);
+    const changePayload = (await changeResponse.json()) as {
+      estimatedHours: number | null;
+    };
+    expect(changePayload.estimatedHours).toBe(3.25);
+
+    const clearResponse = await app.request(
+      `/api/task/estimated-hours/${task.id}`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ estimatedHours: null }),
+      },
+    );
+
+    expect(clearResponse.status).toBe(200);
+    const clearPayload = (await clearResponse.json()) as {
+      estimatedHours: number | null;
+    };
+    expect(clearPayload.estimatedHours).toBeNull();
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+
+    expect(persistedTask?.estimatedHours).toBeNull();
+  });
+
+  it("rejects a negative estimate and leaves the stored value untouched", async () => {
+    const { task, app } = await seedTask(2.5);
+
+    const response = await app.request(`/api/task/estimated-hours/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ estimatedHours: -1 }),
+    });
+
+    expect(response.status).toBe(400);
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+
+    expect(persistedTask?.estimatedHours).toBe(2.5);
+  });
+
+  it("stores an explicit zero as zero rather than null", async () => {
+    const { task, app } = await seedTask();
+
+    const response = await app.request(`/api/task/estimated-hours/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ estimatedHours: 0 }),
+    });
+
+    expect(response.status).toBe(200);
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+
+    expect(persistedTask?.estimatedHours).toBe(0);
+    expect(persistedTask?.estimatedHours).not.toBeNull();
+  });
+
+  it("rejects an estimate update from a user outside the workspace", async () => {
+    const { task } = await seedTask(2.5);
+
+    const outsiderId = `user-${randomUUID()}`;
+
+    const [outsider] = await db
+      .insert(schema.userTable)
+      .values({
+        id: outsiderId,
+        email: `${outsiderId}@example.com`,
+        emailVerified: true,
+        name: "Task Outsider",
+      })
+      .returning();
+
+    mockAuthenticatedSession(outsider);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/estimated-hours/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ estimatedHours: 9.5 }),
+    });
+
+    expect(response.status).toBe(403);
+    await expect(response.text()).resolves.toBe(
+      "You don't have access to this workspace",
+    );
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+
+    expect(persistedTask?.estimatedHours).toBe(2.5);
+  });
+
+  it("rejects an estimate update from a workspace viewer", async () => {
+    const { member, task } = await seedTask(2.5);
+
+    const viewerId = `user-${randomUUID()}`;
+
+    const [viewer] = await db
+      .insert(schema.userTable)
+      .values({
+        id: viewerId,
+        email: `${viewerId}@example.com`,
+        emailVerified: true,
+        name: "Task Viewer",
+      })
+      .returning();
+
+    await db.insert(schema.workspaceUserTable).values({
+      workspaceId: member.workspace.id,
+      userId: viewer.id,
+      role: "viewer",
+      joinedAt: new Date(),
+    });
+
+    mockAuthenticatedSession(viewer);
+    const { app } = createApp();
+
+    const response = await app.request(`/api/task/estimated-hours/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ estimatedHours: 9.5 }),
+    });
+
+    expect(response.status).toBe(403);
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+
+    expect(persistedTask?.estimatedHours).toBe(2.5);
+  });
+
+  it("returns the estimate through the board payload", async () => {
+    const { task, project, app } = await seedTask();
+
+    const setResponse = await app.request(
+      `/api/task/estimated-hours/${task.id}`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ estimatedHours: 6.5 }),
+      },
+    );
+    expect(setResponse.status).toBe(200);
+
+    const boardResponse = await app.request(`/api/task/tasks/${project.id}`);
+    expect(boardResponse.status).toBe(200);
+
+    const boardPayload = (await boardResponse.json()) as {
+      data: {
+        columns: Array<{
+          tasks: Array<{ id: string; estimatedHours: number | null }>;
+        }>;
+        archivedTasks: Array<{ id: string; estimatedHours: number | null }>;
+        plannedTasks: Array<{ id: string; estimatedHours: number | null }>;
+      };
+    };
+
+    const allTasks = [
+      ...boardPayload.data.columns.flatMap((column) => column.tasks ?? []),
+      ...(boardPayload.data.archivedTasks ?? []),
+      ...(boardPayload.data.plannedTasks ?? []),
+    ];
+
+    const boardTask = allTasks.find((candidate) => candidate.id === task.id);
+
+    expect(boardTask?.estimatedHours).toBe(6.5);
+  });
+
+  it("preserves the estimate when a whole-task update omits the field", async () => {
+    const { task, app } = await seedTask();
+
+    const setResponse = await app.request(
+      `/api/task/estimated-hours/${task.id}`,
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ estimatedHours: 4.5 }),
+      },
+    );
+    expect(setResponse.status).toBe(200);
+
+    const updateResponse = await app.request(`/api/task/${task.id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        status: task.status,
+        projectId: task.projectId,
+        position: task.position,
+      }),
+    });
+
+    expect(updateResponse.status).toBe(200);
+
+    const persistedTask = await db.query.taskTable.findFirst({
+      where: eq(schema.taskTable.id, task.id),
+    });
+
+    expect(persistedTask?.estimatedHours).toBe(4.5);
+  });
+});

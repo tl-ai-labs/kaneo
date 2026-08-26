@@ -1732,7 +1732,10 @@
 			"copyTaskBranch": "Copy task branch",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"estimatedHours": "Estimate",
+			"noEstimate": "No estimate",
+			"estimatedHoursValue": "{{hours}}h"
 		},
 		"move": {
 			"title": "Move task",
@@ -1760,6 +1763,15 @@
 				"updateSuccess": "Task due date updated successfully",
 				"updateError": "Failed to update task due date",
 				"clear": "Clear date"
+			},
+			"estimatedHours": {
+				"title": "Estimated hours",
+				"placeholder": "e.g. 2.5",
+				"save": "Save estimate",
+				"clear": "Clear estimate",
+				"invalid": "Enter a number of hours between 0 and 10000.",
+				"updateSuccess": "Estimate updated",
+				"updateError": "Couldn't update the estimate"
 			},
 			"startDate": {
 				"updateSuccess": "Task start date updated successfully",
@@ -1882,7 +1894,9 @@
 			"noTasks": "No tasks"
 		},
 		"kanban": {
-			"addTask": "Add task"
+			"addTask": "Add task",
+			"estimatedHoursBadge": "{{hours}}h",
+			"estimatedHoursTooltip": "Total estimated hours in this column"
 		},
 		"pr": {
 			"merged": "Merged",

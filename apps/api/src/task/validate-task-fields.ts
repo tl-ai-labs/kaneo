@@ -1,5 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import * as v from "valibot";
 import db from "../database";
 import { columnTable } from "../database/schema";
 
@@ -71,3 +72,22 @@ export function coercePriority(priority: string): {
     warning: `Unknown priority "${priority}" mapped to "no-priority"`,
   };
 }
+
+export const MAX_ESTIMATED_HOURS = 10_000;
+
+export const estimatedHoursSchema = v.pipe(
+  v.number("Estimated hours must be a number"),
+  v.finite("Estimated hours must be a finite number"),
+  v.minValue(0, "Estimated hours cannot be negative"),
+  v.maxValue(
+    MAX_ESTIMATED_HOURS,
+    `Estimated hours cannot exceed ${MAX_ESTIMATED_HOURS}`,
+  ),
+  v.transform((value) => Math.round(value * 100) / 100),
+);
+
+export const nullableEstimatedHoursSchema = v.nullable(estimatedHoursSchema);
+
+export const optionalEstimatedHoursSchema = v.optional(
+  nullableEstimatedHoursSchema,
+);

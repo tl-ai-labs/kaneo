@@ -7,6 +7,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -426,6 +427,11 @@ export const taskTable = pgTable(
     priority: text("priority").default("low").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
+    estimatedHours: numeric("estimated_hours", {
+      precision: 7,
+      scale: 2,
+      mode: "number",
+    }),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()

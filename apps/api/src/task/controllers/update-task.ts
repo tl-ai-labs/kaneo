@@ -6,19 +6,33 @@ import { publishEvent } from "../../events";
 import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 import { assertValidTaskStatus } from "../validate-task-fields";
 
-async function updateTask(
-  id: string,
-  title: string,
-  status: string,
-  startDate: Date | undefined,
-  dueDate: Date | undefined,
-  projectId: string,
-  description: string,
-  priority: string,
-  position: number,
-  userId?: string,
-  currentUserId?: string,
-) {
+async function updateTask({
+  id,
+  title,
+  status,
+  startDate,
+  dueDate,
+  projectId,
+  description,
+  priority,
+  position,
+  userId,
+  currentUserId,
+  estimatedHours,
+}: {
+  id: string;
+  title: string;
+  status: string;
+  startDate: Date | undefined;
+  dueDate: Date | undefined;
+  projectId: string;
+  description: string;
+  priority: string;
+  position: number;
+  userId?: string;
+  currentUserId?: string;
+  estimatedHours?: number | null;
+}) {
   const [existingTask] = await db
     .select({
       id: taskTable.id,
@@ -64,6 +78,7 @@ async function updateTask(
       priority,
       position,
       userId: userId || null,
+      ...(estimatedHours !== undefined ? { estimatedHours } : {}),
     })
     .where(eq(taskTable.id, id))
     .returning();
