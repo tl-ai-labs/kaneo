@@ -1,0 +1,533 @@
+[
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "id": "tp_p1_lib",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "subtype": "new_file_add",
+    "artifact_path": "apps/web/src/lib/board-filter-search-params.ts",
+    "instruction": "Create a NEW pure TypeScript module for encoding/decoding board filters to and from TanStack Router search params. No React, no I/O, no new dependency. Hand-written `typeof` / `Array.isArray` narrowing ONLY — do not import zod or any schema library.\n\nExports exactly:\n- `export const MAX_BOARD_FILTER_VALUES = 50;`\n- `export const MAX_BOARD_FILTER_VALUE_LENGTH = 128;`\n- `export const BOARD_FILTER_SEARCH_KEYS = [\"status\",\"priority\",\"assignee\",\"dueDate\",\"labels\"] as const satisfies ReadonlyArray<keyof BoardFilters>;`\n- `export type BoardFilterSearchKey = (typeof BOARD_FILTER_SEARCH_KEYS)[number];`\n- `parseBoardFilterSearch(search: Record<string, unknown>): BoardFilters`\n- `serializeBoardFilters(filters: BoardFilters): Partial<Record<BoardFilterSearchKey, string[]>>`\n- `hasAnyBoardFilterParam(search: Record<string, unknown>): boolean`\n- `boardFilterSearchMatches(search: Record<string, unknown>, filters: BoardFilters): boolean`\n\nImport the type with `import type { BoardFilters } from \"@/hooks/use-task-filters\";` (type-only, so no runtime cycle).\n\nparseBoardFilterSearch — MUST NEVER THROW. Returns all five keys, each `string[] | null`.\n- Non-object / null input -> every key null.\n- Iterate ONLY BOARD_FILTER_SEARCH_KEYS. Never read arbitrary keys (this makes prototype pollution structurally impossible).\n- Per key: `Array.isArray(v)` -> v; `typeof v === \"string\"` -> `[v]`; else `[]`. The bare-string branch is the COMMON case: repeated-param encoding collapses a single `?status=todo` to a scalar.\n- Keep members where `typeof m === \"string\" && m !== \"\" && m.length <= MAX_BOARD_FILTER_VALUE_LENGTH`. Do not trim. DROP over-long values, never truncate.\n- `.slice(0, MAX_BOARD_FILTER_VALUES)`. Empty result -> null. No de-duplication.\n\nserializeBoardFilters — returns an object that ALWAYS carries all five keys. Value is `filters[key]` when it is a non-empty array, otherwise `undefined`. Keys must be PRESENT with value undefined, never omitted — the caller merges `{ ...prev, ...serializeBoardFilters(next) }` and an omitted key would make clearing a filter impossible.\n\nhasAnyBoardFilterParam — MUST be derived from the parser so the two cannot disagree: return true iff some key of `parseBoardFilterSearch(search)` is non-null. Consequence: `{ status: \"\" }` -> false.\n\nboardFilterSearchMatches — parse `search`, then compare key-by-key against `filters` (both null -> equal; both arrays -> same length and same order-sensitive members; otherwise unequal).\n\nUse tabs or spaces consistent with the reference file. Add brief comments ONLY where a decision is surprising (e.g. why over-long values are dropped rather than truncated).",
+    "inputs": [
+      {
+        "path": "apps/web/src/hooks/use-task-filters.ts",
+        "content": "import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from \"date-fns\";\nimport { useEffect, useState } from \"react\";\nimport { useUserPreferencesStore } from \"@/store/user-preferences\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\n\nexport type BoardFilters = {\n  status: string[] | null;\n  priority: string[] | null;\n  assignee: string[] | null;\n  dueDate: string[] | null;\n  labels: string[] | null;\n};\n\nexport const DUE_DATE_FILTER_VALUES = {\n  dueNextWeek: \"dueNextWeek\",\n  dueThisWeek: \"dueThisWeek\",\n  noDueDate: \"noDueDate\",\n} as const;\n\nconst DEFAULT_FILTERS: BoardFilters = {\n  status: null,\n  priority: null,\n  assignee: null,\n  dueDate: null,\n  labels: null,\n};\n\nconst FILTER_KEYS: Array<keyof BoardFilters> = [\n  \"status\",\n  \"priority\",\n  \"assignee\",\n  \"dueDate\",\n  \"labels\",\n];\n\nfunction normalizeFilters(raw: unknown): BoardFilters {\n  if (!raw || typeof raw !== \"object\") {\n    return DEFAULT_FILTERS;\n  }\n\n  const candidate = raw as Partial<Record<keyof BoardFilters, unknown>>;\n  const normalized = { ...DEFAULT_FILTERS };\n\n  for (const key of FILTER_KEYS) {\n    const value = candidate[key];\n    if (Array.isArray(value)) {\n      const values = value.filter((v): v is string => typeof v === \"string\");\n      normalized[key] = values.length > 0 ? values : null;\n    }\n  }\n\n  return normalized;\n}",
+        "reason": "Canonical BoardFilters type, DUE_DATE_FILTER_VALUES, and the normalizeFilters contract the new parser must match (empty array collapses to null, non-string members dropped)."
+      },
+      {
+        "path": "apps/web/src/lib/get-task-label-options.ts",
+        "content": "type TaskScopedLabel = {\n  name: string;\n  taskId: string | null;\n};\n\nexport function getTaskLabelOptions<T extends TaskScopedLabel>(\n  labels: T[],\n  taskId: string,\n) {\n  const labelMap = new Map<string, T>();\n\n  for (const label of labels) {\n    if (label.taskId !== null && label.taskId !== taskId) continue;\n\n    const existing = labelMap.get(label.name);\n    if (!existing || (label.taskId === null && existing.taskId !== null)) {\n      labelMap.set(label.name, label);\n    }\n  }\n\n  return Array.from(labelMap.values());\n}\n",
+        "reason": "House style reference for a pure lib module: named exports, hand-written narrowing, no React, no I/O."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "Exports all 8 named symbols listed above",
+      "No import of zod or any schema library; no runtime import from @/hooks/use-task-filters (type-only)",
+      "parseBoardFilterSearch never throws for null, undefined, 42, \"str\", {}, {status:{}}, {__proto__:['x']}",
+      "parseBoardFilterSearch({status:'todo'}) === {status:['todo'], others null}",
+      "parseBoardFilterSearch({status:''}).status === null and hasAnyBoardFilterParam({status:''}) === false",
+      "serializeBoardFilters(all-null) returns an object with all 5 keys present and every value undefined",
+      "Values longer than MAX_BOARD_FILTER_VALUE_LENGTH are dropped, not truncated",
+      "Arrays are capped at MAX_BOARD_FILTER_VALUES entries"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "id": "tp_p1_lib_test",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "artifact_path": "apps/web/src/lib/board-filter-search-params.test.ts",
+    "instruction": "Write the colocated vitest unit test for `@/lib/board-filter-search-params`. Pure test — no DOM, no mocks, no setup. Import from `\"./board-filter-search-params\"`. Import `vitest` primitives explicitly: `import { describe, expect, it } from \"vitest\";`.\n\nCover exactly these cases, one `it` each:\n1. BOARD_FILTER_SEARCH_KEYS deep-equals [\"status\",\"priority\",\"assignee\",\"dueDate\",\"labels\"].\n2. Array form: parse({status:[\"todo\",\"done\"],labels:[\"l1\"]}) -> those arrays; the other three keys null.\n3. BARE STRING form: parse({status:\"todo\"}) -> {status:[\"todo\"]}, others null. Name this test so it is obvious it is the single-value repeated-param case, not a defensive edge case.\n4. Non-string members dropped: parse({status:[\"todo\",1,null,{}]}).status -> [\"todo\"].\n5. Empty collapse: parse({status:[]}).status and parse({status:[1]}).status are both null.\n6. DEDICATED empty-param test: hasAnyBoardFilterParam({status:\"\"}) === false AND parse({status:\"\"}).status === null. Include a comment saying this is what stops an empty param from suppressing the localStorage restore.\n7. hasAnyBoardFilterParam({}) === false, ({taskId:\"t1\"}) === false, ({status:\"todo\"}) === true.\n8. Caps: a value of length MAX_BOARD_FILTER_VALUE_LENGTH+1 -> key null; an array of 200 valid values -> length MAX_BOARD_FILTER_VALUES.\n9. Hostile input: {\"status[]\":\"x\"}, {labels:{}}, JSON.parse('{\"__proto__\":[\"x\"]}'), null, undefined, \"string\", 42 all parse to all-null and never throw; and afterwards ({} as Record<string,unknown>).polluted is undefined.\n10. serialize({status:[\"todo\"],priority:null,assignee:null,dueDate:null,labels:null}) -> status [\"todo\"], AND Object.hasOwn(result,\"priority\") === true with result.priority === undefined.\n11. serialize(all-null) -> all five keys present, every value undefined.\n12. ROUND TRIP: for a fully populated BoardFilters, parse(serialize(f)) deep-equals f.\n13. boardFilterSearchMatches({status:\"todo\"}, {status:[\"todo\"],priority:null,assignee:null,dueDate:null,labels:null}) === true; against {status:[\"done\"],...} === false; matches({}, all-null) === true.\n\nCast hostile inputs through `as unknown as Record<string, unknown>` where TypeScript would otherwise reject them. The file must typecheck under `strict: true` with `noUnusedLocals`.",
+    "inputs": [
+      {
+        "path": "apps/web/src/hooks/use-task-filters.ts",
+        "content": "import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from \"date-fns\";\nimport { useEffect, useState } from \"react\";\nimport { useUserPreferencesStore } from \"@/store/user-preferences\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\n\nexport type BoardFilters = {\n  status: string[] | null;\n  priority: string[] | null;\n  assignee: string[] | null;\n  dueDate: string[] | null;\n  labels: string[] | null;\n};\n\nexport const DUE_DATE_FILTER_VALUES = {\n  dueNextWeek: \"dueNextWeek\",\n  dueThisWeek: \"dueThisWeek\",\n  noDueDate: \"noDueDate\",\n} as const;\n\nconst DEFAULT_FILTERS: BoardFilters = {\n  status: null,\n  priority: null,\n  assignee: null,\n  dueDate: null,\n  labels: null,\n};\n\nconst FILTER_KEYS: Array<keyof BoardFilters> = [\n  \"status\",\n  \"priority\",\n  \"assignee\",\n  \"dueDate\",\n  \"labels\",\n];\n\nfunction normalizeFilters(raw: unknown): BoardFilters {\n  if (!raw || typeof raw !== \"object\") {\n    return DEFAULT_FILTERS;\n  }\n\n  const candidate = raw as Partial<Record<keyof BoardFilters, unknown>>;\n  const normalized = { ...DEFAULT_FILTERS };\n\n  for (const key of FILTER_KEYS) {\n    const value = candidate[key];\n    if (Array.isArray(value)) {\n      const values = value.filter((v): v is string => typeof v === \"string\");\n      normalized[key] = values.length > 0 ? values : null;\n    }\n  }\n\n  return normalized;\n}",
+        "reason": "Canonical BoardFilters type, DUE_DATE_FILTER_VALUES, and the normalizeFilters contract the new parser must match (empty array collapses to null, non-string members dropped)."
+      },
+      {
+        "path": "apps/web/src/lib/get-task-label-options.test.ts",
+        "content": "import { describe, expect, it } from \"vitest\";\nimport { getTaskLabelOptions } from \"./get-task-label-options\";\n\ndescribe(\"getTaskLabelOptions\", () => {\n  it(\"excludes labels assigned to other tasks\", () => {\n    const labels = [\n      { id: \"workspace\", name: \"Bug\", taskId: null },\n      { id: \"current\", name: \"Imported\", taskId: \"task-1\" },\n      { id: \"other\", name: \"Other\", taskId: \"task-2\" },\n    ];\n\n    const options = getTaskLabelOptions(labels, \"task-1\");\n\n    expect(options.map((label) => label.id)).toEqual([\"workspace\", \"current\"]);\n  });\n\n  it(\"prefers a workspace label over a task-scoped copy\", () => {\n    const labels = [\n      { id: \"task-copy\", name: \"Bug\", taskId: \"task-1\" },\n      { id: \"workspace\", name: \"Bug\", taskId: null },\n    ];\n\n    const options = getTaskLabelOptions(labels, \"task-1\");\n\n    expect(options).toEqual([{ id: \"workspace\", name: \"Bug\", taskId: null }]);\n  });\n});\n",
+        "reason": "House style reference for a colocated pure unit test: describe/it, explicit expect, no setup, no mocks."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "13 it() blocks covering the numbered cases",
+      "Imports describe/expect/it from vitest explicitly",
+      "No mocks, no DOM, no setup hooks",
+      "Case 6 is its own it() block and carries the explanatory comment",
+      "Compiles under strict + noUnusedLocals (hostile inputs cast via `as unknown as`)"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 9000,
+      "maxOutputTokens": 4000
+    },
+    "id": "tp_p2_hook",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "subtype": "existing_file_edit",
+    "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+    "instruction": "Edit this hook to accept an OPTIONAL 4th parameter that (a) seeds filter state from the URL and (b) publishes filter changes back to the caller. Return the COMPLETE file.\n\nAdd above the hook:\n```ts\nexport type BoardFilterSyncOptions = {\n  initialFilters?: BoardFilters | null;\n  onFiltersChange?: (filters: BoardFilters) => void;\n};\n```\n\nSignature becomes `(project, projectId?, textQuery?, options?: BoardFilterSyncOptions)`. The first three positional params MUST NOT change — existing callers pass 2 and 3 args and must keep compiling.\n\nInside the hook, in EXACTLY this order (order is load-bearing):\n1. `weekStartsOn` and `storageKey` lines — unchanged.\n2. `const initialFilters = options?.initialFilters ?? null;` and `const onFiltersChange = options?.onFiltersChange;`\n3. `const [filters, setFilters] = useState<BoardFilters>(() => initialFilters ?? DEFAULT_FILTERS);` — a LAZY initializer, so the seed is committed during first render, strictly before any effect runs.\n4. `const skipRestoreForKeyRef = useRef<string | null>(initialFilters ? storageKey : null);`\n5. `const onFiltersChangeRef = useRef(onFiltersChange);`\n6. EFFECT A (restore): prepend, immediately after the existing `if (!storageKey || typeof window === \"undefined\") return;` guard:\n```ts\nif (skipRestoreForKeyRef.current === storageKey) {\n  skipRestoreForKeyRef.current = null;\n  return;\n}\n```\nThe rest of Effect A's body and its `[storageKey]` dependency array stay byte-identical.\n7. EFFECT B (localStorage write-back): BYTE-IDENTICAL. Do not touch one character.\n8. EFFECT C (new): `useEffect(() => { onFiltersChangeRef.current = onFiltersChange; }, [onFiltersChange]);`\n9. EFFECT D (new): `useEffect(() => { onFiltersChangeRef.current?.(filters); }, [filters]);` — dependency array is `[filters]` ONLY. Adding onFiltersChange here would republish on every navigation and is wrong.\n\nEffect C MUST be declared before Effect D.\n\nAdd `useRef` to the existing react import. Everything else in the file — `DEFAULT_FILTERS`, `FILTER_KEYS`, `normalizeFilters`, `filterTasks`, `filteredProject`, `hasActiveFilters`, `clearFilters`, `updateFilter`, `updateLabelFilter`, the return object — must be BYTE-IDENTICAL to the input.\n\nDO NOT de-duplicate normalizeFilters or DEFAULT_FILTERS against the copies in use-task-filters.ts. That duplication is deliberate and out of scope.\nDO NOT change the assignee matching on `task.userId`. That is a known issue, deliberately left alone.",
+    "inputs": [
+      {
+        "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+        "content": "import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from \"date-fns\";\nimport { useCallback, useEffect, useMemo, useState } from \"react\";\nimport { useUserPreferencesStore } from \"@/store/user-preferences\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\nimport { type BoardFilters, DUE_DATE_FILTER_VALUES } from \"./use-task-filters\";\n\nconst DEFAULT_FILTERS: BoardFilters = {\n  status: null,\n  priority: null,\n  assignee: null,\n  dueDate: null,\n  labels: null,\n};\n\nconst FILTER_KEYS: Array<keyof BoardFilters> = [\n  \"status\",\n  \"priority\",\n  \"assignee\",\n  \"dueDate\",\n  \"labels\",\n];\n\nfunction normalizeFilters(raw: unknown): BoardFilters {\n  if (!raw || typeof raw !== \"object\") {\n    return DEFAULT_FILTERS;\n  }\n\n  const candidate = raw as Partial<Record<keyof BoardFilters, unknown>>;\n  const normalized = { ...DEFAULT_FILTERS };\n\n  for (const key of FILTER_KEYS) {\n    const value = candidate[key];\n    if (Array.isArray(value)) {\n      const values = value.filter((v): v is string => typeof v === \"string\");\n      normalized[key] = values.length > 0 ? values : null;\n    }\n  }\n\n  return normalized;\n}\n\nexport function useTaskFiltersWithLabelsSupport(\n  project: ProjectWithTasks | null | undefined,\n  projectId?: string,\n  textQuery?: string,\n) {\n  const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);\n  const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;\n  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);\n\n  useEffect(() => {\n    if (!storageKey || typeof window === \"undefined\") return;\n\n    try {\n      const stored = window.localStorage.getItem(storageKey);\n      if (!stored) {\n        setFilters(DEFAULT_FILTERS);\n        return;\n      }\n\n      const parsed = JSON.parse(stored) as unknown;\n      setFilters(normalizeFilters(parsed));\n    } catch {\n      setFilters(DEFAULT_FILTERS);\n    }\n  }, [storageKey]);\n\n  useEffect(() => {\n    if (!storageKey || typeof window === \"undefined\") return;\n    window.localStorage.setItem(storageKey, JSON.stringify(filters));\n  }, [filters, storageKey]);\n\n  const filterTasks = useCallback(\n    (tasks: Task[]): Task[] => {\n      const normalizedTextQuery = textQuery?.trim().toLowerCase();\n\n      return tasks.filter((task) => {\n        if (normalizedTextQuery) {\n          const title = task.title?.toLowerCase() ?? \"\";\n          const description = task.description?.toLowerCase() ?? \"\";\n          const taskNumber = task.number?.toString() ?? \"\";\n          const taskIdentifier =\n            taskNumber && project?.slug\n              ? `${project.slug}-${taskNumber}`.toLowerCase()\n              : \"\";\n          const taskShortIdentifier = taskNumber ? `#${taskNumber}` : \"\";\n          const matchesText =\n            title.includes(normalizedTextQuery) ||\n            description.includes(normalizedTextQuery) ||\n            taskNumber.includes(normalizedTextQuery) ||\n            taskIdentifier.startsWith(normalizedTextQuery) ||\n            taskShortIdentifier.startsWith(normalizedTextQuery);\n\n          if (!matchesText) {\n            return false;\n          }\n        }\n\n        if (\n          filters.status &&\n          filters.status.length > 0 &&\n          !filters.status.includes(task.status)\n        ) {\n          return false;\n        }\n\n        if (\n          filters.priority &&\n          filters.priority.length > 0 &&\n          !filters.priority.includes(task.priority ?? \"\")\n        ) {\n          return false;\n        }\n\n        if (\n          filters.assignee &&\n          filters.assignee.length > 0 &&\n          !filters.assignee.includes(task.userId ?? \"\")\n        ) {\n          return false;\n        }\n\n        if (filters.dueDate && filters.dueDate.length > 0) {\n          const today = new Date();\n          const taskDate = task.dueDate ? new Date(task.dueDate) : null;\n\n          const matchesAnyDueDate = filters.dueDate.some((dueDateFilter) => {\n            if (dueDateFilter === DUE_DATE_FILTER_VALUES.noDueDate) {\n              return !task.dueDate;\n            }\n\n            if (!taskDate) {\n              return false;\n            }\n\n            switch (dueDateFilter) {\n              case DUE_DATE_FILTER_VALUES.dueThisWeek: {\n                const weekStart = startOfWeek(today, { weekStartsOn });\n                const weekEnd = endOfWeek(today, { weekStartsOn });\n                return isWithinInterval(taskDate, {\n                  start: weekStart,\n                  end: weekEnd,\n                });\n              }\n              case DUE_DATE_FILTER_VALUES.dueNextWeek: {\n                const nextWeekStart = startOfWeek(addWeeks(today, 1), {\n                  weekStartsOn,\n                });\n                const nextWeekEnd = endOfWeek(addWeeks(today, 1), {\n                  weekStartsOn,\n                });\n                return isWithinInterval(taskDate, {\n                  start: nextWeekStart,\n                  end: nextWeekEnd,\n                });\n              }\n              default:\n                return false;\n            }\n          });\n\n          if (!matchesAnyDueDate) {\n            return false;\n          }\n        }\n\n        // Label filtering\n        if (filters.labels && filters.labels.length > 0) {\n          const taskLabelIds = (task.labels ?? []).map((label) => label.id);\n\n          // Check if task has at least one of the selected labels\n          const hasMatchingLabel = filters.labels.some((labelId) =>\n            taskLabelIds.includes(labelId),\n          );\n\n          if (!hasMatchingLabel) {\n            return false;\n          }\n        }\n\n        return true;\n      });\n    },\n    [filters, project?.slug, textQuery, weekStartsOn],\n  );\n\n  const filteredProject = useMemo(() => {\n    if (!project) return null;\n\n    return {\n      ...project,\n      columns:\n        project.columns?.map((column) => ({\n          ...column,\n          tasks: filterTasks(column.tasks),\n        })) ?? [],\n    };\n  }, [project, filterTasks]);\n\n  const hasActiveFilters = Object.values(filters).some((filter) =>\n    Array.isArray(filter) ? filter.length > 0 : filter !== null,\n  );\n\n  const clearFilters = () => {\n    setFilters(DEFAULT_FILTERS);\n  };\n\n  const updateFilter = (\n    key: keyof BoardFilters,\n    value: BoardFilters[keyof BoardFilters],\n  ) => {\n    setFilters((prev) => ({ ...prev, [key]: value }));\n  };\n\n  const updateLabelFilter = (labelId: string) => {\n    setFilters((prev) => {\n      const currentLabels = prev.labels || [];\n      const isSelected = currentLabels.includes(labelId);\n\n      let newLabels: string[] | null;\n      if (isSelected) {\n        newLabels = currentLabels.filter((id) => id !== labelId);\n        if (newLabels.length === 0) newLabels = null;\n      } else {\n        newLabels = [...currentLabels, labelId];\n      }\n\n      return { ...prev, labels: newLabels };\n    });\n  };\n\n  return {\n    filters,\n    setFilters,\n    updateFilter,\n    updateLabelFilter,\n    filteredProject,\n    hasActiveFilters,\n    clearFilters,\n  };\n}\n",
+        "reason": "The complete file to edit. Everything not named in the instruction must come back byte-identical."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "Exports BoardFilterSyncOptions type",
+      "4th parameter is optional; params 1-3 unchanged",
+      "useState uses a lazy initializer seeded from initialFilters",
+      "Effect A has the skipRestoreForKeyRef guard and still depends on [storageKey]",
+      "Effect B (localStorage write-back) is byte-identical to the input",
+      "Effect C is declared before Effect D; Effect D depends on [filters] only",
+      "normalizeFilters and DEFAULT_FILTERS are unchanged and still duplicated (not extracted)",
+      "task.userId assignee matching is unchanged",
+      "useRef added to the react import"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 1500
+    },
+    "id": "tp_p4a",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "patch_apply",
+    "artifact_path": "apps/web/src/components/kanban-board/index.tsx",
+    "region": {
+      "start_line": 61,
+      "end_line": 90
+    },
+    "instruction": "In this exact code region from apps/web/src/components/kanban-board/index.tsx, convert BOTH the `j` and `k` shortcut handlers to preserve existing search params.\n\nTwo required changes per handler:\n1. Replace `const state = useBulkSelectionStore.getState();` + `if (state.focusedTaskId)` with a hoisted const:\n   `const nextFocusedTaskId = useBulkSelectionStore.getState().focusedTaskId;` then `if (nextFocusedTaskId) {`.\n   This hoist is MANDATORY: `focusedTaskId` is a mutable interface property (`string | null`), so TypeScript does NOT preserve the `if` narrowing inside the arrow function that follows. Without the hoist this fails to typecheck.\n2. Change `search: { taskId: state.focusedTaskId }` to `search: (prev) => ({ ...prev, taskId: nextFocusedTaskId })`.\n\nDo NOT add a `from` property. Do NOT add a type annotation or cast on `prev`. Do NOT touch the `Enter` handler — it navigates with `params`, not `search`, and must stay byte-identical. Do not reformat anything else. Indentation is 2 spaces; preserve the exact surrounding indentation.\n\nReturn the full replacement text for the region.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/kanban-board/index.tsx",
+        "content": "  useRegisterShortcuts({\n    shortcuts: {\n      j: () => {\n        focusNext();\n        const state = useBulkSelectionStore.getState();\n        if (state.focusedTaskId) {\n          navigate({ to: \".\", search: { taskId: state.focusedTaskId } });\n        }\n      },\n      k: () => {\n        focusPrevious();\n        const state = useBulkSelectionStore.getState();\n        if (state.focusedTaskId) {\n          navigate({ to: \".\", search: { taskId: state.focusedTaskId } });\n        }\n      },\n      Enter: () => {\n        if (focusedTaskId && project) {\n          navigate({\n            to: \"/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId\",\n            params: {\n              workspaceId: project.workspaceId,\n              projectId: project.id,\n              taskId: focusedTaskId,\n            },\n          });\n        }\n      },\n    },\n  });",
+        "reason": "Lines 61-90 verbatim — the exact region to replace."
+      },
+      {
+        "path": "apps/web/src/store/bulk-selection.ts",
+        "content": "import { create } from \"zustand\";\n\ninterface BulkSelectionState {\n  selectedTaskIds: Set<string>;\n  isSelectMode: boolean;\n  availableTaskIds: string[];\n  focusedTaskId: string | null;\n\n  selectTask: (taskId: string) => void;\n  deselectTask: (taskId: string) => void;\n  toggleSelection: (taskId: string) => void;\n  clearSelection: () => void;",
+        "reason": "Proof that focusedTaskId is a mutable `string | null` property, which is why the hoist-to-const is required for the narrowing to survive into the closure."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "replacement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "replacement"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "Both j and k handlers use `search: (prev) => ({ ...prev, taskId: nextFocusedTaskId })`",
+      "Both handlers hoist to `const nextFocusedTaskId = useBulkSelectionStore.getState().focusedTaskId;`",
+      "No occurrence of `const state = useBulkSelectionStore.getState()` remains in the region",
+      "The Enter handler is byte-identical to the input",
+      "No `from` property and no cast or annotation on prev",
+      "Region contains exactly 2 occurrences of `search: (prev) =>` and 0 of `search: {`"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 1500
+    },
+    "id": "tp_p4b",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "patch_apply",
+    "artifact_path": "apps/web/src/components/kanban-board/task-card.tsx",
+    "region": {
+      "start_line": 143,
+      "end_line": 158
+    },
+    "instruction": "In this exact code region from apps/web/src/components/kanban-board/task-card.tsx, convert BOTH navigate() calls to the functional search form so existing search params survive.\n\n- The close branch (`if (currentTaskId === task.id)`) currently passes `search: {}`, which wipes EVERY search param. It must become `search: (prev) => ({ ...prev, taskId: undefined })` — clearing ONLY taskId.\n- The open branch currently passes `search: { taskId: task.id }`. It must become `search: (prev) => ({ ...prev, taskId: task.id })`.\n\nDo NOT add a `from` property. Do NOT add a type annotation or cast on `prev`. Do NOT change the `currentParams` / `currentTaskId` lines above, the `to: \".\"` values, the if/else structure, or the closing brace on the final line. Do not reformat anything else. Indentation is 2 spaces; preserve the exact surrounding indentation.\n\nReturn the full replacement text for the region.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/kanban-board/task-card.tsx",
+        "content": "\n    const currentParams = new URLSearchParams(window.location.search);\n    const currentTaskId = currentParams.get(\"taskId\");\n\n    if (currentTaskId === task.id) {\n      navigate({\n        to: \".\",\n        search: {},\n      });\n    } else {\n      navigate({\n        to: \".\",\n        search: { taskId: task.id },\n      });\n    }\n  }",
+        "reason": "Lines 143-158 verbatim — the exact region to replace."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "replacement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "replacement"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "Close branch is `search: (prev) => ({ ...prev, taskId: undefined })`",
+      "Open branch is `search: (prev) => ({ ...prev, taskId: task.id })`",
+      "The currentParams and currentTaskId lines are byte-identical to the input",
+      "No `from` property and no cast or annotation on prev",
+      "Region contains exactly 2 occurrences of `search: (prev) =>` and 0 of `search: {`"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 1500
+    },
+    "id": "tp_p4c",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "patch_apply",
+    "artifact_path": "apps/web/src/components/list-view/index.tsx",
+    "region": {
+      "start_line": 91,
+      "end_line": 120
+    },
+    "instruction": "In this exact code region from apps/web/src/components/list-view/index.tsx, convert BOTH the `j` and `k` shortcut handlers to preserve existing search params.\n\nTwo required changes per handler:\n1. Replace `const state = useBulkSelectionStore.getState();` + `if (state.focusedTaskId)` with a hoisted const:\n   `const nextFocusedTaskId = useBulkSelectionStore.getState().focusedTaskId;` then `if (nextFocusedTaskId) {`.\n   This hoist is MANDATORY: `focusedTaskId` is a mutable interface property (`string | null`), so TypeScript does NOT preserve the `if` narrowing inside the arrow function that follows. Without the hoist this fails to typecheck.\n2. Change `search: { taskId: state.focusedTaskId }` to `search: (prev) => ({ ...prev, taskId: nextFocusedTaskId })`.\n\nDo NOT add a `from` property. Do NOT add a type annotation or cast on `prev`. Do NOT touch the `Enter` handler — it navigates with `params`, not `search`, and must stay byte-identical. Do not reformat anything else. Indentation is 2 spaces; preserve the exact surrounding indentation.\n\nReturn the full replacement text for the region.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/list-view/index.tsx",
+        "content": "  useRegisterShortcuts({\n    shortcuts: {\n      j: () => {\n        focusNext();\n        const state = useBulkSelectionStore.getState();\n        if (state.focusedTaskId) {\n          navigate({ to: \".\", search: { taskId: state.focusedTaskId } });\n        }\n      },\n      k: () => {\n        focusPrevious();\n        const state = useBulkSelectionStore.getState();\n        if (state.focusedTaskId) {\n          navigate({ to: \".\", search: { taskId: state.focusedTaskId } });\n        }\n      },\n      Enter: () => {\n        if (focusedTaskId && project) {\n          navigate({\n            to: \"/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId\",\n            params: {\n              workspaceId: project.workspaceId,\n              projectId: project.id,\n              taskId: focusedTaskId,\n            },\n          });\n        }\n      },\n    },\n  });",
+        "reason": "Lines 91-120 verbatim — the exact region to replace."
+      },
+      {
+        "path": "apps/web/src/store/bulk-selection.ts",
+        "content": "import { create } from \"zustand\";\n\ninterface BulkSelectionState {\n  selectedTaskIds: Set<string>;\n  isSelectMode: boolean;\n  availableTaskIds: string[];\n  focusedTaskId: string | null;\n\n  selectTask: (taskId: string) => void;\n  deselectTask: (taskId: string) => void;\n  toggleSelection: (taskId: string) => void;\n  clearSelection: () => void;",
+        "reason": "Proof that focusedTaskId is a mutable `string | null` property, which is why the hoist-to-const is required for the narrowing to survive into the closure."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "replacement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "replacement"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "Both j and k handlers use `search: (prev) => ({ ...prev, taskId: nextFocusedTaskId })`",
+      "Both handlers hoist to `const nextFocusedTaskId = useBulkSelectionStore.getState().focusedTaskId;`",
+      "No occurrence of `const state = useBulkSelectionStore.getState()` remains in the region",
+      "The Enter handler is byte-identical to the input",
+      "No `from` property and no cast or annotation on prev",
+      "Region contains exactly 2 occurrences of `search: (prev) =>` and 0 of `search: {`"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 1500
+    },
+    "id": "tp_p4d",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "patch_apply",
+    "artifact_path": "apps/web/src/components/list-view/task-row.tsx",
+    "region": {
+      "start_line": 142,
+      "end_line": 157
+    },
+    "instruction": "In this exact code region from apps/web/src/components/list-view/task-row.tsx, convert BOTH navigate() calls to the functional search form so existing search params survive.\n\n- The close branch (`if (currentTaskId === task.id)`) currently passes `search: {}`, which wipes EVERY search param. It must become `search: (prev) => ({ ...prev, taskId: undefined })` — clearing ONLY taskId.\n- The open branch currently passes `search: { taskId: task.id }`. It must become `search: (prev) => ({ ...prev, taskId: task.id })`.\n\nDo NOT add a `from` property. Do NOT add a type annotation or cast on `prev`. Do NOT change the `currentParams` / `currentTaskId` lines above, the `to: \".\"` values, the if/else structure, or the closing brace on the final line. Do not reformat anything else. Indentation is 2 spaces; preserve the exact surrounding indentation.\n\nReturn the full replacement text for the region.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/list-view/task-row.tsx",
+        "content": "\n    const currentParams = new URLSearchParams(window.location.search);\n    const currentTaskId = currentParams.get(\"taskId\");\n\n    if (currentTaskId === task.id) {\n      navigate({\n        to: \".\",\n        search: {},\n      });\n    } else {\n      navigate({\n        to: \".\",\n        search: { taskId: task.id },\n      });\n    }\n  };",
+        "reason": "Lines 142-157 verbatim — the exact region to replace."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "replacement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "replacement"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "Close branch is `search: (prev) => ({ ...prev, taskId: undefined })`",
+      "Open branch is `search: (prev) => ({ ...prev, taskId: task.id })`",
+      "The currentParams and currentTaskId lines are byte-identical to the input",
+      "No `from` property and no cast or annotation on prev",
+      "Region contains exactly 2 occurrences of `search: (prev) =>` and 0 of `search: {`"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 5000
+    },
+    "id": "tp_p3_route",
+    "phase": "codegen",
+    "task_type": "react_page",
+    "subtype": "existing_file_edit",
+    "artifact_path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+    "instruction": "Wire URL filter persistence into this route. Return the COMPLETE file. Five hunks, nothing else changes.\n\nHUNK A — imports. Add:\n`import { type BoardFilters } from \"@/hooks/use-task-filters\";` (type-only import is fine)\n`import { boardFilterSearchMatches, hasAnyBoardFilterParam, parseBoardFilterSearch, serializeBoardFilters } from \"@/lib/board-filter-search-params\";`\n\nHUNK B — types and validateSearch:\n```ts\ntype BoardSearchParams = {\n  taskId?: string;\n  status?: string[];\n  priority?: string[];\n  assignee?: string[];\n  dueDate?: string[];\n  labels?: string[];\n};\n```\nand\n```ts\n  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({\n    taskId: typeof search.taskId === \"string\" ? search.taskId : undefined,\n    ...serializeBoardFilters(parseBoardFilterSearch(search)),\n  }),\n```\nKeep the taskId line verbatim.\n\nHUNK C — replace `const { taskId } = Route.useSearch();` with:\n```ts\n  const search = Route.useSearch();\n  const { taskId } = search;\n```\nand add, after the existing useState declarations:\n```ts\n  const [urlSeededFilters] = useState<BoardFilters | null>(() =>\n    hasAnyBoardFilterParam(search) ? parseBoardFilterSearch(search) : null,\n  );\n```\nDo NOT destructure the setter — `noUnusedLocals` is on. The lazy initializer snapshots first-render search and must never re-seed.\n\nHUNK D — before the hook call, add:\n```ts\n  const handleFiltersChange = useCallback(\n    (next: BoardFilters) => {\n      if (boardFilterSearchMatches(search, next)) return;\n      navigate({\n        to: \".\",\n        search: (prev) => ({ ...prev, ...serializeBoardFilters(next) }),\n        replace: true,\n      });\n    },\n    [navigate, search],\n  );\n\n  const filterSyncOptions = useMemo(\n    () => ({ initialFilters: urlSeededFilters, onFiltersChange: handleFiltersChange }),\n    [urlSeededFilters, handleFiltersChange],\n  );\n```\nand pass it as the 4th argument: `useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery, filterSyncOptions)`.\n\nHUNK E — `handleCloseTaskSheet` becomes:\n```ts\n  const handleCloseTaskSheet = useCallback(() => {\n    navigate({\n      to: \".\",\n      search: (prev) => ({ ...prev, taskId: undefined }),\n      replace: true,\n    });\n  }, [navigate]);\n```\n`search: {}` wiped every filter; it must clear ONLY taskId.\n\nDo NOT add a `from` property. Do NOT annotate or cast `prev`. Do NOT touch BoardSkeleton, the keyboard-shortcut block, the board-search input, sortedProject, or the JSX. useState/useCallback/useMemo are already imported.",
+    "inputs": [
+      {
+        "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+        "content": "import { createFileRoute, useNavigate } from \"@tanstack/react-router\";\nimport { Search } from \"lucide-react\";\nimport { useCallback, useEffect, useMemo, useState } from \"react\";\nimport { useTranslation } from \"react-i18next\";\nimport BoardToolbar from \"@/components/board/board-toolbar\";\nimport ProjectLayout from \"@/components/common/project-layout\";\nimport KanbanBoard from \"@/components/kanban-board\";\nimport ListView from \"@/components/list-view\";\nimport PageTitle from \"@/components/page-title\";\nimport CreateTaskModal from \"@/components/shared/modals/create-task-modal\";\nimport TaskDetailsSheet from \"@/components/task/task-details-sheet\";\nimport { Input } from \"@/components/ui/input\";\nimport { shortcuts } from \"@/constants/shortcuts\";\nimport useGetLabelsByWorkspace from \"@/hooks/queries/label/use-get-labels-by-workspace\";\nimport { useGetTasks } from \"@/hooks/queries/task/use-get-tasks\";\nimport { useGetActiveWorkspaceUsers } from \"@/hooks/queries/workspace-users/use-get-active-workspace-users\";\nimport { useBoardSort } from \"@/hooks/use-board-sort\";\nimport { useRegisterShortcuts } from \"@/hooks/use-keyboard-shortcuts\";\nimport { useTaskFiltersWithLabelsSupport } from \"@/hooks/use-task-filters-with-labels-support\";\nimport { sortTasks } from \"@/lib/sort-tasks\";\nimport useProjectStore from \"@/store/project\";\nimport { useUserPreferencesStore } from \"@/store/user-preferences\";\n\ntype BoardSearchParams = {\n  taskId?: string;\n};\n\nexport const Route = createFileRoute(\n  \"/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board\",\n)({\n  component: RouteComponent,\n  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({\n    taskId: typeof search.taskId === \"string\" ? search.taskId : undefined,\n  }),\n});\n\nconst skeletonColumns = [\n  { key: \"col-todo\", cards: 3 },\n  { key: \"col-progress\", cards: 4 },\n  { key: \"col-review\", cards: 2 },\n  { key: \"col-done\", cards: 1 },\n];\n\nfunction BoardSkeleton() {\n  return (\n    <div className=\"flex h-full w-full gap-4 p-4 overflow-hidden\">\n      {skeletonColumns.map((col) => (\n        <div key={col.key} className=\"flex w-72 shrink-0 flex-col gap-3\">\n          <div className=\"flex items-center gap-2 px-1\">\n            <div className=\"h-3 w-3 rounded-full bg-muted animate-pulse\" />\n            <div className=\"h-4 w-24 rounded bg-muted animate-pulse\" />\n            <div className=\"h-4 w-5 rounded bg-muted animate-pulse\" />\n          </div>\n          <div className=\"flex flex-col gap-2.5\">\n            {Array.from({ length: col.cards }, (_, i) => `${col.key}-${i}`).map(\n              (cardKey) => (\n                <div\n                  key={cardKey}\n                  className=\"rounded-lg border border-border bg-card p-3 space-y-2.5\"\n                >\n                  <div className=\"h-3.5 w-4/5 rounded bg-muted animate-pulse\" />\n                  <div className=\"h-3 w-3/5 rounded bg-muted animate-pulse\" />\n                  <div className=\"flex items-center gap-2 pt-1\">\n                    <div className=\"h-5 w-5 rounded-full bg-muted animate-pulse\" />\n                    <div className=\"h-3 w-16 rounded bg-muted animate-pulse\" />\n                  </div>\n                </div>\n              ),\n            )}\n          </div>\n        </div>\n      ))}\n    </div>\n  );\n}\n\nfunction RouteComponent() {\n  const { t } = useTranslation();\n  const { projectId, workspaceId } = Route.useParams();\n  const { taskId } = Route.useSearch();\n  const navigate = useNavigate();\n  const { data } = useGetTasks(projectId);\n  const { project, setProject } = useProjectStore();\n  const { viewMode, setViewMode } = useUserPreferencesStore();\n  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);\n  const [boardSearchQuery, setBoardSearchQuery] = useState(\"\");\n  const [isBoardSearchMounted, setIsBoardSearchMounted] = useState(false);\n  const [isBoardSearchVisible, setIsBoardSearchVisible] = useState(false);\n  const [boardSearchInput, setBoardSearchInput] =\n    useState<HTMLInputElement | null>(null);\n  const { sort, setSort } = useBoardSort(projectId);\n\n  const { data: users } = useGetActiveWorkspaceUsers(workspaceId);\n  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);\n\n  const handleCloseTaskSheet = useCallback(() => {\n    navigate({\n      to: \".\",\n      search: {},\n      replace: true,\n    });\n  }, [navigate]);\n\n  useRegisterShortcuts({\n    sequentialShortcuts: {\n      [shortcuts.view.prefix]: {\n        [shortcuts.view.board]: () => setViewMode(\"board\"),\n        [shortcuts.view.list]: () => setViewMode(\"list\"),\n        [shortcuts.view.gantt]: () =>\n          navigate({\n            to: \"/dashboard/workspace/$workspaceId/project/$projectId/gantt\",\n            params: { workspaceId, projectId },\n          }),\n        [shortcuts.view.backlog]: () =>\n          navigate({\n            to: \"/dashboard/workspace/$workspaceId/project/$projectId/backlog\",\n            params: { workspaceId, projectId },\n          }),\n      },\n    },\n  });\n\n  useEffect(() => {\n    if (data) {\n      setProject(data);\n    }\n  }, [data, setProject]);\n\n  const openBoardSearch = useCallback(() => {\n    setIsBoardSearchMounted(true);\n    window.requestAnimationFrame(() => setIsBoardSearchVisible(true));\n  }, []);\n\n  const closeBoardSearch = useCallback(() => {\n    setIsBoardSearchVisible(false);\n    window.setTimeout(() => setIsBoardSearchMounted(false), 180);\n  }, []);\n\n  useEffect(() => {\n    const onKeyDown = (event: KeyboardEvent) => {\n      const isFindShortcut =\n        (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === \"f\";\n\n      if (!isFindShortcut) return;\n\n      event.preventDefault();\n      openBoardSearch();\n    };\n\n    window.addEventListener(\"keydown\", onKeyDown);\n    return () => window.removeEventListener(\"keydown\", onKeyDown);\n  }, [openBoardSearch]);\n\n  useEffect(() => {\n    if (!isBoardSearchMounted) return;\n    window.requestAnimationFrame(() => boardSearchInput?.focus());\n  }, [isBoardSearchMounted, boardSearchInput]);\n\n  const {\n    filters,\n    updateFilter,\n    updateLabelFilter,\n    filteredProject,\n    hasActiveFilters,\n    clearFilters,\n  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);\n\n  const sortedProject = useMemo(() => {\n    if (!filteredProject || sort.field === \"position\") return filteredProject;\n    return {\n      ...filteredProject,\n      columns: filteredProject.columns.map((column) => ({\n        ...column,\n        tasks: sortTasks(column.tasks, sort),\n      })),\n    };\n  }, [filteredProject, sort]);\n\n  const boardHeaderSearch = isBoardSearchMounted ? (\n    <div\n      className={`relative w-[240px] origin-top transition-[translate,scale,opacity] duration-180 ease-out ${\n        isBoardSearchVisible\n          ? \"translate-y-0 scale-y-100 opacity-100\"\n          : \"pointer-events-none -translate-y-1 scale-y-95 opacity-0\"\n      }`}\n    >\n      <Search className=\"-translate-y-1/2 pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 text-muted-foreground\" />\n      <Input\n        ref={setBoardSearchInput}\n        value={boardSearchQuery}\n        onChange={(event) => setBoardSearchQuery(event.target.value)}\n        onKeyDown={(event) => {\n          if (event.key === \"Escape\" && !boardSearchQuery.trim()) {\n            closeBoardSearch();\n          }\n        }}\n        onBlur={() => {\n          if (!boardSearchQuery.trim()) {\n            closeBoardSearch();\n          }\n        }}\n        placeholder={t(\"tasks:boardSearchPlaceholder\")}\n        className=\"h-7.5 [&_[data-slot=input]]:h-7 [&_[data-slot=input]]:leading-7 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs [&_[data-slot=input]]:placeholder:text-xs [&_[data-slot=input]]:placeholder:leading-7\"\n      />\n    </div>\n  ) : null;\n\n  return (\n    <ProjectLayout\n      projectId={projectId}\n      workspaceId={workspaceId}\n      activeView=\"board\"\n      headerActions={boardHeaderSearch}\n    >\n      <PageTitle\n        title={`${project?.name} · ${viewMode === \"board\" ? t(\"tasks:view.board\") : t(\"tasks:view.list\")}`}\n        hideAppName\n      />\n      <div className=\"relative flex flex-col h-full min-h-0 overflow-hidden\">\n        <BoardToolbar\n          project={project}\n          filters={filters}\n          updateFilter={updateFilter}\n          updateLabelFilter={updateLabelFilter}\n          clearFilters={clearFilters}\n          hasActiveFilters={hasActiveFilters}\n          users={users}\n          workspaceLabels={workspaceLabels}\n          viewMode={viewMode}\n          setViewMode={setViewMode}\n          sort={sort}\n          onSortChange={setSort}\n        />\n\n        <div className=\"flex h-full flex-1 overflow-hidden bg-background\">\n          {sortedProject ? (\n            viewMode === \"board\" ? (\n              <KanbanBoard\n                project={sortedProject}\n                disableDragDrop={sort.field !== \"position\"}\n              />\n            ) : (\n              <ListView\n                project={sortedProject}\n                disableDragDrop={sort.field !== \"position\"}\n              />\n            )\n          ) : (\n            <BoardSkeleton />\n          )}\n        </div>\n\n        <CreateTaskModal\n          open={isTaskModalOpen}\n          projectId={projectId}\n          onClose={() => setIsTaskModalOpen(false)}\n        />\n\n        <TaskDetailsSheet\n          taskId={taskId}\n          projectId={projectId}\n          workspaceId={workspaceId}\n          onClose={handleCloseTaskSheet}\n        />\n      </div>\n    </ProjectLayout>\n  );\n}\n",
+        "reason": "The complete route file to edit. Everything outside the five hunks must return byte-identical."
+      },
+      {
+        "path": "apps/web/src/hooks/use-task-filters.ts",
+        "content": "import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from \"date-fns\";\nimport { useEffect, useState } from \"react\";\nimport { useUserPreferencesStore } from \"@/store/user-preferences\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\n\nexport type BoardFilters = {\n  status: string[] | null;\n  priority: string[] | null;\n  assignee: string[] | null;\n  dueDate: string[] | null;\n  labels: string[] | null;\n};\n\nexport const DUE_DATE_FILTER_VALUES = {\n  dueNextWeek: \"dueNextWeek\",\n  dueThisWeek: \"dueThisWeek\",\n  noDueDate: \"noDueDate\",\n} as const;\n\nconst DEFAULT_FILTERS: BoardFilters = {\n  status: null,\n  priority: null,\n  assignee: null,\n  dueDate: null,\n  labels: null,\n};\n\nconst FILTER_KEYS: Array<keyof BoardFilters> = [\n  \"status\",\n  \"priority\",\n  \"assignee\",\n  \"dueDate\",\n  \"labels\",\n];\n\nfunction normalizeFilters(raw: unknown): BoardFilters {\n  if (!raw || typeof raw !== \"object\") {\n    return DEFAULT_FILTERS;\n  }\n\n  const candidate = raw as Partial<Record<keyof BoardFilters, unknown>>;\n  const normalized = { ...DEFAULT_FILTERS };\n\n  for (const key of FILTER_KEYS) {\n    const value = candidate[key];\n    if (Array.isArray(value)) {\n      const values = value.filter((v): v is string => typeof v === \"string\");\n      normalized[key] = values.length > 0 ? values : null;\n    }\n  }\n\n  return normalized;\n}",
+        "reason": "Canonical BoardFilters type, DUE_DATE_FILTER_VALUES, and the normalizeFilters contract the new parser must match (empty array collapses to null, non-string members dropped)."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "BoardSearchParams has taskId plus the five string[] filter keys",
+      "validateSearch spreads serializeBoardFilters(parseBoardFilterSearch(search)) and keeps the taskId line verbatim",
+      "urlSeededFilters uses a lazy useState initializer with no setter destructured",
+      "handleFiltersChange early-returns via boardFilterSearchMatches and navigates with replace: true",
+      "hook is called with 4 arguments",
+      "handleCloseTaskSheet uses search: (prev) => ({ ...prev, taskId: undefined })",
+      "File contains exactly 2 occurrences of `search: (prev) =>` and 0 of `search: {}`",
+      "BoardSkeleton and all JSX are byte-identical to the input"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 8000,
+      "maxOutputTokens": 3500
+    },
+    "id": "tp_p5_taskrow_test",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "artifact_path": "apps/web/src/components/list-view/task-row.test.tsx",
+    "instruction": "Edit this existing test file. Return the COMPLETE file. Two changes only.\n\nCHANGE 1 — the router mock currently returns a throwaway spy that the test body cannot reach. Replace:\n```tsx\nvi.mock(\"@tanstack/react-router\", () => ({\n  useNavigate: () => vi.fn(),\n}));\n```\nwith a hoisted shared spy:\n```tsx\nconst { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));\n\nvi.mock(\"@tanstack/react-router\", () => ({\n  useNavigate: () => navigateMock,\n}));\n```\n`vi.hoisted` is required because vi.mock factories are hoisted above module-scope consts.\n\nCHANGE 2 — append two it() blocks inside the existing `describe(\"TaskRow\", ...)`. Both need `fireEvent` (or `userEvent`) — add it to the `@testing-library/react` import. Click the element rendering the task title (\"Row from payload\").\n\nTest 1 — \"preserves existing search params when opening a task\":\n- click the row\n- `const options = navigateMock.mock.calls[0][0];`\n- `expect(typeof options.search).toBe(\"function\");`\n- `expect(options.search({ status: [\"todo\"], taskId: undefined })).toEqual({ status: [\"todo\"], taskId: \"task-1\" });`\n\nTest 2 — \"preserves existing search params when closing an already-open task\":\n- `window.history.replaceState({}, \"\", \"/?taskId=task-1\");` BEFORE the click so handleClick takes the close branch\n- click the row\n- `const options = navigateMock.mock.calls[0][0];`\n- `expect(typeof options.search).toBe(\"function\");`\n- `expect(options.search({ status: [\"todo\"], taskId: \"task-1\" })).toEqual({ status: [\"todo\"], taskId: undefined });`\n- restore the URL afterwards with `window.history.replaceState({}, \"\", \"/\");`\n\nThese MUST fail against a literal-object `search`: typeof would be \"object\" and invoking it throws. The seeded `status: [\"todo\"]` in prev is what proves preservation rather than mere shape.\n\nThe existing `it(\"renders labels and pull requests ...\")` block, every other vi.mock, the `task` fixture and the afterEach MUST be byte-identical.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/list-view/task-row.test.tsx",
+        "content": "import { cleanup, render, screen } from \"@testing-library/react\";\nimport { afterEach, describe, expect, it, vi } from \"vitest\";\nimport type Task from \"@/types/task\";\nimport TaskRow from \"./task-row\";\n\nconst useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));\nconst useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));\n\nafterEach(() => {\n  cleanup();\n  vi.clearAllMocks();\n});\n\nvi.mock(\"@tanstack/react-router\", () => ({\n  useNavigate: () => vi.fn(),\n}));\n\nvi.mock(\"@/hooks/queries/external-link/use-external-links\", () => ({\n  default: (taskId: string) => useExternalLinks(taskId),\n}));\n\nvi.mock(\"@/hooks/queries/label/use-get-labels-by-task\", () => ({\n  default: (taskId: string) => useGetLabelsByTask(taskId),\n}));\n\nvi.mock(\"@/hooks/mutations/task/use-delete-task\", () => ({\n  useDeleteTask: () => ({ mutateAsync: vi.fn() }),\n}));\n\nvi.mock(\"@/hooks/queries/workspace/use-active-workspace\", () => ({\n  default: () => ({ data: { id: \"workspace-1\" } }),\n}));\n\nvi.mock(\n  \"@/hooks/queries/workspace-users/use-get-active-workspace-users\",\n  () => ({\n    useGetActiveWorkspaceUsers: () => ({ data: { members: [] } }),\n  }),\n);\n\nvi.mock(\n  \"../kanban-board/task-card-context-menu/task-card-context-menu-content\",\n  () => ({ default: () => null }),\n);\n\nvi.mock(\"@/store/bulk-selection\", () => ({\n  default: () => ({\n    toggleSelection: vi.fn(),\n    isSelected: () => false,\n    isFocused: () => false,\n  }),\n}));\n\nvi.mock(\"@/store/project\", () => ({\n  default: () => ({ project: { id: \"project-1\", slug: \"kan\" } }),\n}));\n\nvi.mock(\"@/store/user-preferences\", () => ({\n  useUserPreferencesStore: () => ({\n    showAssignees: true,\n    showDueDates: true,\n    showLabels: true,\n    showTaskNumbers: true,\n  }),\n}));\n\nvi.mock(\"react-i18next\", () => ({\n  useTranslation: () => ({ t: (key: string) => key }),\n  initReactI18next: { type: \"3rdParty\", init: vi.fn() },\n}));\n\nconst task: Task = {\n  id: \"task-1\",\n  title: \"Row from payload\",\n  number: 7,\n  description: null,\n  status: \"to-do\",\n  priority: null,\n  startDate: null,\n  dueDate: null,\n  position: 1,\n  createdAt: \"2026-08-05T00:00:00.000Z\",\n  userId: null,\n  assigneeId: null,\n  assigneeName: null,\n  projectId: \"project-1\",\n  labels: [{ id: \"label-1\", name: \"Bug\", color: \"red\" }],\n  externalLinks: [\n    {\n      id: \"link-1\",\n      taskId: \"task-1\",\n      integrationId: \"integration-1\",\n      resourceType: \"pull_request\",\n      externalId: \"42\",\n      url: \"https://github.com/o/r/pull/42\",\n      title: \"Fix it\",\n      metadata: { merged: false, draft: false },\n    },\n  ],\n};\n\ndescribe(\"TaskRow\", () => {\n  it(\"renders labels and pull requests from the task payload without per-row requests\", () => {\n    render(<TaskRow task={task} projectSlug=\"kan\" />);\n\n    expect(screen.getByText(\"Bug\")).toBeVisible();\n    expect(screen.getByText(\"#42\")).toBeVisible();\n    expect(useExternalLinks).not.toHaveBeenCalled();\n    expect(useGetLabelsByTask).not.toHaveBeenCalled();\n  });\n});\n",
+        "reason": "The complete existing test file. Only the router mock and two appended it() blocks may change."
+      },
+      {
+        "path": "apps/web/src/components/list-view/task-row.tsx",
+        "content": "    return {\n      icon: <GitPullRequest className=\"h-3 w-3 text-success-foreground\" />,\n      status: t(\"tasks:pr.open\"),\n      statusClass: \"text-success-foreground\",\n    };\n  };\n\n  const style: CSSProperties = {\n    transform: CSS.Transform.toString(transform),\n    transition: transition || \"transform 200ms cubic-bezier(0.23, 1, 0.32, 1)\",\n    touchAction: isDragging ? \"none\" : \"auto\",\n  };\n\n  const handleClick = (e: React.MouseEvent) => {\n    if (!project || !task) return;\n    if (e.defaultPrevented) return;\n\n    if (e.metaKey || e.ctrlKey) {\n      e.preventDefault();\n      toggleSelection(task.id);\n      return;\n    }\n\n    const currentParams = new URLSearchParams(window.location.search);\n    const currentTaskId = currentParams.get(\"taskId\");\n\n    if (currentTaskId === task.id) {\n      navigate({\n        to: \".\",\n        search: {},\n      });\n    } else {\n      navigate({\n        to: \".\",\n        search: { taskId: task.id },\n      });\n    }\n  };\n\n  const handleKeyDown = (e: React.KeyboardEvent) => {\n    if (e.key === \"Enter\") {\n      handleClick(e as unknown as React.MouseEvent);\n    }\n  };\n\n  const handleDeleteTask = async () => {\n    try {\n      await deleteTask(task.id);\n      queryClient.invalidateQueries({\n        queryKey: [\"tasks\", project?.id],\n      });",
+        "reason": "The handleClick implementation under test, so the close-branch condition (currentTaskId === task.id, read from window.location.search) is matched exactly."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "Uses vi.hoisted to create a shared navigateMock",
+      "Two new it() blocks that invoke options.search as a function with a seeded prev containing status: ['todo']",
+      "Close test sets window.history.replaceState to /?taskId=task-1 before clicking and restores after",
+      "The pre-existing it() block, the task fixture and all other vi.mock calls are byte-identical",
+      "fireEvent or userEvent imported from @testing-library/react"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 9000,
+      "maxOutputTokens": 4000
+    },
+    "id": "tp_p7_hook_test",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+    "instruction": "APPEND a new describe block to this existing test file. Return the COMPLETE file. The two existing it() blocks (a 2-arg call and an it.each 3-arg call) MUST come back BYTE-IDENTICAL — they are what proves the new 4th hook parameter is backwards-compatible.\n\nAdd `import { act, renderHook, waitFor } from \"@testing-library/react\";` (act is new) and a small `const makeProject = () => ({...})` helper OR inline minimal project objects — a project with `columns: []`, `plannedTasks: []`, `archivedTasks: []` and the same shape fields as the existing fixtures is enough; these tests assert on `result.current.filters`, not on filtering.\n\nNew `describe(\"url-seeded filters\", ...)` with the same beforeEach/afterEach localStorage clearing, storageKey `\"kaneo:board-filters:project-1\"`, and six it() blocks:\n\n1. \"URL seed wins over stored filters\": localStorage holds {labels:[\"label-stored\"]}; render with options `{ initialFilters: { status: [\"todo\"], priority: null, assignee: null, dueDate: null, labels: null } }`; assert filters.status is [\"todo\"] and filters.labels is null, and assert it still holds after `await waitFor(...)` so a late restore would be caught.\n2. \"URL seed is written back to localStorage\": same setup; `await waitFor(() => expect(JSON.parse(window.localStorage.getItem(storageKey) ?? \"null\")).toEqual({status:[\"todo\"],priority:null,assignee:null,dueDate:null,labels:null}))`.\n3. \"falls back to stored filters when there is no URL seed\": localStorage holds {labels:[\"label-bug\"]}; render with `{ initialFilters: null }`; await waitFor filters.labels toEqual [\"label-bug\"].\n4. \"publishes filter changes to onFiltersChange\": render with an onFiltersChange spy; `act(() => { result.current.updateFilter(\"status\", [\"todo\"]); })`; assert the spy was last called with the full BoardFilters object having status [\"todo\"].\n5. \"publishes an all-null object when filters are cleared\": seed via initialFilters, then `act(() => { result.current.clearFilters(); })`; assert last call is all-null.\n6. \"does not republish when only the callback identity changes\": render with an initial spy, then rerender with a NEW spy function and the same filters; assert the new spy was NOT called. Use renderHook's `rerender` with props.\n\nImport `vi` from vitest for the spies. Must typecheck under strict.",
+    "inputs": [
+      {
+        "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+        "content": "import { renderHook, waitFor } from \"@testing-library/react\";\nimport { afterEach, beforeEach, describe, expect, it } from \"vitest\";\nimport { useTaskFiltersWithLabelsSupport } from \"./use-task-filters-with-labels-support\";\n\ndescribe(\"useTaskFiltersWithLabelsSupport\", () => {\n  const storageKey = \"kaneo:board-filters:project-1\";\n\n  beforeEach(() => {\n    window.localStorage.clear();\n  });\n\n  afterEach(() => {\n    window.localStorage.clear();\n  });\n\n  it(\"restores persisted label filters from storage and matches tasks from project data\", async () => {\n    window.localStorage.setItem(\n      storageKey,\n      JSON.stringify({ labels: [\"label-bug\"] }),\n    );\n\n    const project = {\n      id: \"project-1\",\n      name: \"Project\",\n      slug: \"PROJ\",\n      icon: null,\n      description: null,\n      isPublic: false,\n      createdAt: \"2026-04-16T00:00:00.000Z\",\n      updatedAt: \"2026-04-16T00:00:00.000Z\",\n      workspaceId: \"workspace-1\",\n      columns: [\n        {\n          id: \"todo\",\n          slug: \"todo\",\n          name: \"Todo\",\n          icon: null,\n          isFinal: false,\n          tasks: [\n            {\n              id: \"task-1\",\n              title: \"Bug task\",\n              number: 1,\n              description: null,\n              status: \"todo\",\n              priority: null,\n              startDate: null,\n              dueDate: null,\n              position: 0,\n              createdAt: \"2026-04-16T00:00:00.000Z\",\n              updatedAt: \"2026-04-16T00:00:00.000Z\",\n              userId: null,\n              assigneeId: null,\n              assigneeName: null,\n              assigneeImage: null,\n              projectId: \"project-1\",\n              labels: [\n                {\n                  id: \"label-bug\",\n                  name: \"bug\",\n                  color: \"red\",\n                },\n              ],\n              externalLinks: [],\n            },\n            {\n              id: \"task-2\",\n              title: \"Other task\",\n              number: 2,\n              description: null,\n              status: \"todo\",\n              priority: null,\n              startDate: null,\n              dueDate: null,\n              position: 1,\n              createdAt: \"2026-04-16T00:00:00.000Z\",\n              updatedAt: \"2026-04-16T00:00:00.000Z\",\n              userId: null,\n              assigneeId: null,\n              assigneeName: null,\n              assigneeImage: null,\n              projectId: \"project-1\",\n              labels: [],\n              externalLinks: [],\n            },\n          ],\n        },\n      ],\n      plannedTasks: [],\n      archivedTasks: [],\n    };\n\n    const { result } = renderHook(() =>\n      useTaskFiltersWithLabelsSupport(project, \"project-1\"),\n    );\n\n    await waitFor(() => {\n      expect(result.current.filters.labels).toEqual([\"label-bug\"]);\n    });\n\n    expect(result.current.filteredProject?.columns[0]?.tasks).toHaveLength(1);\n    expect(result.current.filteredProject?.columns[0]?.tasks[0]?.id).toBe(\n      \"task-1\",\n    );\n  });\n\n  it.each([\"#123\", \"proj-123\", \"proj-\"])(\n    \"matches a task by its issue identifier when searching for %s\",\n    (textQuery) => {\n      const project = {\n        id: \"project-1\",\n        name: \"Project\",\n        slug: \"PROJ\",\n        icon: null,\n        description: null,\n        isPublic: false,\n        createdAt: \"2026-04-16T00:00:00.000Z\",\n        updatedAt: \"2026-04-16T00:00:00.000Z\",\n        workspaceId: \"workspace-1\",\n        columns: [\n          {\n            id: \"todo\",\n            slug: \"todo\",\n            name: \"Todo\",\n            icon: null,\n            isFinal: false,\n            tasks: [\n              {\n                id: \"task-123\",\n                title: \"Unrelated title\",\n                number: 123,\n                description: null,\n                status: \"todo\",\n                priority: null,\n                startDate: null,\n                dueDate: null,\n                position: 0,\n                createdAt: \"2026-04-16T00:00:00.000Z\",\n                updatedAt: \"2026-04-16T00:00:00.000Z\",\n                userId: null,\n                assigneeId: null,\n                assigneeName: null,\n                assigneeImage: null,\n                projectId: \"project-1\",\n                labels: [],\n                externalLinks: [],\n              },\n              {\n                id: \"task-without-number\",\n                title: \"Another unrelated title\",\n                number: null,\n                description: null,\n                status: \"todo\",\n                priority: null,\n                startDate: null,\n                dueDate: null,\n                position: 1,\n                createdAt: \"2026-04-16T00:00:00.000Z\",\n                updatedAt: \"2026-04-16T00:00:00.000Z\",\n                userId: null,\n                assigneeId: null,\n                assigneeName: null,\n                assigneeImage: null,\n                projectId: \"project-1\",\n                labels: [],\n                externalLinks: [],\n              },\n            ],\n          },\n        ],\n        plannedTasks: [],\n        archivedTasks: [],\n      };\n\n      const { result } = renderHook(() =>\n        useTaskFiltersWithLabelsSupport(project, \"project-1\", textQuery),\n      );\n\n      expect(result.current.filteredProject?.columns[0]?.tasks).toEqual([\n        expect.objectContaining({ id: \"task-123\" }),\n      ]);\n    },\n  );\n});\n",
+        "reason": "The complete existing test file. Append only; the two existing it() blocks must return byte-identical."
+      },
+      {
+        "path": "apps/web/src/hooks/use-task-filters.ts",
+        "content": "import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from \"date-fns\";\nimport { useEffect, useState } from \"react\";\nimport { useUserPreferencesStore } from \"@/store/user-preferences\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\n\nexport type BoardFilters = {\n  status: string[] | null;\n  priority: string[] | null;\n  assignee: string[] | null;\n  dueDate: string[] | null;\n  labels: string[] | null;\n};\n\nexport const DUE_DATE_FILTER_VALUES = {\n  dueNextWeek: \"dueNextWeek\",\n  dueThisWeek: \"dueThisWeek\",\n  noDueDate: \"noDueDate\",\n} as const;\n\nconst DEFAULT_FILTERS: BoardFilters = {\n  status: null,\n  priority: null,\n  assignee: null,\n  dueDate: null,\n  labels: null,\n};\n\nconst FILTER_KEYS: Array<keyof BoardFilters> = [\n  \"status\",\n  \"priority\",\n  \"assignee\",\n  \"dueDate\",\n  \"labels\",\n];\n\nfunction normalizeFilters(raw: unknown): BoardFilters {\n  if (!raw || typeof raw !== \"object\") {\n    return DEFAULT_FILTERS;\n  }\n\n  const candidate = raw as Partial<Record<keyof BoardFilters, unknown>>;\n  const normalized = { ...DEFAULT_FILTERS };\n\n  for (const key of FILTER_KEYS) {\n    const value = candidate[key];\n    if (Array.isArray(value)) {\n      const values = value.filter((v): v is string => typeof v === \"string\");\n      normalized[key] = values.length > 0 ? values : null;\n    }\n  }\n\n  return normalized;\n}",
+        "reason": "Canonical BoardFilters type, DUE_DATE_FILTER_VALUES, and the normalizeFilters contract the new parser must match (empty array collapses to null, non-string members dropped)."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "The two pre-existing it() blocks are byte-identical, still calling the hook with 2 and 3 positional args",
+      "New describe with 6 it() blocks as numbered",
+      "Test 1 asserts the stored value never wins, including after waitFor",
+      "Test 6 rerenders with a new callback identity and asserts no republish",
+      "act and vi imported; typechecks under strict"
+    ]
+  },
+  {
+    "pass_id": "20260826-064633-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "retry_count": 0,
+    "module": "board-filters",
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 5000
+    },
+    "id": "tp_p6_guard",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "integration",
+    "artifact_path": "apps/web/src/components/board/board-search-preservation.test.tsx",
+    "instruction": "Create the AC-7 search-preservation regression guard. TWO TIERS in one file.\n\nStart the file with a comment block stating plainly: tier 2 is a SOURCE-TEXT (lint-shaped) compensating control, not a behavioural test. It exists because the run's write contract allowlists kanban-board/index.tsx, kanban-board/task-card.tsx and list-view/index.tsx as individual files, so there is no legal path for a colocated test beside them. Do not dress it up as a behaviour test.\n\nTIER 1 — behavioural, for TaskCard (the two click sites).\nUse `const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));` and `vi.mock(\"@tanstack/react-router\", () => ({ useNavigate: () => navigateMock }));`.\nMock these modules the same way the reference test does: `@dnd-kit/sortable` (useSortable returning {attributes:{},listeners:{},setNodeRef:vi.fn(),transform:null,transition:null,isDragging:false}), `@dnd-kit/utilities` (CSS.Transform.toString => \"\"), `react-i18next`, `@/store/project`, `@/store/user-preferences`, `@/store/bulk-selection`, `@/hooks/queries/workspace/use-active-workspace`, `@/hooks/queries/workspace-users/use-get-active-workspace-users`, `@/hooks/mutations/task/use-delete-task`, `@/hooks/queries/external-link/use-external-links`, `@/hooks/queries/label/use-get-labels-by-task`, and `../kanban-board/task-card-context-menu/task-card-context-menu-content` => () => null.\nImport TaskCard from `\"../kanban-board/task-card\"`. Render it, click the title, and assert exactly as in the reference: `typeof options.search === \"function\"` and the reducer invoked with `{ status: [\"todo\"], taskId: undefined }` yields `{ status: [\"todo\"], taskId: \"task-1\" }`. Add the close-branch test with `window.history.replaceState({}, \"\", \"/?taskId=task-1\")`.\nIf a mock surface turns out to be wrong, prefer failing loudly over weakening the assertion.\n\nTIER 2 — source text, for the five sites with no lawful render harness.\n```ts\nimport { readFileSync } from \"node:fs\";\nconst sources = {\n  \"kanban-board/index.tsx\": readFileSync(new URL(\"../kanban-board/index.tsx\", import.meta.url), \"utf8\"),\n  \"kanban-board/task-card.tsx\": readFileSync(new URL(\"../kanban-board/task-card.tsx\", import.meta.url), \"utf8\"),\n  \"list-view/index.tsx\": readFileSync(new URL(\"../list-view/index.tsx\", import.meta.url), \"utf8\"),\n  \"list-view/task-row.tsx\": readFileSync(new URL(\"../list-view/task-row.tsx\", import.meta.url), \"utf8\"),\n  \"board.tsx\": readFileSync(new URL(\"../../routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx\", import.meta.url), \"utf8\"),\n};\n```\nAssertions:\n- For each of the five: `expect(source).not.toMatch(/search:\\s*\\{/)`.\n- Total matches of `/search:\\s*\\(prev\\)\\s*=>/g` across the five is exactly 9.\n- Per-file counts are 2 / 2 / 2 / 2 / 1 respectively.\n- `sources[\"board.tsx\"]` matches `/replace:\\s*true/g` at least twice.\n\nInclude a comment on the count assertions noting that 9 is the verified site count and that the original brief undercounted it as six.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/list-view/task-row.test.tsx",
+        "content": "import { cleanup, render, screen } from \"@testing-library/react\";\nimport { afterEach, describe, expect, it, vi } from \"vitest\";\nimport type Task from \"@/types/task\";\nimport TaskRow from \"./task-row\";\n\nconst useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));\nconst useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));\n\nafterEach(() => {\n  cleanup();\n  vi.clearAllMocks();\n});\n\nvi.mock(\"@tanstack/react-router\", () => ({\n  useNavigate: () => vi.fn(),\n}));\n\nvi.mock(\"@/hooks/queries/external-link/use-external-links\", () => ({\n  default: (taskId: string) => useExternalLinks(taskId),\n}));\n\nvi.mock(\"@/hooks/queries/label/use-get-labels-by-task\", () => ({\n  default: (taskId: string) => useGetLabelsByTask(taskId),\n}));\n\nvi.mock(\"@/hooks/mutations/task/use-delete-task\", () => ({\n  useDeleteTask: () => ({ mutateAsync: vi.fn() }),\n}));\n\nvi.mock(\"@/hooks/queries/workspace/use-active-workspace\", () => ({\n  default: () => ({ data: { id: \"workspace-1\" } }),\n}));\n\nvi.mock(\n  \"@/hooks/queries/workspace-users/use-get-active-workspace-users\",\n  () => ({\n    useGetActiveWorkspaceUsers: () => ({ data: { members: [] } }),\n  }),\n);\n\nvi.mock(\n  \"../kanban-board/task-card-context-menu/task-card-context-menu-content\",\n  () => ({ default: () => null }),\n);\n\nvi.mock(\"@/store/bulk-selection\", () => ({\n  default: () => ({\n    toggleSelection: vi.fn(),\n    isSelected: () => false,\n    isFocused: () => false,\n  }),\n}));\n\nvi.mock(\"@/store/project\", () => ({\n  default: () => ({ project: { id: \"project-1\", slug: \"kan\" } }),\n}));\n\nvi.mock(\"@/store/user-preferences\", () => ({\n  useUserPreferencesStore: () => ({\n    showAssignees: true,\n    showDueDates: true,\n    showLabels: true,\n    showTaskNumbers: true,\n  }),\n}));\n\nvi.mock(\"react-i18next\", () => ({\n  useTranslation: () => ({ t: (key: string) => key }),\n  initReactI18next: { type: \"3rdParty\", init: vi.fn() },\n}));\n\nconst task: Task = {\n  id: \"task-1\",\n  title: \"Row from payload\",\n  number: 7,\n  description: null,\n  status: \"to-do\",\n  priority: null,\n  startDate: null,\n  dueDate: null,\n  position: 1,\n  createdAt: \"2026-08-05T00:00:00.000Z\",\n  userId: null,\n  assigneeId: null,\n  assigneeName: null,\n  projectId: \"project-1\",\n  labels: [{ id: \"label-1\", name: \"Bug\", color: \"red\" }],\n  externalLinks: [\n    {\n      id: \"link-1\",\n      taskId: \"task-1\",\n      integrationId: \"integration-1\",\n      resourceType: \"pull_request\",\n      externalId: \"42\",\n      url: \"https://github.com/o/r/pull/42\",\n      title: \"Fix it\",\n      metadata: { merged: false, draft: false },\n    },\n  ],\n};\n\ndescribe(\"TaskRow\", () => {\n  it(\"renders labels and pull requests from the task payload without per-row requests\", () => {\n    render(<TaskRow task={task} projectSlug=\"kan\" />);\n\n    expect(screen.getByText(\"Bug\")).toBeVisible();\n    expect(screen.getByText(\"#42\")).toBeVisible();\n    expect(useExternalLinks).not.toHaveBeenCalled();\n    expect(useGetLabelsByTask).not.toHaveBeenCalled();\n  });\n});\n",
+        "reason": "Reference for the mock surface and render/assert shape; TaskCard needs the same treatment plus the two dnd-kit mocks."
+      },
+      {
+        "path": "apps/web/src/components/kanban-board/task-card.tsx",
+        "content": "import { useSortable } from \"@dnd-kit/sortable\";\nimport { CSS } from \"@dnd-kit/utilities\";\nimport { useNavigate } from \"@tanstack/react-router\";\nimport { format } from \"date-fns\";\nimport {\n  Calendar,\n  CalendarClock,\n  CalendarX,\n  GitMerge,\n  GitPullRequest,\n} from \"lucide-react\";\nimport { type CSSProperties, useMemo, useState } from \"react\";\nimport { useTranslation } from \"react-i18next\";\nimport {\n  AlertDialog,\n  AlertDialogClose,\n  AlertDialogContent,\n  AlertDialogDescription,\n  AlertDialogFooter,\n  AlertDialogHeader,\n  AlertDialogTitle,\n} from \"@/components/ui/alert-dialog\";\nimport { Avatar, AvatarFallback, AvatarImage } from \"@/components/ui/avatar\";\nimport {\n  HoverCard,\n  HoverCardContent,\n  HoverCardTrigger,\n} from \"@/components/ui/preview-card\";\nimport { useDeleteTask } from \"@/hooks/mutations/task/use-delete-task\";\nimport useActiveWorkspace from \"@/hooks/queries/workspace/use-active-workspace\";\nimport { useGetActiveWorkspaceUsers } from \"@/hooks/queries/workspace-users/use-get-active-workspace-users\";\nimport {\n  dueDateStatusColors,\n  getDueDateStatus,\n  isTaskCompleted,\n} from \"@/lib/due-date-status\";\nimport { getInitials } from \"@/lib/get-initials\";\nimport { getPriorityIcon } from \"@/lib/priority\";\nimport { toast } from \"@/lib/toast\";\nimport queryClient from \"@/query-client\";\nimport useBulkSelectionStore from \"@/store/bulk-selection\";\nimport useProjectStore from \"@/store/project\";\nimport { useUserPreferencesStore } from \"@/store/user-preferences\";\nimport type Task from \"@/types/task\";\nimport { Button } from \"../ui/button\";\nimport { ContextMenu, ContextMenuTrigger } from \"../ui/context-menu\";\nimport TaskCardContextMenuContent from \"./task-card-context-menu/task-card-context-menu-content\";\nimport { TaskLabels } from \"./task-labels\";\n\ntype TaskCardProps = {\n  task: Task;\n  disableDragDrop?: boolean;\n};\n\nfunction TaskCard({ task, disableDragDrop = false }: TaskCardProps) {\n  const { t } = useTranslation();\n  const {\n    attributes,\n    listeners,\n    setNodeRef,\n    transform,\n    transition,\n    isDragging,\n  } = useSortable({ id: task.id, disabled: disableDragDrop });\n  const { project } = useProjectStore();\n  const taskIsCompleted = isTaskCompleted(task.status, project?.columns);\n  const { data: workspace } = useActiveWorkspace();\n  const { mutateAsync: deleteTask } = useDeleteTask();\n  const navigate = useNavigate();\n  const {\n    showAssignees,\n    showPriority,\n    showDueDates,\n    showLabels,\n    showTaskNumbers,\n  } = useUserPreferencesStore();\n  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);\n  const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();\n  const isTaskSelected = isSelected(task.id);\n  const isTaskFocused = isFocused(task.id);",
+        "reason": "TaskCard imports and props, so the mock surface and render props are exact."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "acceptance": [
+      "Header comment states tier 2 is a lint-shaped compensating control and why",
+      "Tier 1 renders TaskCard and invokes the captured reducer for both open and close branches",
+      "Tier 2 reads all five sources via new URL(..., import.meta.url)",
+      "Tier 2 asserts zero `search: {` and exactly 9 `search: (prev) =>` across the five files",
+      "Tier 2 asserts per-file counts 2/2/2/2/1",
+      "Tier 2 asserts board.tsx has >= 2 `replace: true`"
+    ]
+  }
+]

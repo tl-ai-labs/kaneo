@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "run_id": "20260826-064633-feature-extend-board-filter-chips",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "opus-plus-flash-v37",
+  "auth_mode": "estimated",
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips",
+  "telemetry_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/telemetry.jsonl",
+  "status": "complete",
+  "gate": null,
+  "gate_title": null,
+  "resume_point": null,
+  "phases_complete": [
+    "preflight_dispatch",
+    "baseline_capture",
+    "requirements_analysis",
+    "gate-1",
+    "change_plan",
+    "gate-2",
+    "plan_task_packets",
+    "execute_packets",
+    "test_run",
+    "senior_code_review",
+    "security_review",
+    "gate-3",
+    "refinements",
+    "generate_final_report",
+    "gate-4",
+    "closeout"
+  ],
+  "baseline_test_result": {
+    "command": "pnpm --filter @kaneo/web test",
+    "exit_code": 0,
+    "test_files": 36,
+    "tests": 112,
+    "captured_at_utc": "2026-08-26T06:59:06Z"
+  },
+  "packets_planned": 17,
+  "packets_executed": 17,
+  "artifacts": [
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/requirements.md",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/change_plan.md",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/review.json",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/security_review.md",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/packets.json",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/evidence/ac7-mutation-check.txt"
+  ],
+  "notes": "Nine navigate() sites confirmed (brief said six). Functional search reducer verified supported in @tanstack/router-core 1.171.20.",
+  "gates_resolved": {
+    "gate-0": "approved",
+    "gate-1": "approved",
+    "gate-2": "approved",
+    "gate-3": "approved",
+    "gate-4": "accept"
+  },
+  "gate_1_decisions": {
+    "encoding": "repeated params (?status=todo&status=done); bare-string arrival is the load-bearing primary path",
+    "overwrite_behavior": "URL overwrites viewer's stored filters for the project - CONFIRMED INTENTIONAL, record in final report as accepted UX consequence",
+    "call_site_count": 9,
+    "empty_param_predicate": "?status= must not count as 'URL has filters'; own dedicated test"
+  },
+  "planned_packets": [
+    "P1 lib+test",
+    "P2 hook",
+    "P3 board.tsx route wiring",
+    "P4 eight component call sites",
+    "P5 task-row.test.tsx",
+    "P6 AC-7 guard suite",
+    "P7 hook tests"
+  ],
+  "open_issues_for_gate_2": [
+    "Premise in run params falsified: zod IS a dep of apps/web (^4.4.3) and IS used as validateSearch on 5 routes. Hand-written narrowing still chosen, for sibling-route consistency + no-throw (AC-5), not for absence of a library.",
+    "Architect's H1 proof rests on 'every route uses a plain fn validator' - false. Conclusion still holds (those zod schemas are all optional strings, input==output) but the proof is weaker than stated. Typecheck is the real gate.",
+    "FR-6 reinterpreted: emit key-present-with-undefined, not key-omitted. Needed or filters can never be cleared.",
+    "AC-7 guard is two-tier; tier 2 is a source-text assertion, forced by allowlist granularity (no legal test path under kanban-board/ or list-view/index).",
+    "New behaviour beyond literal ACs: localStorage-restored filters get written into the URL on mount (one extra replace nav). Gate 2 may veto."
+  ],
+  "state": "complete",
+  "awaiting": null,
+  "packets_done": [
+    "tp_p4a",
+    "tp_p4b",
+    "tp_p4c",
+    "tp_p4d",
+    "tp_p1_lib",
+    "tp_p2_hook",
+    "tp_p3a_route_head",
+    "tp_p3b_route_body",
+    "tp_p3c_route_wiring",
+    "tp_p1_lib_test",
+    "tp_p5_taskrow_test",
+    "tp_p7_hook_test",
+    "tp_p6_guard",
+    "tp_p6_guard_debug_1"
+  ],
+  "packets_remaining": [],
+  "routing_simulation": {
+    "actual": {
+      "flash-completion": 14,
+      "opus": 0
+    },
+    "counterfactual_brownfield_task_types": {
+      "opus": 9,
+      "flash-completion": 5
+    }
+  },
+  "verification_after_source": {
+    "typecheck": "pass",
+    "biome_changed_paths": "pass (1 pre-existing warning in untouched code)",
+    "test": "36 files / 112 tests pass, 0 regressions"
+  },
+  "deviations": [
+    "P3 split into 3 region packets (tp_p3a/b/c) instead of 1 whole-file packet - lower drift risk, same diff. Packet count 11 -> 13.",
+    "H1 FALSIFIED BY TYPECHECK: bare `search: (prev) =>` fails TS7006 at all 10 sites. Fixed with `(prev: Record<string, unknown>)`, matching the repo's own validateSearch signature style. Verified: TS7006 10 -> 0.",
+    "Site count is 10, not 9: board.tsx now has 2 (sheet-close + new filter-publish). Guard test count assertion must be 10 with per-file 2/2/2/2/2.",
+    "Diff-preview mini-gate per edited file batched to Gate 3 rather than 7 separate stops, per coordinator instruction to run through to Gate 3."
+  ],
+  "verification_final": {
+    "typecheck": "pass",
+    "test": "38 files / 155 tests pass (baseline 36/112), 0 regressions",
+    "biome_changed_paths": "clean, 1 pre-existing warning",
+    "ac7_mutation_check": "re-run post-F1: 16/17 fail pre-fix, all pass post-fix"
+  },
+  "incidents": [
+    "Scratch-backup basename collision briefly put list-view/index.tsx content into kanban-board/index.tsx during the tier-2 mutation check. Detected by identity grep, repaired from git HEAD, edits re-applied, fully re-verified. No residue."
+  ],
+  "review_verdicts": {
+    "senior": "request_changes",
+    "security": "pass_with_recommendations"
+  },
+  "open_findings_for_gate_3": {
+    "F1_major": "URL is write-only after mount; goes stale via project-layout 'Tasks' button and browser Back. Needs a DIRECTION decision (URL-authoritative vs republish) - not fixable unilaterally.",
+    "F2_minor": "board.tsx has zero behavioural coverage; validateSearch never invoked by a test. Coupled to F1's chosen direction.",
+    "F3_minor": "ENCODING DOES NOT MATCH GATE-1 DECISION: router JSON-encodes arrays (?status=%5B%22todo%22%5D), not repeated params. Reading accepts both. Fixing writes needs main.tsx, which is NOT in the allowlist and would change encoding app-wide.",
+    "SEC_low_1": "No vocabulary validation on closed-set filter values; crafted URL renders <=128 chars of attacker text into a chip (UI spoofing, not XSS).",
+    "SEC_low_2": "Unguarded localStorage.setItem; URL can dictate value size (~32KB vs ~70B) and key."
+  },
+  "note_refinements_pending": null,
+  "total_cost_usd": 2.7024,
+  "senior_findings_resolved": [
+    "F1 URL-authoritative (+ follow-on regression fixed)",
+    "F2 validator extracted and unit-tested",
+    "F3 comment corrected",
+    "F4 cap bounds work",
+    "F5 guard boolean",
+    "F6 ordering assertion strengthened"
+  ],
+  "committed": false,
+  "open_checkpoint": false,
+  "closeout": {
+    "ledger_md": ".sdlc/ledger.md (created with header; did not exist on this branch)",
+    "ledger_json": ".sdlc/ledger.json (created with header; did not exist on this branch)",
+    "fingerprint": ".sdlc/CLAUDE-SDLC.md",
+    "write_contract_active": false,
+    "write_contract_verified_empirically": true,
+    "committed": false,
+    "pushed": false,
+    "pull_request": false
+  },
+  "completed_at": "2026-08-26T10:09:00Z"
+}

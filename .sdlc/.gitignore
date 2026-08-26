@@ -1,0 +1,3 @@
+# Gemini worker cache — large binary SQLite files, not run artifacts
+_gemini_worker_save/
+*.db

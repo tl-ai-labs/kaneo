@@ -1,0 +1,18 @@
+MMO: 2026-08-26T06:46:27.164Z INFO   policy.load policy_name=opus-plus-flash-v37 source=name version=1 model_count=3 rule_count=13
+MMO: 2026-08-26T06:46:51.838Z INFO   route.decide packet_id=smoke-flash phase=tests task_type=smoke module=precheck rule_index=8 rule_reason="Scaffold-heavy, pattern-based" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-26T06:46:51.843Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-26T06:46:51.873Z INFO   dispatch.start packet_id=smoke-flash model_id=flash-completion max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-26T06:46:56.701Z INFO   dispatch.end packet_id=smoke-flash model_id=flash-completion ok=true terminal_reason=success tokens_in=122 tokens_out=95 tokens_cached=0 cost_usd=0.001038 latency_ms=4828 attempts=1
+MMO: 2026-08-26T06:47:05.537Z INFO   route.decide packet_id=smoke-opus phase=codegen task_type=smoke module=precheck rule_index=-1 rule_reason="Unrecognized task — fail safe to premium" model_id=opus
+MMO: 2026-08-26T06:47:05.537Z INFO   dispatch.start packet_id=smoke-opus model_id=opus max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-26T06:47:09.933Z INFO   dispatch.end packet_id=smoke-opus model_id=opus ok=true terminal_reason=success tokens_in=12585 tokens_out=11 tokens_cached=16019 cost_usd=0.1352295 latency_ms=4396 attempts=1
+MMO: 2026-08-26T06:57:11.555Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-26T06:57:11.556Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-26T06:57:11.557Z INFO   preflight.model model_id=flash-completion adapter=mcp:model-dispatch ok=true
+MMO: 2026-08-26T06:57:11.557Z INFO   preflight.model model_id=flash-agsdk-worker ok=true classification=not_selected
+MMO: 2026-08-26T06:57:11.558Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-26T06:58:16.160Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-26T06:58:16.161Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-26T06:58:16.161Z INFO   preflight.model model_id=flash-completion adapter=mcp:model-dispatch ok=true
+MMO: 2026-08-26T06:58:16.161Z INFO   preflight.model model_id=flash-agsdk-worker ok=true classification=not_selected
+MMO: 2026-08-26T06:58:16.161Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global

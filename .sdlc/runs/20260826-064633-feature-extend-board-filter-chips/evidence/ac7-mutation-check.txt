@@ -1,0 +1,78 @@
+AC-7 mutation check — 2026-08-26
+Procedure: restored apps/web/src/components/list-view/task-row.tsx to HEAD (5d1fc910)
+via `git show HEAD:<path>`, leaving the new guard tests in place, then ran the suite.
+
+Pre-fix source at the two navigate() sites:
+  149:        search: {},
+  154:        search: { taskId: task.id },
+
+Result against PRE-FIX source:
+  × preserves existing search params when opening a task                21ms
+  × preserves existing search params when closing an already-open task  14ms
+  AssertionError: expected 'object' to be 'function' // Object.is equality
+  AssertionError: expected 'object' to be 'function' // Object.is equality
+  Test Files  1 failed (1)
+  Tests  2 failed | 1 passed (3)
+
+Result against FIXED source:
+  Test Files  1 passed (1)
+  Tests  3 passed (3)
+
+Conclusion: the guard fails without the functional-search fix and passes with it.
+The pre-existing test passes in both states, so the failure is attributable to the
+guard assertions and not to harness breakage.
+
+--- TIER 2 (board-search-preservation.test.tsx), 2026-08-26 ---
+Procedure: reverted all four components AND board.tsx to HEAD (5d1fc910) via
+`git show HEAD:<path>`, leaving the guard suite in place.
+
+Result against PRE-FIX sources: 14 of 14 tests FAILED.
+  × tier 1 open / close (AssertionError: expected 'object' to be 'function')
+  × no-literal-search assertions, all five files
+      (AssertionError: expected '...' not to match /search:\s*\{/)
+  × total reducer count (expected 0 to be 10)
+  × per-file reducer counts, all five files
+  × board.tsx replace:true count
+  Test Files 1 failed (1) | Tests 14 failed
+
+Result against FIXED sources: Test Files 1 passed (1) | Tests 14 passed (14).
+
+INCIDENT during this check: the scratch backup used basename-only filenames, so
+kanban-board/index.tsx and list-view/index.tsx collided and kanban-board/index.tsx
+was briefly restored with list-view's content. Detected immediately by an identity
+grep (expandedSections present in a file that should not have it). Both files were
+restored from git HEAD and the j/k edits re-applied. Post-repair verification:
+per-file reducer counts 2/2/2/2/2, total 10; typecheck clean; 38 files / 147 tests
+passing. No trace of the collision remains in the working tree.
+
+--- AC-7 MUTATION RE-RUN AFTER THE F1 URL-AUTHORITATIVE CHANGE, 2026-08-26 ---
+Required by the user at Gate 3. Backups this time used full-path-derived names
+(slashes -> underscores) so the earlier basename collision could not recur.
+
+Reverted all five source files to HEAD, guard suites left in place:
+  Test Files 2 failed (2) | Tests 16 failed | 1 passed (17)
+  (board-search-preservation.test.tsx 14/14 fail; task-row.test.tsx 2/3 fail,
+   the pre-existing render test still passes)
+
+Restored, identity-checked (expandedSections present only in list-view/index.tsx),
+reducer counts 2/2/2/2/2 = 10:
+  Test Files 38 passed (38) | Tests 155 passed (155); typecheck clean.
+
+--- F1 REGRESSION CAUGHT BY THE NEW WIRING MODEL, 2026-08-26 ---
+The first URL-authoritative implementation WAS WRONG and its own new test caught it.
+
+Failing output before the correction:
+  × still restores from localStorage when the URL carries no filters
+      Expected: [ "label-bug" ]   Received: null
+  × treats ?status= as no filters, so the restore is not suppressed
+  Test Files 1 failed (1) | Tests 2 failed | 12 passed (14)
+
+Cause: on mount the sync-down effect runs AFTER the localStorage-restore effect
+has already queued its state update, so the functional updater's `prev` was the
+restored filters (not the all-null default). With an empty URL,
+boardFilterSearchMatches({}, restored) is false, so it overwrote the restore with
+defaults - silently breaking AC-3.
+
+Correction: skip the effect's first invocation via hasSyncedFromUrlRef. Mount
+precedence stays with the seed/restore path; only post-mount URL changes are
+adopted. All 14 pass after the fix.

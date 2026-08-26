@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "run_id": "20260826-064633-feature-extend-board-filter-chips",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": {
+    "name": "opus-plus-flash-v37",
+    "version": 1,
+    "hard_cost_cap_usd": 50
+  },
+  "auth_mode": "estimated",
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips",
+  "started_at": "2026-08-26T07:01:42.813Z",
+  "ended_at": "2026-08-26T09:29:09.686Z",
+  "models": [
+    {
+      "id": "opus",
+      "model_name": "claude-opus-5",
+      "adapter": "claude-cli",
+      "tier": "premium",
+      "provenance": "estimated"
+    },
+    {
+      "id": "flash-completion",
+      "model_name": "gemini-3.7-flash",
+      "adapter": "mcp:model-dispatch",
+      "tier": "mechanical",
+      "provenance": "vendor",
+      "backend": "vertex-adc",
+      "project": "ai-studies-console",
+      "location": "global"
+    }
+  ],
+  "rollup": {
+    "events": 23,
+    "total_cost_usd": 2.7024,
+    "cap_utilisation_pct": 5.4,
+    "input_tokens": 317982,
+    "output_tokens": 73321,
+    "by_model": {
+      "claude-opus-5": {
+        "calls": 5,
+        "input_tokens": 295519,
+        "output_tokens": 33202,
+        "cost_usd": 2.3076
+      },
+      "gemini-3.7-flash": {
+        "calls": 18,
+        "input_tokens": 22463,
+        "output_tokens": 40119,
+        "cost_usd": 0.3948
+      }
+    },
+    "by_phase": {
+      "requirements_analysis": {
+        "calls": 1,
+        "cost_usd": 0.2849
+      },
+      "change_plan": {
+        "calls": 1,
+        "cost_usd": 0.8504
+      },
+      "plan_task_packets": {
+        "calls": 1,
+        "cost_usd": 0.2993
+      },
+      "codegen": {
+        "calls": 12,
+        "cost_usd": 0.2131
+      },
+      "tests": {
+        "calls": 4,
+        "cost_usd": 0.1446
+      },
+      "debug": {
+        "calls": 2,
+        "cost_usd": 0.0371
+      },
+      "senior_code_review": {
+        "calls": 1,
+        "cost_usd": 0.4598
+      },
+      "security_review": {
+        "calls": 1,
+        "cost_usd": 0.4132
+      }
+    },
+    "by_provenance": {
+      "estimated": 2.3076,
+      "vendor": 0.3948
+    }
+  },
+  "routing_simulation": {
+    "method": "real pickModel() from compiled router, executed before any dispatch",
+    "as_planned": {
+      "flash-completion": 14,
+      "opus": 0
+    },
+    "counterfactual_skillmd_brownfield_task_types": {
+      "opus": 9,
+      "flash-completion": 5
+    },
+    "note": "new_file_add / existing_file_edit / patch_apply match no codegen rule and fall through to {default: opus}"
+  },
+  "verification": {
+    "baseline": {
+      "test_files": 36,
+      "tests": 112,
+      "captured_before_codegen": true
+    },
+    "final": {
+      "test_files": 38,
+      "tests": 155,
+      "regressions": 0
+    },
+    "typecheck": "pass",
+    "biome_changed_paths": "clean (1 pre-existing warning in untouched code)",
+    "commands": [
+      "pnpm --filter @kaneo/web test",
+      "pnpm --filter @kaneo/web typecheck"
+    ]
+  },
+  "gates": {
+    "gate-0": "approved (pre-run)",
+    "gate-1": "approved",
+    "gate-2": "approved",
+    "gate-3": "approved",
+    "gate-4": "accept"
+  },
+  "reviews": {
+    "senior": "request_changes -> all findings resolved",
+    "security": "pass_with_recommendations"
+  },
+  "files_added": [
+    "apps/web/src/lib/board-filter-search-params.ts",
+    "apps/web/src/lib/board-filter-search-params.test.ts",
+    "apps/web/src/components/board/board-search-preservation.test.tsx"
+  ],
+  "files_edited": [
+    "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+    "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+    "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+    "apps/web/src/components/kanban-board/index.tsx",
+    "apps/web/src/components/kanban-board/task-card.tsx",
+    "apps/web/src/components/list-view/index.tsx",
+    "apps/web/src/components/list-view/task-row.tsx",
+    "apps/web/src/components/list-view/task-row.test.tsx"
+  ],
+  "artifacts": [
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/requirements.md",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/change_plan.md",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/packets.json",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/review.json",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/security_review.md",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/telemetry.jsonl",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/provenance.json",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/evidence/ac7-mutation-check.txt",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/evidence/full-diff.patch",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/SUMMARY.md",
+    ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/manifest.json"
+  ],
+  "deviations": [
+    {
+      "id": "D1",
+      "title": "FR-6 reinterpreted",
+      "approved_at": "gate-2",
+      "detail": "serializeBoardFilters emits all five keys always, undefined when cleared. Key omission would make clearing a filter impossible under {...prev, ...serialize(next)}."
+    },
+    {
+      "id": "D2",
+      "title": "URL-publish-on-mount for localStorage-restored filters",
+      "approved_at": "gate-2",
+      "detail": "One extra replace navigation on board mount so the URL always mirrors the visible filter state."
+    },
+    {
+      "id": "D3",
+      "title": "Encoding is TanStack JSON default, NOT repeated params",
+      "approved_at": "gate-3",
+      "severity": "deviation from an approved Gate-1 decision",
+      "detail": "Gate 1 chose repeated params. main.tsx sets no stringifySearch, so writes emit ?status=%5B%22todo%22%5D. Reads accept repeated params AND bare strings, so every AC still holds and the bare-string branch stays load-bearing for hand-typed URLs. Not fixed: would require main.tsx (not allowlisted) and would change encoding app-wide."
+    },
+    {
+      "id": "D4",
+      "title": "P3 split into three region packets",
+      "detail": "board.tsx edited via three surgical region packets rather than one whole-file packet. Lower drift risk; packet count 11 -> 14."
+    },
+    {
+      "id": "D5",
+      "title": "prev annotated as Record<string, unknown>",
+      "detail": "change_plan asserted no annotation was needed. Typecheck disproved it (TS7006 x10). Annotation matches the repo validateSearch house style. Senior reviewer endorsed and asked it not be changed."
+    },
+    {
+      "id": "D6",
+      "title": "Diff-preview mini-gate batched",
+      "detail": "Per-file diff mini-gates were batched to Gate 3 rather than stopping 7 times, per the coordinator instruction to run through to Gate 3. Full diff captured at evidence/full-diff.patch."
+    }
+  ],
+  "accepted_risks": [
+    {
+      "id": "AR1",
+      "source": "security",
+      "severity": "Low",
+      "title": "No vocabulary validation on closed-set filter values",
+      "detail": "A crafted URL renders up to 128 chars of attacker-controlled text into a filter chip. UI spoofing only; React escapes, so not XSS."
+    },
+    {
+      "id": "AR2",
+      "source": "security",
+      "severity": "Low",
+      "title": "Unguarded localStorage.setItem",
+      "detail": "A URL can dictate the stored value size (~32KB vs ~70B) and the key."
+    },
+    {
+      "id": "AR3",
+      "source": "product",
+      "title": "Shared link overwrites the viewer stored filters",
+      "detail": "Confirmed intentional at Gate 0 and reaffirmed at Gate 1."
+    },
+    {
+      "id": "AR4",
+      "source": "product",
+      "title": "Tasks button clears active filters",
+      "detail": "Direct consequence of the URL-authoritative choice at Gate 3. Intended behaviour, not a bug."
+    },
+    {
+      "id": "AR5",
+      "source": "pre-existing",
+      "title": "pnpm audit --prod: 2 high",
+      "detail": "Both pre-existing transitives under better-auth. Untouched by this run."
+    }
+  ],
+  "deliberately_untouched": [
+    "normalizeFilters / DEFAULT_FILTERS duplication across the two filter hooks (Gate 0)",
+    "assignee matching on task.userId rather than assigneeId (Gate 0)",
+    "apps/web/src/routeTree.gen.ts (off-limits, and not required)",
+    "apps/web/src/main.tsx (not allowlisted; see D3)",
+    "apps/web/src/components/common/project-layout.tsx (not allowlisted)",
+    "apps/api/** (off-limits; no server change)"
+  ],
+  "incidents": [
+    {
+      "id": "I1",
+      "title": "Scratch-backup basename collision",
+      "detail": "During the first tier-2 mutation check, kanban-board/index.tsx and list-view/index.tsx both backed up to index.tsx.FIXED; the restore put list-view content into kanban-board/index.tsx. Caught immediately by an identity grep (expandedSections), repaired from git HEAD, edits re-applied, fully re-verified. Second mutation run used full-path-derived backup names. No residue."
+    },
+    {
+      "id": "I2",
+      "title": "F1 first implementation was wrong and its own new test caught it",
+      "detail": "The sync-down effect ran after the localStorage restore had queued its update, so prev was the restored value and an empty URL wiped it, breaking AC-3. Fixed by skipping the effect first invocation. Evidence in evidence/ac7-mutation-check.txt."
+    },
+    {
+      "id": "I3",
+      "title": "validateBoardSearch threw on null",
+      "detail": "Introduced during refinement; caught by the new AC-5 test in the same batch. search.taskId was read before any object guard. Fixed."
+    },
+    {
+      "id": "I4",
+      "title": "Flash emitted a stray CJK character",
+      "detail": "tp_p6_guard output contained `useUserPreferencesStore: () => ({ \u9996`. Caught on read before writing; corrected."
+    }
+  ],
+  "estimator_note": "auth_mode=estimated. Flash events carry vendor-reported tokens (provenance: vendor). Opus events are estimated (provenance: estimated); subagent phases derive input as reported subagent total minus char-estimated output, so they include per-turn context re-sends, whereas the orchestrators own in-session phases use chars/3.8 on fresh content only and exclude conversational re-sends. The two are therefore not strictly comparable and the Opus figure is a floor, not a measurement.",
+  "finalized": true,
+  "finalized_at": "2026-08-26T10:09:00Z",
+  "outcome": "completed",
+  "closeout": {
+    "ledger_md": ".sdlc/ledger.md",
+    "ledger_json": ".sdlc/ledger.json",
+    "fingerprint": ".sdlc/CLAUDE-SDLC.md",
+    "ledger_note": "Both ledger files were CREATED with headers on this run; neither existed on branch feature-extend-3/opus-flash.",
+    "write_contract_deactivated": true,
+    "write_contract_verified_empirically": "before flip 6/7 probe paths DENY (only the allowlisted lib file passed); after flip 7/7 ALLOW including .env, apps/api/**, routeTree.gen.ts",
+    "state_json": "terminal: state=complete, awaiting=null, open_checkpoint=false",
+    "committed": false,
+    "pushed": false,
+    "pull_request": false
+  },
+  "off_limits_held": {
+    "verified_untouched": [
+      "apps/web/src/main.tsx",
+      "apps/web/src/components/common/project-layout.tsx",
+      "apps/web/src/routeTree.gen.ts"
+    ],
+    "why_it_mattered": "Each was a tempting shortcut: main.tsx for the encoding deviation, project-layout.tsx for the F1 nav-button symptom, routeTree.gen.ts for the widened search type. The boundary held under real pressure."
+  },
+  "call_site_count_evolution": {
+    "brief_said": 6,
+    "found_by_reading": 9,
+    "final": 10,
+    "why": "The brief missed the two `search: {}` close branches in task-card.tsx and task-row.tsx. The tenth site is the feature's own filter-publish navigation in board.tsx."
+  },
+  "most_instructive_event": {
+    "id": "F1-first-attempt-failure",
+    "what": "The Gate-3 URL-authoritative fix was wrong on the first attempt and its own new test caught it.",
+    "evidence": "x still restores from localStorage when the URL carries no filters -- Expected: [\"label-bug\"], Received: null",
+    "cause": "The sync-down effect runs after the localStorage-restore effect has queued its update, so the functional updater's `prev` was the restored filters, not the all-null default. With an empty URL the match check failed and it overwrote the restore with defaults, breaking AC-3.",
+    "fix": "hasSyncedFromUrlRef skips the effect's first invocation.",
+    "lesson": "The stated reasoning was plausible and wrong. Only the test distinguished them."
+  }
+}

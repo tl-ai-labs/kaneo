@@ -1,0 +1,550 @@
+diff --git a/apps/web/src/components/kanban-board/index.tsx b/apps/web/src/components/kanban-board/index.tsx
+index 012a39a9..1da990a1 100644
+--- a/apps/web/src/components/kanban-board/index.tsx
++++ b/apps/web/src/components/kanban-board/index.tsx
+@@ -62,16 +62,32 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
+     shortcuts: {
+       j: () => {
+         focusNext();
+-        const state = useBulkSelectionStore.getState();
+-        if (state.focusedTaskId) {
+-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
++        // Hoisted to a const: focusedTaskId is a mutable property, so the
++        // narrowing below would not survive into the arrow function.
++        const nextFocusedTaskId =
++          useBulkSelectionStore.getState().focusedTaskId;
++        if (nextFocusedTaskId) {
++          navigate({
++            to: ".",
++            search: (prev: Record<string, unknown>) => ({
++              ...prev,
++              taskId: nextFocusedTaskId,
++            }),
++          });
+         }
+       },
+       k: () => {
+         focusPrevious();
+-        const state = useBulkSelectionStore.getState();
+-        if (state.focusedTaskId) {
+-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
++        const nextFocusedTaskId =
++          useBulkSelectionStore.getState().focusedTaskId;
++        if (nextFocusedTaskId) {
++          navigate({
++            to: ".",
++            search: (prev: Record<string, unknown>) => ({
++              ...prev,
++              taskId: nextFocusedTaskId,
++            }),
++          });
+         }
+       },
+       Enter: () => {
+diff --git a/apps/web/src/components/kanban-board/task-card.tsx b/apps/web/src/components/kanban-board/task-card.tsx
+index b2d18774..11728464 100644
+--- a/apps/web/src/components/kanban-board/task-card.tsx
++++ b/apps/web/src/components/kanban-board/task-card.tsx
+@@ -147,12 +147,18 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
+     if (currentTaskId === task.id) {
+       navigate({
+         to: ".",
+-        search: {},
++        search: (prev: Record<string, unknown>) => ({
++          ...prev,
++          taskId: undefined,
++        }),
+       });
+     } else {
+       navigate({
+         to: ".",
+-        search: { taskId: task.id },
++        search: (prev: Record<string, unknown>) => ({
++          ...prev,
++          taskId: task.id,
++        }),
+       });
+     }
+   }
+diff --git a/apps/web/src/components/list-view/index.tsx b/apps/web/src/components/list-view/index.tsx
+index 9246252a..7ad40c7e 100644
+--- a/apps/web/src/components/list-view/index.tsx
++++ b/apps/web/src/components/list-view/index.tsx
+@@ -92,16 +92,32 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
+     shortcuts: {
+       j: () => {
+         focusNext();
+-        const state = useBulkSelectionStore.getState();
+-        if (state.focusedTaskId) {
+-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
++        // Hoisted to a const: focusedTaskId is a mutable property, so the
++        // narrowing below would not survive into the arrow function.
++        const nextFocusedTaskId =
++          useBulkSelectionStore.getState().focusedTaskId;
++        if (nextFocusedTaskId) {
++          navigate({
++            to: ".",
++            search: (prev: Record<string, unknown>) => ({
++              ...prev,
++              taskId: nextFocusedTaskId,
++            }),
++          });
+         }
+       },
+       k: () => {
+         focusPrevious();
+-        const state = useBulkSelectionStore.getState();
+-        if (state.focusedTaskId) {
+-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
++        const nextFocusedTaskId =
++          useBulkSelectionStore.getState().focusedTaskId;
++        if (nextFocusedTaskId) {
++          navigate({
++            to: ".",
++            search: (prev: Record<string, unknown>) => ({
++              ...prev,
++              taskId: nextFocusedTaskId,
++            }),
++          });
+         }
+       },
+       Enter: () => {
+diff --git a/apps/web/src/components/list-view/task-row.test.tsx b/apps/web/src/components/list-view/task-row.test.tsx
+index 2e266c6c..dd6e276c 100644
+--- a/apps/web/src/components/list-view/task-row.test.tsx
++++ b/apps/web/src/components/list-view/task-row.test.tsx
+@@ -1,4 +1,4 @@
+-import { cleanup, render, screen } from "@testing-library/react";
++import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+ import { afterEach, describe, expect, it, vi } from "vitest";
+ import type Task from "@/types/task";
+ import TaskRow from "./task-row";
+@@ -11,8 +11,12 @@ afterEach(() => {
+   vi.clearAllMocks();
+ });
+ 
++// vi.hoisted is required: vi.mock factories are hoisted above module-scope
++// consts, so a plain `const navigateMock` would not be initialised in time.
++const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
++
+ vi.mock("@tanstack/react-router", () => ({
+-  useNavigate: () => vi.fn(),
++  useNavigate: () => navigateMock,
+ }));
+ 
+ vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
+@@ -108,4 +112,35 @@ describe("TaskRow", () => {
+     expect(useExternalLinks).not.toHaveBeenCalled();
+     expect(useGetLabelsByTask).not.toHaveBeenCalled();
+   });
++
++  // These two fail against the pre-fix source by construction: a literal-object
++  // `search` has typeof "object" and throws when invoked as a reducer. The
++  // seeded status: ["todo"] proves preservation rather than merely shape.
++  it("preserves existing search params when opening a task", () => {
++    render(<TaskRow task={task} projectSlug="kan" />);
++
++    fireEvent.click(screen.getByText("Row from payload"));
++
++    const options = navigateMock.mock.calls[0][0];
++    expect(typeof options.search).toBe("function");
++    expect(options.search({ status: ["todo"], taskId: undefined })).toEqual({
++      status: ["todo"],
++      taskId: "task-1",
++    });
++  });
++
++  it("preserves existing search params when closing an already-open task", () => {
++    render(<TaskRow task={task} projectSlug="kan" />);
++
++    window.history.replaceState({}, "", "/?taskId=task-1");
++    fireEvent.click(screen.getByText("Row from payload"));
++    window.history.replaceState({}, "", "/");
++
++    const options = navigateMock.mock.calls[0][0];
++    expect(typeof options.search).toBe("function");
++    expect(options.search({ status: ["todo"], taskId: "task-1" })).toEqual({
++      status: ["todo"],
++      taskId: undefined,
++    });
++  });
+ });
+diff --git a/apps/web/src/components/list-view/task-row.tsx b/apps/web/src/components/list-view/task-row.tsx
+index 7ea40f2a..ee71c11c 100644
+--- a/apps/web/src/components/list-view/task-row.tsx
++++ b/apps/web/src/components/list-view/task-row.tsx
+@@ -146,12 +146,18 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
+     if (currentTaskId === task.id) {
+       navigate({
+         to: ".",
+-        search: {},
++        search: (prev: Record<string, unknown>) => ({
++          ...prev,
++          taskId: undefined,
++        }),
+       });
+     } else {
+       navigate({
+         to: ".",
+-        search: { taskId: task.id },
++        search: (prev: Record<string, unknown>) => ({
++          ...prev,
++          taskId: task.id,
++        }),
+       });
+     }
+   };
+diff --git a/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx b/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx
+index 45170836..8c6c5b28 100644
+--- a/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx
++++ b/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx
+@@ -1,5 +1,6 @@
+-import { renderHook, waitFor } from "@testing-library/react";
+-import { afterEach, beforeEach, describe, expect, it } from "vitest";
++import { act, renderHook, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import type { BoardFilters } from "./use-task-filters";
+ import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
+ 
+ describe("useTaskFiltersWithLabelsSupport", () => {
+@@ -182,3 +183,148 @@ describe("useTaskFiltersWithLabelsSupport", () => {
+     },
+   );
+ });
++
++describe("useTaskFiltersWithLabelsSupport url seeding", () => {
++  const storageKey = "kaneo:board-filters:project-1";
++
++  beforeEach(() => {
++    window.localStorage.clear();
++  });
++
++  afterEach(() => {
++    window.localStorage.clear();
++  });
++
++  const allNull = (): BoardFilters => ({
++    status: null,
++    priority: null,
++    assignee: null,
++    dueDate: null,
++    labels: null,
++  });
++
++  const makeProject = () => ({
++    id: "project-1",
++    name: "Project",
++    slug: "PROJ",
++    icon: null,
++    description: null,
++    isPublic: false,
++    createdAt: "2026-04-16T00:00:00.000Z",
++    updatedAt: "2026-04-16T00:00:00.000Z",
++    workspaceId: "workspace-1",
++    columns: [],
++    plannedTasks: [],
++    archivedTasks: [],
++  });
++
++  it("lets URL-seeded filters win over stored filters", async () => {
++    window.localStorage.setItem(
++      storageKey,
++      JSON.stringify({ labels: ["label-stored"] }),
++    );
++
++    const { result } = renderHook(() =>
++      useTaskFiltersWithLabelsSupport(makeProject(), "project-1", undefined, {
++        initialFilters: { ...allNull(), status: ["todo"] },
++      }),
++    );
++
++    expect(result.current.filters.status).toEqual(["todo"]);
++    expect(result.current.filters.labels).toBeNull();
++
++    await waitFor(() => {
++      expect(result.current.filters.status).toEqual(["todo"]);
++    });
++    // Still null after the restore effect would have run: a late restore that
++    // clobbered the URL seed would surface here.
++    expect(result.current.filters.labels).toBeNull();
++  });
++
++  it("writes URL-seeded filters back to localStorage", async () => {
++    window.localStorage.setItem(
++      storageKey,
++      JSON.stringify({ labels: ["label-stored"] }),
++    );
++
++    renderHook(() =>
++      useTaskFiltersWithLabelsSupport(makeProject(), "project-1", undefined, {
++        initialFilters: { ...allNull(), status: ["todo"] },
++      }),
++    );
++
++    await waitFor(() => {
++      expect(
++        JSON.parse(window.localStorage.getItem(storageKey) ?? "null"),
++      ).toEqual({ ...allNull(), status: ["todo"] });
++    });
++  });
++
++  it("restores stored filters when there is no URL seed", async () => {
++    window.localStorage.setItem(
++      storageKey,
++      JSON.stringify({ labels: ["label-bug"] }),
++    );
++
++    const { result } = renderHook(() =>
++      useTaskFiltersWithLabelsSupport(makeProject(), "project-1", undefined, {
++        initialFilters: null,
++      }),
++    );
++
++    await waitFor(() => {
++      expect(result.current.filters.labels).toEqual(["label-bug"]);
++    });
++  });
++
++  it("publishes filter changes to onFiltersChange", () => {
++    const onFiltersChange = vi.fn();
++    const { result } = renderHook(() =>
++      useTaskFiltersWithLabelsSupport(makeProject(), "project-1", undefined, {
++        onFiltersChange,
++      }),
++    );
++
++    act(() => {
++      result.current.updateFilter("status", ["todo"]);
++    });
++
++    expect(onFiltersChange).toHaveBeenLastCalledWith({
++      ...allNull(),
++      status: ["todo"],
++    });
++  });
++
++  it("publishes an all-null object when filters are cleared", () => {
++    const onFiltersChange = vi.fn();
++    const { result } = renderHook(() =>
++      useTaskFiltersWithLabelsSupport(makeProject(), "project-1", undefined, {
++        initialFilters: { ...allNull(), status: ["todo"] },
++        onFiltersChange,
++      }),
++    );
++
++    act(() => {
++      result.current.clearFilters();
++    });
++
++    expect(onFiltersChange).toHaveBeenLastCalledWith(allNull());
++  });
++
++  it("does not republish when only the callback identity changes", () => {
++    const first = vi.fn();
++    const second = vi.fn();
++
++    const { rerender } = renderHook(
++      ({ cb }) =>
++        useTaskFiltersWithLabelsSupport(makeProject(), "project-1", undefined, {
++          onFiltersChange: cb,
++        }),
++      { initialProps: { cb: first } },
++    );
++
++    rerender({ cb: second });
++
++    expect(second).not.toHaveBeenCalled();
++  });
++});
+diff --git a/apps/web/src/hooks/use-task-filters-with-labels-support.ts b/apps/web/src/hooks/use-task-filters-with-labels-support.ts
+index 6cc3647a..6e9f25ed 100644
+--- a/apps/web/src/hooks/use-task-filters-with-labels-support.ts
++++ b/apps/web/src/hooks/use-task-filters-with-labels-support.ts
+@@ -1,5 +1,5 @@
+ import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
+-import { useCallback, useEffect, useMemo, useState } from "react";
++import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+ import { useUserPreferencesStore } from "@/store/user-preferences";
+ import type { ProjectWithTasks } from "@/types/project";
+ import type Task from "@/types/task";
+@@ -40,18 +40,41 @@ function normalizeFilters(raw: unknown): BoardFilters {
+   return normalized;
+ }
+ 
++export type BoardFilterSyncOptions = {
++  initialFilters?: BoardFilters | null;
++  onFiltersChange?: (filters: BoardFilters) => void;
++};
++
+ export function useTaskFiltersWithLabelsSupport(
+   project: ProjectWithTasks | null | undefined,
+   projectId?: string,
+   textQuery?: string,
++  options?: BoardFilterSyncOptions,
+ ) {
+   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
+   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
+-  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
++  const initialFilters = options?.initialFilters ?? null;
++  const onFiltersChange = options?.onFiltersChange;
++  // Lazy initializer: the URL seed is committed during the first render,
++  // strictly before the restore effect below is ever scheduled.
++  const [filters, setFilters] = useState<BoardFilters>(
++    () => initialFilters ?? DEFAULT_FILTERS,
++  );
++  // One-shot token: suppresses exactly one restore, and only for the storage
++  // key that was URL-seeded at mount, so a seed cannot leak across projects.
++  const skipRestoreForKeyRef = useRef<string | null>(
++    initialFilters ? storageKey : null,
++  );
++  const onFiltersChangeRef = useRef(onFiltersChange);
+ 
+   useEffect(() => {
+     if (!storageKey || typeof window === "undefined") return;
+ 
++    if (skipRestoreForKeyRef.current === storageKey) {
++      skipRestoreForKeyRef.current = null;
++      return;
++    }
++
+     try {
+       const stored = window.localStorage.getItem(storageKey);
+       if (!stored) {
+@@ -71,6 +94,18 @@ export function useTaskFiltersWithLabelsSupport(
+     window.localStorage.setItem(storageKey, JSON.stringify(filters));
+   }, [filters, storageKey]);
+ 
++  // Declared before the publish effect so the ref is refreshed first on any
++  // render where the callback identity changed.
++  useEffect(() => {
++    onFiltersChangeRef.current = onFiltersChange;
++  }, [onFiltersChange]);
++
++  // Depends on [filters] only: a changing callback identity (which happens on
++  // every navigation) must not re-publish.
++  useEffect(() => {
++    onFiltersChangeRef.current?.(filters);
++  }, [filters]);
++
+   const filterTasks = useCallback(
+     (tasks: Task[]): Task[] => {
+       const normalizedTextQuery = textQuery?.trim().toLowerCase();
+diff --git a/apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx b/apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx
+index 087c2e4b..8bba3bc1 100644
+--- a/apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx
++++ b/apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx
+@@ -16,13 +16,25 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
+ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+ import { useBoardSort } from "@/hooks/use-board-sort";
+ import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
++import type { BoardFilters } from "@/hooks/use-task-filters";
+ import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
++import {
++  boardFilterSearchMatches,
++  hasAnyBoardFilterParam,
++  parseBoardFilterSearch,
++  serializeBoardFilters,
++} from "@/lib/board-filter-search-params";
+ import { sortTasks } from "@/lib/sort-tasks";
+ import useProjectStore from "@/store/project";
+ import { useUserPreferencesStore } from "@/store/user-preferences";
+ 
+ type BoardSearchParams = {
+   taskId?: string;
++  status?: string[];
++  priority?: string[];
++  assignee?: string[];
++  dueDate?: string[];
++  labels?: string[];
+ };
+ 
+ export const Route = createFileRoute(
+@@ -31,6 +43,7 @@ export const Route = createFileRoute(
+   component: RouteComponent,
+   validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
+     taskId: typeof search.taskId === "string" ? search.taskId : undefined,
++    ...serializeBoardFilters(parseBoardFilterSearch(search)),
+   }),
+ });
+ 
+@@ -77,7 +90,8 @@ function BoardSkeleton() {
+ function RouteComponent() {
+   const { t } = useTranslation();
+   const { projectId, workspaceId } = Route.useParams();
+-  const { taskId } = Route.useSearch();
++  const search = Route.useSearch();
++  const { taskId } = search;
+   const navigate = useNavigate();
+   const { data } = useGetTasks(projectId);
+   const { project, setProject } = useProjectStore();
+@@ -90,13 +104,22 @@ function RouteComponent() {
+     useState<HTMLInputElement | null>(null);
+   const { sort, setSort } = useBoardSort(projectId);
+ 
++  // Snapshot of the first-render search. URL filters win over stored ones on
++  // load; this must never re-seed, or navigation would feed back into itself.
++  const [urlSeededFilters] = useState<BoardFilters | null>(() =>
++    hasAnyBoardFilterParam(search) ? parseBoardFilterSearch(search) : null,
++  );
++
+   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
+   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
+ 
+   const handleCloseTaskSheet = useCallback(() => {
+     navigate({
+       to: ".",
+-      search: {},
++      search: (prev: Record<string, unknown>) => ({
++        ...prev,
++        taskId: undefined,
++      }),
+       replace: true,
+     });
+   }, [navigate]);
+@@ -156,6 +179,32 @@ function RouteComponent() {
+     window.requestAnimationFrame(() => boardSearchInput?.focus());
+   }, [isBoardSearchMounted, boardSearchInput]);
+ 
++  const handleFiltersChange = useCallback(
++    (next: BoardFilters) => {
++      // Redundant-navigation guard: on mount the hook publishes its current
++      // filters, which already match the URL in the seeded and empty cases.
++      if (boardFilterSearchMatches(search, next)) return;
++
++      navigate({
++        to: ".",
++        search: (prev: Record<string, unknown>) => ({
++          ...prev,
++          ...serializeBoardFilters(next),
++        }),
++        replace: true,
++      });
++    },
++    [navigate, search],
++  );
++
++  const filterSyncOptions = useMemo(
++    () => ({
++      initialFilters: urlSeededFilters,
++      onFiltersChange: handleFiltersChange,
++    }),
++    [urlSeededFilters, handleFiltersChange],
++  );
++
+   const {
+     filters,
+     updateFilter,
+@@ -163,7 +212,12 @@ function RouteComponent() {
+     filteredProject,
+     hasActiveFilters,
+     clearFilters,
+-  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
++  } = useTaskFiltersWithLabelsSupport(
++    project,
++    projectId,
++    boardSearchQuery,
++    filterSyncOptions,
++  );
+ 
+   const sortedProject = useMemo(() => {
+     if (!filteredProject || sort.field === "position") return filteredProject;

@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "run_id": "20260826-064633-feature-extend-board-filter-chips",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "apps/web/src/components/kanban-board/index.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:10a3a07a87bde71b6db845287a72ad48a47af9b01bc17dbe8f16afb7067517a2",
+      "sha_after": "sha256:741bc8819b108ab5e0b78f4f1deb49d65e3b77884ff3949ef2d17a5cee24df22",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p4a",
+      "written_at": "2026-08-26T08:51:34.243Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/task-card.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:9000f13988a3307836602f28aa698593e505478b392319264a4c61763d7f5603",
+      "sha_after": "sha256:df0d925c5f25629a669312f81825c80f4855b9ddebbb90038b68b772421ce8c8",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p4b",
+      "written_at": "2026-08-26T08:51:34.284Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/index.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:c696e3f5e9b7a06b8217f6702500c0b18937104ea96d1a3b946e781bae4fbe04",
+      "sha_after": "sha256:2a47219bb44aad6d5c551fd0fdb1acab65451165c1b1f58c9b370298dad3c286",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p4c",
+      "written_at": "2026-08-26T08:51:34.320Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/task-row.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:b3f9386b2d83ccf5bb2dddf45ca2dd8ad2eaba376546e134f079d72718047329",
+      "sha_after": "sha256:1e13be61738aac10a561ae1ef217173e1bfd9be618ec0650534c7e0bd2b3faca",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p4d",
+      "written_at": "2026-08-26T08:51:34.363Z"
+    },
+    {
+      "path": "apps/web/src/lib/board-filter-search-params.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:0a6195577788ab2dea36c38c9a05bd64f5d17f983bf6eeebffed4958e6d8a096",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_p1_lib",
+      "written_at": "2026-08-26T08:54:54.619Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "existed_before": true,
+      "sha_before": "sha256:68006baec18174fa61e96237e0c49f05e02972cc740c2c623eeb1b551b91bdbb",
+      "sha_after": "sha256:543ed32e3a660c165745e202557253731325f3091122c4da9626dce51e233119",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p2_hook",
+      "written_at": "2026-08-26T08:55:19.933Z"
+    },
+    {
+      "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:8422b157f2a4d1c28a0b2d2ebc61167c528a0723ce957db23963ad609f452411",
+      "sha_after": "sha256:cf1b930893735c01b5a2724c8611225c904893cd3a5087e6b38f0b7bbb7e4ef3",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p3",
+      "written_at": "2026-08-26T08:57:26.379Z"
+    },
+    {
+      "path": "apps/web/src/lib/board-filter-search-params.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:69987046b8e37de8601e074579c9943fa33e3233c6e87aa9563aa0d8496a2d45",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_p1_lib_test",
+      "written_at": "2026-08-26T09:02:46.233Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/task-row.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:56fb82fbb8e706db3a9f070c69e56c1eb571ee589601cfd77c1f556bca128fab",
+      "sha_after": "sha256:f5cc25713a0b7eb39ebc51e205a1ed27e47e513ef7cb2018577f36e576a3a5b2",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p5_taskrow_test",
+      "written_at": "2026-08-26T09:04:19.917Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:eb005cd71ff66234b5eaad6852db5e77a4eecfbfbf711dc735eb75e0905f596e",
+      "sha_after": "sha256:cf38e93eaae408d544c270e31047f3ff5503c5beb94f8b59a8bd0608ba9cd6a1",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_p7_hook_test",
+      "written_at": "2026-08-26T09:06:34.117Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-search-preservation.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:3bfa09e93dfd89f9867e7437ab7a2e3efc25255a5e777616c2c23331520a0dc9",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_p6_guard",
+      "written_at": "2026-08-26T09:08:47.799Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-search-preservation.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:0425b23d6d15c197ead3556970d509ab18d1425a254f77d723c9e653480caabc",
+      "sha_after": "sha256:0425b23d6d15c197ead3556970d509ab18d1425a254f77d723c9e653480caabc",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/backups/apps__web__src__components__board__board-search-preservation.test.tsx",
+      "packet_id": "tp_p6_guard_debug_1",
+      "written_at": "2026-08-26T09:11:17.516Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/index.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:045d796f6b36c43259bc8a05a8f52c107ef5fd5e0f011556d77f717666ab4da4",
+      "sha_after": "sha256:045d796f6b36c43259bc8a05a8f52c107ef5fd5e0f011556d77f717666ab4da4",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/backups/apps__web__src__components__kanban-board__index.tsx",
+      "packet_id": "tp_p4_reapply",
+      "written_at": "2026-08-26T09:13:25.313Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/index.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:85e54441a250e3f12f529b61b2ba22cf135cf0afe7b24ca15285d8021c3b077f",
+      "sha_after": "sha256:85e54441a250e3f12f529b61b2ba22cf135cf0afe7b24ca15285d8021c3b077f",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/backups/apps__web__src__components__list-view__index.tsx",
+      "packet_id": "tp_p4_reapply",
+      "written_at": "2026-08-26T09:13:25.393Z"
+    },
+    {
+      "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:94032bb275a5cc8f37052e43002f357bfd3383cf8f49b06299f864276da2e3db",
+      "sha_after": "sha256:c133621813a3061a9920ac4425785db0f3ad3fe8f9530163e2c8cb4b558940ed",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/backups/apps__web__src__routes___layout___authenticated__dashboard__workspace__$workspaceId__project__$projectId__board.tsx",
+      "packet_id": "tp_refinements",
+      "written_at": "2026-08-26T09:38:18.279Z"
+    },
+    {
+      "path": "apps/web/src/lib/board-filter-search-params.ts",
+      "existed_before": true,
+      "sha_before": "sha256:0a6195577788ab2dea36c38c9a05bd64f5d17f983bf6eeebffed4958e6d8a096",
+      "sha_after": "sha256:ae84461953a8d7e74c2fb63742ee3c157602f7eed1f447c84c5a00f4e9343f99",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/backups/apps__web__src__lib__board-filter-search-params.ts",
+      "packet_id": "tp_refinements",
+      "written_at": "2026-08-26T09:38:18.349Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "existed_before": true,
+      "sha_before": "sha256:543ed32e3a660c165745e202557253731325f3091122c4da9626dce51e233119",
+      "sha_after": "sha256:e1af6b8bb48d8d34dfd86bb16f633e2a4f6c847acc5975ebfcd459ca67462edc",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/backups/apps__web__src__hooks__use-task-filters-with-labels-support.ts",
+      "packet_id": "tp_refinements",
+      "written_at": "2026-08-26T09:38:18.513Z"
+    },
+    {
+      "path": "apps/web/src/lib/board-filter-search-params.test.ts",
+      "existed_before": true,
+      "sha_before": "sha256:69987046b8e37de8601e074579c9943fa33e3233c6e87aa9563aa0d8496a2d45",
+      "sha_after": "sha256:1aa22646c0804abf8682c45013f9df22b8103fecfb9c47c0f06c5678e0f79062",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/backups/apps__web__src__lib__board-filter-search-params.test.ts",
+      "packet_id": "tp_refinements",
+      "written_at": "2026-08-26T09:38:18.426Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:cf38e93eaae408d544c270e31047f3ff5503c5beb94f8b59a8bd0608ba9cd6a1",
+      "sha_after": "sha256:58ceb0719ac28d5cdd688ce8139d446ab95e4b5dd10fe3a5ad055a57b229b566",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260826-064633-feature-extend-board-filter-chips/backups/apps__web__src__hooks__use-task-filters-with-labels-support.test.tsx",
+      "packet_id": "tp_refinements",
+      "written_at": "2026-08-26T09:38:18.608Z"
+    }
+  ]
+}

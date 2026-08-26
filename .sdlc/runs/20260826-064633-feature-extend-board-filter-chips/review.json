@@ -1,0 +1,74 @@
+{
+  "summary": "The core of this change is sound. The pure lib module is well-factored and genuinely defensive (validateSearch cannot throw for any input I could construct; FR-13 holds because serializeBoardFilters emits all five keys with explicit undefined). The precedence machinery in use-task-filters-with-labels-support.ts is correct: the lazy useState seed commits before any effect is scheduled, the one-shot skipRestoreForKeyRef cannot leak across a storageKey change, and the [filters]-only publish effect provably cannot loop against handleFiltersChange's [navigate, search] identity churn. All nine pre-existing navigate() sites were converted and I confirmed by grep that no other relative navigation reachable from the board route was missed (KanbanBoard/ListView/TaskCard/TaskRow are imported only from board.tsx). The Record<string, unknown> annotation on prev is the right call and I do not want it changed: the annotation is forced (no `from`, `to: \".\"` gives no contextual type), the reducer's output is re-validated by validateSearch on every navigation so the real type contract is still enforced at the route, and the shape matches the repo's existing validateSearch signature. One major and one notable coverage gap prevent a clean approve.",
+  "verdict": "request_changes",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "major",
+      "file": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "line": 182,
+      "issue": "The URL is written from filter state but never read back after mount, so any in-app navigation that resets the board search leaves the URL and the visible chips disagreeing. Two reachable paths, both confirmed against the installed router: (1) `handleNavigateToBoard` in apps/web/src/components/common/project-layout.tsx:63-68 navigates to the board route with no `search`, and the 'Tasks' button that calls it (project-layout.tsx:157-167) is clickable while already on the board. validateSearch({}) strips all five filter params. The route component does NOT remount -- board.tsx sets no `remountDeps` and the router sets no `defaultRemountDeps`, so the Match key stays undefined (node_modules/@tanstack/react-router/dist/esm/Match.js:77-89). `filters` state is therefore unchanged, the [filters]-deps publish effect does not fire, and the board stays filtered with a bare URL. (2) Browser Back from a pushed `?filters&taskId=...` entry to an earlier entry with different filter params: `search` changes, `filters` does not, no republish. In both cases the user can now copy an address-bar URL that does not describe what they are looking at -- which is the headline value of this feature.",
+      "why_it_matters": "This change's whole purpose is that a board URL is shareable and describes the view. A silently-stale URL is worse than no URL persistence, because it is confidently wrong. The board view itself is never wrong (chips and tasks stay consistent), so this is a URL-accuracy defect rather than a data defect, but it is user-visible and easy to hit.",
+      "suggested_fix": "Close the loop in one direction, deliberately. Recommended: make the URL authoritative continuously rather than only at mount -- add an effect in board.tsx that, when `!boardFilterSearchMatches(search, filters)` AND the change originated from the URL (i.e. `search` is the value that changed since the last publish), calls the hook's exposed `setFilters(parseBoardFilterSearch(search))`. This fixes Back correctly (Back restores the older filters) and makes the 'Tasks' button a deliberate clear-filters action. The cheaper alternative -- republish state into the URL whenever they diverge -- fixes the 'Tasks' button but breaks Back, because a Back to an entry with different filter params would immediately be replaced forward again. Pick one and record the decision; do not ship the current half-duplex behaviour without a note.",
+      "refinement_packet": {
+        "task_type": "bugfix",
+        "artifact_path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+        "instruction": "Make board filter state and the URL stay in sync after mount, not just at mount. Preferred direction: URL-authoritative. In board.tsx, destructure `setFilters` from useTaskFiltersWithLabelsSupport and add an effect keyed on `search` that, when hasAnyBoardFilterParam/boardFilterSearchMatches show the URL no longer matches `filters`, applies parseBoardFilterSearch(search) via setFilters. Guard it so it cannot ping-pong with the existing publish path: the publish effect already early-returns via boardFilterSearchMatches, so the new effect must only fire on a search identity change that the component did not itself just cause (track the last published serialization in a ref and skip when it matches). Do NOT remove or weaken the existing mount-time seeding, the skipRestoreForKeyRef guard, or replace:true. Add tests covering: (a) an external search change to different filter params updates the chips, (b) an external search change to no filter params clears the chips, (c) a chip toggle still publishes exactly one replace navigation and does not trigger a second, reflected update."
+      }
+    },
+    {
+      "id": "F2",
+      "severity": "minor",
+      "file": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "line": 44,
+      "issue": "board.tsx is the riskiest file in the change and has zero behavioural coverage. `validateSearch` (line 44-47) is never invoked by any test; the round trip proven by AC-1 stops at the lib boundary and never goes through the route validator, so a regression that dropped the spread or clobbered `taskId` would be caught only by the tier-2 regex `not.toMatch(/search:\\s*\\{/)`. Likewise `urlSeededFilters` (109-111), the `boardFilterSearchMatches` mount-publish guard (186), and AC-4's `replace: true` are asserted only by source-text matching in board-search-preservation.test.tsx:182-210. Note this is NOT the allowlist constraint cited for kanban-board/* and list-view/index.tsx -- the run already writes to apps/web/src/components/board/, so a real test had a legal home. F1 is exactly the class of bug this gap hides.",
+      "why_it_matters": "A regex over source text cannot distinguish correct wiring from wiring that compiles and reads right but behaves wrong. The three riskiest behaviours in the change (validator composition, seed precedence, redundant-nav suppression) are all unverified at runtime.",
+      "suggested_fix": "Export the validator from board.tsx (e.g. `export const validateBoardSearch = (search: Record<string, unknown>): BoardSearchParams => ...`) and use it in the route options, then add apps/web/src/components/board/board-search-validator.test.ts asserting: round trip of all five filters plus taskId; taskId narrowing preserved when it is an array/number/absent; AC-5 hostile inputs (?status=, ?status[]=x, ?labels={}, 10k-char value, __proto__ key) return defaults without throwing; AC-6 all-null filters produce five undefined-valued keys so the URL carries no filter params.",
+      "refinement_packet": {
+        "task_type": "test-add",
+        "artifact_path": "apps/web/src/components/board/board-search-validator.test.ts",
+        "instruction": "Extract the board route's validateSearch body into an exported named function in board.tsx (keep the route option pointing at it, no behaviour change) and add a colocated unit test under apps/web/src/components/board/ that exercises it directly. Cover: (1) full round trip -- serializeBoardFilters output fed back through the validator yields the same five filters plus taskId; (2) taskId narrowing for string, array, number and absent; (3) AC-5 hostile inputs return all-null filters and never throw; (4) AC-6 -- with no filters, all five keys are present and undefined so no filter param is emitted. Do not modify the lib module or the hook."
+      }
+    },
+    {
+      "id": "F3",
+      "severity": "minor",
+      "file": "apps/web/src/lib/board-filter-search-params.ts",
+      "line": 33,
+      "issue": "The comment at line 33-34 -- 'A single occurrence of a repeated param arrives as a bare string' -- describes a mechanism this app does not use, and it is inherited from requirements Q-2's assumption of repeated-param encoding. The router at apps/web/src/main.tsx:45 is created with no `stringifySearch`/`parseSearch` override, so TanStack's default `stringifySearchWith(JSON.stringify, JSON.parse)` applies: an array is emitted as a single JSON-encoded param (?status=%5B%22todo%22%5D), not as repeated ?status=todo&status=done. Round tripping is still correct, and the string branch is still load-bearing for a hand-typed ?status=todo whose JSON.parse fails and falls back to the raw string -- so the code is right and only the stated rationale is wrong.",
+      "why_it_matters": "The next reader will reason about URL shape from this comment and reach the wrong conclusion, and the requirements document records an encoding decision that was never actually implemented. Shared URLs are also longer and less hand-editable than Q-2 promised, which is a product-visible difference from what was approved at Gate 2.",
+      "suggested_fix": "Correct the comment to state the real reason (the router JSON-encodes array search values by default; a bare string is what a hand-written or JSON-unparseable param degrades to) and add a line to the run's requirements/decision record noting that the actual encoding is a single JSON-encoded param rather than repeated params.",
+      "refinement_packet": null
+    },
+    {
+      "id": "F4",
+      "severity": "nit",
+      "file": "apps/web/src/lib/board-filter-search-params.ts",
+      "line": 41,
+      "issue": "FR-5's count cap is applied to the output, not to the work: the loop at 41-53 validates every member of rawArray and only then slices to MAX_BOARD_FILTER_VALUES at line 54. A hostile param carrying thousands of entries is fully walked and fully materialised in `validValues` before the cap bites.",
+      "why_it_matters": "Small in practice -- URL length bounds the input long before this matters -- but the cap is stated as a defence against unbounded work, and as written it only bounds unbounded storage.",
+      "suggested_fix": "Break out of the loop once validValues.length reaches MAX_BOARD_FILTER_VALUES and drop the trailing slice, so the cap bounds both work and output.",
+      "refinement_packet": null
+    },
+    {
+      "id": "F5",
+      "severity": "nit",
+      "file": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "line": 65,
+      "issue": "skipRestoreForKeyRef is seeded as `initialFilters ? storageKey : null` on the first render only. If a caller mounts with initialFilters set but projectId still undefined, storageKey is null, the token is seeded null, the restore effect early-returns on `!storageKey` without consuming anything, and when projectId later arrives the restore effect clobbers the URL seed from localStorage. Not reachable from board.tsx (Route.useParams() always supplies projectId), but the hook is exported and this is the one input shape that defeats the guard.",
+      "why_it_matters": "The guard's stated contract is 'suppresses exactly one restore for the URL-seeded key'. It silently does nothing for a caller whose projectId resolves asynchronously, which is a plausible future call site.",
+      "suggested_fix": "Seed the token from a separate boolean (`hasPendingSeedRef`) and resolve it against whatever storageKey is current the first time the restore effect actually runs with a non-null key, rather than capturing storageKey at first render.",
+      "refinement_packet": null
+    },
+    {
+      "id": "F6",
+      "severity": "nit",
+      "file": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "line": 314,
+      "issue": "Test 6 is not vacuous -- I checked the mutation it is meant to catch: with deps [filters, onFiltersChange] the rerender would fire the effect and call `second`, so the assertion genuinely fails against the wrong implementation. makeProject() returning a fresh object each render is harmless here because the publish effect keys on `filters`, whose identity is unchanged (setFilters is never called and DEFAULT_FILTERS is a module constant). It is however weaker than it could be: it never asserts that `first` was called on mount, so it would also pass if publishing were removed entirely (tests 4 and 5 cover that separately), and it never proves that a subsequent real filter change reaches `second` rather than the stale `first`.",
+      "why_it_matters": "The ref-swap effect ordering (Effect C declared before Effect D) is the only thing making the post-swap call land on `second`, and nothing tests it.",
+      "suggested_fix": "After the rerender, add `act(() => result.current.updateFilter(\"status\", [\"todo\"]))` and assert `second` was called with the new filters while `first` was not called again. That pins the Effect C / Effect D ordering that the source comment relies on.",
+      "refinement_packet": null
+    }
+  ]
+}
