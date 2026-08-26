@@ -147,12 +147,18 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     if (currentTaskId === task.id) {
       navigate({
         to: ".",
-        search: {},
+        search: (prev: Record<string, unknown>) => {
+          const { taskId: _omit, ...rest } = prev;
+          return rest;
+        },
       });
     } else {
       navigate({
         to: ".",
-        search: { taskId: task.id },
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          taskId: task.id,
+        }),
       });
     }
   }

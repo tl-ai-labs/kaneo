@@ -1,18 +1,21 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type Task from "@/types/task";
 import TaskRow from "./task-row";
 
+const mockNavigate = vi.fn();
 const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
 const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
 
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  window.history.pushState({}, "", "/");
 });
 
-vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+vi.mock("@tanstack/react-router", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@tanstack/react-router")>()),
+  useNavigate: () => mockNavigate,
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
@@ -107,5 +110,47 @@ describe("TaskRow", () => {
     expect(screen.getByText("#42")).toBeVisible();
     expect(useExternalLinks).not.toHaveBeenCalled();
     expect(useGetLabelsByTask).not.toHaveBeenCalled();
+  });
+
+  it("select preserves filters", () => {
+    window.history.pushState({}, "", "/");
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    fireEvent.click(screen.getByText(task.title));
+
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    const callArg = mockNavigate.mock.calls[0][0];
+    expect(callArg.to).toBe(".");
+    expect(typeof callArg.search).toBe("function");
+
+    const result = callArg.search({
+      status: ["in_progress"],
+      priority: ["high"],
+    });
+    expect(result).toEqual({
+      status: ["in_progress"],
+      priority: ["high"],
+      taskId: task.id,
+    });
+  });
+
+  it("deselect preserves filters", () => {
+    window.history.pushState({}, "", `/?taskId=${task.id}`);
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    fireEvent.click(screen.getByText(task.title));
+
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    const callArg = mockNavigate.mock.calls[0][0];
+    expect(callArg.to).toBe(".");
+    expect(typeof callArg.search).toBe("function");
+
+    const result = callArg.search({
+      status: ["in_progress"],
+      taskId: task.id,
+    });
+    expect(result).toEqual({
+      status: ["in_progress"],
+    });
   });
 });

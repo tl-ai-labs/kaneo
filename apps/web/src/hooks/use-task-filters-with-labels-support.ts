@@ -1,5 +1,10 @@
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  type BoardSearchParams,
+  hasActiveFilterParams,
+  searchParamsToFilters,
+} from "@/lib/board-filter-params";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
@@ -44,32 +49,107 @@ export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,
   textQuery?: string,
+  searchFilters?: BoardSearchParams,
+  onFiltersChange?: (next: BoardFilters) => void,
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
-  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
+  const seededStorageKeyRef = useRef<string | null>(null);
+  const pendingFiltersRef = useRef<BoardFilters | null>(null);
+
+  const filters = useMemo(
+    () => searchParamsToFilters(searchFilters ?? null),
+    [searchFilters],
+  );
+
+  // `filters` is a change trigger here, not a read dependency. Dropping it
+  // would run this effect only on mount, leaving pendingFiltersRef stale
+  // between handlers — exactly what the accumulator exists to prevent, since
+  // board-toolbar calls updateLabelFilter N times within a single handler.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional change trigger, see above
+  useEffect(() => {
+    pendingFiltersRef.current = null;
+  }, [filters]);
+
+  const currentFilters = () => pendingFiltersRef.current ?? filters;
 
   useEffect(() => {
+    if (hasActiveFilterParams(searchFilters)) return;
     if (!storageKey || typeof window === "undefined") return;
+    if (seededStorageKeyRef.current === storageKey) return;
+
+    seededStorageKeyRef.current = storageKey;
 
     try {
       const stored = window.localStorage.getItem(storageKey);
-      if (!stored) {
-        setFilters(DEFAULT_FILTERS);
-        return;
-      }
+      if (!stored) return;
 
       const parsed = JSON.parse(stored) as unknown;
-      setFilters(normalizeFilters(parsed));
+      const normalized = normalizeFilters(parsed);
+      const hasActive = Object.values(normalized).some(
+        (v) => Array.isArray(v) && v.length > 0,
+      );
+      if (hasActive) {
+        onFiltersChange?.(normalized);
+      }
     } catch {
-      setFilters(DEFAULT_FILTERS);
+      // ignore parse errors
     }
-  }, [storageKey]);
+  }, [searchFilters, storageKey, onFiltersChange]);
 
   useEffect(() => {
+    if (!hasActiveFilterParams(searchFilters)) return;
     if (!storageKey || typeof window === "undefined") return;
     window.localStorage.setItem(storageKey, JSON.stringify(filters));
-  }, [filters, storageKey]);
+  }, [searchFilters, storageKey, filters]);
+
+  const persistAndNotify = (next: BoardFilters) => {
+    pendingFiltersRef.current = next;
+    if (storageKey && typeof window !== "undefined") {
+      window.localStorage.setItem(storageKey, JSON.stringify(next));
+    }
+    onFiltersChange?.(next);
+  };
+
+  const setFilters = (
+    nextOrUpdater: BoardFilters | ((prev: BoardFilters) => BoardFilters),
+  ) => {
+    const next =
+      typeof nextOrUpdater === "function"
+        ? nextOrUpdater(currentFilters())
+        : nextOrUpdater;
+    persistAndNotify(next);
+  };
+
+  const clearFilters = () => {
+    const next = DEFAULT_FILTERS;
+    persistAndNotify(next);
+  };
+
+  const updateFilter = (
+    key: keyof BoardFilters,
+    value: BoardFilters[keyof BoardFilters],
+  ) => {
+    const next: BoardFilters = { ...currentFilters(), [key]: value };
+    persistAndNotify(next);
+  };
+
+  const updateLabelFilter = (labelId: string) => {
+    const base = currentFilters();
+    const currentLabels = base.labels || [];
+    const isSelected = currentLabels.includes(labelId);
+
+    let newLabels: string[] | null;
+    if (isSelected) {
+      newLabels = currentLabels.filter((id) => id !== labelId);
+      if (newLabels.length === 0) newLabels = null;
+    } else {
+      newLabels = [...currentLabels, labelId];
+    }
+
+    const next: BoardFilters = { ...base, labels: newLabels };
+    persistAndNotify(next);
+  };
 
   const filterTasks = useCallback(
     (tasks: Task[]): Task[] => {
@@ -201,34 +281,6 @@ export function useTaskFiltersWithLabelsSupport(
   const hasActiveFilters = Object.values(filters).some((filter) =>
     Array.isArray(filter) ? filter.length > 0 : filter !== null,
   );
-
-  const clearFilters = () => {
-    setFilters(DEFAULT_FILTERS);
-  };
-
-  const updateFilter = (
-    key: keyof BoardFilters,
-    value: BoardFilters[keyof BoardFilters],
-  ) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const updateLabelFilter = (labelId: string) => {
-    setFilters((prev) => {
-      const currentLabels = prev.labels || [];
-      const isSelected = currentLabels.includes(labelId);
-
-      let newLabels: string[] | null;
-      if (isSelected) {
-        newLabels = currentLabels.filter((id) => id !== labelId);
-        if (newLabels.length === 0) newLabels = null;
-      } else {
-        newLabels = [...currentLabels, labelId];
-      }
-
-      return { ...prev, labels: newLabels };
-    });
-  };
 
   return {
     filters,

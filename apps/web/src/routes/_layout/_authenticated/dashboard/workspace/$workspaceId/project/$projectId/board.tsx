@@ -16,22 +16,23 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import type { BoardFilters } from "@/hooks/use-task-filters";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import {
+  type BoardSearchParams,
+  filtersToSearchParams,
+  validateBoardSearch,
+} from "@/lib/board-filter-params";
 import { sortTasks } from "@/lib/sort-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-
-type BoardSearchParams = {
-  taskId?: string;
-};
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",
 )({
   component: RouteComponent,
-  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
-    taskId: typeof search.taskId === "string" ? search.taskId : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): BoardSearchParams =>
+    validateBoardSearch(search),
 });
 
 const skeletonColumns = [
@@ -77,7 +78,8 @@ function BoardSkeleton() {
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
-  const { taskId } = Route.useSearch();
+  const search = Route.useSearch();
+  const { taskId } = search;
   const navigate = useNavigate();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
@@ -96,10 +98,27 @@ function RouteComponent() {
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
-      search: {},
+      search: (prev: Record<string, unknown>) => {
+        const { taskId: _omit, ...rest } = prev;
+        return rest;
+      },
       replace: true,
     });
   }, [navigate]);
+
+  const handleFiltersChange = useCallback(
+    (next: BoardFilters) => {
+      navigate({
+        to: ".",
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          ...filtersToSearchParams(next),
+        }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
 
   useRegisterShortcuts({
     sequentialShortcuts: {
@@ -163,7 +182,13 @@ function RouteComponent() {
     filteredProject,
     hasActiveFilters,
     clearFilters,
-  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
+  } = useTaskFiltersWithLabelsSupport(
+    project,
+    projectId,
+    boardSearchQuery,
+    search,
+    handleFiltersChange,
+  );
 
   const sortedProject = useMemo(() => {
     if (!filteredProject || sort.field === "position") return filteredProject;
