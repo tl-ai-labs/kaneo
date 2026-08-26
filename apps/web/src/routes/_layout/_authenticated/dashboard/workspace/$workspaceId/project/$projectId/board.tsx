@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BoardToolbar from "@/components/board/board-toolbar";
 import ProjectLayout from "@/components/common/project-layout";
@@ -16,22 +16,26 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import type { BoardFilters } from "@/hooks/use-task-filters";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import {
+  boardFilterSearchMatches,
+  hasAnyBoardFilterParam,
+  parseBoardFilterSearch,
+  serializeBoardFilters,
+  validateBoardSearch,
+} from "@/lib/board-filter-search-params";
 import { sortTasks } from "@/lib/sort-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-
-type BoardSearchParams = {
-  taskId?: string;
-};
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",
 )({
   component: RouteComponent,
-  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
-    taskId: typeof search.taskId === "string" ? search.taskId : undefined,
-  }),
+  // Defined in @/lib/board-filter-search-params so it can be unit-tested
+  // without instantiating the router. See board-filter-search-params.test.ts.
+  validateSearch: validateBoardSearch,
 });
 
 const skeletonColumns = [
@@ -77,7 +81,8 @@ function BoardSkeleton() {
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
-  const { taskId } = Route.useSearch();
+  const search = Route.useSearch();
+  const { taskId } = search;
   const navigate = useNavigate();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
@@ -90,13 +95,22 @@ function RouteComponent() {
     useState<HTMLInputElement | null>(null);
   const { sort, setSort } = useBoardSort(projectId);
 
+  // Snapshot of the first-render search. URL filters win over stored ones on
+  // load; this must never re-seed, or navigation would feed back into itself.
+  const [urlSeededFilters] = useState<BoardFilters | null>(() =>
+    hasAnyBoardFilterParam(search) ? parseBoardFilterSearch(search) : null,
+  );
+
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
 
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
-      search: {},
+      search: (prev: Record<string, unknown>) => ({
+        ...prev,
+        taskId: undefined,
+      }),
       replace: true,
     });
   }, [navigate]);
@@ -156,14 +170,75 @@ function RouteComponent() {
     window.requestAnimationFrame(() => boardSearchInput?.focus());
   }, [isBoardSearchMounted, boardSearchInput]);
 
+  const handleFiltersChange = useCallback(
+    (next: BoardFilters) => {
+      // Redundant-navigation guard: on mount the hook publishes its current
+      // filters, which already match the URL in the seeded and empty cases.
+      if (boardFilterSearchMatches(search, next)) return;
+
+      navigate({
+        to: ".",
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          ...serializeBoardFilters(next),
+        }),
+        replace: true,
+      });
+    },
+    [navigate, search],
+  );
+
+  const filterSyncOptions = useMemo(
+    () => ({
+      initialFilters: urlSeededFilters,
+      onFiltersChange: handleFiltersChange,
+    }),
+    [urlSeededFilters, handleFiltersChange],
+  );
+
   const {
     filters,
+    setFilters,
     updateFilter,
     updateLabelFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,
-  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
+  } = useTaskFiltersWithLabelsSupport(
+    project,
+    projectId,
+    boardSearchQuery,
+    filterSyncOptions,
+  );
+
+  // URL-authoritative: the address bar is the single source of truth after
+  // mount. Any navigation that changes `search` - browser Back, or the sidebar
+  // "Tasks" button navigating to the board with no params - is adopted into
+  // filter state here.
+  //
+  // Deps are [search, setFilters] ONLY. Including `filters` would make this run
+  // on the state change that the publish effect just caused, and it would then
+  // race that publish using a stale `search`. The functional setState reads the
+  // current filters without subscribing to them, and returns `prev` unchanged
+  // when they already agree so React bails out instead of re-rendering.
+  //
+  // The first run is skipped deliberately. Mount precedence belongs to the seed
+  // and localStorage-restore path above; this effect runs after the restore has
+  // already queued its update, so its `prev` would be the restored filters and
+  // an empty URL would wipe them. Only post-mount URL changes are adopted here.
+  const hasSyncedFromUrlRef = useRef(false);
+  useEffect(() => {
+    if (!hasSyncedFromUrlRef.current) {
+      hasSyncedFromUrlRef.current = true;
+      return;
+    }
+
+    setFilters((prev) =>
+      boardFilterSearchMatches(search, prev)
+        ? prev
+        : parseBoardFilterSearch(search),
+    );
+  }, [search, setFilters]);
 
   const sortedProject = useMemo(() => {
     if (!filteredProject || sort.field === "position") return filteredProject;

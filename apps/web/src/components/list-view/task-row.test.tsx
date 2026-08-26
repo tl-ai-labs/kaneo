@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type Task from "@/types/task";
 import TaskRow from "./task-row";
@@ -11,8 +11,12 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+// vi.hoisted is required: vi.mock factories are hoisted above module-scope
+// consts, so a plain `const navigateMock` would not be initialised in time.
+const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
+
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigateMock,
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
@@ -107,5 +111,36 @@ describe("TaskRow", () => {
     expect(screen.getByText("#42")).toBeVisible();
     expect(useExternalLinks).not.toHaveBeenCalled();
     expect(useGetLabelsByTask).not.toHaveBeenCalled();
+  });
+
+  // These two fail against the pre-fix source by construction: a literal-object
+  // `search` has typeof "object" and throws when invoked as a reducer. The
+  // seeded status: ["todo"] proves preservation rather than merely shape.
+  it("preserves existing search params when opening a task", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    fireEvent.click(screen.getByText("Row from payload"));
+
+    const options = navigateMock.mock.calls[0][0];
+    expect(typeof options.search).toBe("function");
+    expect(options.search({ status: ["todo"], taskId: undefined })).toEqual({
+      status: ["todo"],
+      taskId: "task-1",
+    });
+  });
+
+  it("preserves existing search params when closing an already-open task", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    window.history.replaceState({}, "", "/?taskId=task-1");
+    fireEvent.click(screen.getByText("Row from payload"));
+    window.history.replaceState({}, "", "/");
+
+    const options = navigateMock.mock.calls[0][0];
+    expect(typeof options.search).toBe("function");
+    expect(options.search({ status: ["todo"], taskId: "task-1" })).toEqual({
+      status: ["todo"],
+      taskId: undefined,
+    });
   });
 });

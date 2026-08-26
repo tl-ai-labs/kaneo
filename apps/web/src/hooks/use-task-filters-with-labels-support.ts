@@ -1,5 +1,5 @@
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
@@ -40,17 +40,41 @@ function normalizeFilters(raw: unknown): BoardFilters {
   return normalized;
 }
 
+export type BoardFilterSyncOptions = {
+  initialFilters?: BoardFilters | null;
+  onFiltersChange?: (filters: BoardFilters) => void;
+};
+
 export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,
   textQuery?: string,
+  options?: BoardFilterSyncOptions,
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
-  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
+  const initialFilters = options?.initialFilters ?? null;
+  const onFiltersChange = options?.onFiltersChange;
+  // Lazy initializer: the URL seed is committed during the first render,
+  // strictly before the restore effect below is ever scheduled.
+  const [filters, setFilters] = useState<BoardFilters>(
+    () => initialFilters ?? DEFAULT_FILTERS,
+  );
+  // One-shot token: suppresses exactly one restore when state was URL-seeded.
+  // Deliberately a boolean resolved on the first restore that actually runs,
+  // not a captured storageKey: a caller whose projectId resolves asynchronously
+  // has storageKey === null on the first render, and a key captured then would
+  // never match, letting a later restore clobber the seed.
+  const hasPendingSeedRef = useRef(initialFilters !== null);
+  const onFiltersChangeRef = useRef(onFiltersChange);
 
   useEffect(() => {
     if (!storageKey || typeof window === "undefined") return;
+
+    if (hasPendingSeedRef.current) {
+      hasPendingSeedRef.current = false;
+      return;
+    }
 
     try {
       const stored = window.localStorage.getItem(storageKey);
@@ -70,6 +94,18 @@ export function useTaskFiltersWithLabelsSupport(
     if (!storageKey || typeof window === "undefined") return;
     window.localStorage.setItem(storageKey, JSON.stringify(filters));
   }, [filters, storageKey]);
+
+  // Declared before the publish effect so the ref is refreshed first on any
+  // render where the callback identity changed.
+  useEffect(() => {
+    onFiltersChangeRef.current = onFiltersChange;
+  }, [onFiltersChange]);
+
+  // Depends on [filters] only: a changing callback identity (which happens on
+  // every navigation) must not re-publish.
+  useEffect(() => {
+    onFiltersChangeRef.current?.(filters);
+  }, [filters]);
 
   const filterTasks = useCallback(
     (tasks: Task[]): Task[] => {

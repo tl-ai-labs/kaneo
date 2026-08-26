@@ -62,16 +62,32 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
     shortcuts: {
       j: () => {
         focusNext();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+        // Hoisted to a const: focusedTaskId is a mutable property, so the
+        // narrowing below would not survive into the arrow function.
+        const nextFocusedTaskId =
+          useBulkSelectionStore.getState().focusedTaskId;
+        if (nextFocusedTaskId) {
+          navigate({
+            to: ".",
+            search: (prev: Record<string, unknown>) => ({
+              ...prev,
+              taskId: nextFocusedTaskId,
+            }),
+          });
         }
       },
       k: () => {
         focusPrevious();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+        const nextFocusedTaskId =
+          useBulkSelectionStore.getState().focusedTaskId;
+        if (nextFocusedTaskId) {
+          navigate({
+            to: ".",
+            search: (prev: Record<string, unknown>) => ({
+              ...prev,
+              taskId: nextFocusedTaskId,
+            }),
+          });
         }
       },
       Enter: () => {
