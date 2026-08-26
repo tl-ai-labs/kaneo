@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "run_id": "20260825-114015-feature-extend-estimated-hours",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "opus-plus-sonnet-max",
+  "auth_mode": "estimated",
+  "provenance_note": "auth_mode=estimated. Mechanical-tier events carry vendor-reported tokens (provenance=vendor). Direct-tier (in-session Opus) events are char/3.8 estimates (provenance=estimated). Costs are token-derived estimates from the policy YAML pricing block, not vendor invoices.",
+  "anchor_commit": "5d1fc910",
+  "branch": "feature-extend-2/opus-sonnet",
+  "committed": false,
+  "generated_at": "2026-08-26T06:10:06.649Z",
+  "gates": [
+    {
+      "gate": "gate-0",
+      "title": "Discovery Confirmation",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-1",
+      "title": "Requirements Approval",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-2",
+      "title": "Architecture Approval",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-3",
+      "title": "Security Review",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-4",
+      "title": "Final Acceptance",
+      "response": "pending"
+    }
+  ],
+  "packets": {
+    "planned": 29,
+    "executed": 37,
+    "retries": 1,
+    "escalations_to_premium_tier": 0
+  },
+  "files": {
+    "added_count": 11,
+    "edited_count": 23,
+    "removed_count": 0,
+    "added": [
+      "apps/api/drizzle/0043_cultured_zaran.sql",
+      "apps/api/drizzle/meta/0043_snapshot.json",
+      "apps/api/src/task/controllers/update-task-estimated-hours.ts",
+      "apps/web/src/components/kanban-board/column/column-estimated-hours-badge.test.tsx",
+      "apps/web/src/components/kanban-board/column/column-estimated-hours-badge.tsx",
+      "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+      "apps/web/src/fetchers/task/update-task-estimated-hours.ts",
+      "apps/web/src/hooks/mutations/task/use-update-task-estimated-hours.ts",
+      "apps/web/src/lib/estimated-hours.test.ts",
+      "apps/web/src/lib/estimated-hours.ts",
+      "tests/api/task-estimated-hours-validation.test.ts"
+    ],
+    "edited": [
+      ".gitignore",
+      "apps/api/drizzle/meta/_journal.json",
+      "apps/api/src/database/schema.ts",
+      "apps/api/src/schemas.ts",
+      "apps/api/src/task/controllers/create-task.ts",
+      "apps/api/src/task/controllers/export-tasks.ts",
+      "apps/api/src/task/controllers/get-task.ts",
+      "apps/api/src/task/controllers/get-tasks.ts",
+      "apps/api/src/task/controllers/import-tasks.ts",
+      "apps/api/src/task/controllers/update-task.ts",
+      "apps/api/src/task/index.ts",
+      "apps/api/src/task/validate-task-fields.ts",
+      "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "apps/web/src/components/shared/modals/create-task-modal.tsx",
+      "apps/web/src/components/task/task-properties-sidebar.tsx",
+      "apps/web/src/fetchers/task/create-task.test.ts",
+      "apps/web/src/fetchers/task/create-task.ts",
+      "apps/web/src/fetchers/task/update-task.ts",
+      "apps/web/src/hooks/mutations/task/use-create-task.ts",
+      "apps/web/src/lib/format.ts",
+      "apps/web/src/types/task/index.ts",
+      "i18n/en-US.json",
+      "tests/api-integration/task.test.ts"
+    ],
+    "migration": "apps/api/drizzle/0043_cultured_zaran.sql",
+    "migration_sql": "ALTER TABLE \"task\" ADD COLUMN \"estimated_hours\" numeric(7, 2);",
+    "unique_paths": 34,
+    "touched_twice": [
+      "tests/api-integration/task.test.ts",
+      "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+      "apps/web/src/components/shared/modals/create-task-modal.tsx"
+    ],
+    "note": "provenance.json holds 37 entries for 34 unique paths; 3 files were touched twice (initial packet, then a senior-review fix packet)."
+  },
+  "churn": {
+    "source_excluding_generated_journal": "22 files, +680 / -75",
+    "generated_journal_reformat": "apps/api/drizzle/meta/_journal.json, +313 / -306 (tool reindent, 1 semantic entry)",
+    "new_files_loc_excluding_generated_snapshot": 547
+  },
+  "tests": {
+    "pnpm --filter @kaneo/api test": {
+      "baseline": "374/374",
+      "final": "389/389",
+      "delta": "+15"
+    },
+    "pnpm --filter @kaneo/api test:integration": {
+      "baseline": "181/181",
+      "final": "190/190",
+      "delta": "+9",
+      "database": "kaneo_opus_only_test on :5432"
+    },
+    "pnpm --filter @kaneo/web test": {
+      "baseline": "112/112",
+      "final": "139/139",
+      "delta": "+27"
+    },
+    "pnpm typecheck": {
+      "baseline": "clean",
+      "final": "6/6 packages clean"
+    },
+    "biome check (changed paths only)": {
+      "final": "clean, 30 files"
+    },
+    "root_lint": "NOT RUN — biome check --write modifies unrelated files (AGENTS.md)"
+  },
+  "mutation_verified_guards": [
+    {
+      "guard": "apps/api/src/task/controllers/update-task.ts:81 conditional spread",
+      "test": "tests/api-integration/task.test.ts — 'preserves the estimate when a whole-task update omits the field'",
+      "mutation": "replaced guard with naive `estimatedHours: estimatedHours ?? null`",
+      "result": "test FAILED (Expected 4.5 / Received null); file restored byte-identical; test re-passed"
+    },
+    {
+      "guard": "apps/api/src/task/index.ts requireWorkspacePermission({ task: [\"update\"] }) on PUT /task/estimated-hours/:id",
+      "test": "tests/api-integration/task.test.ts — 'rejects an estimate update from a workspace viewer'",
+      "mutation": "removed requireWorkspacePermission from the new route only",
+      "result": "test FAILED (expected 200 to be 403 — viewer write succeeded); file restored byte-identical; test re-passed"
+    }
+  ],
+  "reviews": {
+    "senior": {
+      "verdict": "needs_changes -> resolved",
+      "blockers": 0,
+      "majors": 2,
+      "majors_fixed": 2,
+      "minors": 6,
+      "minors_fixed": 4,
+      "minors_report_only": 2,
+      "artifact": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/review.md"
+    },
+    "security": {
+      "verdict": "PASS",
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 1,
+      "informational": 1,
+      "artifact": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/security_review.md"
+    }
+  },
+  "accepted_deviations": [
+    {
+      "id": "public-board-payload",
+      "decided_at": "gate-3",
+      "decision": "ACCEPTED KNOWINGLY by the user",
+      "what": "get-public-project.ts:5 calls getTasks(id) and returns result.data wholesale, so estimatedHours reaches the unauthenticated GET /api/public-project/:id.",
+      "scope": "Payload-only. No public UI renders it; apps/web/src/components/public-project/** is untouched and contains no estimatedHours reference.",
+      "context": "The same endpoint already publishes task titles, descriptions, due dates, assigneeName and assigneeImage — all more sensitive than a planning number.",
+      "relation_to_spec": "A knowing deviation from the literal wording of OOS-11 / requirements.md §5 — NOT an oversight.",
+      "follow_up": "follow-up-1"
+    },
+    {
+      "id": "modal-fetcher-layering",
+      "decided_at": "gate-3",
+      "decision": "LEFT AS-IS by the user",
+      "what": "create-task-modal.tsx calls the update-task-estimated-hours FETCHER directly instead of the useUpdateTaskEstimatedHours hook.",
+      "cause": "Caused by the FILE SCOPE AGREED AT GATE 0, not by a design judgement. Adding the hook broke two pre-existing cases in create-task-modal.test.tsx ('No QueryClient set'); that test file is outside the allowlist (verified allow=false), so the edit was refused rather than scope widened.",
+      "why_safe": "The immediately-following updateTask mutation invalidates ['task',id], ['tasks',projectId], ['notifications'], ['projects'], ['activities',id] — a superset of what the hook would invalidate.",
+      "follow_up": "follow-up-2"
+    }
+  ],
+  "follow_ups": [
+    {
+      "id": "follow-up-1",
+      "title": "Omit estimatedHours from the public-project payload (only if OOS-11 is to be honored literally)",
+      "file": "apps/api/src/project/controllers/get-public-project.ts",
+      "blocked_by": "outside this run's write-contract allowlist",
+      "severity": "low",
+      "status": "accepted-as-is at Gate 3; optional"
+    },
+    {
+      "id": "follow-up-2",
+      "title": "Restore the mutation-hook layering in the create-task modal",
+      "steps": [
+        "add apps/web/src/components/shared/modals/create-task-modal.test.tsx to the allowlist",
+        "restore `import { useUpdateTaskEstimatedHours }` and its instantiation in create-task-modal.tsx",
+        "add one vi.mock for @/hooks/mutations/task/use-update-task-estimated-hours to create-task-modal.test.tsx"
+      ],
+      "blocked_by": "create-task-modal.test.tsx outside this run's allowlist",
+      "severity": "minor"
+    },
+    {
+      "id": "follow-up-3",
+      "title": "Sync the other 16 locales with the 12 new en-US keys",
+      "command": "pnpm i18n:check:fix",
+      "note": "pnpm i18n:check exits 1 until this is done. NOT wired into CI or husky, so it blocks nothing. Deliberately not run in-run: it writes to off-limits locale files.",
+      "severity": "minor"
+    },
+    {
+      "id": "follow-up-4",
+      "title": "Regenerate the stale OpenAPI document",
+      "file": "apps/docs/openapi.json",
+      "note": "apps/docs/** is off-limits this run; the three touched routes' describeRoute metadata changed.",
+      "severity": "minor"
+    }
+  ],
+  "cost": {
+    "total_usd": 8.0773,
+    "hard_cost_cap_usd": 50,
+    "cap_used_pct": 16.2,
+    "by_phase": {
+      "requirements_analysis": {
+        "events": 1,
+        "cost_usd": 0.3375,
+        "input_tokens": 31000,
+        "output_tokens": 7300,
+        "models": [
+          "claude-opus-5"
+        ]
+      },
+      "change_plan": {
+        "events": 2,
+        "cost_usd": 1.455,
+        "input_tokens": 154000,
+        "output_tokens": 27400,
+        "models": [
+          "claude-opus-5"
+        ]
+      },
+      "plan_task_packets": {
+        "events": 1,
+        "cost_usd": 0.4625,
+        "input_tokens": 45000,
+        "output_tokens": 9500,
+        "models": [
+          "claude-opus-5"
+        ]
+      },
+      "codegen": {
+        "events": 25,
+        "cost_usd": 2.93,
+        "input_tokens": 491106,
+        "output_tokens": 44428,
+        "models": [
+          "claude-sonnet-5"
+        ]
+      },
+      "tests": {
+        "events": 7,
+        "cost_usd": 0.8235,
+        "input_tokens": 119875,
+        "output_tokens": 18237,
+        "models": [
+          "claude-sonnet-5"
+        ]
+      },
+      "debug": {
+        "events": 4,
+        "cost_usd": 0.5811,
+        "input_tokens": 96210,
+        "output_tokens": 8814,
+        "models": [
+          "claude-sonnet-5"
+        ]
+      },
+      "security_review": {
+        "events": 1,
+        "cost_usd": 0.504,
+        "input_tokens": 60000,
+        "output_tokens": 8150,
+        "models": [
+          "claude-opus-5"
+        ]
+      },
+      "senior_code_review": {
+        "events": 1,
+        "cost_usd": 0.9838,
+        "input_tokens": 125000,
+        "output_tokens": 14350,
+        "models": [
+          "claude-opus-5"
+        ]
+      }
+    },
+    "by_model": {
+      "claude-opus-5": {
+        "events": 6,
+        "cost_usd": 3.7428
+      },
+      "claude-sonnet-5": {
+        "events": 36,
+        "cost_usd": 4.3345
+      }
+    },
+    "by_provenance": {
+      "estimated": {
+        "events": 6,
+        "cost_usd": 3.7428
+      },
+      "vendor": {
+        "events": 36,
+        "cost_usd": 4.3345
+      }
+    },
+    "tokens": {
+      "input": 1122191,
+      "input_cached": 3613472,
+      "output": 138179
+    },
+    "pricing_source": "policy YAML opus-plus-sonnet-max pricing block (opus 5/0.5/25, sonnet 3/0.3/15 per Mtok)"
+  },
+  "telemetry_events": 42,
+  "artifacts": {
+    "requirements": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/requirements.md",
+    "change_plan": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/change_plan.md",
+    "packets": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/packets.json",
+    "review": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/review.md",
+    "security_review": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/security_review.md",
+    "findings": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/findings.md",
+    "telemetry": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/telemetry.jsonl",
+    "provenance": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/provenance.json",
+    "test_baseline": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/test-baseline.json",
+    "summary": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/SUMMARY.md",
+    "manifest": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours/manifest.json"
+  },
+  "revert": {
+    "plugin_command": "/mmo:revert 20260825-114015-feature-extend-estimated-hours",
+    "git_escape_hatch": [
+      "git reset --hard 5d1fc910",
+      "git clean -fd apps/api/drizzle apps/api/src apps/web/src tests"
+    ],
+    "note": "Nothing was committed. git_head_before == git_head_after == 5d1fc910; 0 commits recorded."
+  }
+}

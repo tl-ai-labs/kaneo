@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "project": "kaneo",
+  "created_at": "2026-08-26T06:22:13.696Z",
+  "note": "Machine mirror of ledger.md. Costs are token-derived estimates unless auth_mode is vendor.",
+  "runs": [
+    {
+      "run_id": "20260825-114015-feature-extend-estimated-hours",
+      "mode": "brownfield",
+      "intent": "feature-extend",
+      "policy": "opus-plus-sonnet-max",
+      "auth_mode": "estimated",
+      "started_date": "2026-08-25",
+      "completed_at": "2026-08-26T06:22:13.696Z",
+      "title": "Estimated hours on tasks with per-column rollup",
+      "anchor_commit": "5d1fc910",
+      "branch": "feature-extend-2/opus-sonnet",
+      "committed": false,
+      "gates": [
+        {
+          "gate": "gate-0",
+          "response": "approved"
+        },
+        {
+          "gate": "gate-1",
+          "response": "approved"
+        },
+        {
+          "gate": "gate-2",
+          "response": "approved"
+        },
+        {
+          "gate": "gate-3",
+          "response": "approved"
+        },
+        {
+          "gate": "gate-4",
+          "response": "accept"
+        }
+      ],
+      "files": {
+        "added": 11,
+        "edited": 23,
+        "removed": 0
+      },
+      "migration": "apps/api/drizzle/0043_cultured_zaran.sql",
+      "tests": {
+        "api_unit": "389/389",
+        "api_integration": "190/190",
+        "web": "139/139",
+        "typecheck": "6/6 packages",
+        "biome": "clean"
+      },
+      "reviews": {
+        "senior": {
+          "blockers": 0,
+          "majors": 2,
+          "majors_fixed": 2,
+          "minors": 6
+        },
+        "security": {
+          "verdict": "PASS",
+          "low": 1
+        }
+      },
+      "mutation_verified_guards": [
+        "apps/api/src/task/controllers/update-task.ts:81 conditional spread",
+        "apps/api/src/task/index.ts requireWorkspacePermission({ task: [\"update\"] }) on PUT /task/estimated-hours/:id"
+      ],
+      "accepted_deviations": [
+        {
+          "id": "public-board-payload",
+          "decision": "ACCEPTED KNOWINGLY by the user"
+        },
+        {
+          "id": "modal-fetcher-layering",
+          "decision": "LEFT AS-IS by the user"
+        }
+      ],
+      "follow_ups_open": 4,
+      "cost_usd": 8.0773,
+      "cap_used_pct": 16.2,
+      "telemetry_events": 42,
+      "artifacts_dir": ".sdlc/runs/20260825-114015-feature-extend-estimated-hours"
+    }
+  ]
+}

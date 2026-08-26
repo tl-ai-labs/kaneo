@@ -1,0 +1,1646 @@
+[
+  {
+    "id": "tp_001_schema_column",
+    "phase": "codegen",
+    "task_type": "entity",
+    "subtype": "patch_apply",
+    "module": "api-data",
+    "group": "P1",
+    "instruction": "Add one nullable column to taskTable in apps/api/src/database/schema.ts.\nInsert immediately after the dueDate property:\n  estimatedHours: numeric(\"estimated_hours\", { precision: 7, scale: 2, mode: \"number\" }),\nAlso add numeric to the existing import list from \"drizzle-orm/pg-core\", keeping that list alphabetically sorted as it already is.\nDo NOT add .notNull(), do NOT add .default(), do NOT add an index, do NOT touch the table's third argument, do NOT change any other table.\nReturn only the minimal edits.",
+    "inputs": [
+      {
+        "path": "apps/api/src/database/schema.ts",
+        "reason": "taskTable block plus the pg-core import list",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "taskTable has estimatedHours declared as numeric with precision 7, scale 2, mode number",
+      "the column is nullable: no .notNull() and no .default()",
+      "numeric is imported from drizzle-orm/pg-core in the existing alphabetical import list",
+      "no index is added and no other table is modified"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/database/schema.ts",
+    "intent": "feature-extend",
+    "depends_on": []
+  },
+  {
+    "id": "tp_002_task_schema",
+    "phase": "codegen",
+    "task_type": "dto",
+    "subtype": "patch_apply",
+    "module": "api-data",
+    "group": "P1",
+    "instruction": "In apps/api/src/schemas.ts, add one property to taskSchema only.\nInsert after the line \"dueDate: v.optional(v.date()),\" the line:\n  estimatedHours: v.nullable(v.number()),\nUse v.nullable (NOT v.optional): the read controllers always select the column so the key is always present on the wire.\nCRITICAL: do NOT modify activitySchema. Its type picklist must not gain any new member. Do not touch any other schema in the file.",
+    "inputs": [
+      {
+        "path": "apps/api/src/schemas.ts",
+        "reason": "taskSchema and the neighbouring activitySchema",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "taskSchema gains estimatedHours: v.nullable(v.number())",
+      "activitySchema is completely unmodified, its picklist unchanged",
+      "no other exported schema is changed"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/schemas.ts",
+    "intent": "feature-extend",
+    "depends_on": []
+  },
+  {
+    "id": "tp_003_valibot_validators",
+    "phase": "codegen",
+    "task_type": "dto",
+    "subtype": "existing_file_edit",
+    "module": "api-data",
+    "group": "P1",
+    "instruction": "In apps/api/src/task/validate-task-fields.ts add a valibot import and three exports.\nAdd at the top with the other imports: import * as v from \"valibot\";\nAppend these exports verbatim at the end of the file:\n\nexport const MAX_ESTIMATED_HOURS = 10_000;\n\nexport const estimatedHoursSchema = v.pipe(\n  v.number(\"Estimated hours must be a number\"),\n  v.finite(\"Estimated hours must be a finite number\"),\n  v.minValue(0, \"Estimated hours cannot be negative\"),\n  v.maxValue(\n    MAX_ESTIMATED_HOURS,\n    \"Estimated hours cannot exceed \" + MAX_ESTIMATED_HOURS,\n  ),\n  v.transform((value) => Math.round(value * 100) / 100),\n);\n\nexport const nullableEstimatedHoursSchema = v.nullable(estimatedHoursSchema);\n\nexport const optionalEstimatedHoursSchema = v.optional(\n  nullableEstimatedHoursSchema,\n);\n\nUse a template literal for the maxValue message rather than string concatenation if that matches the file's style. Change nothing else in the file.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/validate-task-fields.ts",
+        "reason": "full file - it is short",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "valibot is imported as v",
+      "MAX_ESTIMATED_HOURS is exported and equals 10000",
+      "estimatedHoursSchema pipes number, finite, minValue 0, maxValue MAX_ESTIMATED_HOURS and a 2dp rounding transform",
+      "nullableEstimatedHoursSchema and optionalEstimatedHoursSchema are exported",
+      "existing exports VALID_PRIORITIES, VIRTUAL_STATUSES, assertValidPriority, getValidTaskStatuses, assertValidTaskStatus, coerceStatus, coercePriority are unchanged"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/validate-task-fields.ts",
+    "intent": "feature-extend",
+    "depends_on": []
+  },
+  {
+    "id": "tp_004_get_tasks_select",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "subtype": "patch_apply",
+    "module": "api-read",
+    "group": "P2",
+    "instruction": "In apps/api/src/task/controllers/get-tasks.ts add one entry to the taskSelection object literal.\nInsert immediately after the line \"dueDate: taskTable.dueDate,\" the line:\n  estimatedHours: taskTable.estimatedHours,\nThis is the board payload. Without this entry the kanban column rollup silently reads undefined on every task.\nChange nothing else: not the filters, not buildOrderBy, not the sortBy union, not the pagination.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/controllers/get-tasks.ts",
+        "reason": "the taskSelection object literal",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "taskSelection contains estimatedHours: taskTable.estimatedHours",
+      "no sort or filter option for estimatedHours is added",
+      "no other part of the controller changes"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/controllers/get-tasks.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P1"
+    ]
+  },
+  {
+    "id": "tp_005_get_task_select",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "subtype": "patch_apply",
+    "module": "api-read",
+    "group": "P2",
+    "instruction": "In apps/api/src/task/controllers/get-task.ts add one entry to the .select({...}) object.\nInsert immediately after \"dueDate: taskTable.dueDate,\" the line:\n  estimatedHours: taskTable.estimatedHours,\nChange nothing else.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/controllers/get-task.ts",
+        "reason": "full file - it is short",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "the select object contains estimatedHours: taskTable.estimatedHours",
+      "no other change"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/controllers/get-task.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P1"
+    ]
+  },
+  {
+    "id": "tp_006_export_tasks",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "subtype": "patch_apply",
+    "module": "api-read",
+    "group": "P2",
+    "instruction": "Two edits in apps/api/src/task/controllers/export-tasks.ts.\n1. In the .select({...}) object, after \"dueDate: taskTable.dueDate,\" add:\n     estimatedHours: taskTable.estimatedHours,\n2. In the returned tasks.map((task) => ({...})) object, after the startDate entry, add:\n     estimatedHours: task.estimatedHours ?? null,\nChange nothing else. Do not reorder existing keys.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/controllers/export-tasks.ts",
+        "reason": "the select object and the tasks.map return shape",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "the select object gains estimatedHours: taskTable.estimatedHours",
+      "the exported task object gains estimatedHours with a ?? null fallback",
+      "existing exported keys and their order are unchanged"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/controllers/export-tasks.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P1"
+    ]
+  },
+  {
+    "id": "tp_007_update_estimated_hours_controller",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "subtype": "new_file_add",
+    "module": "api-write",
+    "group": "P3",
+    "instruction": "Create apps/api/src/task/controllers/update-task-estimated-hours.ts.\nMirror update-task-due-date.ts exactly in structure, but publish the EXISTING event \"task.updated\" instead of a new event type.\n\nasync function updateTaskEstimatedHours({ id, estimatedHours, currentUserId }: { id: string; estimatedHours: number | null; currentUserId: string; })\n\nBody:\n1. read-before-write: db.query.taskTable.findFirst({ where: eq(taskTable.id, id) }); if missing throw new HTTPException(404, { message: \"Task not found\" }).\n2. db.update(taskTable).set({ estimatedHours }).where(eq(taskTable.id, id)).returning(); destructure const [updatedTask].\n3. if (!updatedTask) throw new HTTPException(500, { message: \"Failed to update task estimated hours\" }).\n4. await publishEvent(\"task.updated\", { taskId: updatedTask.id, projectId: updatedTask.projectId, title: updatedTask.title, status: updatedTask.status, userId: currentUserId });\n5. return updatedTask.\nexport default updateTaskEstimatedHours;\n\nSet estimatedHours directly (it is already number | null after validation) - do NOT use \"estimatedHours || null\" because that would turn a legitimate 0 into null.\nDo NOT invent a new event type. Do NOT add an activity row.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/controllers/update-task-due-date.ts",
+        "reason": "the exact house pattern to mirror",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "file exports default updateTaskEstimatedHours taking a single named-object parameter",
+      "404 HTTPException when the task does not exist, 500 when the update returns no row",
+      "publishEvent is called with the literal string task.updated and no new event type is introduced",
+      "an explicit 0 is stored as 0, not coerced to null",
+      "imports match the house style used by update-task-due-date.ts"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/controllers/update-task-estimated-hours.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P1"
+    ]
+  },
+  {
+    "id": "tp_008_create_task_controller",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "subtype": "patch_apply",
+    "module": "api-write",
+    "group": "P3",
+    "instruction": "Three small edits in apps/api/src/task/controllers/create-task.ts.\n1. Add estimatedHours to the destructured named-object parameter list (after priority).\n2. Add to that parameter's type annotation: estimatedHours?: number | null;\n3. In the tx.insert(taskTable).values({...}) object add: estimatedHours: estimatedHours ?? null,\nUse ?? (nullish coalescing), never ||, so an explicit 0 survives.\nChange nothing else - not the status/priority resolution, not claimTaskNumber, not the position query, not publishEvent.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/controllers/create-task.ts",
+        "reason": "the named-object parameter, its type, and the insert values",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "estimatedHours is destructured and typed as optional number or null",
+      "the insert values include estimatedHours with a ?? null fallback",
+      "an explicit 0 is inserted as 0",
+      "no other behavior in the controller changes"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/controllers/create-task.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P1"
+    ]
+  },
+  {
+    "id": "tp_009_update_task_signature",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "subtype": "existing_file_edit",
+    "module": "api-write",
+    "group": "P3",
+    "instruction": "Convert updateTask in apps/api/src/task/controllers/update-task.ts from eleven positional parameters to the house named-object shape, and add estimatedHours.\n\nNew signature:\nasync function updateTask({ id, title, status, startDate, dueDate, projectId, description, priority, position, userId, currentUserId, estimatedHours }: { id: string; title: string; status: string; startDate: Date | undefined; dueDate: Date | undefined; projectId: string; description: string; priority: string; position: number; userId?: string; currentUserId?: string; estimatedHours?: number | null; })\n\nThe body is otherwise UNCHANGED except for one addition to the .set({...}) object:\n      ...(estimatedHours !== undefined ? { estimatedHours } : {}),\n\nThis conditional spread is load-bearing. PUT /task/:id is a whole-task replace used by kanban drag-and-drop and archive-all. An unconditional assignment would wipe every stored estimate on the next drag. Only write the column when the caller explicitly sent the field.\n\nDo NOT change the existing status-change event, the task.updated event, the deleteOrphanedAssets call, the project-mismatch 400, or the assertValidTaskStatus call.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/controllers/update-task.ts",
+        "reason": "full file",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "updateTask takes exactly one named-object parameter with all twelve fields",
+      "the .set object uses a conditional spread so estimatedHours is written only when not undefined",
+      "sending no estimatedHours leaves the stored value untouched",
+      "every other behavior, event and error path is byte-for-byte unchanged"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 4000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/controllers/update-task.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P1"
+    ]
+  },
+  {
+    "id": "tp_010_import_tasks",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "subtype": "patch_apply",
+    "module": "api-write",
+    "group": "P3",
+    "instruction": "Two edits in apps/api/src/task/controllers/import-tasks.ts.\n1. Add to the exported ImportTask type: estimatedHours?: number | null;\n2. In the tx.insert(taskTable).values({...}) object add: estimatedHours: taskData.estimatedHours ?? null,\nUse ?? so an explicit 0 in an import file survives. Change nothing else.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/controllers/import-tasks.ts",
+        "reason": "the ImportTask type and the insert values",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "ImportTask gains an optional estimatedHours field",
+      "the insert values include estimatedHours with a ?? null fallback",
+      "import files that omit the field still import successfully with a null estimate"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/controllers/import-tasks.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P1"
+    ]
+  },
+  {
+    "id": "tp_011_task_routes_wiring",
+    "phase": "codegen",
+    "task_type": "module_wiring",
+    "subtype": "existing_file_edit",
+    "module": "api-routes",
+    "group": "P4",
+    "instruction": "Five coupled edits in apps/api/src/task/index.ts. They must all land together or the file will not compile.\n\n1. IMPORTS. Add: import updateTaskEstimatedHours from \"./controllers/update-task-estimated-hours\";\n   in the existing alphabetically-sorted controller import block (between updateTaskDueDate and updateTaskPriority).\n   Extend the existing \"./validate-task-fields\" import to also bring in nullableEstimatedHoursSchema and optionalEstimatedHoursSchema alongside VALID_PRIORITIES.\n\n2. POST /:projectId. Add estimatedHours: optionalEstimatedHoursSchema, to the validator(\"json\", v.object({...})). Add estimatedHours to the handler destructure of c.req.valid(\"json\"). Pass estimatedHours, into the createTask({...}) call. Change the describeRoute description to \"Create a new task in a project, optionally with an estimate in hours\".\n\n3. PUT /:id. Add estimatedHours: optionalEstimatedHoursSchema, to the validator(\"json\", ...). Add estimatedHours to the handler destructure. Replace the positional updateTask(...) call with the named-object form: await updateTask({ id, title, status, startDate: parsedStartDate, dueDate: parsedDueDate, projectId, description, priority, position, userId, currentUserId, estimatedHours }). Change the describeRoute description to \"Update all fields of a task, including its estimated hours\".\n\n4. NEW ROUTE. Insert a new .put(...) link immediately AFTER the \"/due-date/:id\" block and BEFORE the \"/title/:id\" block:\n  .put(\n    \"/estimated-hours/:id\",\n    describeRoute({\n      operationId: \"updateTaskEstimatedHours\",\n      tags: [\"Tasks\"],\n      description: \"Update only the estimated hours of a task\",\n      responses: {\n        200: {\n          description: \"Task estimated hours updated successfully\",\n          content: { \"application/json\": { schema: resolver(taskSchema) } },\n        },\n      },\n    }),\n    validator(\"param\", v.object({ id: v.string() })),\n    validator(\"json\", v.object({ estimatedHours: nullableEstimatedHoursSchema })),\n    workspaceAccess.fromTask(),\n    requireWorkspacePermission({ task: [\"update\"] }),\n    requireEntitlement,\n    async (c) => {\n      const { id } = c.req.valid(\"param\");\n      const { estimatedHours } = c.req.valid(\"json\");\n      const currentUserId = c.get(\"userId\");\n      const task = await updateTaskEstimatedHours({ id, estimatedHours, currentUserId });\n      return c.json(task);\n    },\n  )\n\n5. POST /import/:projectId. Add estimatedHours: optionalEstimatedHoursSchema, to the per-task object inside the tasks: v.array(v.object({...})) validator.\n\nDo not change any other route, middleware order, or operationId.",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/index.ts",
+        "reason": "import block, POST /:projectId, PUT /:id, PUT /due-date/:id, POST /import/:projectId",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "the new controller and both valibot schemas are imported",
+      "POST /:projectId accepts an optional estimatedHours and forwards it to createTask",
+      "PUT /:id accepts an optional estimatedHours and calls updateTask with a single named object",
+      "PUT /estimated-hours/:id exists with operationId updateTaskEstimatedHours and the full middleware chain workspaceAccess.fromTask, requireWorkspacePermission task update, requireEntitlement",
+      "the import route validator accepts an optional estimatedHours per task",
+      "no existing route, operationId or middleware order is altered"
+    ],
+    "budget": {
+      "maxInputTokens": 12000,
+      "maxOutputTokens": 4000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/api/src/task/index.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P3"
+    ]
+  },
+  {
+    "id": "tp_012_validation_unit_test",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "api-tests",
+    "group": "P5",
+    "instruction": "Create tests/api/task-estimated-hours-validation.test.ts.\nPure valibot boundary test: no database, no vi.mock, no vi.stubEnv.\nImport { describe, it, expect } from \"vitest\", import * as v from \"valibot\", and import { MAX_ESTIMATED_HOURS, nullableEstimatedHoursSchema, optionalEstimatedHoursSchema } from \"../../apps/api/src/task/validate-task-fields\".\nAssert with v.safeParse:\n- 2.5, 0.25, 0.5 succeed and preserve the value exactly\n- 0 succeeds and outputs 0 (zero is a legal estimate, not \"unset\")\n- null succeeds against nullableEstimatedHoursSchema and outputs null\n- -1 and -0.5 fail, and the first issue message is \"Estimated hours cannot be negative\"\n- Number.POSITIVE_INFINITY and Number.NaN fail\n- 10001 fails; 10000 succeeds (inclusive boundary); MAX_ESTIMATED_HOURS is 10000\n- 2.005 succeeds and outputs 2.01 (2dp boundary rounding matching the numeric scale)\n- undefined succeeds against optionalEstimatedHoursSchema\n- undefined FAILS against nullableEstimatedHoursSchema (the single-field route requires the key)",
+    "inputs": [
+      {
+        "path": "apps/api/src/task/validate-task-fields.ts",
+        "reason": "the schemas under test",
+        "content": "<sliced at dispatch time>"
+      },
+      {
+        "path": "tests/api/utils/validate-dates.test.ts",
+        "reason": "the house test shape for a pure validator test",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "the file runs under pnpm --filter @kaneo/api test with no database",
+      "all listed boundary cases are asserted",
+      "the negative-value assertion checks the exact issue message",
+      "2.005 rounding to 2.01 is asserted"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "tests/api/task-estimated-hours-validation.test.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P1"
+    ]
+  },
+  {
+    "id": "tp_013_integration_test",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "integration",
+    "module": "api-tests",
+    "group": "P5",
+    "instruction": "Append ONE new describe block to tests/api-integration/task.test.ts. Do not modify any existing test.\n\ndescribe(\"API integration: task estimated hours\", ...) with its own beforeEach database reset, following the existing file's exact patterns for creating a workspace member, a project fixture, mocking the authenticated session and building the app.\n\nCases:\n1. POST /api/task/:projectId WITHOUT estimatedHours returns 200, response estimatedHours is null, persisted row is null.\n2. POST with estimatedHours 2.5 returns 200, response 2.5, persisted 2.5, and typeof the returned value is \"number\" (this asserts drizzle mode:\"number\"; a regression to mode:\"string\" must fail here).\n3. PUT /api/task/estimated-hours/:id with 0.5 -> 200 and 0.5; then 3.25 -> 200 and 3.25; then null -> 200 and null. Set, change and clear in one case.\n4. PUT /api/task/estimated-hours/:id with -1 returns 400 AND the persisted row still holds its previous value (re-read and compare).\n5. PUT /api/task/estimated-hours/:id with 0 returns 200 and persists 0, NOT null. This guards against a falsy-check regression.\n6. A user outside the project workspace is rejected, following this file's existing outsider pattern, and the row is unchanged.\n7. GET /api/task/tasks/:projectId after setting an estimate: find the task inside data.columns[].tasks and assert estimatedHours carries the set value. This is what catches a missing taskSelection entry.\n8. THE CRITICAL REGRESSION: set an estimate via PUT /api/task/estimated-hours/:id, then send PUT /api/task/:id WITHOUT estimatedHours (simulating a kanban drag which replaces the whole task), then assert the estimate SURVIVED. A naive unconditional set in updateTask would null it here.\n\nUse the file's existing assertion style. Return only edits that append the new block.",
+    "inputs": [
+      {
+        "path": "tests/api-integration/task.test.ts",
+        "reason": "the existing describe block, imports, fixtures and outsider-rejection pattern",
+        "content": "<sliced at dispatch time>"
+      },
+      {
+        "path": "tests/api-integration/helpers/fixtures.ts",
+        "reason": "available fixture helpers",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "all eight cases are present in one new describe block",
+      "no existing test in the file is modified",
+      "case 2 asserts typeof number",
+      "case 5 distinguishes stored 0 from null",
+      "case 7 reads through the board payload GET /api/task/tasks/:projectId",
+      "case 8 proves a whole-task PUT without the field preserves the estimate"
+    ],
+    "budget": {
+      "maxInputTokens": 14000,
+      "maxOutputTokens": 6000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "tests/api-integration/task.test.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P4"
+    ]
+  },
+  {
+    "id": "tp_014_web_task_type",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "subtype": "patch_apply",
+    "module": "web-types",
+    "group": "P6",
+    "instruction": "In apps/web/src/types/task/index.ts add one OPTIONAL field to the Task type, after \"dueDate: string | null;\":\n  estimatedHours?: number | null;\nIt must be optional (with ?), not required. Task object literals are constructed in files outside this run's write scope; a required key would break typecheck in files that cannot be edited. The existing updatedAt? and assigneeImage? fields set this precedent.\nChange nothing else.",
+    "inputs": [
+      {
+        "path": "apps/web/src/types/task/index.ts",
+        "reason": "full file - it is short",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "Task gains estimatedHours as an optional number-or-null field",
+      "no other type in the file changes"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/types/task/index.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P4"
+    ]
+  },
+  {
+    "id": "tp_015_format_helper",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "subtype": "patch_apply",
+    "module": "web-lib",
+    "group": "P6",
+    "instruction": "Append one exported formatter to apps/web/src/lib/format.ts, reusing the file's existing private getLocale helper:\n\nexport function formatEstimatedHours(value: number, locale?: string) {\n  return new Intl.NumberFormat(getLocale(locale), {\n    maximumFractionDigits: 2,\n  }).format(value);\n}\n\nmaximumFractionDigits: 2 is what absorbs float artifacts, so 0.30000000000000004 renders as \"0.3\".\nAdd no imports. Change no existing function.",
+    "inputs": [
+      {
+        "path": "apps/web/src/lib/format.ts",
+        "reason": "full file - shows the private getLocale helper and export style",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "formatEstimatedHours is exported and uses Intl.NumberFormat with maximumFractionDigits 2",
+      "it reuses the existing private getLocale helper",
+      "no new import is added and no existing formatter changes"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/lib/format.ts",
+    "intent": "feature-extend",
+    "depends_on": []
+  },
+  {
+    "id": "tp_016_estimated_hours_lib",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "subtype": "new_file_add",
+    "module": "web-lib",
+    "group": "P6",
+    "instruction": "Create apps/web/src/lib/estimated-hours.ts. Pure module: no React, no i18n, no side effects, no imports except a type-only import if needed.\n\nexport const MAX_ESTIMATED_HOURS = 10_000;\n\nexport function sumEstimatedHours(tasks: Array<{ estimatedHours?: number | null }>): number\n  Sums estimatedHours across tasks. A task whose value is null or undefined contributes 0.\n  Round the final total to 2 decimals so 0.1 + 0.2 returns exactly 0.3, never 0.30000000000000004.\n\nexport type ParsedEstimatedHours = { ok: true; value: number | null } | { ok: false };\n\nexport function parseEstimatedHoursInput(raw: string): ParsedEstimatedHours\n  - empty or whitespace-only input -> { ok: true, value: null }   (empty is NOT zero)\n  - \"0\" -> { ok: true, value: 0 }\n  - a finite number >= 0 and <= MAX_ESTIMATED_HOURS -> { ok: true, value: <rounded to 2dp> }\n  - anything else (non-numeric, negative, above the max, NaN, Infinity) -> { ok: false }\n  Use Number(trimmed) and Number.isFinite; do not use parseFloat, which would accept \"2abc\".",
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "sumEstimatedHours treats null and undefined as 0",
+      "sumEstimatedHours([0.1, 0.2]) returns exactly 0.3",
+      "parseEstimatedHoursInput distinguishes empty (null) from zero (0)",
+      "parseEstimatedHoursInput rejects non-numeric, negative and above-max input",
+      "the module has no React or i18n dependency"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/lib/estimated-hours.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P6"
+    ]
+  },
+  {
+    "id": "tp_017_estimated_hours_lib_test",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "web-lib",
+    "group": "P6",
+    "instruction": "Create apps/web/src/lib/estimated-hours.test.ts. Pure unit test, no render.\nImport { describe, it, expect } from \"vitest\" and the helpers from \"./estimated-hours\".\nAssert:\n- sumEstimatedHours([]) === 0\n- sumEstimatedHours([{estimatedHours: 2.5}, {estimatedHours: null}, {}, {estimatedHours: 0.25}]) === 2.75\n- sumEstimatedHours([{estimatedHours: 0.1}, {estimatedHours: 0.2}]) === 0.3 exactly (float-artifact guard)\n- sumEstimatedHours([{estimatedHours: 0}, {estimatedHours: 0}]) === 0\n- parseEstimatedHoursInput(\"\") and (\"   \") -> { ok: true, value: null }\n- parseEstimatedHoursInput(\"0\") -> { ok: true, value: 0 }\n- parseEstimatedHoursInput(\"2.5\") -> { ok: true, value: 2.5 }\n- parseEstimatedHoursInput(\"-1\"), (\"abc\"), (\"10001\") -> ok is false",
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "every listed case is asserted",
+      "the 0.1 + 0.2 case asserts exactly 0.3",
+      "empty-vs-zero is asserted as distinct"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/lib/estimated-hours.test.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P6"
+    ]
+  },
+  {
+    "id": "tp_018_fetcher_estimated_hours",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "new_file_add",
+    "module": "web-data",
+    "group": "P7",
+    "instruction": "Create apps/web/src/fetchers/task/update-task-estimated-hours.ts mirroring update-task-due-date.ts exactly.\n\nimport { client } from \"@kaneo/libs\";\n\nasync function updateTaskEstimatedHours(taskId: string, estimatedHours: number | null) {\n  const response = await client.task[\"estimated-hours\"][\":id\"].$put({\n    param: { id: taskId },\n    json: { estimatedHours },\n  });\n  if (!response.ok) {\n    const error = await response.text();\n    throw new Error(error);\n  }\n  return await response.json();\n}\n\nexport default updateTaskEstimatedHours;\n\nPass estimatedHours straight through - null must reach the API as null so it clears the estimate. Do NOT coerce with || or ??. Do not create any parallel request layer.",
+    "inputs": [
+      {
+        "path": "apps/web/src/fetchers/task/update-task-due-date.ts",
+        "reason": "the exact house fetcher pattern to mirror",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "uses the typed client from @kaneo/libs at client.task['estimated-hours'][':id'].$put",
+      "null is forwarded unchanged so the clear path works",
+      "throws new Error(await response.text()) on a non-ok response",
+      "export default"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/fetchers/task/update-task-estimated-hours.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P4",
+      "P6"
+    ]
+  },
+  {
+    "id": "tp_019_fetcher_create_task",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "existing_file_edit",
+    "module": "web-data",
+    "group": "P7",
+    "instruction": "Convert createTask in apps/web/src/fetchers/task/create-task.ts from eight positional parameters to a single named object typed as the existing exported CreateTaskRequest.\n\nasync function createTask({ title, description, projectId, userId, status, startDate, dueDate, priority, estimatedHours }: CreateTaskRequest) { ... }\n\nCreateTaskRequest is InferRequestType of the POST route's json and param, so it gains estimatedHours automatically once the route validator has it - do NOT restate the type by hand.\n\nIn the request body pass startDate and dueDate straight through as the ISO strings they already are in CreateTaskRequest. The current \"string -> new Date() -> .toISOString()\" round-trip through the hook is a no-op and is removed. Keep the existing \"if (!projectId) throw\" guard, keep the conditional userId spread, and add:\n      ...(estimatedHours !== undefined ? { estimatedHours } : {}),\nso an omitted estimate sends nothing rather than null.\n\nKeep the CreateTaskRequest export unchanged and keep export default createTask.",
+    "inputs": [
+      {
+        "path": "apps/web/src/fetchers/task/create-task.ts",
+        "reason": "full file",
+        "content": "<sliced at dispatch time>"
+      },
+      {
+        "path": "apps/web/src/hooks/mutations/task/use-create-task.ts",
+        "reason": "the only call site",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "createTask takes one named object typed CreateTaskRequest",
+      "CreateTaskRequest is still exported and is still inferred, not hand-written",
+      "startDate and dueDate are forwarded as strings with no Date round-trip",
+      "an omitted estimatedHours sends no key at all",
+      "the projectId guard and export default are preserved"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/fetchers/task/create-task.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P4"
+    ]
+  },
+  {
+    "id": "tp_020_fetcher_update_task",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "patch_apply",
+    "module": "web-data",
+    "group": "P7",
+    "instruction": "In apps/web/src/fetchers/task/update-task.ts add one entry to the json object of the PUT request:\n      estimatedHours: task.estimatedHours ?? undefined,\nUse ?? undefined, NOT ?? null. This pairs with the conditional set in the updateTask controller: a task with no estimate sends nothing and is left alone, while a task with an estimate re-affirms it. Clearing an estimate is done only through the dedicated single-field route.\nChange nothing else.",
+    "inputs": [
+      {
+        "path": "apps/web/src/fetchers/task/update-task.ts",
+        "reason": "full file - it is short",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "the json body gains estimatedHours with a ?? undefined fallback",
+      "no other field in the request changes"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/fetchers/task/update-task.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P4"
+    ]
+  },
+  {
+    "id": "tp_021_hook_estimated_hours",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "new_file_add",
+    "module": "web-data",
+    "group": "P7",
+    "instruction": "Create apps/web/src/hooks/mutations/task/use-update-task-estimated-hours.ts mirroring use-update-task-due-date.ts.\n\nNamed export (export function useUpdateTaskEstimatedHours()), NOT a default export - match the due-date hook.\n\nuseMutation with:\n  mutationFn: (variables: { id: string; projectId: string; estimatedHours: number | null }) => updateTaskEstimatedHours(variables.id, variables.estimatedHours)\n  onSuccess: (_, variables) => invalidate [\"task\", variables.id] and [\"tasks\", variables.projectId]\n\nUse the same queryClient.invalidateQueries call shape as the due-date hook. Do not invalidate [\"activities\", ...] - this change publishes no activity row.",
+    "inputs": [
+      {
+        "path": "apps/web/src/hooks/mutations/task/use-update-task-due-date.ts",
+        "reason": "the exact house hook pattern to mirror",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "named export useUpdateTaskEstimatedHours",
+      "invalidates both ['task', id] and ['tasks', projectId]",
+      "does not invalidate an activities key",
+      "mutationFn forwards null unchanged for the clear path"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/hooks/mutations/task/use-update-task-estimated-hours.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P7"
+    ]
+  },
+  {
+    "id": "tp_022_hook_create_task",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "subtype": "patch_apply",
+    "module": "web-data",
+    "group": "P7",
+    "instruction": "In apps/web/src/hooks/mutations/task/use-create-task.ts, the fetcher now takes a single named object, so collapse the mutationFn to:\n    mutationFn: (request: CreateTaskRequest) => createTask(request),\nRemove the per-field destructure and the new Date(...) conversions for startDate and dueDate - the fetcher now forwards the ISO strings directly.\nKeep the onSuccess invalidation of [\"tasks\", variables.projectId] exactly as it is. Keep the existing default export.",
+    "inputs": [
+      {
+        "path": "apps/web/src/hooks/mutations/task/use-create-task.ts",
+        "reason": "full file - it is short",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "mutationFn passes the whole request object through to createTask",
+      "the Date round-trip for startDate and dueDate is gone",
+      "the onSuccess invalidation is unchanged",
+      "the existing export style is preserved"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/hooks/mutations/task/use-create-task.ts",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P7"
+    ]
+  },
+  {
+    "id": "tp_023_i18n_keys",
+    "phase": "codegen",
+    "task_type": "frontend_config",
+    "subtype": "patch_apply",
+    "module": "i18n",
+    "group": "P8",
+    "instruction": "Add exactly 12 keys to i18n/en-US.json. Insert them inside the existing objects, preserving surrounding key order and the file's existing indentation. Add nothing else; rename and remove nothing.\n\nInside tasks.properties (next to noDate / startDate):\n  \"estimatedHours\": \"Estimate\"\n  \"noEstimate\": \"No estimate\"\n  \"estimatedHoursValue\": \"{{hours}}h\"\n\nInside tasks.popover, as a NEW object \"estimatedHours\" placed immediately after the existing \"dueDate\" object:\n  \"title\": \"Estimated hours\"\n  \"placeholder\": \"e.g. 2.5\"\n  \"save\": \"Save estimate\"\n  \"clear\": \"Clear estimate\"\n  \"invalid\": \"Enter a number of hours between 0 and 10000.\"\n  \"updateSuccess\": \"Estimate updated\"\n  \"updateError\": \"Couldn't update the estimate\"\n\nInside tasks.kanban (next to addTask):\n  \"estimatedHoursBadge\": \"{{hours}}h\"\n  \"estimatedHoursTooltip\": \"Total estimated hours in this column\"\n\nThe \"h\" suffix stays inside the locale value, never in JSX, so a translator can move it.\nEdit ONLY i18n/en-US.json. Every other locale file is off-limits.",
+    "inputs": [
+      {
+        "path": "i18n/en-US.json",
+        "reason": "the tasks.properties, tasks.popover.dueDate and tasks.kanban objects",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "exactly 12 new keys are added at the specified paths",
+      "no existing key is renamed, removed or reordered",
+      "the file remains valid JSON with the original indentation style",
+      "no other locale file is touched"
+    ],
+    "budget": {
+      "maxInputTokens": 8000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "i18n/en-US.json",
+    "intent": "feature-extend",
+    "depends_on": []
+  },
+  {
+    "id": "tp_024_estimated_hours_popover",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "new_file_add",
+    "module": "web-ui",
+    "group": "P9",
+    "instruction": "Create apps/web/src/components/task/task-estimated-hours-popover.tsx, structurally mirroring task-due-date-popover.tsx.\n\nexport default function TaskEstimatedHoursPopover({ task, children }: { task: Task; children: React.ReactNode })\n\nSame skeleton as the due-date popover: useTranslation first, useState for open, the mutation hook, useWorkspacePermission with canUpdateTasks, and \"if (!canEdit) return <>{children}</>;\" before the return.\n\nContents of PopoverContent: a controlled numeric Input (type=\"number\", min={0}, max={10000}, step={0.25}) seeded from task.estimatedHours, a Save button, and a Clear button rendered ONLY when task.estimatedHours != null.\n\nBehavior:\n- Save: run parseEstimatedHoursInput on the raw input string. If ok is false, toast.error(t(\"tasks:popover.estimatedHours.invalid\")) and keep the popover open. If ok, await the mutation with the parsed value, toast.success(t(\"tasks:popover.estimatedHours.updateSuccess\")), close.\n- Clear: mutate with null, same success toast, close.\n- On a thrown error: toast.error with the error message or t(\"tasks:popover.estimatedHours.updateError\"), matching the due-date popover's catch block.\n- Enter key in the input triggers Save.\n- Use != null (loose) everywhere, never a falsy check, so an explicit 0 is treated as a real value.\n\nThe mutation hook needs id, projectId and estimatedHours - take projectId from task.projectId.\nUse i18n keys only: tasks:popover.estimatedHours.title / .placeholder / .save / .clear / .invalid / .updateSuccess / .updateError. No hardcoded English.\nImport Button, Input, Popover/PopoverContent/PopoverTrigger from the same paths the due-date popover and its siblings use.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/task/task-due-date-popover.tsx",
+        "reason": "the exact house popover pattern to mirror",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "export default, props are { task, children }",
+      "returns children unchanged when the user lacks update permission",
+      "Clear is shown only when an estimate exists and sends null",
+      "invalid input surfaces a toast and does not call the mutation",
+      "an explicit 0 is treated as a real value, never as unset",
+      "every visible string comes from a tasks:popover.estimatedHours.* key"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 4000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P6",
+      "P7",
+      "P8"
+    ]
+  },
+  {
+    "id": "tp_025_properties_sidebar",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "existing_file_edit",
+    "module": "web-ui",
+    "group": "P9",
+    "instruction": "Three insertions plus imports in apps/web/src/components/task/task-properties-sidebar.tsx.\n\nImports: add \"import TaskEstimatedHoursPopover from \"./task-estimated-hours-popover\";\" to the local component import group; add Hourglass to the existing lucide-react import; add formatEstimatedHours to the existing @/lib/format import.\n\nThen insert this block immediately AFTER each of the THREE existing TaskDueDatePopover blocks (the compact layout, the mobile lg:hidden layout, and the desktop lg:block layout). All three must be updated:\n\n              {task && (\n                <TaskEstimatedHoursPopover task={task}>\n                  <Button\n                    variant=\"ghost\"\n                    size=\"sm\"\n                    className=\"justify-start h-7 px-1.5 gap-1.5\"\n                  >\n                    <Hourglass className=\"w-3.5 h-3.5 text-muted-foreground\" />\n                    <span\n                      className={\"text-xs font-semibold \" + (task.estimatedHours != null ? \"\" : \"text-muted-foreground\")}\n                    >\n                      {task.estimatedHours != null\n                        ? t(\"tasks:properties.estimatedHoursValue\", { hours: formatEstimatedHours(task.estimatedHours) })\n                        : t(\"tasks:properties.noEstimate\")}\n                    </span>\n                  </Button>\n                </TaskEstimatedHoursPopover>\n              )}\n\nMatch each surrounding block's existing className conventions - in the desktop variant the sibling buttons carry w-full, so add w-full there too. Use the file's existing template-literal className style rather than string concatenation.\nUse != null so an explicit 0 renders as 0h rather than \"No estimate\". Change nothing else.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+        "reason": "the three TaskDueDatePopover blocks and the import block",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "all three layout branches gain the estimate control",
+      "Hourglass and formatEstimatedHours are imported and used",
+      "an explicit 0 renders through estimatedHoursValue, not noEstimate",
+      "the desktop variant matches its siblings' w-full convention",
+      "no existing control is moved or altered"
+    ],
+    "budget": {
+      "maxInputTokens": 16000,
+      "maxOutputTokens": 4000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P9"
+    ]
+  },
+  {
+    "id": "tp_026_column_badge",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "new_file_add",
+    "module": "web-ui",
+    "group": "P9",
+    "instruction": "Create apps/web/src/components/kanban-board/column/column-estimated-hours-badge.tsx.\n\nNamed export (not default), matching the kanban-board folder convention:\nexport function ColumnEstimatedHoursBadge({ tasks }: { tasks: Array<{ estimatedHours?: number | null }> })\n\nBehavior:\n- const total = sumEstimatedHours(tasks) from \"@/lib/estimated-hours\"\n- if (total === 0) return null;  -- a column whose total is zero renders nothing, so an unestimated board looks exactly as it does today\n- otherwise render a single span styled exactly like the sibling count badge in column-header.tsx:\n    className=\"rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground\"\n  with a title attribute of t(\"tasks:kanban.estimatedHoursTooltip\")\n  and text t(\"tasks:kanban.estimatedHoursBadge\", { hours: formatEstimatedHours(total) })\n\nUse useTranslation from react-i18next and formatEstimatedHours from \"@/lib/format\".\nKeep it a pure presentational component: no store, no mutation, no query hook - it must be renderable in isolation in a test.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+        "reason": "the existing count badge markup to sit beside",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "named export ColumnEstimatedHoursBadge taking only a tasks prop",
+      "returns null when the total is 0",
+      "styling matches the existing count badge exactly",
+      "text and tooltip come from tasks:kanban.* i18n keys",
+      "no store, mutation or query hook is used"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-estimated-hours-badge.tsx",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P6",
+      "P8"
+    ]
+  },
+  {
+    "id": "tp_027_column_header",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "patch_apply",
+    "module": "web-ui",
+    "group": "P9",
+    "instruction": "Two edits in apps/web/src/components/kanban-board/column/column-header.tsx.\n1. Add: import { ColumnEstimatedHoursBadge } from \"./column-estimated-hours-badge\";\n2. Render <ColumnEstimatedHoursBadge tasks={column.tasks} /> immediately AFTER the existing count-badge span, inside the same <div className=\"flex min-w-0 items-center gap-2\">.\nChange nothing else - not the archive handler, not the modals, not the permission checks.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+        "reason": "full file",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "the badge renders immediately after the existing task-count badge",
+      "it is inside the same flex container",
+      "no other behavior in the header changes"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P9"
+    ]
+  },
+  {
+    "id": "tp_028_create_task_modal",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "existing_file_edit",
+    "module": "web-ui",
+    "group": "P9",
+    "instruction": "Add an optional estimate chip to apps/web/src/components/shared/modals/create-task-modal.tsx.\n\n1. State: const [estimatedHours, setEstimatedHours] = useState(\"\"); Reset it to \"\" everywhere dueDate is reset (handleClose and the createMore reset branch).\n2. UI: add a Popover chip in the same \"flex flex-wrap items-center gap-2 py-2\" row, immediately after the due-date Popover. It contains a single Input type=\"number\" min={0} max={10000} step={0.25} bound to estimatedHours, plus a clear Button shown when the field is non-empty. Trigger uses the Hourglass icon and labels itself with\n   parsed != null ? t(\"tasks:properties.estimatedHoursValue\", { hours: formatEstimatedHours(parsed) }) : t(\"tasks:properties.estimatedHours\")\n   where parsed comes from parseEstimatedHoursInput(estimatedHours). Match the styling of the sibling chips exactly.\n3. Wiring: pass estimatedHours: parseEstimatedHoursInput(estimatedHours).value ?? undefined to BOTH createTask call sites (the draft-ensure path and the submit path) and to the updateTask draft-save call. An empty input must therefore send NOTHING, never 0.\n4. Add estimatedHours to the dependency array of the draft-ensure useCallback.\n5. Do NOT change normalizeTask.\n\nReuse the tasks: namespace keys listed above rather than minting new common:modals.createTask.* keys. Use the file's existing import style.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/shared/modals/create-task-modal.tsx",
+        "reason": "state block, reset paths, the chip row with the due-date Popover, and both createTask / updateTask call sites",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "old_string": {
+                "type": "string"
+              },
+              "new_string": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "old_string",
+              "new_string"
+            ]
+          }
+        }
+      },
+      "required": [
+        "edits"
+      ]
+    },
+    "acceptance": [
+      "an optional estimate chip appears beside the existing due-date chip",
+      "an empty input sends no estimatedHours at all, never 0",
+      "the value reaches both createTask call sites and the draft-save updateTask call",
+      "state is reset alongside dueDate in every reset path",
+      "the useCallback dependency array is updated",
+      "normalizeTask is unchanged"
+    ],
+    "budget": {
+      "maxInputTokens": 20000,
+      "maxOutputTokens": 5000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/components/shared/modals/create-task-modal.tsx",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P9"
+    ]
+  },
+  {
+    "id": "tp_029_column_badge_test",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "web-tests",
+    "group": "P10",
+    "instruction": "Create apps/web/src/components/kanban-board/column/column-estimated-hours-badge.test.tsx, mirroring task-labels.test.tsx (testing-library/react, explicit vitest imports, afterEach(cleanup)).\n\nONE addition to that shape: add \"import \"@/lib/i18n\";\" at the top. The shared web test setup only loads jest-dom and cannot be extended in this run, so the test must initialize the real i18next instance itself. That import resolves the real en-US resources through the @i18n alias already configured in apps/web/vitest.config.ts.\n\nCases:\n- sum: tasks [{estimatedHours: 2.5}, {estimatedHours: 1.5}] renders \"4h\"\n- mixed: [{estimatedHours: 2.5}, {estimatedHours: null}, {}] renders \"2.5h\" (missing and null contribute 0)\n- zero total with tasks present: [{estimatedHours: 0}, {estimatedHours: 0}] renders no badge - assert queryByText matching /h$/ is null\n- no estimates at all: [{}, {}] renders nothing - assert the container is empty\n- fractional: [{estimatedHours: 0.1}, {estimatedHours: 0.2}] renders \"0.3h\", never \"0.30000000000000004h\"",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/kanban-board/task-labels.test.tsx",
+        "reason": "the exact house web component test shape",
+        "content": "<sliced at dispatch time>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Complete file content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "all five cases are present",
+      "the i18n instance is initialized so keys resolve to real English text",
+      "the zero-total case asserts the badge is absent",
+      "the fractional case asserts no float artifact appears"
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0,
+    "pass_id": "20260825-114015-feature-extend-estimated-hours",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-estimated-hours-badge.test.tsx",
+    "intent": "feature-extend",
+    "depends_on": [
+      "P8",
+      "P9"
+    ]
+  }
+]

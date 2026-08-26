@@ -1,0 +1,9 @@
+{
+  "captured_at_commit": "5d1fc910",
+  "note": "Green baseline captured before any codegen, for attribution of later failures.",
+  "suites": [
+    { "cmd": "pnpm --filter @kaneo/api test", "files": 58, "tests": 374, "passed": true, "duration_s": 7.0 },
+    { "cmd": "pnpm --filter @kaneo/web test", "files": 36, "tests": 112, "passed": true, "duration_s": 27.8 },
+    { "cmd": "pnpm --filter @kaneo/api test:integration", "files": 29, "tests": 181, "passed": true, "duration_s": 136.5, "database": "kaneo_opus_only_test on localhost:5432 (derived by tests/api-integration/setup.ts)" }
+  ]
+}
