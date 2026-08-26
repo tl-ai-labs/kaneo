@@ -1,0 +1,113 @@
+{
+  "run_id": "20260826-103235-feature-extend-board-filter-chips",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "flash-agsdk-only",
+  "auth_mode": "estimated",
+  "status": "complete",
+  "phase": "closed",
+  "checkpoint": null,
+  "phases_complete": [
+    "preflight",
+    "green_baseline",
+    "requirements_analysis",
+    "change_plan",
+    "plan_task_packets",
+    "execute_packets",
+    "senior_code_review",
+    "test_run",
+    "security_review",
+    "generate_final_report"
+  ],
+  "phases_remaining": [],
+  "gates_resolved": {
+    "gate-0": "approved",
+    "gate-1": "approved",
+    "gate-2": "approved-with-overturn",
+    "gate-3": "approved",
+    "gate-4": "accept"
+  },
+  "artifacts": {
+    "requirements": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/requirements.md",
+    "change_plan": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/change_plan.md",
+    "packets": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/packets.json",
+    "senior_review": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/senior_review.md",
+    "security_review": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/security_review.md",
+    "cost_rollup": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/cost-rollup.json"
+  },
+  "baseline_green": {
+    "test_files": 36,
+    "tests": 112,
+    "test_exit": 0,
+    "typecheck_exit": 0
+  },
+  "cost_usd_so_far": 6.1841,
+  "source_files_modified": [
+    "apps/web/src/lib/board-filter-params.ts",
+    "apps/web/src/lib/board-filter-params.test.ts",
+    "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+    "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+    "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+    "apps/web/src/components/kanban-board/index.tsx",
+    "apps/web/src/components/kanban-board/task-card.tsx",
+    "apps/web/src/components/list-view/index.tsx",
+    "apps/web/src/components/list-view/task-row.tsx",
+    "apps/web/src/components/list-view/task-row.test.tsx"
+  ],
+  "out_of_scope_writes_reverted": [],
+  "gate": null,
+  "gate_title": null,
+  "awaiting": "orchestrator",
+  "schema_version": 1,
+  "updated_at": "2026-08-26T12:53:54.840Z",
+  "timestamp": "2026-08-26T12:53:54.840Z",
+  "open_design_defects": [
+    "D2-D8 hook interface contradiction (useNavigate inside hook vs no-harness test claim)",
+    "D10.1 assigns replace:true assertion to task-row.test.tsx which D7 says uses push",
+    "two-way URL<->state sync loop unranked in D11",
+    "comma-delimited accept vs repeated-key emit breaks round-trip identity"
+  ],
+  "failed_dispatches": [
+    {
+      "packet": "tp_design_002",
+      "reason": "worker exited 1: output looping + max-token limit + invalid tool (edit_file); 402s, $0 billed, no artifact written, no damage"
+    }
+  ],
+  "orchestrator_authored_corrections": [
+    "A1 hook signature dropped projectId+textQuery",
+    "A2 wrong project types",
+    "A3 mirror effect reintroduced the clobber",
+    "A4 hook calling navigate contradicts O2",
+    "P1 tp_cg_009 demanded a verbatim-passing test that the design makes impossible"
+  ],
+  "packets_total": 10,
+  "packets_done": 10,
+  "verification": {
+    "tests": "37 files / 148 passed",
+    "typecheck": "exit 0",
+    "baseline_was": "36 files / 112 passed / typecheck 0"
+  },
+  "dispatches": {
+    "total": 21,
+    "succeeded": 18,
+    "failed": 3
+  },
+  "committed": false,
+  "accepted_unproven": [
+    "AC5 view switching",
+    "AC6 browser Back"
+  ],
+  "accepted_risks": [
+    "SEC-01 Low",
+    "SEC-02 Informational"
+  ],
+  "outcome": "completed",
+  "cost_usd_total": 6.1841,
+  "closeout": {
+    "ledger_md": true,
+    "ledger_json": true,
+    "fingerprint": true,
+    "write_contract_active": false,
+    "verified_empirically": true
+  }
+}

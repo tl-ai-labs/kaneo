@@ -1,0 +1,133 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_009",
+  "phase": "tests",
+  "task_type": "test_backfill",
+  "module": "board-filters",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-26T11:48:22.929Z",
+  "duration_ms": 116615,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.329553,
+  "tokens": {
+    "input": 107438,
+    "input_cached": 167863,
+    "output": 15913,
+    "output_reasoning": 12172
+  },
+  "tool_calls": {
+    "count": 9,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web test src/hooks/use-task-filters-with-labels-support.test.tsx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/package.json",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/package.json",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/board-filter-params.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/board-filter-params.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web test src/hooks/use-task-filters-with-labels-support.test.tsx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git diff apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx"
+    ],
+    "removed": [],
+    "unchanged": 1678,
+    "scanned": 1679,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_009.md",
+    "usage": "worker-usage-tp_cg_009.json"
+  }
+}

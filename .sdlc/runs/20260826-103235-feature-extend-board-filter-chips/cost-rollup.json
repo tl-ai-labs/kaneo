@@ -1,0 +1,43 @@
+{
+  "total_cost_usd": 6.18405,
+  "dispatches": 21,
+  "succeeded": 18,
+  "failed": 3,
+  "input_tokens": 2485536,
+  "cached_tokens": 4425099,
+  "output_tokens": 199109,
+  "by_phase": {
+    "requirements_analysis": {
+      "n": 1,
+      "cost": 0.159422
+    },
+    "change_plan": {
+      "n": 3,
+      "cost": 1.33731
+    },
+    "plan_task_packets": {
+      "n": 1,
+      "cost": 0.566369
+    },
+    "codegen": {
+      "n": 8,
+      "cost": 1.0280369999999999
+    },
+    "debug": {
+      "n": 3,
+      "cost": 0.735563
+    },
+    "tests": {
+      "n": 3,
+      "cost": 0.574851
+    },
+    "senior_code_review": {
+      "n": 1,
+      "cost": 1.232783
+    },
+    "security_review": {
+      "n": 1,
+      "cost": 0.549715
+    }
+  }
+}

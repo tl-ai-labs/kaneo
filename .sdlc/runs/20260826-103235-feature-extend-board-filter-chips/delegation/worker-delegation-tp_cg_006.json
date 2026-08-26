@@ -1,0 +1,95 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_006",
+  "phase": "codegen",
+  "task_type": "existing_file_edit",
+  "module": "board-filters",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-26T11:38:36.132Z",
+  "duration_ms": 27254,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.086692,
+  "tokens": {
+    "input": 38474,
+    "input_cached": 43804,
+    "output": 2490,
+    "output_reasoning": 1805
+  },
+  "tool_calls": {
+    "count": 5,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+          "start_line": "119",
+          "end_line": "199"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "search_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+          "query": "navigate",
+          "num_results": "0"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status -s",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git diff apps/web/src/components/list-view/task-row.tsx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/web/src/components/list-view/task-row.tsx"
+    ],
+    "removed": [],
+    "unchanged": 1677,
+    "scanned": 1678,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_006.md",
+    "usage": "worker-usage-tp_cg_006.json"
+  }
+}

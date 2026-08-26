@@ -1,0 +1,49 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 51768,
+    "cached_content_token_count": 21891,
+    "candidates_token_count": 555,
+    "thoughts_token_count": 1019,
+    "total_token_count": 53342,
+    "service_tier": null
+  },
+  "tool_call_count": 3,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.tsx",
+        "start_line": "129",
+        "end_line": "179"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.tsx",
+        "start_line": "139",
+        "end_line": "164"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.tsx",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"artifact_path\": \"apps/web/src/components/kanban-board/task-card.tsx\",\n  \"sites_changed\": 2,\n  \"replace_added\": false,\n  \"files_written\": [\n    \"apps/web/src/components/kanban-board/task-card.tsx\"\n  ]\n}"
+}

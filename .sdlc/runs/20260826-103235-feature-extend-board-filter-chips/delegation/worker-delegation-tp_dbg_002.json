@@ -1,0 +1,94 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_dbg_002",
+  "phase": "debug",
+  "task_type": "existing_file_edit",
+  "module": "board-filters",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-26T11:54:26.923Z",
+  "duration_ms": 101110,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.123234,
+  "tokens": {
+    "input": 58319,
+    "input_cached": 44089,
+    "output": 3238,
+    "output_reasoning": 2229
+  },
+  "tool_calls": {
+    "count": 5,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/board-filter-params.test.ts",
+          "start_line": "0",
+          "end_line": "99"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/board-filter-params.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/board-filter-params.test.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/board-filter-params.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web test src/lib/board-filter-params.test.ts",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web typecheck",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status --porcelain",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/web/src/lib/board-filter-params.test.ts"
+    ],
+    "removed": [],
+    "unchanged": 1678,
+    "scanned": 1679,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_dbg_002.md",
+    "usage": "worker-usage-tp_dbg_002.json"
+  }
+}

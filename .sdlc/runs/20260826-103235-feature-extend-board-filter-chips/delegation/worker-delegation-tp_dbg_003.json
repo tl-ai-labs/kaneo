@@ -1,0 +1,125 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_dbg_003",
+  "phase": "debug",
+  "task_type": "existing_file_edit",
+  "module": "board-filters",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-26T12:04:58.413Z",
+  "duration_ms": 215629,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.291205,
+  "tokens": {
+    "input": 119032,
+    "input_cached": 317366,
+    "output": 7228,
+    "output_reasoning": 3879
+  },
+  "tool_calls": {
+    "count": 8,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web test",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+          "start_line": "349",
+          "end_line": "1148"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web test",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web typecheck",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status --short",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git diff apps/web/src/hooks/use-task-filters-with-labels-support.ts apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "apps/web/src/hooks/use-task-filters-with-labels-support.ts"
+    ],
+    "removed": [],
+    "unchanged": 1677,
+    "scanned": 1679,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_dbg_003.md",
+    "usage": "worker-usage-tp_dbg_003.json"
+  }
+}

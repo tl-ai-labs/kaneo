@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "run_id": "20260826-103235-feature-extend-board-filter-chips",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": {
+    "name": "flash-agsdk-only",
+    "version": 1,
+    "tiers": 1,
+    "models": [
+      {
+        "id": "flash",
+        "model_name": "gemini-3.7-flash",
+        "adapter": "antigravity-worker",
+        "backend": "vertex-adc",
+        "project": "ai-studies-console",
+        "location": "global",
+        "pricing_usd_per_mtok": {
+          "input": 1.5,
+          "input_cached": 0.15,
+          "output": 9
+        }
+      }
+    ],
+    "escalation": "none - single-tier floor policy"
+  },
+  "auth_mode": "estimated",
+  "provenance_note": "Every event carries provenance=vendor: this policy has no direct tier, so all 21 dispatches went through the MCP server and none were char-count estimated.",
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips",
+  "branch": "feature-extend-3/flash-only",
+  "rollback_anchor": "5d1fc910",
+  "committed": false,
+  "started_at": "2026-08-26T10:48:21.171Z",
+  "ended_at": "2026-08-26T12:13:30.247Z",
+  "wall_clock_minutes": 85.2,
+  "model_latency_minutes": 45.4,
+  "totals": {
+    "dispatches": 21,
+    "succeeded": 18,
+    "failed": 3,
+    "input_tokens": 2485536,
+    "input_tokens_cached": 4425099,
+    "output_tokens": 199109,
+    "cost_usd": 6.1841
+  },
+  "by_phase": [
+    {
+      "phase": "requirements_analysis",
+      "dispatches": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "input_tokens": 55081,
+      "input_tokens_cached": 14965,
+      "output_tokens": 8284,
+      "cost_usd": 0.159422
+    },
+    {
+      "phase": "change_plan",
+      "dispatches": 3,
+      "succeeded": 2,
+      "failed": 1,
+      "input_tokens": 487806,
+      "input_tokens_cached": 1164000,
+      "output_tokens": 47889,
+      "cost_usd": 1.33731
+    },
+    {
+      "phase": "plan_task_packets",
+      "dispatches": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "input_tokens": 201781,
+      "input_tokens_cached": 414281,
+      "output_tokens": 22395,
+      "cost_usd": 0.566369
+    },
+    {
+      "phase": "codegen",
+      "dispatches": 8,
+      "succeeded": 7,
+      "failed": 1,
+      "input_tokens": 419807,
+      "input_tokens_cached": 506790,
+      "output_tokens": 35812,
+      "cost_usd": 1.028037
+    },
+    {
+      "phase": "debug",
+      "dispatches": 3,
+      "succeeded": 3,
+      "failed": 0,
+      "input_tokens": 329375,
+      "input_tokens_cached": 612020,
+      "output_tokens": 16633,
+      "cost_usd": 0.735563
+    },
+    {
+      "phase": "tests",
+      "dispatches": 3,
+      "succeeded": 2,
+      "failed": 1,
+      "input_tokens": 198133,
+      "input_tokens_cached": 317711,
+      "output_tokens": 25555,
+      "cost_usd": 0.574851
+    },
+    {
+      "phase": "senior_code_review",
+      "dispatches": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "input_tokens": 550855,
+      "input_tokens_cached": 1004866,
+      "output_tokens": 28419,
+      "cost_usd": 1.232783
+    },
+    {
+      "phase": "security_review",
+      "dispatches": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "input_tokens": 242698,
+      "input_tokens_cached": 390466,
+      "output_tokens": 14122,
+      "cost_usd": 0.549715
+    }
+  ],
+  "verification": {
+    "baseline": {
+      "test_files": 36,
+      "tests": 112,
+      "test_exit": 0,
+      "typecheck_exit": 0
+    },
+    "final": {
+      "test_files": 37,
+      "tests": 148,
+      "test_exit": 0,
+      "typecheck_exit": 0
+    },
+    "delta": {
+      "test_files": 1,
+      "tests": 36
+    },
+    "commands": [
+      "pnpm --filter @kaneo/web test",
+      "pnpm --filter @kaneo/web typecheck"
+    ],
+    "lint_run": false
+  },
+  "fail_before_fix_proofs": [
+    {
+      "id": "A",
+      "reverted": "apps/web/src/components/list-view/task-row.tsx",
+      "result": "2 new nav tests fail (expected object to be function); 1 pre-existing test still passes"
+    },
+    {
+      "id": "B",
+      "reverted": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "result": "9 of 12 hook tests fail incl. URL-precedence; 3 unchanged it.each cases still pass"
+    },
+    {
+      "id": "C",
+      "reverted": "the pendingFiltersRef stale-closure fix",
+      "result": "2 composition regression tests fail"
+    }
+  ],
+  "containment": {
+    "hook_enforcement_available": false,
+    "packet_validator_available": false,
+    "method": "orchestrator git status --porcelain sweep after every dispatch",
+    "sweeps": 21,
+    "out_of_scope_writes": 0,
+    "reverted": 0,
+    "files_changed": 10,
+    "off_limits_verified_clean": [
+      "apps/api/**",
+      "apps/web/src/main.tsx",
+      "apps/web/src/routeTree.gen.ts",
+      "apps/web/src/store/user-preferences.ts",
+      "apps/web/src/components/common/project-layout.tsx",
+      "apps/web/src/components/backlog-list-view/**",
+      "i18n/**",
+      "packages/**",
+      "pnpm-lock.yaml"
+    ]
+  },
+  "artifacts": {
+    "requirements": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/requirements.md",
+    "change_plan": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/change_plan.md",
+    "change_plan_v1": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/change_plan_v1.md",
+    "packets": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/packets.json",
+    "senior_review": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/senior_review.md",
+    "security_review": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/security_review.md",
+    "verified_facts": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/verified-facts.md",
+    "verified_encoding": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/verified-encoding.md",
+    "green_baseline": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/baseline/green-baseline.txt",
+    "telemetry": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/telemetry.jsonl",
+    "provenance": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/provenance.json",
+    "cost_rollup": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/cost-rollup.json",
+    "summary": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/SUMMARY.md",
+    "delegation_evidence": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/delegation/"
+  },
+  "source_files": {
+    "added": [
+      "apps/web/src/lib/board-filter-params.ts",
+      "apps/web/src/lib/board-filter-params.test.ts"
+    ],
+    "modified": [
+      "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "apps/web/src/components/kanban-board/index.tsx",
+      "apps/web/src/components/kanban-board/task-card.tsx",
+      "apps/web/src/components/list-view/index.tsx",
+      "apps/web/src/components/list-view/task-row.tsx",
+      "apps/web/src/components/list-view/task-row.test.tsx"
+    ]
+  },
+  "quality": {
+    "accepted_unproven": [
+      "AC5 view switching",
+      "AC6 browser Back"
+    ],
+    "security_findings": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 1,
+      "informational": 1
+    },
+    "blocker_found_and_fixed": "stale-closure composition regression against board-toolbar.tsx:239-251 loop handlers",
+    "orchestrator_authored_corrections": 5,
+    "structured_output_leaks": 3
+  }
+}

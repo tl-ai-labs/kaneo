@@ -1,0 +1,25 @@
+=== pnpm --filter @kaneo/web test ===
+
+> @kaneo/web@0.0.0 test /home/sangeetha/projects/kaneo/apps/web
+> vitest run --config vitest.config.ts
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vitest.config.ts:17:25). Use `import.meta.dirname` instead
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.10 /home/sangeetha/projects/kaneo/apps/web
+
+
+ Test Files  36 passed (36)
+      Tests  112 passed (112)
+   Start at  10:42:58
+   Duration  24.76s (transform 7.99s, setup 12.56s, import 51.07s, tests 19.02s, environment 69.48s)
+
+EXIT_TEST=0
+
+=== pnpm --filter @kaneo/web typecheck ===
+
+> @kaneo/web@0.0.0 typecheck /home/sangeetha/projects/kaneo/apps/web
+> tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json
+
+EXIT_TYPECHECK=0

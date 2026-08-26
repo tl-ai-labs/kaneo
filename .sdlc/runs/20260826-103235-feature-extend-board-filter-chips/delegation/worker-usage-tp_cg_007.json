@@ -1,0 +1,49 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 51978,
+    "cached_content_token_count": 18214,
+    "candidates_token_count": 610,
+    "thoughts_token_count": 972,
+    "total_token_count": 53560,
+    "service_tier": null
+  },
+  "tool_call_count": 3,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/index.tsx",
+        "start_line": "79",
+        "end_line": "139"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/index.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/index.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/index.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/index.tsx",
+        "start_line": "89",
+        "end_line": "124"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/index.tsx",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"artifact_path\": \"apps/web/src/components/list-view/index.tsx\",\n  \"sites_changed\": 2,\n  \"task_route_nav_untouched\": true,\n  \"files_written\": [\n    \"apps/web/src/components/list-view/index.tsx\"\n  ]\n}"
+}

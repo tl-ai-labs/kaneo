@@ -1,0 +1,77 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 160070,
+    "cached_content_token_count": 72564,
+    "candidates_token_count": 2845,
+    "thoughts_token_count": 8383,
+    "total_token_count": 171298,
+    "service_tier": null
+  },
+  "tool_call_count": 6,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/board-filter-params.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/board-filter-params.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.ts"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status -s",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git diff apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"artifact_path\": \"apps/web/src/hooks/use-task-filters-with-labels-support.ts\",\n  \"signature\": \"export function useTaskFiltersWithLabelsSupport(project: ProjectWithTasks | null | undefined, projectId?: string, textQuery?: string, searchFilters?: BoardSearchParams, onFiltersChange?: (next: BoardFilters) => void)\",\n  \"usestate_removed\": true,\n  \"effects_now\": [\n    \"Seed effect: runs when !hasActiveFilterParams(searchFilters) and seededStorageKeyRef.current !== storageKey to restore saved filters from localStorage and call onFiltersChange\",\n    \"Sync-back effect: runs when hasActiveFilterParams(searchFilters) to mirror current filters to localStorage\"\n  ],\n  \"calls_router\": false,\n  \"files_written\": [\n    \"apps/web/src/hooks/use-task-filters-with-labels-support.ts\"\n  ]\n}"
+}

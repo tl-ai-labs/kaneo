@@ -1,0 +1,226 @@
+[
+  {
+    "id": "tp_cg_001",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "subtype": "lib_helper",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/lib/board-filter-params.ts",
+    "depends_on": [],
+    "instruction": "Create apps/web/src/lib/board-filter-params.ts exporting helper functions and types for board search parameters:\n1. Export type BoardSearchParams = { taskId?: string; status?: string[]; priority?: string[]; assignee?: string[]; dueDate?: string[]; labels?: string[] }.\n2. Export function validateBoardSearch(search: Record<string, unknown>): BoardSearchParams. It must never throw. For each filter key ('status', 'priority', 'assignee', 'dueDate', 'labels'): if the value is an array, take strings, trim them, filter out empty strings; if it is a single string, trim it, and if non-empty wrap in a 1-element array; if the key is empty string, whitespace, missing, or invalid, omit it (leave undefined). Do NOT split strings on commas. Cap any filter array at 50 elements. Preserve taskId if it is a non-empty string.\n3. Export function filtersToSearchParams(filters: BoardFilters): Partial<BoardSearchParams>. Map non-empty string arrays from BoardFilters to BoardSearchParams, omitting null or empty array properties (undefined).\n4. Export function searchParamsToFilters(params: BoardSearchParams): BoardFilters. Convert BoardSearchParams back into BoardFilters with null defaults for absent/empty keys.\n5. Export function hasActiveFilterParams(params: Partial<BoardSearchParams> | undefined | null): boolean. Return true if any filter key ('status', 'priority', 'assignee', 'dueDate', 'labels') contains an array with at least one non-empty string, else false.",
+    "acceptance": [
+      "Exports BoardSearchParams, validateBoardSearch, filtersToSearchParams, searchParamsToFilters, and hasActiveFilterParams",
+      "validateBoardSearch never throws on null, undefined, primitive, object, or corrupted inputs",
+      "validateBoardSearch normalizes bare single strings, repeated keys, and JSON arrays to string arrays without comma splitting",
+      "validateBoardSearch caps arrays at 50 elements",
+      "hasActiveFilterParams returns false for empty strings, whitespace, empty arrays, or missing filter keys",
+      "filtersToSearchParams returns an object omitting inactive/empty keys"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    }
+  },
+  {
+    "id": "tp_cg_002",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "react_hook",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+    "depends_on": [
+      "tp_cg_001"
+    ],
+    "instruction": "Refactor useTaskFiltersWithLabelsSupport in apps/web/src/hooks/use-task-filters-with-labels-support.ts to derive filter state directly from route search params:\n1. Update signature to:\nexport function useTaskFiltersWithLabelsSupport(\n  project: ProjectWithTasks | null | undefined,\n  projectId?: string,\n  textQuery?: string,\n  searchFilters?: BoardSearchParams,\n  onFiltersChange?: (next: BoardFilters) => void\n)\n2. Remove React useState for filters and any isInitializedRef. Derive filters synchronously using useMemo(() => searchFilters ? searchParamsToFilters(searchFilters) : DEFAULT_FILTERS, [searchFilters]).\n3. LocalStorage persistence:\n- Seed on mount: if hasActiveFilterParams(searchFilters) is false, read localStorage.getItem(storageKey). If valid stored filters exist, seed URL by calling onFiltersChange?.(storedFilters). Guard seed with seededStorageKeyRef (useRef<string | null>(null)) so it runs once per projectId.\n- Sync-back effect: a useEffect that runs only when hasActiveFilterParams(searchFilters) is true, writing localStorage.setItem(storageKey, JSON.stringify(filters)).\n- Delete any filters-keyed localStorage mirror effect.\n4. Write-on-mutation: updateFilter, updateLabelFilter, and clearFilters must compute nextFilters, write localStorage.setItem(storageKey, JSON.stringify(nextFilters)), and invoke onFiltersChange?.(nextFilters).\n5. Hook must NOT call useNavigate or any router hooks.",
+    "acceptance": [
+      "Hook signature accepts (project, projectId?, textQuery?, searchFilters?, onFiltersChange?)",
+      "filters is derived synchronously via useMemo without useState",
+      "Hook does not import or call useNavigate",
+      "When searchFilters has no active filter params, reads localStorage and seeds via onFiltersChange once per projectId",
+      "When searchFilters has active filter params, syncs filters to localStorage",
+      "updateFilter, updateLabelFilter, and clearFilters write localStorage and call onFiltersChange"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    }
+  },
+  {
+    "id": "tp_cg_003",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "route_definition",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+    "depends_on": [
+      "tp_cg_001",
+      "tp_cg_002"
+    ],
+    "instruction": "Update board route in apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx:\n1. Import validateBoardSearch and filtersToSearchParams from '@/lib/board-filter-params'.\n2. Update Route.validateSearch to use validateBoardSearch.\n3. In RouteComponent, retrieve search params via Route.useSearch().\n4. Define handleFiltersChange with useCallback: (next: BoardFilters) => navigate({ to: '.', search: (prev: any) => ({ ...prev, ...filtersToSearchParams(next) }), replace: true }), [navigate].\n5. Pass search params and handleFiltersChange to useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery, searchParams, handleFiltersChange).\n6. Update handleCloseTaskSheet to use functional search updater preserving other params: navigate({ to: '.', search: (prev: any) => { const { taskId, ...rest } = prev; return rest; }, replace: true }).",
+    "acceptance": [
+      "Route validateSearch delegates to validateBoardSearch",
+      "RouteComponent passes search parameters and handleFiltersChange callback to useTaskFiltersWithLabelsSupport",
+      "handleFiltersChange uses navigate with functional search updater and replace: true",
+      "handleCloseTaskSheet removes taskId while preserving active filter params with replace: true"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    }
+  },
+  {
+    "id": "tp_cg_004",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "nav_call_sites",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/components/kanban-board/task-card.tsx",
+    "depends_on": [
+      "tp_cg_003"
+    ],
+    "instruction": "In apps/web/src/components/kanban-board/task-card.tsx, update the two navigate() call sites in handleClick (around lines 148-156):\n1. When deselecting the task (currentTaskId === task.id):\nReplace search: {} with functional updater: search: (prev: any) => { const { taskId, ...rest } = prev; return rest; }.\n2. When selecting the task:\nReplace search: { taskId: task.id } with functional updater: search: (prev: any) => ({ ...prev, taskId: task.id }).\nPreserve existing push/replace navigation behavior.",
+    "acceptance": [
+      "Task card deselection removes taskId while preserving existing search parameters",
+      "Task card selection sets taskId while preserving existing search parameters"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    }
+  },
+  {
+    "id": "tp_cg_005",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "nav_call_sites",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/components/kanban-board/index.tsx",
+    "depends_on": [
+      "tp_cg_003"
+    ],
+    "instruction": "In apps/web/src/components/kanban-board/index.tsx, update the navigate() call sites for the 'j' and 'k' keyboard shortcuts (lines 67 and 74):\nReplace search: { taskId: state.focusedTaskId } with functional search updater:\nsearch: (prev: any) => ({ ...prev, taskId: state.focusedTaskId }).\nDo NOT touch the Enter shortcut navigation to /task/$taskId.",
+    "acceptance": [
+      "'j' shortcut preserves active filter params while setting taskId",
+      "'k' shortcut preserves active filter params while setting taskId",
+      "Enter shortcut navigation remains untouched"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    }
+  },
+  {
+    "id": "tp_cg_006",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "nav_call_sites",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/components/list-view/task-row.tsx",
+    "depends_on": [
+      "tp_cg_003"
+    ],
+    "instruction": "In apps/web/src/components/list-view/task-row.tsx, update the two navigate() call sites in handleClick (lines 147-156):\n1. When deselecting the task (currentTaskId === task.id):\nReplace search: {} with functional updater: search: (prev: any) => { const { taskId, ...rest } = prev; return rest; }.\n2. When selecting the task:\nReplace search: { taskId: task.id } with functional updater: search: (prev: any) => ({ ...prev, taskId: task.id }).\nPreserve existing push/replace navigation behavior.",
+    "acceptance": [
+      "Task row deselection removes taskId while preserving active search parameters",
+      "Task row selection sets taskId while preserving active search parameters"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    }
+  },
+  {
+    "id": "tp_cg_007",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "nav_call_sites",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/components/list-view/index.tsx",
+    "depends_on": [
+      "tp_cg_003"
+    ],
+    "instruction": "In apps/web/src/components/list-view/index.tsx, update the navigate() call sites for the 'j' and 'k' keyboard shortcuts (lines 97 and 104):\nReplace search: { taskId: state.focusedTaskId } with functional search updater:\nsearch: (prev: any) => ({ ...prev, taskId: state.focusedTaskId }).\nDo NOT touch the Enter shortcut navigation to /task/$taskId.",
+    "acceptance": [
+      "'j' shortcut in list view preserves active filter params while setting taskId",
+      "'k' shortcut in list view preserves active filter params while setting taskId",
+      "Enter shortcut navigation remains untouched"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    }
+  },
+  {
+    "id": "tp_cg_008",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/lib/board-filter-params.test.ts",
+    "depends_on": [
+      "tp_cg_001"
+    ],
+    "instruction": "Create unit tests in apps/web/src/lib/board-filter-params.test.ts testing all helper functions in board-filter-params.ts:\n1. validateBoardSearch never throws on null, numbers, corrupted objects, or prototypes.\n2. Round-trips all 5 dimensions (status, priority, assignee, dueDate, labels) through filtersToSearchParams and searchParamsToFilters.\n3. Normalizes bare single strings, repeated query params, and JSON array strings into string arrays.\n4. Rejects comma-splitting: '?status=todo,review' must parse as single string ['todo,review'].\n5. Caps array length at 50 items.\n6. hasActiveFilterParams returns false for empty strings (?status=), whitespace (?status=%20), empty arrays, and null/undefined, and true for valid values.",
+    "acceptance": [
+      "Tests cover validateBoardSearch never-throw guarantees",
+      "Tests verify round-trip conversions for all 5 filter dimensions",
+      "Tests verify inbound normalization of bare strings, repeated keys, and JSON arrays without comma splitting",
+      "Tests verify 50-item array length cap",
+      "Tests verify hasActiveFilterParams truth table for edge cases and whitespace"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 5000
+    }
+  },
+  {
+    "id": "tp_cg_009",
+    "phase": "tests",
+    "task_type": "test_backfill",
+    "subtype": "unit",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+    "depends_on": [
+      "tp_cg_001",
+      "tp_cg_002"
+    ],
+    "instruction": "Rework apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx for the URL-as-source-of-truth hook.\nIMPORTANT — the file has two existing tests and they are NOT equally portable:\n(a) The it.each([\"#123\",\"proj-123\",\"proj-\"]) issue-identifier test uses only (project, \"project-1\", textQuery) and has no localStorage dependency. KEEP IT VERBATIM. It must still pass unchanged.\n(b) The \"restores persisted label filters from storage\" test calls the hook with (project, \"project-1\") and asserts result.current.filters.labels equals [\"label-bug\"]. Under the new design filters derive from searchFilters, so with no searchFilters and no onFiltersChange this test CANNOT pass as written. REWRITE it: seed localStorage, pass an onFiltersChange spy, mount, and assert the spy was called once with { labels: [\"label-bug\"] } (the seed publishes to the URL rather than into hook state). Then separately assert that passing searchFilters={ labels: [\"label-bug\"] } yields filters.labels === [\"label-bug\"] and filters the project to task-1 only.\nThen ADD tests:\n1. filters derive synchronously from searchFilters on first render (no waitFor needed).\n2. URL precedence: searchFilters status=[\"in_progress\"] with localStorage holding status=[\"todo\"] yields filters.status [\"in_progress\"] AND writes [\"in_progress\"] to localStorage.\n3. Cold mount, no active URL params, localStorage populated: onFiltersChange called exactly once; calling again with the same projectId does not re-seed.\n4. Empty param: searchFilters={ status: [] } (the normalized form of ?status=) still triggers the localStorage seed.\n5. updateFilter, updateLabelFilter and clearFilters each write localStorage and call onFiltersChange with the next filters.\nNever assert expect.any(Function).",
+    "acceptance": [
+      "The it.each issue-identifier test is unchanged and passes",
+      "The label-restore test is rewritten to assert the onFiltersChange seed spy rather than hook state, and passes",
+      "A test proves filters derive synchronously from searchFilters on first render",
+      "A test proves URL params win over localStorage and are written back to localStorage",
+      "A test proves the localStorage seed fires exactly once per projectId",
+      "A test proves an empty/normalized-away param still allows the localStorage seed",
+      "A test proves updateFilter, updateLabelFilter and clearFilters each persist and notify",
+      "No assertion uses expect.any(Function)"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 5000
+    },
+    "_orchestrator_patched": "tp_cg_009 instruction replaced by the orchestrator tier: the Flash-authored version required the localStorage label-restore test to pass verbatim, which is structurally impossible under the URL-as-truth design it was planning for."
+  },
+  {
+    "id": "tp_cg_010",
+    "phase": "tests",
+    "task_type": "test_backfill",
+    "subtype": "unit",
+    "module": "board-filters",
+    "artifact_path": "apps/web/src/components/list-view/task-row.test.tsx",
+    "depends_on": [
+      "tp_cg_006"
+    ],
+    "instruction": "Update apps/web/src/components/list-view/task-row.test.tsx:\n1. Retain existing test for rendering labels and pull requests.\n2. Add test verifying clicking task row to select calls navigate with a functional search updater preserving active filters (e.g. status: ['in_progress']) alongside taskId: 'task-1'.\n3. Add test verifying clicking an already selected task row calls navigate with a functional search updater removing taskId while preserving existing filter parameters.\n4. Use the capture-and-invoke pattern with expect.toSatisfy or mock capturing to test the search updater function without asserting expect.any(Function).",
+    "acceptance": [
+      "Existing task row test passes verbatim",
+      "Tests verify task selection invokes navigate with functional search updater preserving existing filters",
+      "Tests verify task deselection invokes navigate with functional search updater removing taskId while preserving existing filters",
+      "Tests strictly invoke and verify the functional search updater callback"
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 5000
+    }
+  }
+]

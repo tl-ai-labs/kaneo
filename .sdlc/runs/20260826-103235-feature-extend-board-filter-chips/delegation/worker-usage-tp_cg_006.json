@@ -1,0 +1,67 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 82278,
+    "cached_content_token_count": 43804,
+    "candidates_token_count": 685,
+    "thoughts_token_count": 1805,
+    "total_token_count": 84768,
+    "service_tier": null
+  },
+  "tool_call_count": 5,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+        "start_line": "119",
+        "end_line": "199"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "search_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+        "query": "navigate",
+        "num_results": "0"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status -s",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git diff apps/web/src/components/list-view/task-row.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"artifact_path\": \"apps/web/src/components/list-view/task-row.tsx\",\n  \"sites_changed\": 2,\n  \"replace_added\": false,\n  \"files_written\": [\n    \"apps/web/src/components/list-view/task-row.tsx\"\n  ]\n}"
+}

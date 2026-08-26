@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-26T10:41:34.227Z",
+  "steps": {
+    "discovery_smoke": {
+      "status": "pass",
+      "note": "Tier 1 completed cleanly; Tier 2b stack-profile also generated"
+    },
+    "test_command_probe": {
+      "status": "skip",
+      "note": "No test command provided (unknown at discovery). Gate 0 will ask the user."
+    },
+    "dispatch_smoke": {
+      "status": "pass",
+      "tiers_tested": [
+        "flash (antigravity-worker)"
+      ],
+      "note": "single-tier policy; agent_session_complete confirmed; $0.018 vs $0.001 for flash-completion on identical packet"
+    },
+    "write_contract_smoke": {
+      "status": "pass",
+      "path": "/home/sangeetha/projects/kaneo/.sdlc/pre-check/hello.txt",
+      "note": "Wrote a file under .sdlc/pre-check/; write-contract auto-allowlists paths under .sdlc/."
+    },
+    "rollback_smoke": {
+      "status": "pass",
+      "path": "/home/sangeetha/projects/kaneo/.sdlc/pre-check/hello.txt"
+    },
+    "report_finalized": {
+      "status": "pass",
+      "note": "Script-side steps recorded. Steps 1 (discovery) and 3 (dispatch) are the orchestrator's responsibility and get posted via --record."
+    }
+  },
+  "ok": true
+}

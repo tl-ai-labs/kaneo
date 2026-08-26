@@ -1,0 +1,796 @@
+{
+  "schema_version": 1,
+  "plugin_version": "0.6.0",
+  "built_at": "2026-08-26T10:37:22.871Z",
+  "run_id": "20260826-103235-feature-extend-board-filter-chips",
+  "mode": "first-time",
+  "git": {
+    "head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "branch": "feature-extend-3/flash-only",
+    "dirty": true,
+    "dirty_paths_untracked_only": true,
+    "untracked": [
+      ".claude/settings.local.json",
+      ".hook-logs/",
+      ".sdlc/"
+    ],
+    "tracked_modifications": [],
+    "remotes": [
+      {
+        "name": "origin",
+        "url": "https://github.com/tl-ai-labs/kaneo.git"
+      }
+    ],
+    "gitignore_covers_sdlc": false
+  },
+  "topology": {
+    "top_level_dirs": [
+      ".agents",
+      ".claude",
+      ".cursor",
+      ".devcontainer",
+      ".github",
+      ".husky",
+      ".vscode",
+      "apps",
+      "charts",
+      "deploy",
+      "i18n",
+      "packages",
+      "plans",
+      "scripts",
+      "sentry",
+      "skills",
+      "tests"
+    ],
+    "app_dirs": [
+      "apps/api",
+      "apps/web",
+      "apps/docs",
+      "apps/site"
+    ],
+    "package_dirs": [
+      "packages/email",
+      "packages/libs",
+      "packages/mcp",
+      "packages/permissions",
+      "packages/planka-import",
+      "packages/typescript-config"
+    ],
+    "test_dirs": [
+      "tests/api",
+      "tests/api-integration",
+      "apps/web/src/**/*.test.{ts,tsx}"
+    ],
+    "entry_points": [
+      "apps/web/src/main.tsx",
+      "apps/api/src/index.ts"
+    ],
+    "tracked_file_count": 1578
+  },
+  "stacks": [
+    {
+      "manifest": "package.json",
+      "stack": "node-typescript",
+      "role": "monorepo-root",
+      "detected_frameworks": [
+        "turborepo",
+        "pnpm-workspaces",
+        "biome",
+        "husky",
+        "commitlint"
+      ],
+      "node_engine": ">=20.19.0",
+      "package_manager": "pnpm@10.32.1",
+      "typescript": "7.0.2"
+    },
+    {
+      "manifest": "apps/web/package.json",
+      "stack": "node-typescript",
+      "role": "frontend",
+      "detected_frameworks": [
+        "react@19",
+        "vite@8",
+        "tanstack-router",
+        "tanstack-query",
+        "zustand",
+        "tailwindcss@4",
+        "radix-ui",
+        "better-auth",
+        "vitest",
+        "zod@4",
+        "i18next",
+        "dnd-kit",
+        "tiptap",
+        "sentry"
+      ]
+    },
+    {
+      "manifest": "apps/api/package.json",
+      "stack": "node-typescript",
+      "role": "backend",
+      "detected_frameworks": [
+        "hono",
+        "better-auth",
+        "drizzle",
+        "valibot",
+        "vitest",
+        "postgres"
+      ]
+    },
+    {
+      "manifest": "apps/site/package.json",
+      "stack": "node-typescript",
+      "role": "marketing-docs-site",
+      "detected_frameworks": [
+        "next"
+      ]
+    },
+    {
+      "manifest": "packages/libs/package.json",
+      "stack": "node-typescript",
+      "role": "shared-typed-client",
+      "detected_frameworks": [
+        "hono/client"
+      ]
+    },
+    {
+      "manifest": "packages/permissions/package.json",
+      "stack": "node-typescript",
+      "role": "shared-permission-vocabulary",
+      "detected_frameworks": []
+    },
+    {
+      "manifest": "packages/mcp/package.json",
+      "stack": "node-typescript",
+      "role": "published-stdio-mcp",
+      "detected_frameworks": [
+        "modelcontextprotocol"
+      ]
+    },
+    {
+      "manifest": "packages/email/package.json",
+      "stack": "node-typescript",
+      "role": "email-templates",
+      "detected_frameworks": []
+    },
+    {
+      "manifest": "packages/planka-import/package.json",
+      "stack": "node-typescript",
+      "role": "importer-cli",
+      "detected_frameworks": []
+    }
+  ],
+  "test_command_proposed": "pnpm --filter @kaneo/web test",
+  "test_command_source": "apps/web/package.json#scripts.test (vitest run --config vitest.config.ts)",
+  "test_command_alternatives": [
+    {
+      "command": "pnpm test",
+      "source": "package.json#scripts.test -> turbo test (all packages)"
+    },
+    {
+      "command": "pnpm --filter @kaneo/web test",
+      "source": "apps/web/package.json#scripts.test — narrowest proof for a web-only change"
+    },
+    {
+      "command": "pnpm --filter @kaneo/web typecheck",
+      "source": "apps/web/package.json#scripts.typecheck"
+    },
+    {
+      "command": "pnpm test:integration",
+      "source": "package.json#scripts.test:integration -> turbo test:integration (needs PostgreSQL)"
+    }
+  ],
+  "test_runner": "vitest",
+  "test_env_web": "jsdom + @testing-library/react, setupFiles ./src/test/setup.ts, include src/**/*.test.{ts,tsx}",
+  "docs_present": [
+    {
+      "path": "README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "CLAUDE.md",
+      "kind": "claude-instructions"
+    },
+    {
+      "path": "AGENTS.md",
+      "kind": "agents-instructions"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "kind": "contributing"
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "kind": "code-of-conduct"
+    },
+    {
+      "path": "SECURITY.md",
+      "kind": "security-policy"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "kind": "changelog"
+    },
+    {
+      "path": "ENVIRONMENT_SETUP.md",
+      "kind": "environment-setup"
+    },
+    {
+      "path": "apps/docs",
+      "kind": "product-docs-content"
+    },
+    {
+      "path": "plans",
+      "kind": "planning-notes"
+    }
+  ],
+  "ai_configs_detected": [
+    {
+      "path": ".claude/",
+      "type": "claude-code-project-config"
+    },
+    {
+      "path": ".claude/settings.local.json",
+      "type": "claude-code-local-settings",
+      "tracked": false
+    },
+    {
+      "path": ".claude/skills/",
+      "type": "claude-code-skills",
+      "count": 11
+    },
+    {
+      "path": "CLAUDE.md",
+      "type": "claude-instructions"
+    },
+    {
+      "path": "AGENTS.md",
+      "type": "agents-instructions"
+    },
+    {
+      "path": ".agents/skills/",
+      "type": "agents-skills-mirror",
+      "count": 10
+    },
+    {
+      "path": "skills/",
+      "type": "skills-source",
+      "count": 10
+    },
+    {
+      "path": "skills-lock.json",
+      "type": "skills-lockfile"
+    },
+    {
+      "path": ".cursor/rules/",
+      "type": "cursor",
+      "files": [
+        "backend-api.mdc",
+        "cursor-rules.mdc",
+        "database-schema.mdc",
+        "deployment-devops.mdc",
+        "development-conventions.mdc",
+        "frontend-web.mdc",
+        "project-overview.mdc"
+      ]
+    },
+    {
+      "path": ".coderabbit.yaml",
+      "type": "coderabbit-ai-review"
+    }
+  ],
+  "ai_configs_absent": [
+    ".mcp.json",
+    ".cursorrules",
+    ".aider.conf.yml",
+    ".continue/",
+    ".roo/",
+    ".github/copilot-instructions.md",
+    "CLAUDE.local.md",
+    "routing-policy.yaml",
+    "gemini*.{yaml,json}"
+  ],
+  "env_keys_by_file": {
+    ".env": [
+      "AUTH_SECRET",
+      "DATABASE_URL",
+      "KANEO_API_URL",
+      "KANEO_CLIENT_URL",
+      "POSTGRES_DB",
+      "POSTGRES_HOST",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_PORT",
+      "POSTGRES_USER"
+    ],
+    ".env.local": [
+      "POSTGRES_DB",
+      "POSTGRES_HOST",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_PORT",
+      "POSTGRES_USER"
+    ],
+    ".env.sample": [
+      "AUTH_SECRET",
+      "GITHUB_APP_ID",
+      "GITHUB_APP_NAME",
+      "GITHUB_CLIENT_ID",
+      "GITHUB_CLIENT_SECRET",
+      "GITHUB_OAUTH_CLIENT_ID",
+      "GITHUB_OAUTH_CLIENT_SECRET",
+      "GITHUB_PRIVATE_KEY",
+      "GITHUB_WEBHOOK_SECRET",
+      "KANEO_CLIENT_URL",
+      "POSTGRES_DB",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_USER",
+      "SMTP_FROM",
+      "SMTP_HOST",
+      "SMTP_PASSWORD",
+      "SMTP_PORT",
+      "SMTP_REQUIRE_TLS",
+      "SMTP_SECURE",
+      "SMTP_USER"
+    ],
+    "apps/api/.env.test.example": [
+      "AUTH_SECRET",
+      "DATABASE_URL",
+      "DISABLE_GUEST_ACCESS",
+      "KANEO_API_URL",
+      "KANEO_CLIENT_URL",
+      "NODE_ENV"
+    ],
+    "apps/web/.env.development": [
+      "VITE_API_URL",
+      "VITE_CLIENT_URL"
+    ],
+    "apps/web/.env.production": [
+      "VITE_API_URL",
+      "VITE_CLIENT_URL",
+      "VITE_SENTRY_DSN",
+      "VITE_TURNSTILE_SITE_KEY"
+    ]
+  },
+  "env_keys_all": [
+    "AUTH_SECRET",
+    "DATABASE_URL",
+    "DISABLE_GUEST_ACCESS",
+    "GITHUB_APP_ID",
+    "GITHUB_APP_NAME",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GITHUB_OAUTH_CLIENT_ID",
+    "GITHUB_OAUTH_CLIENT_SECRET",
+    "GITHUB_PRIVATE_KEY",
+    "GITHUB_WEBHOOK_SECRET",
+    "KANEO_API_URL",
+    "KANEO_CLIENT_URL",
+    "NODE_ENV",
+    "POSTGRES_DB",
+    "POSTGRES_HOST",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_PORT",
+    "POSTGRES_USER",
+    "SMTP_FROM",
+    "SMTP_HOST",
+    "SMTP_PASSWORD",
+    "SMTP_PORT",
+    "SMTP_REQUIRE_TLS",
+    "SMTP_SECURE",
+    "SMTP_USER",
+    "VITE_API_URL",
+    "VITE_CLIENT_URL",
+    "VITE_SENTRY_DSN",
+    "VITE_TURNSTILE_SITE_KEY"
+  ],
+  "env_keys_referenced_in_code": [
+    "APPDATA",
+    "AUTH_SECRET",
+    "BILLING_FOUNDING_CUTOFF",
+    "BILLING_REMINDER_MAX_PER_RUN",
+    "BILLING_TRIAL_DAYS",
+    "COOKIE_DOMAIN",
+    "CORS_ORIGINS",
+    "CREEM_API_KEY",
+    "CREEM_TEST_MODE",
+    "CREEM_WEBHOOK_SECRET",
+    "CUSTOM_AUTH_PKCE",
+    "CUSTOM_OAUTH_AUTHORIZATION_URL",
+    "CUSTOM_OAUTH_AUTO_LOGIN",
+    "CUSTOM_OAUTH_CLIENT_ID",
+    "CUSTOM_OAUTH_CLIENT_SECRET",
+    "CUSTOM_OAUTH_DISCOVERY_URL",
+    "CUSTOM_OAUTH_LOGOUT_URL",
+    "CUSTOM_OAUTH_RESPONSE_TYPE",
+    "CUSTOM_OAUTH_SCOPES",
+    "CUSTOM_OAUTH_TOKEN_URL",
+    "CUSTOM_OAUTH_USER_INFO_URL",
+    "DATABASE_URL",
+    "DEMO_MODE",
+    "DEV",
+    "DEVICE_AUTH_CLIENT_IDS",
+    "DISABLE_EMAIL_OTP_SIGN_IN",
+    "DISABLE_GUEST_ACCESS",
+    "DISABLE_LOGIN_FORM",
+    "DISABLE_PASSWORD_REGISTRATION",
+    "DISABLE_REGISTRATION",
+    "DISCORD_CLIENT_ID",
+    "DISCORD_CLIENT_SECRET",
+    "GH_TOKEN",
+    "GITHUB_APP_ID",
+    "GITHUB_APP_NAME",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GITHUB_OAUTH_CLIENT_ID",
+    "GITHUB_OAUTH_CLIENT_SECRET",
+    "GITHUB_PRIVATE_KEY",
+    "GITHUB_PRIVATE_KEY_BASE64",
+    "GITHUB_TOKEN",
+    "GITHUB_WEBHOOK_SECRET",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS",
+    "KANEO_API_KEY",
+    "KANEO_API_URL",
+    "KANEO_CLIENT_URL",
+    "KANEO_CLOUD",
+    "KANEO_INTERNAL_API_URL",
+    "KANEO_MCP_CLIENT_ID",
+    "MODE",
+    "NODE_ENV",
+    "NOTIFICATION_SECRET_ENCRYPTION_KEY",
+    "PLANKA_API_KEY",
+    "PLANKA_PASSWORD",
+    "POSTGRES_DB"
+  ],
+  "env_note": "Key names only. No values were read, recorded, or transmitted. Referenced-in-code list is truncated at the grep bound (60 names).",
+  "monorepo": {
+    "type": "pnpm-workspaces + turborepo",
+    "workspace_manifest": "pnpm-workspace.yaml",
+    "task_runner": "turbo.json",
+    "packages": [
+      {
+        "name": "@kaneo/api",
+        "root": "apps/api",
+        "manifest": "apps/api/package.json",
+        "test": "npm run test:unit",
+        "test_integration": "vitest run --config vitest.integration.config.ts"
+      },
+      {
+        "name": "@kaneo/web",
+        "root": "apps/web",
+        "manifest": "apps/web/package.json",
+        "test": "vitest run --config vitest.config.ts"
+      },
+      {
+        "name": "@kaneo/site",
+        "root": "apps/site",
+        "manifest": "apps/site/package.json",
+        "test": null
+      },
+      {
+        "name": "@kaneo/email",
+        "root": "packages/email",
+        "manifest": "packages/email/package.json",
+        "test": "vitest run --config vitest.config.ts"
+      },
+      {
+        "name": "@kaneo/libs",
+        "root": "packages/libs",
+        "manifest": "packages/libs/package.json",
+        "test": "vitest run --config vitest.config.ts"
+      },
+      {
+        "name": "@kaneo/mcp",
+        "root": "packages/mcp",
+        "manifest": "packages/mcp/package.json",
+        "test": "vitest run --config vitest.config.ts"
+      },
+      {
+        "name": "@kaneo/permissions",
+        "root": "packages/permissions",
+        "manifest": "packages/permissions/package.json",
+        "test": "vitest run --config vitest.config.ts"
+      },
+      {
+        "name": "@kaneo/planka-import",
+        "root": "packages/planka-import",
+        "manifest": "packages/planka-import/package.json",
+        "test": "vitest run --config vitest.config.ts"
+      },
+      {
+        "name": "@kaneo/typescript-config",
+        "root": "packages/typescript-config",
+        "manifest": "packages/typescript-config/package.json",
+        "test": null
+      }
+    ],
+    "note": "apps/docs has no package.json — it is documentation content only."
+  },
+  "submodules": [],
+  "lfs": false,
+  "lfs_patterns": [],
+  "gitattributes_note": ".gitattributes exists but only forces LF on .husky/* — no LFS filters.",
+  "infra_hints": {
+    "dockerfile": true,
+    "dockerfile_paths": [
+      "Dockerfile.kaneo"
+    ],
+    "docker_compose": true,
+    "docker_compose_paths": [
+      "compose.yml",
+      "compose.local.yml"
+    ],
+    "terraform": false,
+    "github_workflows": true,
+    "github_workflow_files": [
+      "auto-assign.yml",
+      "auto-merge.yml",
+      "ci.yml",
+      "deploy-site.yml",
+      "docker.yml",
+      "helm-chart.yml",
+      "issue-notify.yml",
+      "nightly.yml",
+      "publish-mcp.yml",
+      "publish-planka-import.yml",
+      "release-notify.yml",
+      "release.yml",
+      "update-contributors.yml"
+    ],
+    "gitlab_ci": false,
+    "circleci": false,
+    "jenkins": false,
+    "helm": true,
+    "helm_path": "charts/kaneo",
+    "devcontainer": true
+  },
+  "regulated_repo_signals": [
+    {
+      "kind": "security-policy",
+      "path": "SECURITY.md"
+    }
+  ],
+  "regulated_repo_warning_required": false,
+  "regulated_repo_note": "Only SECURITY.md present — a standard OSS vulnerability-disclosure policy, not a compliance-program marker. No HIPAA/PCI/SOC2/GDPR/PRIVACY/COMPLIANCE files, no compliance/ or regulated/ directories, no CODEOWNERS. Warning not required.",
+  "off_limits_proposed": [
+    ".git/**",
+    ".sdlc/**",
+    ".env",
+    ".env.local",
+    ".env.sample",
+    ".env.*",
+    "apps/api/.env.test.example",
+    "apps/web/.env.development",
+    "apps/web/.env.production",
+    ".claude/**",
+    "CLAUDE.md",
+    "AGENTS.md",
+    ".agents/**",
+    "skills/**",
+    "skills-lock.json",
+    ".cursor/**",
+    ".coderabbit.yaml",
+    ".github/**",
+    ".husky/**",
+    ".devcontainer/**",
+    ".vscode/**",
+    ".hook-logs/**",
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    ".turbo/**",
+    "out/**",
+    "coverage/**",
+    "pnpm-lock.yaml",
+    "apps/web/src/routeTree.gen.ts",
+    "apps/api/src/database/migrations/**",
+    "apps/api/drizzle/**",
+    "charts/**",
+    "deploy/**",
+    "plans/**",
+    "CHANGELOG.md",
+    "CONTRIBUTORS.svg"
+  ],
+  "off_limits_rationale": {
+    "apps/web/src/routeTree.gen.ts": "TanStack Router generated file — header contains '/* eslint-disable */' and '// @ts-nocheck'. Regenerated by the router vite plugin; never hand-edit.",
+    "pnpm-lock.yaml": "Generated by pnpm.",
+    "apps/api/src/database/migrations/**": "Generated by `pnpm --filter @kaneo/api db:generate`; per AGENTS.md must be generated, not hand-written.",
+    "CHANGELOG.md": "Release-tooling generated.",
+    ".claude/**, .cursor/**, .agents/**, skills/**, .coderabbit.yaml": "Competing/adjacent AI-agent configuration owned by the user.",
+    "plans/**": "Human planning notes; out of scope for codegen."
+  },
+  "coexistence_notes": [
+    "Cursor rules detected at .cursor/rules/ (7 .mdc files: backend-api, cursor-rules, database-schema, deployment-devops, development-conventions, frontend-web, project-overview). The plugin will never touch them, but if you have Cursor's auto-lint running on save, changes we make may trigger it.",
+    "Three parallel skill trees detected — skills/ (source, 10 skills), .claude/skills/ (11 skills, adds 'verify'), .agents/skills/ (10 skills, mirror), plus skills-lock.json. These look sync-managed. The plugin will not write to any of them; if a sync script runs during the run it could re-touch files and confuse change accounting.",
+    "No .mcp.json in this repo — no competing MCP server registrations at the project level.",
+    "No repo-local routing-policy.yaml — the plugin will use the shipped/active policy.",
+    ".coderabbit.yaml detected — CodeRabbit AI review runs on PRs. It reviews, it does not write, so no write conflict; expect automated review comments on anything this run pushes.",
+    "Your .gitignore doesn't cover .sdlc/. Run artifacts under .sdlc/ (packets, backups, telemetry) will be untracked but visible to `git add -A`. Gate 0 will offer to add .gitignore (create if missing, append if present) to this run's allowlist so the plugin can add the entry as part of the run.",
+    "Husky + commitlint (config-conventional) are active. Any commit made during this run must use a conventional-commit subject or the pre-commit/commit-msg hook will reject it.",
+    "Root and package `lint` scripts run Biome with --write and can modify unrelated files (AGENTS.md calls this out explicitly). Prefer `biome check` on changed files only; do not run `pnpm lint` as a verification step."
+  ],
+  "policy_docs_that_bind_this_repo": [
+    "AGENTS.md is canonical (CLAUDE.md just @-includes it). Hard constraints relevant to a web-only change: user-facing copy must use static i18n keys with i18n/en-US.json as source of truth; keep web requests in apps/web/src/fetchers/ and server state in TanStack Query hooks; use the @kaneo/libs typed client; prefer inferred types and `type` over `interface`; do not commit/push/open PRs unless explicitly requested."
+  ],
+  "scoping_notes": {
+    "intent": "feature-extend — URL persistence for the project Board's filter state",
+    "board_route": {
+      "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "search_params_type": "type BoardSearchParams = { taskId?: string }",
+      "search_params_type_line": 24,
+      "validate_search_line": 32,
+      "validate_search_shape": "validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({ taskId: typeof search.taskId === \"string\" ? search.taskId : undefined })",
+      "validate_search_style": "hand-rolled narrowing predicate — no schema library",
+      "consumes": "const { taskId } = Route.useSearch()  (line 80) — feeds TaskDetailsSheet only",
+      "filter_hook_call": "useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery)  (line 166)",
+      "local_state_not_in_url": [
+        "boardSearchQuery (Cmd/Ctrl+F text search, line 86)",
+        "viewMode (zustand user-preferences store)",
+        "sort (useBoardSort -> localStorage)"
+      ]
+    },
+    "board_toolbar": {
+      "path": "apps/web/src/components/board/board-toolbar.tsx",
+      "existing_filter_ui": [
+        "Single 'Filter' DropdownMenu trigger (line 259) with five DropdownMenuSub sections: status, priority, assignee, dueDate, labels",
+        "Status submenu built from project.columns with an 'All statuses' reset (updateFilter('status', null))",
+        "Priority submenu over a hardcoded list ['urgent','high','medium','low']",
+        "Assignee submenu over users.members",
+        "Due-date submenu over DUE_DATE_FILTER_VALUES (dueThisWeek, dueNextWeek, noDueDate)",
+        "Labels submenu over workspaceLabels de-duplicated by (name,color); toggles every matching label id via updateLabelFilter",
+        "'Clear all filters' item rendered only when hasActiveFilters",
+        "ActiveFilterChip components already exist (local, lines 78-108) and render one chip per active filter group with subject/operator/value/X-clear",
+        "SortControl (shared component) sits inline with the chips",
+        "Right side: board/list view-mode toggle buttons"
+      ],
+      "chip_clear_handlers": [
+        "status chip -> updateFilter('status', null)",
+        "priority chip -> updateFilter('priority', null)",
+        "assignee chip -> updateFilter('assignee', null)",
+        "dueDate chip -> updateFilter('dueDate', null)",
+        "labels chip -> clearLabelFilters() which loops updateLabelFilter(labelId)"
+      ],
+      "props_contract": "BoardToolbarProps takes filters, updateFilter, updateLabelFilter, clearFilters, hasActiveFilters — the toolbar is fully controlled and holds no filter state itself. URL persistence can be added entirely behind the hook without changing this component's props."
+    },
+    "filter_hooks": {
+      "apps/web/src/hooks/use-task-filters.ts": {
+        "exports": [
+          "BoardFilters (type)",
+          "DUE_DATE_FILTER_VALUES (const)",
+          "useTaskFilters (function)"
+        ],
+        "board_filters_shape": "{ status: string[] | null; priority: string[] | null; assignee: string[] | null; dueDate: string[] | null; labels: string[] | null }",
+        "hook_consumers": "NONE — useTaskFilters() itself is dead code. Only its type/const exports are imported (board-toolbar.tsx line 22, backlog.tsx line 32).",
+        "note": "Near-duplicate of the labels-support hook, minus label filtering, text query, and memoization."
+      },
+      "apps/web/src/hooks/use-task-filters-with-labels-support.ts": {
+        "exports": [
+          "useTaskFiltersWithLabelsSupport"
+        ],
+        "signature": "(project, projectId?, textQuery?) => { filters, setFilters, updateFilter, updateLabelFilter, filteredProject, hasActiveFilters, clearFilters }",
+        "consumers": [
+          "board.tsx line 166 (only production consumer)"
+        ],
+        "internals": "Re-declares its own private DEFAULT_FILTERS, FILTER_KEYS, normalizeFilters — duplicated verbatim from use-task-filters.ts, not imported.",
+        "state": "useState<BoardFilters>(DEFAULT_FILTERS) — local component state, seeded from localStorage in an effect."
+      },
+      "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx": {
+        "style": "vitest + @testing-library/react renderHook/waitFor",
+        "setup": "window.localStorage.clear() in beforeEach/afterEach; storageKey 'kaneo:board-filters:project-1'",
+        "covers": "restoring persisted label filters from localStorage and matching tasks from project data",
+        "note": "Existing tests assert localStorage behavior directly — a move to URL persistence will require updating them, and TanStack Router hooks would need a router harness (none exists in this file today)."
+      }
+    },
+    "current_filter_persistence": {
+      "mechanism": "window.localStorage, per project",
+      "key": "`kaneo:board-filters:${projectId}`",
+      "value": "JSON.stringify(BoardFilters)",
+      "read": "useEffect on [storageKey] — reads once per project, JSON.parse, normalizeFilters(); falls back to DEFAULT_FILTERS on missing/invalid/throw",
+      "write": "useEffect on [filters, storageKey] — unconditional setItem on every filter change (also writes the all-null default on mount)",
+      "normalization": "normalizeFilters() keeps only string[] values with length > 0, otherwise null",
+      "guards": "typeof window === 'undefined' guard and try/catch around read",
+      "sibling_pattern": "useBoardSort (apps/web/src/hooks/use-board-sort.ts) uses the identical shape at key `kaneo:board-sort:${projectId}` with normalizeSort() — this is the house pattern for board view state.",
+      "nothing_in_url": "No filter state currently lives in the URL. The board search object carries taskId only."
+    },
+    "navigate_call_sites_replacing_whole_search": [
+      {
+        "file": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+        "line": 97,
+        "code": "navigate({ to: \".\", search: {}, replace: true })",
+        "context": "handleCloseTaskSheet — closes TaskDetailsSheet",
+        "risk": "wipes any future filter search params"
+      },
+      {
+        "file": "apps/web/src/components/kanban-board/task-card.tsx",
+        "line": 148,
+        "code": "navigate({ to: \".\", search: {} })",
+        "context": "card click when the task is already open (toggle close)",
+        "risk": "wipes filter params"
+      },
+      {
+        "file": "apps/web/src/components/kanban-board/task-card.tsx",
+        "line": 153,
+        "code": "navigate({ to: \".\", search: { taskId: task.id } })",
+        "context": "card click to open task",
+        "risk": "replaces whole search — drops filter params"
+      },
+      {
+        "file": "apps/web/src/components/kanban-board/index.tsx",
+        "line": 67,
+        "code": "navigate({ to: \".\", search: { taskId: state.focusedTaskId } })",
+        "context": "'j' keyboard shortcut, focus next",
+        "risk": "replaces whole search"
+      },
+      {
+        "file": "apps/web/src/components/kanban-board/index.tsx",
+        "line": 74,
+        "code": "navigate({ to: \".\", search: { taskId: state.focusedTaskId } })",
+        "context": "'k' keyboard shortcut, focus previous",
+        "risk": "replaces whole search"
+      },
+      {
+        "file": "apps/web/src/components/list-view/task-row.tsx",
+        "line": 147,
+        "code": "navigate({ to: \".\", search: {} })",
+        "context": "row click when task already open",
+        "risk": "wipes filter params"
+      },
+      {
+        "file": "apps/web/src/components/list-view/task-row.tsx",
+        "line": 152,
+        "code": "navigate({ to: \".\", search: { taskId: task.id } })",
+        "context": "row click to open task",
+        "risk": "replaces whole search"
+      },
+      {
+        "file": "apps/web/src/components/list-view/index.tsx",
+        "line": 97,
+        "code": "navigate({ to: \".\", search: { taskId: state.focusedTaskId } })",
+        "context": "'j' shortcut",
+        "risk": "replaces whole search"
+      },
+      {
+        "file": "apps/web/src/components/list-view/index.tsx",
+        "line": 104,
+        "code": "navigate({ to: \".\", search: { taskId: state.focusedTaskId } })",
+        "context": "'k' shortcut",
+        "risk": "replaces whole search"
+      }
+    ],
+    "navigate_call_sites_note": "board.tsx renders KanbanBoard or ListView depending on viewMode, so all nine sites above are reachable from the board route. TaskDetailsSheet's onClose is board.tsx line 97. Sites using `to: '/dashboard/.../task/$taskId'` or `/gantt` / `/backlog` navigate away from the board and are not search-object replacements. backlog.tsx line 75 and backlog-list-view/* have the identical pattern on the sibling backlog route — same hazard, out of scope unless the ticket extends there.",
+    "schema_validation_library": {
+      "web_dependency": "zod ^4.4.3 (apps/web/package.json). No valibot in apps/web (valibot is the API's validator, apps/api).",
+      "import_style": "import { z } from \"zod/v4\"",
+      "routes_using_zod_in_validateSearch": [
+        "apps/web/src/routes/auth/sign-in.tsx — validateSearch: signInSearchSchema",
+        "apps/web/src/routes/auth/sign-up.tsx — validateSearch: signUpSearchSchema",
+        "apps/web/src/routes/device/index.tsx — validateSearch: deviceSearchSchema (z.object at line 14)",
+        "apps/web/src/routes/device/approve.tsx — validateSearch: approveSearchSchema (z.object at line 13)",
+        "apps/web/src/routes/mcp.authorize.tsx — validateSearch: authorizationSearchSchema (z.object at line 13)"
+      ],
+      "routes_using_hand_rolled_validateSearch": [
+        "apps/web/src/routes/.../project/$projectId/board.tsx",
+        "apps/web/src/routes/.../project/$projectId/backlog.tsx",
+        "apps/web/src/routes/.../project/$projectId/gantt.tsx",
+        "apps/web/src/routes/auth/verify-otp.tsx",
+        "apps/web/src/routes/auth/check-email.tsx"
+      ],
+      "other_zod_usage_in_web": [
+        "apps/web/src/components/settings/create-api-key-dialog.tsx",
+        "apps/web/src/routes/.../settings/account/information.tsx",
+        "apps/web/src/routes/.../settings/projects/$projectId/general.tsx",
+        "apps/web/src/routes/.../settings/workspace/general.tsx"
+      ],
+      "verdict": "Both styles are established in-repo. A zod v4 search schema for the board route is precedented (auth/device/mcp routes) and is the safer choice for array-valued filter params; the hand-rolled style is what the three project sub-routes currently use. Gate 0 should let the user pick — this is a real convention fork, not a settled one."
+    },
+    "i18n_note": "Board filter copy already uses static keys under tasks:boardFilters.* and tasks:backlog.filters.* — i18n/en-US.json is the source of truth and 20+ locale files exist. Any new user-facing string needs a key there; `pnpm i18n:check` validates."
+  },
+  "notes": [
+    "Scan completed well inside the 30s bound; no sampling fallback needed (1578 tracked files).",
+    "Working tree is clean of tracked modifications — the only untracked entries are .claude/settings.local.json, .hook-logs/, and .sdlc/. Treated as pristine main state per the caller's controlled-comparison context.",
+    "Pre-existing .sdlc/runs/ directories from earlier runs were left untouched.",
+    "Tier 2b adaptive stack profile TRIGGERED: primary stack is React/Vite + Hono, which has no pre-authored adapter (shipped adapters: generic, nest, python). Profile written to .sdlc/baseline/stack-profile.md."
+  ]
+}

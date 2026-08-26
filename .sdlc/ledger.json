@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "created_on_branch": "feature-extend-3/flash-only",
+  "note": "Created fresh on this branch. Ledgers from earlier runs were committed on other branches and are not reachable here; reconcile on merge.",
+  "runs": [
+    {
+      "run_id": "20260826-103235-feature-extend-board-filter-chips",
+      "date": "2026-08-26",
+      "mode": "brownfield",
+      "intent": "feature-extend",
+      "ticket": "URL-persist the board filter state in TanStack Router search params",
+      "policy": {
+        "name": "flash-agsdk-only",
+        "version": 1,
+        "tiers": 1,
+        "model": "gemini-3.7-flash",
+        "adapter": "antigravity-worker",
+        "backend": "vertex-adc",
+        "escalation": "none - single-tier floor"
+      },
+      "auth_mode": "estimated",
+      "provenance": "all events vendor-reported; no direct tier exists in this policy so nothing was char-count estimated",
+      "cost_usd": 6.1841,
+      "tokens": {
+        "input": 2485536,
+        "input_cached": 4425099,
+        "output": 199109
+      },
+      "dispatches": {
+        "total": 21,
+        "succeeded": 18,
+        "failed": 3
+      },
+      "wall_clock_minutes": 85.2,
+      "model_latency_minutes": 45.4,
+      "comparison": {
+        "against": "opus-plus-flash-v37",
+        "same_ticket": true,
+        "same_gate0_decisions": true,
+        "same_file_scope": true,
+        "this_run_usd": 6.1841,
+        "comparand_usd": 2.7,
+        "ratio": 2.29,
+        "per_token_price_relative": "~1/6 of the comparand",
+        "cause": "agent-adapter shape: antigravity-worker packets read the repo themselves rather than consuming pre-sliced inputs[], so input volume is dominated by repo reads",
+        "evidence": {
+          "billed_input_tokens": 6910635,
+          "output_tokens": 199109,
+          "worst_dispatches": [
+            {
+              "id": "tp_design_001",
+              "input": 357812,
+              "cached": 1102129,
+              "usd": 0.9622
+            },
+            {
+              "id": "tp_review_001",
+              "input": 550855,
+              "cached": 1004866,
+              "usd": 1.2328
+            }
+          ]
+        },
+        "lesson": "Do not rank policies by $/Mtok. A cheap model that reads the repo itself can cost more than an expensive model handed a slice."
+      },
+      "verification": {
+        "baseline": {
+          "test_files": 36,
+          "tests": 112,
+          "typecheck_exit": 0
+        },
+        "final": {
+          "test_files": 37,
+          "tests": 148,
+          "typecheck_exit": 0
+        },
+        "lint_run": false
+      },
+      "fail_before_fix_proofs": [
+        {
+          "id": "A",
+          "reverted": "list-view/task-row.tsx",
+          "failures": 2,
+          "note": "pre-existing test still passed"
+        },
+        {
+          "id": "B",
+          "reverted": "use-task-filters-with-labels-support.ts",
+          "failures": 9,
+          "of": 12,
+          "note": "3 unchanged it.each cases still passed"
+        },
+        {
+          "id": "C",
+          "reverted": "pendingFiltersRef stale-closure fix",
+          "failures": 2
+        }
+      ],
+      "files_changed": {
+        "count": 10,
+        "added": 2,
+        "modified": 8
+      },
+      "quality": {
+        "blocker_found_by_flash_review": "clearLabelFilters/toggleLabelGroup composition regression at board-toolbar.tsx:239-251 - genuine shipped-behaviour break, raised from major to blocker, fixed with a within-tick accumulator",
+        "accepted_unproven": [
+          {
+            "id": "AC5",
+            "criterion": "filters survive board/list view switching",
+            "why_unproven": "no test exercises view switching with active filters",
+            "by_construction": "viewMode is Zustand not routing, so toggling it cannot touch search params - a sound argument, not a test",
+            "future_test": "view-toggle test asserting search params and chips unchanged"
+          },
+          {
+            "id": "AC6",
+            "criterion": "browser Back behaves coherently",
+            "why_unproven": "replace:true verified in code and test, but no history-traversal test",
+            "caveat": "push/replace asymmetry between task-card deselect and handleCloseTaskSheet can make the first Back appear to do nothing",
+            "future_test": "popstate test over apply-filter, apply-filter, open-task, Back, Back"
+          }
+        ],
+        "security": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 1,
+          "informational": 1,
+          "accepted_as_risks": [
+            "SEC-01",
+            "SEC-02"
+          ]
+        },
+        "attribution": {
+          "flash_produced": [
+            "requirements.md",
+            "both change_plan revisions",
+            "packets.json",
+            "all source and test code",
+            "senior review incl. the blocker",
+            "security review"
+          ],
+          "orchestrator_authored_corrections": [
+            "A1 hook signature dropped projectId and textQuery",
+            "A2 wrong Project types",
+            "A3 mirror effect would have reintroduced the clobber the overturn removed",
+            "A4 hook calling navigate contradicted the injection decision",
+            "P1 packet required a verbatim-passing test the design made impossible"
+          ],
+          "orchestrator_wrong_flash_right": "orchestrator suspected expect.toSatisfy was invalid; it is documented at @vitest/expect@4.1.10 dist/index.d.ts:201",
+          "gate2_defect_list": "orchestrator-authored, against a Flash plan reporting uncertainties: [] while holding two blocking self-contradictions"
+        },
+        "reliability": {
+          "hard_failures": 3,
+          "cost_of_failures_usd": 0,
+          "minutes_lost": 9,
+          "causes": [
+            "Vertex auth: internal_failure",
+            "WSL DNS timeout on oauth2.googleapis.com",
+            "output looping + max tokens x3 + nonexistent edit_file tool"
+          ],
+          "structured_output_leaks": "3 of 18 successes leaked prose ahead of their JSON, needing hand-extraction",
+          "dns_consequence_chain": "worker died AFTER writing a complete artifact, during its own verification step. Artifact kept and vitest re-run by the orchestrator (24/24), but no tsc ran on it, so 13 TS2769 errors surfaced later at the full-suite gate. The save was correct; the cost moved downstream. Rescuing an artifact also rescues its unfinished verification - re-run the full check matrix."
+        },
+        "containment": {
+          "layers_active": 0,
+          "layer2_packet_validator": "documentation-only in this build; artifact_path has no reader",
+          "layer3_pretooluse_hook": "never fired - a Write to an off-limits path was ALLOWED, while the same input piped to the script manually DENIED with exit 1",
+          "worker_path": "never covered; agent workers edit from a separate process",
+          "actual_method": "orchestrator git status --porcelain sweep after every dispatch",
+          "sweeps": 21,
+          "out_of_scope_writes": 0,
+          "reverts": 0
+        }
+      },
+      "git": {
+        "branch": "feature-extend-3/flash-only",
+        "head": "5d1fc910",
+        "staged": 0,
+        "committed": false
+      },
+      "artifacts_dir": ".sdlc/runs/20260826-103235-feature-extend-board-filter-chips/",
+      "outcome": "accepted at Gate 4"
+    }
+  ]
+}

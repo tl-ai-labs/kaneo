@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "run_id": "20260826-103235-feature-extend-board-filter-chips",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "apps/web/src/lib/board-filter-params.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:56227e73a8b184518945d1f04386daebe21c3deb65682b197f2adf0b947823f0",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_cg_001",
+      "written_at": "2026-08-26T11:32:15.652Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "existed_before": true,
+      "sha_before": "sha256:68006baec18174fa61e96237e0c49f05e02972cc740c2c623eeb1b551b91bdbb",
+      "sha_after": "sha256:f0ad4c16684ff2cf969951701853501dba6867aae8639cbb2564af5b9306b42a",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_002",
+      "written_at": "2026-08-26T11:34:24.001Z"
+    },
+    {
+      "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:8422b157f2a4d1c28a0b2d2ebc61167c528a0723ce957db23963ad609f452411",
+      "sha_after": "sha256:f9a88a063001225d9876eca72b9ad9887a7890e3eb7cc308b9d941459549be9b",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_003",
+      "written_at": "2026-08-26T11:37:01.801Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/task-card.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:9000f13988a3307836602f28aa698593e505478b392319264a4c61763d7f5603",
+      "sha_after": "sha256:a82ea163e3cd6d4c675851a459a33642c01bae4a230eabbd365ad2253a0a8149",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "navsites",
+      "written_at": "2026-08-26T11:40:14.611Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/index.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:10a3a07a87bde71b6db845287a72ad48a47af9b01bc17dbe8f16afb7067517a2",
+      "sha_after": "sha256:7cd1ed65929dca28c4a349bfaafa08470525afbd7b1ba8b2c877b2d6ee0517c0",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "navsites",
+      "written_at": "2026-08-26T11:40:14.651Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/task-row.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:b3f9386b2d83ccf5bb2dddf45ca2dd8ad2eaba376546e134f079d72718047329",
+      "sha_after": "sha256:f91ad79a64137bdc098cdbe85d1f9466d385b8320ad2774762cce0ac57664131",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "navsites",
+      "written_at": "2026-08-26T11:40:14.690Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/index.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:c696e3f5e9b7a06b8217f6702500c0b18937104ea96d1a3b946e781bae4fbe04",
+      "sha_after": "sha256:42abd7272562d682fe63d3a7418138669603f4457dc169df7f5a46846bb4d3e3",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "navsites",
+      "written_at": "2026-08-26T11:40:14.729Z"
+    },
+    {
+      "path": "apps/web/src/lib/board-filter-params.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:bc70d2b3987860a7e77709ffa92c0b6850b14ddeb3eb26cb3d515b93d6aa4e4c",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tests",
+      "written_at": "2026-08-26T11:47:40.250Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:eb005cd71ff66234b5eaad6852db5e77a4eecfbfbf711dc735eb75e0905f596e",
+      "sha_after": "sha256:99ecccb01e6874e13ba350c8c0f28d850cae6fbd28851775a229894ddefe7459",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tests",
+      "written_at": "2026-08-26T11:50:33.219Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/task-row.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:56fb82fbb8e706db3a9f070c69e56c1eb571ee589601cfd77c1f556bca128fab",
+      "sha_after": "sha256:f660ecfe051d47b0cdd90ba1788dfbd39edae512a70ba38366035de61722b8c3",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tests",
+      "written_at": "2026-08-26T11:52:52.632Z"
+    }
+  ]
+}
