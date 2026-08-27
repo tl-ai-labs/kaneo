@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "run_id": "20260826-132654-feature-extend-board-filter-chips",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "opus-plus-sonnet-max",
+  "auth_mode": "estimated",
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips",
+  "status": "complete",
+  "gate": null,
+  "awaiting": null,
+  "phase": null,
+  "phases_completed": [
+    "preflight",
+    "requirements_analysis",
+    "gate-1-approved",
+    "change_plan",
+    "gate-2-approved",
+    "plan_task_packets",
+    "execute_packets",
+    "test_run",
+    "senior_code_review",
+    "security_review",
+    "gate-3-approved",
+    "generate_final_report"
+  ],
+  "phases_remaining": [],
+  "green_baseline": {
+    "test_files": 36,
+    "tests": 112,
+    "test_exit": 0,
+    "typecheck_exit": 0
+  },
+  "artifacts": {
+    "requirements": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/requirements.md",
+    "green_baseline": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/green-baseline.txt",
+    "change_plan": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/change_plan.md",
+    "routing_simulation": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/routing-simulation.txt",
+    "packets": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/packets.json",
+    "review": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/review.md",
+    "security_review": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/security_review.md",
+    "mutation_check": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/mutation-check.txt",
+    "changes_diff": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/changes.diff",
+    "manifest": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/manifest.json",
+    "summary": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/SUMMARY.md",
+    "ledger_md": ".sdlc/ledger.md",
+    "ledger_json": ".sdlc/ledger.json",
+    "fingerprint": ".sdlc/CLAUDE-SDLC.md"
+  },
+  "packets_dispatched": 21,
+  "files_written": [
+    "apps/web/src/lib/board-filter-search-params.ts",
+    "apps/web/src/lib/board-filter-search-params.test.ts",
+    "apps/web/src/lib/search-params.ts",
+    "apps/web/src/lib/search-params.test.ts",
+    "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+    "apps/web/src/components/board/use-board-filter-url-sync.ts",
+    "apps/web/src/components/list-view/task-row.tsx",
+    "apps/web/src/components/kanban-board/task-card.tsx",
+    "apps/web/src/components/kanban-board/index.tsx",
+    "apps/web/src/components/list-view/index.tsx",
+    "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx"
+  ],
+  "updated_at_phase": "closeout:complete",
+  "gate_history": [
+    {
+      "gate": "gate-1",
+      "response": "approved",
+      "decisions": {
+        "url_param_naming": "bare names",
+        "validator_idiom": "deferred to change_plan.md"
+      }
+    },
+    {
+      "gate": "gate-2",
+      "response": "approved",
+      "decisions": {
+        "allowlist_expanded": [
+          "apps/web/src/components/kanban-board/index.test.tsx",
+          "apps/web/src/components/list-view/index.test.tsx"
+        ]
+      }
+    },
+    {
+      "gate": "gate-3",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-4",
+      "response": "accept"
+    }
+  ],
+  "routing_preview": {
+    "planned_packets": 14,
+    "sonnet": 14,
+    "opus": 0,
+    "counterfactual_naive_task_types": {
+      "opus": 9,
+      "sonnet": 5
+    }
+  },
+  "corrections_made": [
+    {
+      "artifact": "change_plan.md",
+      "section": "8.3",
+      "issue": "asserted result.all which does not exist in @testing-library/react 16.3.2",
+      "action": "patched to a render-recorder equivalent"
+    }
+  ],
+  "verification": {
+    "tests": "43 files / 172 tests passed (baseline 36/112)",
+    "typecheck": "green",
+    "biome_ci_changed_paths": "exit 0",
+    "allowlist_violations": 0,
+    "reverted_files": 0
+  },
+  "routing_actual": {
+    "sonnet": 21,
+    "opus": 6
+  },
+  "cost_usd_so_far": 4.7042,
+  "committed": false,
+  "cost_usd_total": 4.7042,
+  "terminal": true,
+  "open_resume_checkpoint": false,
+  "outcome": "completed",
+  "closeout": {
+    "ledger_md": true,
+    "ledger_json": true,
+    "fingerprint": true,
+    "write_contract_deactivated": true,
+    "write_contract_note": "active:false is bookkeeping only - the PreToolUse hook was verified NOT to fire this session, so no live enforcement gate was re-opened or closed.",
+    "completed_at": "2026-08-26"
+  }
+}

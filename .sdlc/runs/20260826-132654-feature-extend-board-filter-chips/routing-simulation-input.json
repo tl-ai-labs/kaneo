@@ -1,0 +1,16 @@
+[
+{"id":"tp_001_codec","phase":"codegen","task_type":"frontend_util","subtype":"new_file_add","module":"board-filters","intent":"feature-extend"},
+{"id":"tp_002_codec_test","phase":"tests","task_type":"test_add","subtype":"unit","module":"board-filters","intent":"feature-extend"},
+{"id":"tp_003_searchparams","phase":"codegen","task_type":"frontend_util","subtype":"new_file_add","module":"navigation","intent":"feature-extend"},
+{"id":"tp_004_sp_test","phase":"tests","task_type":"test_add","subtype":"unit","module":"navigation","intent":"feature-extend"},
+{"id":"tp_005_hook","phase":"codegen","task_type":"frontend_util","subtype":"existing_file_edit","module":"board-filters","intent":"feature-extend"},
+{"id":"tp_006_hook_test","phase":"tests","task_type":"test_add","subtype":"unit","module":"board-filters","intent":"feature-extend"},
+{"id":"tp_007_urlsync","phase":"codegen","task_type":"react_component","subtype":"new_file_add","module":"board-filters","intent":"feature-extend"},
+{"id":"tp_008_urlsync_test","phase":"tests","task_type":"test_add","subtype":"unit","module":"board-filters","intent":"feature-extend"},
+{"id":"tp_009_taskrow","phase":"codegen","task_type":"react_component","subtype":"existing_file_edit","module":"navigation","intent":"feature-extend"},
+{"id":"tp_010_taskcard","phase":"codegen","task_type":"react_component","subtype":"existing_file_edit","module":"navigation","intent":"feature-extend"},
+{"id":"tp_011_kanban_idx","phase":"codegen","task_type":"react_component","subtype":"existing_file_edit","module":"navigation","intent":"feature-extend"},
+{"id":"tp_012_listview_idx","phase":"codegen","task_type":"react_component","subtype":"existing_file_edit","module":"navigation","intent":"feature-extend"},
+{"id":"tp_013_taskrow_test","phase":"tests","task_type":"test_add","subtype":"unit","module":"navigation","intent":"feature-extend"},
+{"id":"tp_014_board_route","phase":"codegen","task_type":"react_page","subtype":"existing_file_edit","module":"board-filters","intent":"feature-extend"}
+]

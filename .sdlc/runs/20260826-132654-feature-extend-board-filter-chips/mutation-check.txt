@@ -1,0 +1,101 @@
+######## MUTATION CHECK 1 — FR-15 / KD-3 structural guarantee ########
+Mutation: revert the lazy useState initializer to useState<BoardFilters>(DEFAULT_FILTERS),
+leaving every effect in place. If the guarantee were merely an effect-ordering argument,
+the test would still pass. It must go RED.
+
+MUTATED: lazy initializer -> DEFAULT_FILTERS
+     × restores persisted label filters from storage and matches tasks from project data 1037ms
+     × applies URL filters over stored filters and writes them back to storage 8ms
+     × never commits the default filter set before URL or storage is resolved 2ms
+     × restores stored filters when the URL carries only an empty facet 2ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected null to deeply equal [ 'label-bug' ]
+AssertionError: expected { status: null, priority: null, …(3) } to deeply equal { status: [ 'todo' ], …(4) }
+AssertionError: expected null to deeply equal [ 'label-bug' ]
+AssertionError: expected null to deeply equal [ 'label-bug' ]
+ Test Files  1 failed (1)
+      Tests  4 failed | 5 passed (9)
+
+######## MUTATION CHECK 1b — the SHARPER one ########
+Mutation 1 above also deleted the only storage-read path, so it proved the initializer
+is load-bearing but did not isolate structure-vs-ordering. 1b restores the ORIGINAL
+pre-fix design exactly: useState(DEFAULT_FILTERS) PLUS the original storage read effect.
+That design DOES restore filters - just one commit late. Expected result:
+  - the pre-existing waitFor-based test PASSES (it tolerates the late commit)
+  - 'never commits the default filter set...' FAILS (renders[0] is the default)
+That is the exact difference between an ordering argument and a structural guarantee.
+
+MUTATED (1b): original pre-fix design restored
+     × applies URL filters over stored filters and writes them back to storage 9ms
+     × never commits the default filter set before URL or storage is resolved 2ms
+     × restores stored filters when the URL carries only an empty facet 2ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected { status: null, priority: null, …(3) } to deeply equal { status: [ 'todo' ], …(4) }
+AssertionError: expected null to deeply equal [ 'label-bug' ]
+AssertionError: expected null to deeply equal [ 'label-bug' ]
+ Test Files  1 failed (1)
+      Tests  3 failed | 6 passed (9)
+
+######## MUTATION CHECK 2 — AC-5 sites 6 & 7 (list-view/task-row.tsx) ########
+Mutation: revert both navigate sites to the pre-fix object literals.
+MUTATED
+     × passes a search updater that preserves unrelated params when opening a task 20ms
+     × passes a search updater that preserves unrelated params when closing an open task 13ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected 'object' to be 'function' // Object.is equality
+AssertionError: expected 'object' to be 'function' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+
+######## MUTATION CHECK 3 — the shared seam (withTaskId drops ...prev) ########
+MUTATED: ...prev dropped
+     × preserves every unrelated search key while setting taskId 9ms
+     × clears taskId while preserving unrelated search keys 1ms
+     × passes a search updater that preserves unrelated params when opening a task 21ms
+     × passes a search updater that preserves unrelated params when closing an open task 13ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  2 failed (2)
+      Tests  4 failed | 2 passed (6)
+
+######## MUTATION CHECK 4 — ALL NINE AC-5 SITES REVERTED AT ONCE ########
+Every navigate() site put back to the pre-fix object literal. All 9 behavioral
+AC-5 tests must go RED; everything else must stay GREEN.
+ALL NINE SITES MUTATED
+     × closing the task sheet preserves filter params 198ms
+     × j preserves unrelated search params while focusing the next task 240ms
+     × k preserves unrelated search params while focusing the previous task 27ms
+     × passes a search updater that preserves unrelated params when opening a task 57ms
+     × passes a search updater that preserves unrelated params when closing an open task 32ms
+     × j preserves unrelated search params while focusing the next task 156ms
+     × k preserves unrelated search params while focusing the previous task 29ms
+     × opening a task from a card preserves filter params 225ms
+     × closing an already-open task from its card preserves filter params 54ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  5 failed | 38 passed (43)
+      Tests  9 failed | 161 passed (170)
+
+######## MUTATION CHECK 5 — the ONE-SIDED mutation (was promised in change_plan 8.2, initially SKIPPED; run after the senior reviewer caught the omission) ########
+Mutation: revert ONLY the j site (line 68), leave the k site intact.
+Expected: the j test RED, the k test GREEN. This discriminates test INDEPENDENCE,
+which the all-nine mutation (check 4) cannot do.
+MUTATED: j site only (first occurrence); k left intact
+68:          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+75:          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
+     × j preserves unrelated search params while focusing the next task 56ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected 'object' to be 'function' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+
+######## MUTATION CHECK 6 — the two previously-uncovered board.tsx seams ########
+Senior review found that deleting either seam left all 170 tests green. Proving the new tests bind them.
+--- 6a: remove the urlState 4th argument ---
+MUTATED: urlState argument dropped
+     × passes the URL-derived filter state into the filter hook 14ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 2 passed (3)
+--- 6b: remove the useBoardFilterUrlSync call ---
+MUTATED: sync hook call removed
+     × wires the board filter URL sync to the resolved filters and the search 11ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 2 passed (3)

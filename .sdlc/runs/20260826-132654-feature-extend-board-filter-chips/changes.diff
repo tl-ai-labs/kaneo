@@ -1,0 +1,735 @@
+diff --git a/apps/web/src/components/kanban-board/index.tsx b/apps/web/src/components/kanban-board/index.tsx
+index 012a39a9..60473b7e 100644
+--- a/apps/web/src/components/kanban-board/index.tsx
++++ b/apps/web/src/components/kanban-board/index.tsx
+@@ -19,6 +19,7 @@ import { produce } from "immer";
+ import { useEffect, useState } from "react";
+ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+ import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
++import { withTaskId } from "@/lib/search-params";
+ import useBulkSelectionStore from "@/store/bulk-selection";
+ import useProjectStore from "@/store/project";
+ import type { ProjectWithTasks } from "@/types/project";
+@@ -64,14 +65,14 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
+         focusNext();
+         const state = useBulkSelectionStore.getState();
+         if (state.focusedTaskId) {
+-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
++          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
+         }
+       },
+       k: () => {
+         focusPrevious();
+         const state = useBulkSelectionStore.getState();
+         if (state.focusedTaskId) {
+-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
++          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
+         }
+       },
+       Enter: () => {
+diff --git a/apps/web/src/components/kanban-board/task-card.tsx b/apps/web/src/components/kanban-board/task-card.tsx
+index b2d18774..f6ef1ef5 100644
+--- a/apps/web/src/components/kanban-board/task-card.tsx
++++ b/apps/web/src/components/kanban-board/task-card.tsx
+@@ -36,6 +36,7 @@ import {
+ } from "@/lib/due-date-status";
+ import { getInitials } from "@/lib/get-initials";
+ import { getPriorityIcon } from "@/lib/priority";
++import { withTaskId } from "@/lib/search-params";
+ import { toast } from "@/lib/toast";
+ import queryClient from "@/query-client";
+ import useBulkSelectionStore from "@/store/bulk-selection";
+@@ -147,12 +148,12 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
+     if (currentTaskId === task.id) {
+       navigate({
+         to: ".",
+-        search: {},
++        search: withTaskId(undefined),
+       });
+     } else {
+       navigate({
+         to: ".",
+-        search: { taskId: task.id },
++        search: withTaskId(task.id),
+       });
+     }
+   }
+diff --git a/apps/web/src/components/list-view/index.tsx b/apps/web/src/components/list-view/index.tsx
+index 9246252a..320905fb 100644
+--- a/apps/web/src/components/list-view/index.tsx
++++ b/apps/web/src/components/list-view/index.tsx
+@@ -29,6 +29,7 @@ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+ import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+ import { cn } from "@/lib/cn";
+ import { getColumnIcon } from "@/lib/column";
++import { withTaskId } from "@/lib/search-params";
+ import { toast } from "@/lib/toast";
+ import useBulkSelectionStore from "@/store/bulk-selection";
+ import useProjectStore from "@/store/project";
+@@ -94,14 +95,14 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
+         focusNext();
+         const state = useBulkSelectionStore.getState();
+         if (state.focusedTaskId) {
+-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
++          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
+         }
+       },
+       k: () => {
+         focusPrevious();
+         const state = useBulkSelectionStore.getState();
+         if (state.focusedTaskId) {
+-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
++          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
+         }
+       },
+       Enter: () => {
+diff --git a/apps/web/src/components/list-view/task-row.test.tsx b/apps/web/src/components/list-view/task-row.test.tsx
+index 2e266c6c..2fa7d8fa 100644
+--- a/apps/web/src/components/list-view/task-row.test.tsx
++++ b/apps/web/src/components/list-view/task-row.test.tsx
+@@ -1,10 +1,11 @@
+-import { cleanup, render, screen } from "@testing-library/react";
++import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+ import { afterEach, describe, expect, it, vi } from "vitest";
+ import type Task from "@/types/task";
+ import TaskRow from "./task-row";
+ 
+ const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
+ const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
++const navigateSpy = vi.fn();
+ 
+ afterEach(() => {
+   cleanup();
+@@ -12,7 +13,7 @@ afterEach(() => {
+ });
+ 
+ vi.mock("@tanstack/react-router", () => ({
+-  useNavigate: () => vi.fn(),
++  useNavigate: () => navigateSpy,
+ }));
+ 
+ vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
+@@ -108,4 +109,40 @@ describe("TaskRow", () => {
+     expect(useExternalLinks).not.toHaveBeenCalled();
+     expect(useGetLabelsByTask).not.toHaveBeenCalled();
+   });
++
++  it("passes a search updater that preserves unrelated params when opening a task", () => {
++    render(<TaskRow task={task} projectSlug="kan" />);
++
++    fireEvent.click(screen.getByText("Row from payload"));
++
++    const call = navigateSpy.mock.calls[0][0] as {
++      to: string;
++      search: (prev: Record<string, unknown>) => Record<string, unknown>;
++    };
++    expect(typeof call.search).toBe("function");
++    expect(call.search({ status: ["todo"], labels: ["l1"] })).toEqual({
++      status: ["todo"],
++      labels: ["l1"],
++      taskId: "task-1",
++    });
++  });
++
++  it("passes a search updater that preserves unrelated params when closing an open task", () => {
++    window.history.replaceState({}, "", "?taskId=task-1");
++
++    render(<TaskRow task={task} projectSlug="kan" />);
++
++    fireEvent.click(screen.getByText("Row from payload"));
++
++    const call = navigateSpy.mock.calls[0][0] as {
++      to: string;
++      search: (prev: Record<string, unknown>) => Record<string, unknown>;
++    };
++    expect(typeof call.search).toBe("function");
++    const next = call.search({ status: ["todo"], taskId: "task-1" });
++    expect(next.status).toEqual(["todo"]);
++    expect(next.taskId).toBeUndefined();
++
++    window.history.replaceState({}, "", "/");
++  });
+ });
+diff --git a/apps/web/src/components/list-view/task-row.tsx b/apps/web/src/components/list-view/task-row.tsx
+index 7ea40f2a..db3bcf02 100644
+--- a/apps/web/src/components/list-view/task-row.tsx
++++ b/apps/web/src/components/list-view/task-row.tsx
+@@ -38,6 +38,7 @@ import {
+ } from "@/lib/due-date-status";
+ import { getInitials } from "@/lib/get-initials";
+ import { getPriorityIcon } from "@/lib/priority";
++import { withTaskId } from "@/lib/search-params";
+ import { toast } from "@/lib/toast";
+ import queryClient from "@/query-client";
+ import useBulkSelectionStore from "@/store/bulk-selection";
+@@ -146,12 +147,12 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
+     if (currentTaskId === task.id) {
+       navigate({
+         to: ".",
+-        search: {},
++        search: withTaskId(undefined),
+       });
+     } else {
+       navigate({
+         to: ".",
+-        search: { taskId: task.id },
++        search: withTaskId(task.id),
+       });
+     }
+   };
+diff --git a/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx b/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx
+index 45170836..4b67a339 100644
+--- a/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx
++++ b/apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx
+@@ -1,7 +1,60 @@
+ import { renderHook, waitFor } from "@testing-library/react";
+ import { afterEach, beforeEach, describe, expect, it } from "vitest";
++import {
++  parseBoardFilterSearch,
++  searchCarriesBoardFilters,
++} from "@/lib/board-filter-search-params";
++import type { BoardFilters } from "./use-task-filters";
++import type { BoardFilterUrlState } from "./use-task-filters-with-labels-support";
+ import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
+ 
++function createProjectFixture() {
++  return {
++    id: "project-1",
++    name: "Project 1",
++    slug: "project-1",
++    icon: "folder",
++    description: "",
++    isPublic: false,
++    createdAt: "2024-01-01T00:00:00.000Z",
++    updatedAt: "2024-01-01T00:00:00.000Z",
++    workspaceId: "workspace-1",
++    columns: [
++      {
++        id: "column-1",
++        slug: "todo",
++        name: "Todo",
++        icon: "circle",
++        isFinal: false,
++        tasks: [
++          {
++            id: "task-1",
++            title: "Task 1",
++            number: 1,
++            description: "",
++            status: "todo",
++            priority: "low",
++            startDate: null,
++            dueDate: null,
++            position: 0,
++            createdAt: "2024-01-01T00:00:00.000Z",
++            updatedAt: "2024-01-01T00:00:00.000Z",
++            userId: "user-1",
++            assigneeId: null,
++            assigneeName: null,
++            assigneeImage: null,
++            projectId: "project-1",
++            labels: [{ id: "label-bug", name: "Bug", color: "red" }],
++            externalLinks: [],
++          },
++        ],
++      },
++    ],
++    plannedTasks: [],
++    archivedTasks: [],
++  };
++}
++
+ describe("useTaskFiltersWithLabelsSupport", () => {
+   const storageKey = "kaneo:board-filters:project-1";
+ 
+@@ -181,4 +234,124 @@ describe("useTaskFiltersWithLabelsSupport", () => {
+       ]);
+     },
+   );
++
++  it("applies URL filters over stored filters and writes them back to storage", async () => {
++    window.localStorage.setItem(
++      storageKey,
++      JSON.stringify({ labels: ["label-bug"] }),
++    );
++    const urlState: BoardFilterUrlState = {
++      filters: parseBoardFilterSearch({ status: "todo" }),
++      carriesFilters: true,
++    };
++    const project = createProjectFixture();
++    const renders: BoardFilters[] = [];
++    renderHook(() => {
++      const r = useTaskFiltersWithLabelsSupport(
++        project,
++        "project-1",
++        undefined,
++        urlState,
++      );
++      renders.push(r.filters);
++      return r;
++    });
++    expect(renders[0]).toEqual({
++      status: ["todo"],
++      priority: null,
++      assignee: null,
++      dueDate: null,
++      labels: null,
++    });
++    await waitFor(() => {
++      const stored = JSON.parse(
++        window.localStorage.getItem(storageKey) ?? "{}",
++      );
++      expect(stored.status).toEqual(["todo"]);
++      expect(stored.labels).toBeNull();
++    });
++  });
++
++  it("never commits the default filter set before URL or storage is resolved", () => {
++    window.localStorage.setItem(
++      storageKey,
++      JSON.stringify({ labels: ["label-bug"] }),
++    );
++    const project = createProjectFixture();
++    const renders: BoardFilters[] = [];
++    renderHook(() => {
++      const r = useTaskFiltersWithLabelsSupport(project, "project-1");
++      renders.push(r.filters);
++      return r;
++    });
++    expect(renders[0].labels).toEqual(["label-bug"]);
++    expect(renders.every((f) => f.labels !== null)).toBe(true);
++  });
++
++  it("restores stored filters when the URL carries only an empty facet", () => {
++    window.localStorage.setItem(
++      storageKey,
++      JSON.stringify({ labels: ["label-bug"] }),
++    );
++    const rawSearch = { status: "" };
++    const urlState: BoardFilterUrlState = {
++      filters: parseBoardFilterSearch(rawSearch),
++      carriesFilters: searchCarriesBoardFilters(rawSearch),
++    };
++    const project = createProjectFixture();
++    const renders: BoardFilters[] = [];
++    renderHook(() => {
++      const r = useTaskFiltersWithLabelsSupport(
++        project,
++        "project-1",
++        undefined,
++        urlState,
++      );
++      renders.push(r.filters);
++      return r;
++    });
++    expect(renders[0].labels).toEqual(["label-bug"]);
++  });
++
++  it("adopts new URL filters after mount when the search changes", () => {
++    const project = createProjectFixture();
++    const initialUrlState: BoardFilterUrlState = {
++      filters: parseBoardFilterSearch({ status: "todo" }),
++      carriesFilters: true,
++    };
++    const { result, rerender } = renderHook(
++      ({ urlState }: { urlState: BoardFilterUrlState }) =>
++        useTaskFiltersWithLabelsSupport(
++          project,
++          "project-1",
++          undefined,
++          urlState,
++        ),
++      { initialProps: { urlState: initialUrlState } },
++    );
++    expect(result.current.filters.status).toEqual(["todo"]);
++    const nextUrlState: BoardFilterUrlState = {
++      filters: parseBoardFilterSearch({ status: "done" }),
++      carriesFilters: true,
++    };
++    rerender({ urlState: nextUrlState });
++    expect(result.current.filters.status).toEqual(["done"]);
++  });
++
++  it("keeps filter state across a project data re-render", () => {
++    window.localStorage.setItem(
++      storageKey,
++      JSON.stringify({ labels: ["label-bug"] }),
++    );
++    const projectA = createProjectFixture();
++    const { result, rerender } = renderHook(
++      ({ project }: { project: ReturnType<typeof createProjectFixture> }) =>
++        useTaskFiltersWithLabelsSupport(project, "project-1"),
++      { initialProps: { project: projectA } },
++    );
++    const filtersBefore = result.current.filters;
++    const projectB = createProjectFixture();
++    rerender({ project: projectB });
++    expect(result.current.filters).toEqual(filtersBefore);
++  });
+ });
+diff --git a/apps/web/src/hooks/use-task-filters-with-labels-support.ts b/apps/web/src/hooks/use-task-filters-with-labels-support.ts
+index 6cc3647a..a5694bb3 100644
+--- a/apps/web/src/hooks/use-task-filters-with-labels-support.ts
++++ b/apps/web/src/hooks/use-task-filters-with-labels-support.ts
+@@ -1,5 +1,6 @@
+ import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
+-import { useCallback, useEffect, useMemo, useState } from "react";
++import { useCallback, useEffect, useMemo, useRef, useState } from "react";
++import { areBoardFiltersEqual } from "@/lib/board-filter-search-params";
+ import { useUserPreferencesStore } from "@/store/user-preferences";
+ import type { ProjectWithTasks } from "@/types/project";
+ import type Task from "@/types/task";
+@@ -40,32 +41,62 @@ function normalizeFilters(raw: unknown): BoardFilters {
+   return normalized;
+ }
+ 
++function readStoredFilters(storageKey: string | null): BoardFilters {
++  if (!storageKey || typeof window === "undefined") {
++    return DEFAULT_FILTERS;
++  }
++
++  try {
++    const stored = window.localStorage.getItem(storageKey);
++    if (!stored) {
++      return DEFAULT_FILTERS;
++    }
++
++    const parsed = JSON.parse(stored) as unknown;
++    return normalizeFilters(parsed);
++  } catch {
++    return DEFAULT_FILTERS;
++  }
++}
++
++export type BoardFilterUrlState = {
++  filters: BoardFilters;
++  carriesFilters: boolean;
++};
++
+ export function useTaskFiltersWithLabelsSupport(
+   project: ProjectWithTasks | null | undefined,
+   projectId?: string,
+   textQuery?: string,
++  urlState?: BoardFilterUrlState,
+ ) {
+   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
+   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
+-  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
+-
+-  useEffect(() => {
+-    if (!storageKey || typeof window === "undefined") return;
++  const [filters, setFilters] = useState<BoardFilters>(() =>
++    urlState?.carriesFilters ? urlState.filters : readStoredFilters(storageKey),
++  );
+ 
+-    try {
+-      const stored = window.localStorage.getItem(storageKey);
+-      if (!stored) {
+-        setFilters(DEFAULT_FILTERS);
+-        return;
+-      }
++  const urlStateRef = useRef(urlState);
++  urlStateRef.current = urlState;
++  const resolvedStorageKeyRef = useRef(storageKey);
+ 
+-      const parsed = JSON.parse(stored) as unknown;
+-      setFilters(normalizeFilters(parsed));
+-    } catch {
+-      setFilters(DEFAULT_FILTERS);
+-    }
++  useEffect(() => {
++    if (resolvedStorageKeyRef.current === storageKey) return;
++    resolvedStorageKeyRef.current = storageKey;
++    const current = urlStateRef.current;
++    setFilters(
++      current?.carriesFilters ? current.filters : readStoredFilters(storageKey),
++    );
+   }, [storageKey]);
+ 
++  const urlFilters = urlState?.carriesFilters ? urlState.filters : null;
++  useEffect(() => {
++    if (!urlFilters) return;
++    setFilters((prev) =>
++      areBoardFiltersEqual(prev, urlFilters) ? prev : urlFilters,
++    );
++  }, [urlFilters]);
++
+   useEffect(() => {
+     if (!storageKey || typeof window === "undefined") return;
+     window.localStorage.setItem(storageKey, JSON.stringify(filters));
+diff --git a/apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx b/apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx
+index 087c2e4b..b85b2e5b 100644
+--- a/apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx
++++ b/apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx
+@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
+ import { useCallback, useEffect, useMemo, useState } from "react";
+ import { useTranslation } from "react-i18next";
+ import BoardToolbar from "@/components/board/board-toolbar";
++import { useBoardFilterUrlSync } from "@/components/board/use-board-filter-url-sync";
+ import ProjectLayout from "@/components/common/project-layout";
+ import KanbanBoard from "@/components/kanban-board";
+ import ListView from "@/components/list-view";
+@@ -17,21 +18,21 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
+ import { useBoardSort } from "@/hooks/use-board-sort";
+ import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+ import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
++import {
++  parseBoardFilterSearch,
++  readBoardSearchParams,
++  searchCarriesBoardFilters,
++} from "@/lib/board-filter-search-params";
++import { withTaskId } from "@/lib/search-params";
+ import { sortTasks } from "@/lib/sort-tasks";
+ import useProjectStore from "@/store/project";
+ import { useUserPreferencesStore } from "@/store/user-preferences";
+ 
+-type BoardSearchParams = {
+-  taskId?: string;
+-};
+-
+ export const Route = createFileRoute(
+   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",
+ )({
+   component: RouteComponent,
+-  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
+-    taskId: typeof search.taskId === "string" ? search.taskId : undefined,
+-  }),
++  validateSearch: readBoardSearchParams,
+ });
+ 
+ const skeletonColumns = [
+@@ -77,7 +78,8 @@ function BoardSkeleton() {
+ function RouteComponent() {
+   const { t } = useTranslation();
+   const { projectId, workspaceId } = Route.useParams();
+-  const { taskId } = Route.useSearch();
++  const search = Route.useSearch();
++  const { taskId } = search;
+   const navigate = useNavigate();
+   const { data } = useGetTasks(projectId);
+   const { project, setProject } = useProjectStore();
+@@ -96,7 +98,7 @@ function RouteComponent() {
+   const handleCloseTaskSheet = useCallback(() => {
+     navigate({
+       to: ".",
+-      search: {},
++      search: withTaskId(undefined),
+       replace: true,
+     });
+   }, [navigate]);
+@@ -156,6 +158,13 @@ function RouteComponent() {
+     window.requestAnimationFrame(() => boardSearchInput?.focus());
+   }, [isBoardSearchMounted, boardSearchInput]);
+ 
++  const urlState = useMemo(
++    () => ({
++      filters: parseBoardFilterSearch(search),
++      carriesFilters: searchCarriesBoardFilters(search),
++    }),
++    [search],
++  );
+   const {
+     filters,
+     updateFilter,
+@@ -163,7 +172,13 @@ function RouteComponent() {
+     filteredProject,
+     hasActiveFilters,
+     clearFilters,
+-  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
++  } = useTaskFiltersWithLabelsSupport(
++    project,
++    projectId,
++    boardSearchQuery,
++    urlState,
++  );
++  useBoardFilterUrlSync(filters, search);
+ 
+   const sortedProject = useMemo(() => {
+     if (!filteredProject || sort.field === "position") return filteredProject;
+ apps/web/src/components/kanban-board/index.tsx     |   5 +-
+ apps/web/src/components/kanban-board/task-card.tsx |   5 +-
+ apps/web/src/components/list-view/index.tsx        |   5 +-
+ .../web/src/components/list-view/task-row.test.tsx |  41 ++++-
+ apps/web/src/components/list-view/task-row.tsx     |   5 +-
+ .../use-task-filters-with-labels-support.test.tsx  | 173 +++++++++++++++++++++
+ .../hooks/use-task-filters-with-labels-support.ts  |  63 ++++++--
+ .../$workspaceId/project/$projectId/board.tsx      |  35 +++--
+ 8 files changed, 296 insertions(+), 36 deletions(-)
+=== NEW FILE: apps/web/src/lib/board-filter-search-params.ts ===
+import type { BoardFilters } from "@/hooks/use-task-filters";
+
+// value/count bounds - FR-7, hostile-input half of IS-6
+export const MAX_FILTER_VALUES = 50;
+export const MAX_FILTER_VALUE_LENGTH = 128;
+
+export const BOARD_FILTER_KEYS = [
+  "status",
+  "priority",
+  "assignee",
+  "dueDate",
+  "labels",
+] as const;
+
+export type BoardFilterSearchParams = {
+  status?: string[];
+  priority?: string[];
+  assignee?: string[];
+  dueDate?: string[];
+  labels?: string[];
+};
+
+export type BoardSearchParams = BoardFilterSearchParams & { taskId?: string };
+
+function normalizeFacetValues(rawValue: unknown): string[] | null {
+  let values: string[];
+
+  if (typeof rawValue === "string") {
+    values = [rawValue];
+  } else if (Array.isArray(rawValue)) {
+    values = rawValue.filter(
+      (entry): entry is string => typeof entry === "string",
+    );
+  } else {
+    return null;
+  }
+
+  const nonEmpty = values.filter((value) => value !== "");
+  const withinLength = nonEmpty.filter(
+    (value) => value.length <= MAX_FILTER_VALUE_LENGTH,
+  );
+  const deduped = Array.from(new Set(withinLength));
+  const limited = deduped.slice(0, MAX_FILTER_VALUES);
+
+  return limited.length > 0 ? limited : null;
+}
+
+function readFacetProperty(
+  source: Record<string, unknown>,
+  key: string,
+): unknown {
+  return Object.hasOwn(source, key) ? source[key] : undefined;
+}
+
+export function parseBoardFilterSearch(search: unknown): BoardFilters {
+  const source =
+    typeof search === "object" && search !== null
+      ? (search as Record<string, unknown>)
+      : {};
+
+  return {
+    status: normalizeFacetValues(readFacetProperty(source, "status")),
+    priority: normalizeFacetValues(readFacetProperty(source, "priority")),
+    assignee: normalizeFacetValues(readFacetProperty(source, "assignee")),
+    dueDate: normalizeFacetValues(readFacetProperty(source, "dueDate")),
+    labels: normalizeFacetValues(readFacetProperty(source, "labels")),
+  };
+}
+
+export function toBoardFilterSearchParams(
+  filters: BoardFilters,
+): BoardFilterSearchParams {
+  const params: BoardFilterSearchParams = {};
+
+  for (const key of BOARD_FILTER_KEYS) {
+    const value = filters[key];
+    if (value !== null && value.length > 0) {
+      params[key] = value;
+    }
+  }
+
+  return params;
+}
+
+export function searchCarriesBoardFilters(search: unknown): boolean {
+  return Object.values(parseBoardFilterSearch(search)).some(
+    (value) => value !== null,
+  );
+}
+
+export function areBoardFiltersEqual(
+  a: BoardFilters,
+  b: BoardFilters,
+): boolean {
+  return BOARD_FILTER_KEYS.every((key) => {
+    const valueA = a[key];
+    const valueB = b[key];
+
+    if (valueA === null || valueB === null) {
+      return valueA === valueB;
+    }
+
+    if (valueA.length !== valueB.length) {
+      return false;
+    }
+
+    return valueA.every((entry, index) => entry === valueB[index]);
+  });
+}
+
+export function applyBoardFiltersToSearch<T extends Record<string, unknown>>(
+  prev: T,
+  filters: BoardFilters,
+): T & BoardFilterSearchParams {
+  const next: Record<string, unknown> = { ...prev };
+
+  for (const key of BOARD_FILTER_KEYS) {
+    delete next[key];
+  }
+
+  return { ...next, ...toBoardFilterSearchParams(filters) } as T &
+    BoardFilterSearchParams;
+}
+
+export function readBoardSearchParams(search: unknown): BoardSearchParams {
+  try {
+    const source = search as { taskId?: unknown };
+
+    return {
+      taskId: typeof source.taskId === "string" ? source.taskId : undefined,
+      ...toBoardFilterSearchParams(parseBoardFilterSearch(search)),
+    };
+  } catch {
+    return { taskId: undefined };
+  }
+}
+=== NEW FILE: apps/web/src/lib/search-params.ts ===
+// WHY: nine navigate() call sites on the board route previously replaced
+// the whole search object with a literal, silently dropping filter
+// params. This is the single seam that preserves them.
+export function withTaskId(taskId: string | undefined) {
+  return <T extends Record<string, unknown>>(prev: T) => ({ ...prev, taskId });
+}
+=== NEW FILE: apps/web/src/components/board/use-board-filter-url-sync.ts ===
+// This hook lives under components/board/ rather than hooks/ because this
+// run's write contract does not allow new files under apps/web/src/hooks/,
+// and the hook is board-specific.
+import { useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+
+import type { BoardFilters } from "@/hooks/use-task-filters";
+import {
+  applyBoardFiltersToSearch,
+  areBoardFiltersEqual,
+  parseBoardFilterSearch,
+} from "@/lib/board-filter-search-params";
+
+export function useBoardFilterUrlSync(
+  filters: BoardFilters,
+  search: unknown,
+): void {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const current = parseBoardFilterSearch(search);
+    if (areBoardFiltersEqual(current, filters)) {
+      return;
+    }
+
+    navigate({
+      to: ".",
+      search: (prev: Record<string, unknown>) =>
+        applyBoardFiltersToSearch(prev, filters),
+      replace: true,
+    } as Parameters<typeof navigate>[0]);
+  }, [filters, search, navigate]);
+}

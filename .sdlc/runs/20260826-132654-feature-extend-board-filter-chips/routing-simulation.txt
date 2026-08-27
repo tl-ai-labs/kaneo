@@ -1,0 +1,21 @@
+packet                 phase      task_type            -> model     rule  reason
+tp_001                 codegen    frontend_util        -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_002                 codegen    frontend_util        -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_003                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+tp_004                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+tp_005                 codegen    frontend_util        -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_006                 codegen    react_component      -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_007                 codegen    react_component      -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_008                 codegen    react_component      -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_009                 codegen    react_component      -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_010                 codegen    react_component      -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_011                 codegen    react_page           -> sonnet   7     Schema-driven boilerplate — Sonnet 5 via Max subscription
+tp_012                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+tp_013                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+tp_014                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+tp_015                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+tp_016                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+tp_017                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+tp_018                 tests      test_add             -> sonnet   8     Scaffold-heavy, pattern-based
+
+COUNTS: {"sonnet":18}

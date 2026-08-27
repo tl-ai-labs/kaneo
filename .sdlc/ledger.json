@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "project": "kaneo",
+  "branch": "feature-extend-3/opus-sonnet",
+  "note": "Created fresh on this branch; ledgers from earlier runs were committed on other branches and are unreachable here.",
+  "cost_comparability_warning": "Under auth_mode=estimated, Sonnet cost is vendor-measured and Opus cost is a chars/3.8 estimate measured to undercount by ~2.17x. Opus figures are FLOORS and are not comparable to Sonnet figures.",
+  "runs": [
+    {
+      "run_id": "20260826-132654-feature-extend-board-filter-chips",
+      "date": "2026-08-26",
+      "branch": "feature-extend-3/opus-sonnet",
+      "anchor": "5d1fc910",
+      "mode": "brownfield",
+      "intent": "feature-extend",
+      "policy": "opus-plus-sonnet-max",
+      "auth_mode": "estimated",
+      "committed": false,
+      "cost": {
+        "total_usd": 4.7042,
+        "opus_usd": 2.2037,
+        "opus_provenance": "estimated",
+        "opus_caveat": "FLOOR, not a measurement - chars/3.8 estimator measured to undercount by ~2.17x (no multi-turn context re-send modelling)",
+        "sonnet_usd": 2.5005,
+        "sonnet_provenance": "vendor-measured (claude-cli total_cost_usd)",
+        "comparability_warning": "The opus and sonnet figures are NOT comparable to each other."
+      },
+      "routing": {
+        "actual": {
+          "opus": 6,
+          "sonnet": 21
+        },
+        "mechanical_packets_to_opus": 0,
+        "counterfactual_skill_md_brownfield_task_types": {
+          "opus": 9,
+          "sonnet": 9
+        },
+        "note": "Third independent reproduction: pipeline/SKILL.md's brownfield task_types match no codegen rule and fall through to {default: opus}."
+      },
+      "verification": {
+        "tests_baseline": "36 files / 112 tests",
+        "tests_final": "43 files / 172 tests",
+        "typecheck": "clean",
+        "biome_ci": "exit 0 on 18 changed paths (exit code read, not asserted)",
+        "allowlist_violations": 0,
+        "files_reverted": 0,
+        "staged": 0,
+        "changed_paths": 18
+      },
+      "verdicts": {
+        "senior_review": "ship with follow-ups (0 blockers)",
+        "security_review": "ship with conditions"
+      },
+      "acceptance": {
+        "ac5_navigation_call_sites": "PROVEN (9 of 9, mutation-checked)",
+        "ac5_fr19_view_switch": "UNPROVEN - mapped test cannot detect the regression it guards",
+        "ac9_browser_back": "REASONED, NOT PROVEN - jsdom cannot exercise popstate/bfcache",
+        "ac6_validate_search_totality": "PROVEN BY EXECUTION - 32 hostile inputs, zero throws"
+      },
+      "open_items": [
+        {
+          "rank": 1,
+          "severity": "high",
+          "title": "Sentry passively exports ?assignee=<userId>",
+          "detail": "apps/web/src/instrument.ts runs browserTracing + replay at replaysSessionSampleRate 0.1 with zero beforeSend/beforeBreadcrumb, so ~10% of sessions ship filter params to Sentry with no user action. sendDefaultPii: false does NOT strip query strings.",
+          "remedy": "Add a beforeSend/beforeBreadcrumb in instrument.ts that scrubs filter params from URLs.",
+          "blocked_by": "allowlist - instrument.ts is not among the 15 permitted globs. Blocked by scope, not difficulty. Verified clean at closeout.",
+          "requirements_defect": "requirements.md section 6 named Referer (already closed by Referrer-Policy at nginx.conf:9) and omitted Sentry entirely."
+        },
+        {
+          "rank": 2,
+          "severity": "medium",
+          "title": "Project-switch transient, untested",
+          "detail": "RouteComponent does not remount on $projectId change; project A's filters are transiently written into project B's key and URL before self-correcting. Converges, no durable loss. Zero coverage - every hook test uses project-1."
+        },
+        {
+          "rank": 3,
+          "severity": "low",
+          "title": "Unbounded write path",
+          "detail": "MAX_FILTER_VALUES/MAX_FILTER_VALUE_LENGTH are entry-point properties, not invariants on filter state."
+        }
+      ],
+      "self_corrections": [
+        "'Structurally impossible' overstated - scoped to a constant storageKey, unstated at the time.",
+        "Skipped a mutation check the run's own plan specified (8.2 one-sided kanban j-only); senior review caught it; once run: j RED, k GREEN.",
+        "Two board.tsx seams were unbound - deletion left all 170 tests green; now argument-asserting spies with mutation checks 6a/6b.",
+        "AC-5 reported as satisfied when FR-19 was unproven."
+      ],
+      "self_corrections_note": "Review caught each of these, not the orchestrator.",
+      "operator_error": {
+        "what": "basename-derived backup filenames collided both index.tsx files during mutation check 4, writing ListView's contents into kanban-board/index.tsx",
+        "caught_by": "git status --porcelain on the next step",
+        "recovery": "restored both from HEAD, re-applied packet edits deterministically",
+        "fix": "full-path-derived backup names",
+        "also_seen_in": "opus-plus-flash arm - same class of bug"
+      },
+      "known_defects_left_unfixed": [
+        "KD-1 duplicated filter hooks diverging on hasActiveFilters",
+        "KD-2 same navigate bug on backlog/gantt",
+        "KD-3 unconditional localStorage write design"
+      ],
+      "allowlist_change": {
+        "at_gate": 2,
+        "by": "user direction",
+        "added": [
+          "apps/web/src/components/kanban-board/index.test.tsx",
+          "apps/web/src/components/list-view/index.test.tsx"
+        ],
+        "nature": "test files only, no new source surface",
+        "effect": "took AC-5 from 2-of-9 to 9-of-9 navigation sites"
+      },
+      "artifacts_dir": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/"
+    }
+  ]
+}

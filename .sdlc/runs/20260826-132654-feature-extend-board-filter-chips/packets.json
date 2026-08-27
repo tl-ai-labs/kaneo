@@ -1,0 +1,911 @@
+{
+  "_note": "inputs carry {path, reason}; content is materialized from disk at dispatch time so each packet sees the post-dependency state of files earlier packets wrote. Spec slices under specs/ are extracts of change_plan.md.",
+  "run_id": "20260826-132654-feature-extend-board-filter-chips",
+  "policy": "opus-plus-sonnet-max",
+  "auth_mode": "estimated",
+  "count": 18,
+  "packets": [
+    {
+      "id": "tp_001",
+      "phase": "codegen",
+      "task_type": "frontend_util",
+      "subtype": null,
+      "module": "board-filters",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/lib/board-filter-search-params.ts",
+      "retry_count": 0,
+      "instruction": "Create the board filter search-param codec. Implement EXACTLY the surface and the six normalization rules given in the spec input \u2014 same export names, same signatures, same order of operations. Every function is total: no throw path for any input including null, undefined, numbers, arrays, nested objects and prototype-polluting keys. Import BoardFilters as a TYPE-ONLY import from \"@/hooks/use-task-filters\". Do not import zod. Do not add a dependency.\n\nMAY WRITE: apps/web/src/lib/board-filter-search-params.ts \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/codec.md",
+          "reason": "the exact codec surface, normalization rules and rationale \u2014 implement this literally"
+        },
+        {
+          "path": "apps/web/src/hooks/use-task-filters.ts",
+          "reason": "BoardFilters and DUE_DATE_FILTER_VALUES live here. TYPE-ONLY import. Do NOT modify this file."
+        },
+        {
+          "path": "apps/web/src/lib/due-date-status.ts",
+          "reason": "house style for a plain lib module in this repo"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Exports MAX_FILTER_VALUES, MAX_FILTER_VALUE_LENGTH, BOARD_FILTER_KEYS, BoardFilterSearchParams, BoardSearchParams, parseBoardFilterSearch, toBoardFilterSearchParams, searchCarriesBoardFilters, areBoardFiltersEqual, applyBoardFiltersToSearch, readBoardSearchParams",
+        "parseBoardFilterSearch(null), (undefined), (42), ([]), ({__proto__:{status:['x']}}) all return the default all-null BoardFilters and never throw",
+        "searchCarriesBoardFilters({status:''}) is false; ({status:['','']}) is false; ({status:'todo'}) is true",
+        "toBoardFilterSearchParams on an all-null BoardFilters returns an object with zero keys",
+        "applyBoardFiltersToSearch DELETES inactive facet keys from a copy of prev rather than setting undefined, and preserves unrelated keys such as taskId",
+        "readBoardSearchParams computes taskId exactly as `typeof search.taskId === 'string' ? search.taskId : undefined` and is wrapped in try/catch returning {taskId: undefined}",
+        "No regex, no JSON.parse of user input, no zod import"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 6000
+      }
+    },
+    {
+      "id": "tp_002",
+      "phase": "codegen",
+      "task_type": "frontend_util",
+      "subtype": null,
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/lib/search-params.ts",
+      "retry_count": 0,
+      "instruction": "Create a tiny module exporting `withTaskId`. It returns a TanStack Router search UPDATER function that spreads the previous search object and sets taskId. Implement exactly the signature in the spec input. Keep the file under 15 lines. No other exports.\n\nMAY WRITE: apps/web/src/lib/search-params.ts \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/withTaskId.md",
+          "reason": "the exact implementation required"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/navsites.md",
+          "reason": "how the nine call sites will consume it, incl. the typing escalation ladder"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Exports exactly one function, withTaskId(taskId: string | undefined)",
+        "Returns a function of prev that returns { ...prev, taskId }",
+        "Does not mutate prev",
+        "Generic over prev so unrelated search keys keep their types"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 6000
+      }
+    },
+    {
+      "id": "tp_003",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": null,
+      "module": "board-filters",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/lib/board-filter-search-params.test.ts",
+      "retry_count": 0,
+      "instruction": "Write the unit tests for the codec. Cover AC-1 (round trip incl. multi-value), FR-5 (single occurrence and repeated key normalize to the same array), AC-4 (the searchCarriesBoardFilters predicate: empty string false, array of empty strings false, non-empty true), AC-6 (table-driven: null, undefined, 42, 'str', [], {}, nested object, prototype-polluting key \u2014 each returns defaults and does not throw), FR-7 (caps at MAX_FILTER_VALUES, DROPS over-long values, dedupes preserving order), AC-7 (no facet keys when nothing active; applyBoardFiltersToSearch removes now-inactive keys while preserving taskId), FR-6 (empty-string values dropped, not preserved), and areBoardFiltersEqual distinguishing null from [] and detecting reordering. Use vitest describe/it/expect. Import from \"./board-filter-search-params\".\n\nMAY WRITE: apps/web/src/lib/board-filter-search-params.test.ts \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/lib/board-filter-search-params.ts",
+          "reason": "the module under test \u2014 read its real exports, do not guess"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/codec.md",
+          "reason": "the contract these tests must pin"
+        },
+        {
+          "path": "apps/web/src/lib/due-date-status.test.ts",
+          "reason": "house style for a lib unit test in this repo"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Every assertion targets a real export of board-filter-search-params.ts",
+        "AC-6 uses it.each over at least 8 hostile inputs and asserts both no-throw and default result",
+        "AC-4 has three separate named tests for the predicate",
+        "Tests are deterministic \u2014 no Date.now, no randomness"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 8000
+      }
+    },
+    {
+      "id": "tp_004",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": null,
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/lib/search-params.test.ts",
+      "retry_count": 0,
+      "instruction": "Write three tests for withTaskId: (1) preserves every unrelated search key while setting taskId; (2) clears taskId (undefined) while preserving unrelated keys; (3) does not mutate the object passed in. Use vitest describe/it/expect. Import from \"./search-params\".\n\nMAY WRITE: apps/web/src/lib/search-params.test.ts \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/lib/search-params.ts",
+          "reason": "the module under test"
+        },
+        {
+          "path": "apps/web/src/lib/cn.test.ts",
+          "reason": "house style for a small lib unit test"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Exactly three named tests",
+        "Test 3 asserts the input object is deep-equal to its original value after the call",
+        "Uses a prev containing status:['todo'] and labels:['l1'] so it doubles as the AC-5 seam proof"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 3000
+      }
+    },
+    {
+      "id": "tp_005",
+      "phase": "codegen",
+      "task_type": "frontend_util",
+      "subtype": null,
+      "module": "board-filters",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "retry_count": 0,
+      "instruction": "Edit this hook per the spec input, points (a)-(e). Return the COMPLETE file. Critical constraints: (1) The write effect currently at lines 69-72 must be returned BYTE-FOR-BYTE UNCHANGED \u2014 do not gate it, reorder it, memoize it or 'tidy' it. (2) Replace useState(DEFAULT_FILTERS) with the lazy initializer that resolves urlState-then-storage-then-default synchronously. (3) Add module-local readStoredFilters. (4) Replace the storage read effect with the ref-gated version. (5) Add the URL-to-state effect using areBoardFiltersEqual. (6) The new 4th parameter is OPTIONAL so existing 2-arg and 3-arg callers still compile. Everything else in the file \u2014 filterTasks, filteredProject, hasActiveFilters, clearFilters, updateFilter, updateLabelFilter, the returned object \u2014 is unchanged.\n\nMAY WRITE: apps/web/src/hooks/use-task-filters-with-labels-support.ts \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+          "reason": "the current file \u2014 edit this, return it whole"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/hook.md",
+          "reason": "the exact edit, points (a)-(e), including the code fragments to use"
+        },
+        {
+          "path": "apps/web/src/lib/board-filter-search-params.ts",
+          "reason": "source of areBoardFiltersEqual and BoardFilters typing"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/clobber.md",
+          "reason": "the FR-15 guarantee this edit must make structurally true"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "The unconditional localStorage write effect is present and textually identical to the original lines 69-72",
+        "useState uses a lazy initializer function, not a plain DEFAULT_FILTERS value",
+        "DEFAULT_FILTERS is never the committed value when urlState carries filters or storage holds filters",
+        "The 4th parameter urlState is optional; calling with 2 or 3 args typechecks",
+        "The storage read effect has dependency array [storageKey] only and reads urlState through a ref",
+        "filterTasks, hasActiveFilters, clearFilters, updateFilter, updateLabelFilter bodies are unchanged",
+        "No import from or edit to use-task-filters.ts other than the existing type-only import"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 8000
+      }
+    },
+    {
+      "id": "tp_006",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "subtype": null,
+      "module": "board-filters",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/board/use-board-filter-url-sync.ts",
+      "retry_count": 0,
+      "instruction": "Create the board-local hook that owns the STATE-TO-URL direction. It takes the current BoardFilters and the current search object. It calls useNavigate() from @tanstack/react-router. In an effect: compute the desired facet params via toBoardFilterSearchParams(filters); compare against the facets already in search using areBoardFiltersEqual(parseBoardFilterSearch(search), filters); if equal, DO NOT navigate (this is the no-loop guard). If different, navigate({ to: '.', search: (prev) => applyBoardFiltersToSearch(prev, filters), replace: true }). replace:true is mandatory (AC-8). Keep it around 35 lines.\n\nMAY WRITE: apps/web/src/components/board/use-board-filter-url-sync.ts \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/urlsync.md",
+          "reason": "the required behaviour of this hook"
+        },
+        {
+          "path": "apps/web/src/lib/board-filter-search-params.ts",
+          "reason": "the codec functions to use"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/acmap.md",
+          "reason": "the AC rows this hook must satisfy: AC-7 clean URL, AC-8 replace:true and no redundant navigate"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Calls navigate with replace: true",
+        "Passes search as an updater function, never a literal object",
+        "Does not navigate when the URL already encodes the same filters",
+        "Clearing the last filter removes the facet keys from the URL",
+        "Preserves taskId across the write"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 6000
+      }
+    },
+    {
+      "id": "tp_007",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "subtype": "existing_file_edit",
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/list-view/task-row.tsx",
+      "retry_count": 0,
+      "instruction": "SURGICAL EDIT ONLY. Change FR-17 navigate sites 6 and 7 (the two navigate calls inside handleClick, currently `search: {}` and `search: { taskId: task.id }`) to use the shared updater helper: replace the literal search object with `search: withTaskId(<the id or undefined>)`. Add `import { withTaskId } from \"@/lib/search-params\";` in the correct alphabetical position among the @/ imports. Change NOTHING else in this file \u2014 not the Enter handler that navigates to a different route with params (leave it exactly as is), not styling, not other logic. Return the COMPLETE file.\n\nMAY WRITE: apps/web/src/components/list-view/task-row.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/list-view/task-row.tsx",
+          "reason": "the current file \u2014 edit this, return it whole"
+        },
+        {
+          "path": "apps/web/src/lib/search-params.ts",
+          "reason": "the helper to import"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/navsites.md",
+          "reason": "the required edit shape and the typing escalation ladder"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Exactly the named navigate sites changed",
+        "Every changed site passes search as withTaskId(...), never an object literal",
+        "The withTaskId import is added once, alphabetically placed",
+        "navigate calls that target a different route with `params` are untouched",
+        "No other line of the file differs from the input"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 8000
+      }
+    },
+    {
+      "id": "tp_008",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "subtype": "existing_file_edit",
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/kanban-board/task-card.tsx",
+      "retry_count": 0,
+      "instruction": "SURGICAL EDIT ONLY. Change FR-17 navigate sites 2 and 3 (the two navigate calls inside the click handler, currently `search: {}` and `search: { taskId: task.id }`) to use the shared updater helper: replace the literal search object with `search: withTaskId(<the id or undefined>)`. Add `import { withTaskId } from \"@/lib/search-params\";` in the correct alphabetical position among the @/ imports. Change NOTHING else in this file \u2014 not the Enter handler that navigates to a different route with params (leave it exactly as is), not styling, not other logic. Return the COMPLETE file.\n\nMAY WRITE: apps/web/src/components/kanban-board/task-card.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/kanban-board/task-card.tsx",
+          "reason": "the current file \u2014 edit this, return it whole"
+        },
+        {
+          "path": "apps/web/src/lib/search-params.ts",
+          "reason": "the helper to import"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/navsites.md",
+          "reason": "the required edit shape and the typing escalation ladder"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Exactly the named navigate sites changed",
+        "Every changed site passes search as withTaskId(...), never an object literal",
+        "The withTaskId import is added once, alphabetically placed",
+        "navigate calls that target a different route with `params` are untouched",
+        "No other line of the file differs from the input"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 8000
+      }
+    },
+    {
+      "id": "tp_009",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "subtype": "existing_file_edit",
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/kanban-board/index.tsx",
+      "retry_count": 0,
+      "instruction": "SURGICAL EDIT ONLY. Change FR-17 navigate sites 4 and 5 (the j and k shortcut handlers, currently `search: { taskId: state.focusedTaskId }`) to use the shared updater helper: replace the literal search object with `search: withTaskId(<the id or undefined>)`. Add `import { withTaskId } from \"@/lib/search-params\";` in the correct alphabetical position among the @/ imports. Change NOTHING else in this file \u2014 not the Enter handler that navigates to a different route with params (leave it exactly as is), not styling, not other logic. Return the COMPLETE file.\n\nMAY WRITE: apps/web/src/components/kanban-board/index.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/kanban-board/index.tsx",
+          "reason": "the current file \u2014 edit this, return it whole"
+        },
+        {
+          "path": "apps/web/src/lib/search-params.ts",
+          "reason": "the helper to import"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/navsites.md",
+          "reason": "the required edit shape and the typing escalation ladder"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Exactly the named navigate sites changed",
+        "Every changed site passes search as withTaskId(...), never an object literal",
+        "The withTaskId import is added once, alphabetically placed",
+        "navigate calls that target a different route with `params` are untouched",
+        "No other line of the file differs from the input"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 8000
+      }
+    },
+    {
+      "id": "tp_010",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "subtype": "existing_file_edit",
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/list-view/index.tsx",
+      "retry_count": 0,
+      "instruction": "SURGICAL EDIT ONLY. Change FR-17 navigate sites 8 and 9 (the j and k shortcut handlers, currently `search: { taskId: state.focusedTaskId }`) to use the shared updater helper: replace the literal search object with `search: withTaskId(<the id or undefined>)`. Add `import { withTaskId } from \"@/lib/search-params\";` in the correct alphabetical position among the @/ imports. Change NOTHING else in this file \u2014 not the Enter handler that navigates to a different route with params (leave it exactly as is), not styling, not other logic. Return the COMPLETE file.\n\nMAY WRITE: apps/web/src/components/list-view/index.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/list-view/index.tsx",
+          "reason": "the current file \u2014 edit this, return it whole"
+        },
+        {
+          "path": "apps/web/src/lib/search-params.ts",
+          "reason": "the helper to import"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/navsites.md",
+          "reason": "the required edit shape and the typing escalation ladder"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Exactly the named navigate sites changed",
+        "Every changed site passes search as withTaskId(...), never an object literal",
+        "The withTaskId import is added once, alphabetically placed",
+        "navigate calls that target a different route with `params` are untouched",
+        "No other line of the file differs from the input"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 8000
+      }
+    },
+    {
+      "id": "tp_011",
+      "phase": "codegen",
+      "task_type": "react_page",
+      "subtype": "existing_file_edit",
+      "module": "board-filters",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "retry_count": 0,
+      "instruction": "Edit the board route per the spec input, items 1-7. Return the COMPLETE file. Summary: delete the local BoardSearchParams type and import it from the codec; validateSearch becomes the bare reference `validateSearch: readBoardSearchParams`; useSearch() is kept whole then destructured for taskId; add the urlState useMemo; pass urlState as the 4th arg to useTaskFiltersWithLabelsSupport; call useBoardFilterUrlSync(filters, search) right after; handleCloseTaskSheet uses `search: withTaskId(undefined)` keeping replace:true. Change nothing else \u2014 not the skeleton, not the search input, not the shortcuts, not the JSX.\n\nMAY WRITE: apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+          "reason": "the current file \u2014 edit this, return it whole"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/route.md",
+          "reason": "the exact seven edits"
+        },
+        {
+          "path": "apps/web/src/lib/board-filter-search-params.ts",
+          "reason": "codec exports"
+        },
+        {
+          "path": "apps/web/src/components/board/use-board-filter-url-sync.ts",
+          "reason": "the sync hook signature"
+        },
+        {
+          "path": "apps/web/src/lib/search-params.ts",
+          "reason": "withTaskId"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "validateSearch is a bare function reference, not an inline arrow",
+        "urlState is memoized on the useSearch() result",
+        "useBoardFilterUrlSync is called after the filter hook so it receives the resolved filters",
+        "handleCloseTaskSheet keeps replace: true and uses withTaskId(undefined)",
+        "BoardToolbar props are unchanged",
+        "The JSX below the toolbar is unchanged"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 10000
+      }
+    },
+    {
+      "id": "tp_012",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": null,
+      "module": "board-filters",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "retry_count": 0,
+      "instruction": "APPEND-ONLY edit of this test file. The two existing tests (the storage-restore test and the it.each identifier test) must be returned COMPLETELY UNCHANGED. Add new tests inside the same describe: (1) AC-2 URL beats stored state and syncs down to localStorage; (2) AC-2/FR-15 the DEFAULT_FILTERS set is NEVER committed \u2014 use the render-recorder pattern from the spec input, NOT result.all (result.all does not exist in @testing-library/react 16.3.2); (3) AC-4 a URL carrying only an empty facet still restores from localStorage; (4) the hook adopts changed urlState after mount via rerender; (5) filter state survives a project-data re-render (view-switch analogue, FR-19). Return the COMPLETE file.\n\nMAY WRITE: apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+          "reason": "the current test file \u2014 the existing tests must survive byte-identical"
+        },
+        {
+          "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+          "reason": "the hook under test, post-edit"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/clobber.md",
+          "reason": "the mandatory render-recorder pattern and the exact assertions"
+        },
+        {
+          "path": "apps/web/src/lib/board-filter-search-params.ts",
+          "reason": "parseBoardFilterSearch for building urlState in tests"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "The two pre-existing tests are textually unchanged",
+        "No use of result.all anywhere",
+        "The FR-15 test asserts renders[0] AND that no commit ever held the all-null default while storage had a value",
+        "The AC-2 test asserts URL filters replace stored filters wholesale rather than merging",
+        "localStorage is cleared in beforeEach/afterEach as the file already does"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 10000
+      }
+    },
+    {
+      "id": "tp_013",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": null,
+      "module": "board-filters",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/board/use-board-filter-url-sync.test.tsx",
+      "retry_count": 0,
+      "instruction": "Write tests for the url-sync hook. Mock @tanstack/react-router with a module-scope navigate spy (`useNavigate: () => navigateSpy`) \u2014 the same technique list-view/task-row.test.tsx already uses. Cover: AC-8 writes active filters with replace:true; AC-8 does NOT navigate when the URL already matches the filter state; AC-7 removes facet params when the last filter is cleared; preserves taskId when writing filters. For each navigating case assert `typeof call.search === 'function'` then invoke it with a prev object and deep-equal the result.\n\nMAY WRITE: apps/web/src/components/board/use-board-filter-url-sync.test.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/board/use-board-filter-url-sync.ts",
+          "reason": "the hook under test"
+        },
+        {
+          "path": "apps/web/src/components/list-view/task-row.test.tsx",
+          "reason": "the established navigate-spy mocking technique in this repo"
+        },
+        {
+          "path": "apps/web/src/lib/board-filter-search-params.ts",
+          "reason": "codec used to build inputs and expected outputs"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Every navigating assertion checks replace:true",
+        "The no-loop test asserts navigateSpy was not called",
+        "search is asserted to be a function and then invoked, never compared as an object",
+        "taskId preservation is asserted explicitly"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 8000
+      }
+    },
+    {
+      "id": "tp_014",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": "existing_file_edit",
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/list-view/task-row.test.tsx",
+      "retry_count": 0,
+      "instruction": "Edit this test file. Change the @tanstack/react-router mock from `useNavigate: () => vi.fn()` to a module-scope `const navigateSpy = vi.fn();` with `useNavigate: () => navigateSpy`, and clear it in the existing afterEach. The existing rendering test must be returned UNCHANGED and must still pass. Append two AC-5 tests for FR-17 sites 6 and 7: opening a task, and closing an already-open task (seed `window.history.replaceState({}, \"\", \"?taskId=task-1\")` first so handleClick takes the clearing branch). Assert behaviourally: read navigateSpy.mock.calls[n][0], assert `typeof call.search === \"function\"`, then invoke `call.search({ status: [\"todo\"], taskId: <seed> })` and deep-equal the result. NEVER assert on source text and never merely check that withTaskId was imported \u2014 a source-text assertion passes against code that imports the helper and ignores it. Return the COMPLETE file.\n\nMAY WRITE: apps/web/src/components/list-view/task-row.test.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/list-view/task-row.test.tsx",
+          "reason": "the current file \u2014 existing test must survive"
+        },
+        {
+          "path": "apps/web/src/components/list-view/task-row.tsx",
+          "reason": "the component under test, post-edit"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/ac5.md",
+          "reason": "the AC-5 construction rules and why each test must be RED before the fix"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "The pre-existing rendering test is unchanged and still passes",
+        "Two new tests, one per navigate site, each asserting typeof search === 'function'",
+        "The close test seeds window.location.search so the clearing branch is taken",
+        "Each test asserts the invoked updater preserves status:['todo']"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 8000
+      }
+    },
+    {
+      "id": "tp_015",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": null,
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/kanban-board/index.test.tsx",
+      "retry_count": 0,
+      "instruction": "NEW test file proving FR-17 sites 4 and 5 (the j and k keyboard handlers in kanban-board/index.tsx). Mock @/hooks/use-keyboard-shortcuts so useRegisterShortcuts captures the shortcuts map into a module-scope variable, mock @tanstack/react-router with a navigate spy, and mock @/store/bulk-selection so getState() returns { focusedTaskId: 'task-2' } and the store hook returns the functions the component needs. Render the component with a minimal project, then invoke the captured `j` handler and the captured `k` handler directly. Assert behaviourally: read navigateSpy.mock.calls[n][0], assert `typeof call.search === \"function\"`, then invoke `call.search({ status: [\"todo\"], taskId: <seed> })` and deep-equal the result. NEVER assert on source text and never merely check that withTaskId was imported \u2014 a source-text assertion passes against code that imports the helper and ignores it. Mock every other module the component imports so the render does not blow up.\n\nMAY WRITE: apps/web/src/components/kanban-board/index.test.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/kanban-board/index.tsx",
+          "reason": "the component under test, post-edit \u2014 read its real imports and mock each one"
+        },
+        {
+          "path": "apps/web/src/components/list-view/task-row.test.tsx",
+          "reason": "the established mocking style in this repo"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/ac5.md",
+          "reason": "the AC-5 construction rules, including how to drive j/k via the captured shortcut map"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Two tests, one for j and one for k",
+        "Each asserts typeof call.search === 'function' and that invoking it preserves status:['todo']",
+        "The j/k handlers are the component's real handlers, captured via the mocked useRegisterShortcuts \u2014 not reimplemented in the test",
+        "Test file does not import or modify any source file"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 10000
+      }
+    },
+    {
+      "id": "tp_016",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": null,
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/list-view/index.test.tsx",
+      "retry_count": 0,
+      "instruction": "NEW test file proving FR-17 sites 8 and 9 (the j and k keyboard handlers in list-view/index.tsx). Same technique as the kanban-board test: capture the shortcuts map from a mocked @/hooks/use-keyboard-shortcuts, spy on useNavigate, mock @/store/bulk-selection getState() to return a focusedTaskId, mock the component's other imports, render, then invoke the captured j and k handlers. Assert behaviourally: read navigateSpy.mock.calls[n][0], assert `typeof call.search === \"function\"`, then invoke `call.search({ status: [\"todo\"], taskId: <seed> })` and deep-equal the result. NEVER assert on source text and never merely check that withTaskId was imported \u2014 a source-text assertion passes against code that imports the helper and ignores it.\n\nMAY WRITE: apps/web/src/components/list-view/index.test.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/list-view/index.tsx",
+          "reason": "the component under test, post-edit \u2014 read its real imports and mock each one"
+        },
+        {
+          "path": "apps/web/src/components/kanban-board/index.test.tsx",
+          "reason": "the sibling test written for the same purpose; mirror its structure"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/ac5.md",
+          "reason": "the AC-5 construction rules"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Two tests, one for j and one for k",
+        "Each asserts typeof call.search === 'function' and that invoking it preserves status:['todo']",
+        "Handlers are the component's real ones, captured via the mocked useRegisterShortcuts"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 10000
+      }
+    },
+    {
+      "id": "tp_017",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": null,
+      "module": "navigation",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/board/task-card-search-preservation.test.tsx",
+      "retry_count": 0,
+      "instruction": "NEW test file proving FR-17 sites 2 and 3 \u2014 the two navigate calls in apps/web/src/components/kanban-board/task-card.tsx. It lives under components/board/ because kanban-board/task-card.test.tsx is not in this run's write contract; import the component across the directory boundary. Mock @tanstack/react-router with a navigate spy and mock every module task-card.tsx imports. Two tests: opening a task from a card, and clicking the already-open card (seed window.history.replaceState so the clearing branch is taken). Assert behaviourally: read navigateSpy.mock.calls[n][0], assert `typeof call.search === \"function\"`, then invoke `call.search({ status: [\"todo\"], taskId: <seed> })` and deep-equal the result. NEVER assert on source text and never merely check that withTaskId was imported \u2014 a source-text assertion passes against code that imports the helper and ignores it.\n\nMAY WRITE: apps/web/src/components/board/task-card-search-preservation.test.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/components/kanban-board/task-card.tsx",
+          "reason": "the component under test, post-edit \u2014 read its real imports and mock each one"
+        },
+        {
+          "path": "apps/web/src/components/list-view/task-row.test.tsx",
+          "reason": "near-identical component with an existing test; mirror its mocks"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/ac5.md",
+          "reason": "the AC-5 construction rules and the placement rationale"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Two tests, one per navigate site",
+        "Each asserts typeof call.search === 'function' and that invoking it preserves status:['todo']",
+        "The clearing test seeds window.location.search first",
+        "File is under components/board/ and writes nothing outside itself"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 10000
+      }
+    },
+    {
+      "id": "tp_018",
+      "phase": "tests",
+      "task_type": "test_add",
+      "subtype": null,
+      "module": "board-filters",
+      "pass_id": "20260826-132654-feature-extend-board-filter-chips",
+      "intent": "feature-extend",
+      "artifact_path": "apps/web/src/components/board/board-route-search-preservation.test.tsx",
+      "retry_count": 0,
+      "instruction": "NEW test file proving FR-17 site 1 \u2014 handleCloseTaskSheet in the board route. RouteComponent is not exported, so mock @tanstack/react-router's createFileRoute to return the options object augmented with stub useParams/useSearch, import { Route } from the board route module, and render Route.component. Mock TaskDetailsSheet with a stub that renders a button calling its onClose prop \u2014 clicking it invokes the real handleCloseTaskSheet. Mock every other module the route imports. One test: closing the task sheet preserves filter params and clears taskId. Assert behaviourally: read navigateSpy.mock.calls[n][0], assert `typeof call.search === \"function\"`, then invoke `call.search({ status: [\"todo\"], taskId: <seed> })` and deep-equal the result. NEVER assert on source text and never merely check that withTaskId was imported \u2014 a source-text assertion passes against code that imports the helper and ignores it. This is acknowledged as the highest-risk test in the run; if a mock is impossible, still return your best complete attempt.\n\nMAY WRITE: apps/web/src/components/board/board-route-search-preservation.test.tsx \u2014 this one path only. MUST NOT TOUCH: any other file, especially apps/api/**, packages/**, apps/web/src/main.tsx, apps/web/src/routeTree.gen.ts, apps/web/src/store/user-preferences.ts, apps/web/src/components/board/board-toolbar.tsx, apps/web/src/hooks/use-task-filters.ts, backlog/gantt routes, package.json, i18n/*.\n\nCONVENTIONS (biome ci must pass): TypeScript strict. Double quotes, 2-space indent, semicolons. Import order: external packages alphabetically, then \"@/...\" alphabetically, then relative \"./...\". Obey biome rules noUselessElse, noInferrableTypes, useSelfClosingElements, useAsConstAssertion, useSingleVarDeclarator. No unused imports or vars. No `any`. Prefer `type` over `interface`. No comments that narrate code.\n\nDO NOT USE ANY TOOLS. Do not read or write files, do not run commands. Work only from the Inputs below. Return ONLY strictly valid JSON: {\"content\": \"<the ENTIRE file content>\"} with newlines escaped as \\n. No prose, no markdown fence.",
+      "inputs": [
+        {
+          "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+          "reason": "the route under test, post-edit \u2014 read every import and mock each one"
+        },
+        {
+          "path": "apps/web/src/components/list-view/task-row.test.tsx",
+          "reason": "the established mocking style"
+        },
+        {
+          "path": ".sdlc/runs/20260826-132654-feature-extend-board-filter-chips/specs/ac5.md",
+          "reason": "the AC-5 construction rules and the site-1 technique"
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "complete file content"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "acceptance": [
+        "Renders the real route component via a mocked createFileRoute",
+        "Clicking the stubbed sheet's close button triggers the real handleCloseTaskSheet",
+        "Asserts typeof call.search === 'function', that invoking it preserves status:['todo'], and that taskId becomes undefined",
+        "Asserts replace: true"
+      ],
+      "budget": {
+        "maxInputTokens": 12000,
+        "maxOutputTokens": 12000
+      }
+    }
+  ]
+}
