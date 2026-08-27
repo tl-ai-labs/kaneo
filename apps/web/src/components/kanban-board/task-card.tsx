@@ -36,6 +36,7 @@ import {
 } from "@/lib/due-date-status";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
+import { withTaskId } from "@/lib/search-params";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -147,12 +148,12 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
     if (currentTaskId === task.id) {
       navigate({
         to: ".",
-        search: {},
+        search: withTaskId(undefined),
       });
     } else {
       navigate({
         to: ".",
-        search: { taskId: task.id },
+        search: withTaskId(task.id),
       });
     }
   }

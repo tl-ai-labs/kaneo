@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BoardToolbar from "@/components/board/board-toolbar";
+import { useBoardFilterUrlSync } from "@/components/board/use-board-filter-url-sync";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
@@ -17,21 +18,21 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import {
+  parseBoardFilterSearch,
+  readBoardSearchParams,
+  searchCarriesBoardFilters,
+} from "@/lib/board-filter-search-params";
+import { withTaskId } from "@/lib/search-params";
 import { sortTasks } from "@/lib/sort-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-
-type BoardSearchParams = {
-  taskId?: string;
-};
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",
 )({
   component: RouteComponent,
-  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
-    taskId: typeof search.taskId === "string" ? search.taskId : undefined,
-  }),
+  validateSearch: readBoardSearchParams,
 });
 
 const skeletonColumns = [
@@ -77,7 +78,8 @@ function BoardSkeleton() {
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
-  const { taskId } = Route.useSearch();
+  const search = Route.useSearch();
+  const { taskId } = search;
   const navigate = useNavigate();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
@@ -96,7 +98,7 @@ function RouteComponent() {
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
-      search: {},
+      search: withTaskId(undefined),
       replace: true,
     });
   }, [navigate]);
@@ -156,6 +158,13 @@ function RouteComponent() {
     window.requestAnimationFrame(() => boardSearchInput?.focus());
   }, [isBoardSearchMounted, boardSearchInput]);
 
+  const urlState = useMemo(
+    () => ({
+      filters: parseBoardFilterSearch(search),
+      carriesFilters: searchCarriesBoardFilters(search),
+    }),
+    [search],
+  );
   const {
     filters,
     updateFilter,
@@ -163,7 +172,13 @@ function RouteComponent() {
     filteredProject,
     hasActiveFilters,
     clearFilters,
-  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
+  } = useTaskFiltersWithLabelsSupport(
+    project,
+    projectId,
+    boardSearchQuery,
+    urlState,
+  );
+  useBoardFilterUrlSync(filters, search);
 
   const sortedProject = useMemo(() => {
     if (!filteredProject || sort.field === "position") return filteredProject;

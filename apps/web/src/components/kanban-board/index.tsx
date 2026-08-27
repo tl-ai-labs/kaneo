@@ -19,6 +19,7 @@ import { produce } from "immer";
 import { useEffect, useState } from "react";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { withTaskId } from "@/lib/search-params";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -64,14 +65,14 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
         focusNext();
         const state = useBulkSelectionStore.getState();
         if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
         }
       },
       k: () => {
         focusPrevious();
         const state = useBulkSelectionStore.getState();
         if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
         }
       },
       Enter: () => {

@@ -1,10 +1,11 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type Task from "@/types/task";
 import TaskRow from "./task-row";
 
 const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
 const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
+const navigateSpy = vi.fn();
 
 afterEach(() => {
   cleanup();
@@ -12,7 +13,7 @@ afterEach(() => {
 });
 
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigateSpy,
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
@@ -107,5 +108,41 @@ describe("TaskRow", () => {
     expect(screen.getByText("#42")).toBeVisible();
     expect(useExternalLinks).not.toHaveBeenCalled();
     expect(useGetLabelsByTask).not.toHaveBeenCalled();
+  });
+
+  it("passes a search updater that preserves unrelated params when opening a task", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    fireEvent.click(screen.getByText("Row from payload"));
+
+    const call = navigateSpy.mock.calls[0][0] as {
+      to: string;
+      search: (prev: Record<string, unknown>) => Record<string, unknown>;
+    };
+    expect(typeof call.search).toBe("function");
+    expect(call.search({ status: ["todo"], labels: ["l1"] })).toEqual({
+      status: ["todo"],
+      labels: ["l1"],
+      taskId: "task-1",
+    });
+  });
+
+  it("passes a search updater that preserves unrelated params when closing an open task", () => {
+    window.history.replaceState({}, "", "?taskId=task-1");
+
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    fireEvent.click(screen.getByText("Row from payload"));
+
+    const call = navigateSpy.mock.calls[0][0] as {
+      to: string;
+      search: (prev: Record<string, unknown>) => Record<string, unknown>;
+    };
+    expect(typeof call.search).toBe("function");
+    const next = call.search({ status: ["todo"], taskId: "task-1" });
+    expect(next.status).toEqual(["todo"]);
+    expect(next.taskId).toBeUndefined();
+
+    window.history.replaceState({}, "", "/");
   });
 });

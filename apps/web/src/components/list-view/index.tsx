@@ -29,6 +29,7 @@ import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
+import { withTaskId } from "@/lib/search-params";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -94,14 +95,14 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
         focusNext();
         const state = useBulkSelectionStore.getState();
         if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
         }
       },
       k: () => {
         focusPrevious();
         const state = useBulkSelectionStore.getState();
         if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+          navigate({ to: ".", search: withTaskId(state.focusedTaskId) });
         }
       },
       Enter: () => {

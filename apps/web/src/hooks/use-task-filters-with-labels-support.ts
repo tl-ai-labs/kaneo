@@ -1,5 +1,6 @@
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { areBoardFiltersEqual } from "@/lib/board-filter-search-params";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
@@ -40,31 +41,61 @@ function normalizeFilters(raw: unknown): BoardFilters {
   return normalized;
 }
 
+function readStoredFilters(storageKey: string | null): BoardFilters {
+  if (!storageKey || typeof window === "undefined") {
+    return DEFAULT_FILTERS;
+  }
+
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (!stored) {
+      return DEFAULT_FILTERS;
+    }
+
+    const parsed = JSON.parse(stored) as unknown;
+    return normalizeFilters(parsed);
+  } catch {
+    return DEFAULT_FILTERS;
+  }
+}
+
+export type BoardFilterUrlState = {
+  filters: BoardFilters;
+  carriesFilters: boolean;
+};
+
 export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,
   textQuery?: string,
+  urlState?: BoardFilterUrlState,
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
-  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<BoardFilters>(() =>
+    urlState?.carriesFilters ? urlState.filters : readStoredFilters(storageKey),
+  );
+
+  const urlStateRef = useRef(urlState);
+  urlStateRef.current = urlState;
+  const resolvedStorageKeyRef = useRef(storageKey);
 
   useEffect(() => {
-    if (!storageKey || typeof window === "undefined") return;
-
-    try {
-      const stored = window.localStorage.getItem(storageKey);
-      if (!stored) {
-        setFilters(DEFAULT_FILTERS);
-        return;
-      }
-
-      const parsed = JSON.parse(stored) as unknown;
-      setFilters(normalizeFilters(parsed));
-    } catch {
-      setFilters(DEFAULT_FILTERS);
-    }
+    if (resolvedStorageKeyRef.current === storageKey) return;
+    resolvedStorageKeyRef.current = storageKey;
+    const current = urlStateRef.current;
+    setFilters(
+      current?.carriesFilters ? current.filters : readStoredFilters(storageKey),
+    );
   }, [storageKey]);
+
+  const urlFilters = urlState?.carriesFilters ? urlState.filters : null;
+  useEffect(() => {
+    if (!urlFilters) return;
+    setFilters((prev) =>
+      areBoardFiltersEqual(prev, urlFilters) ? prev : urlFilters,
+    );
+  }, [urlFilters]);
 
   useEffect(() => {
     if (!storageKey || typeof window === "undefined") return;
