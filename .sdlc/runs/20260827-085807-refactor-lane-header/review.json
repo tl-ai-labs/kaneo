@@ -1,0 +1,45 @@
+{
+  "module": "apps/web/src/components/public-project",
+  "run_id": "20260827-085807-refactor-lane-header",
+  "intent": "refactor",
+  "mode": "brownfield",
+  "verdict": "approved",
+  "invariant_dom_identical": true,
+  "evidence": "Mechanical comparison, not raw line diff. Extracted the pre-change inline block (git show HEAD:.../kanban-view.tsx lines 27-39) and the new component body (public-column-header.tsx lines 10-20), then (a) tokenized both into an ordered tag+className sequence and (b) collapsed JSX-insignificant whitespace (>\\s+< , >\\s+{ , }\\s+<) and compared the normalized strings. Both comparisons are exactly equal. Tag+class sequence for both: div[p-2 shrink-0], div[flex items-center justify-between], div[flex items-center gap-2], h3[font-medium text-foreground], /h3, span[text-sm text-muted-foreground], /span, /div, /div, /div. Embedded expressions also identical and in the same order: getColumnIcon(column.id, column.isFinal, column.icon), column.name, column.tasks.length. The two source-text reflows are both DOM-neutral under JSX whitespace rules (a whitespace-only line containing a newline adjacent to an expression child is stripped): the h3 collapsed from 3 lines to 1, and the span kept its wrapped {column.tasks.length}. Both yield a single expression child, as before. Gates run read-only: pnpm --filter @kaneo/web typecheck exit 0; pnpm --filter @kaneo/web test 37 files / 113 tests passed vs. baseline 36 / 112 (exactly +1 file, +1 test, zero new failures); pnpm exec biome ci on the three paths exit 0, 'No fixes applied'. No Biome --write command was run."
+,
+  "findings": [],
+  "checks": {
+    "classnames_identical": true,
+    "nesting_identical": true,
+    "getColumnIcon_count_is_2": true,
+    "prop_type_derived": true,
+    "no_ad_hoc_type": true,
+    "non_goals_respected": true,
+    "no_unused_imports": true,
+    "test_constraints_honored": true
+  },
+  "check_detail": {
+    "classnames_identical": "All five strings character-identical: 'p-2 shrink-0', 'flex items-center justify-between', 'flex items-center gap-2', 'font-medium text-foreground', 'text-sm text-muted-foreground'. grep -n 'font-medium text-foreground' kanban-view.tsx returns nothing (exit 1) - header markup is fully gone from the view.",
+    "nesting_identical": "div > div > div > (icon expression, h3, span). Same depth, same element order, no fragment and no wrapper added or removed. Root is div.p-2.shrink-0 and is the single root of the component.",
+    "slot_position": "kanban-view.tsx line 28 is '<PublicColumnHeader column={column} />' at 16-space indent, matching the removed block's opening indent. It is the first child of the column shell div (line 27) and is followed by the preserved blank separator line 29, then the task-list div at line 30 - the exact slot the removed block held. grep -c 'PublicColumnHeader column={column}' = 1.",
+    "getColumnIcon_count_is_2": "grep -c getColumnIcon kanban-view.tsx = 2 (the @/lib/column import on line 1 plus the still-live empty-state call on line 46). The run's flagged trap was avoided: the import was correctly retained rather than swept out with the header.",
+    "prop_type_derived": "column: ProjectWithTasks['columns'][number], with ProjectWithTasks brought in via 'import type' (type-only, erased at build). Props container is a local 'type PublicColumnHeaderProps', not an interface - matches the AGENTS.md 'type over interface' convention. grep for 'interface' in both new files returns nothing.",
+    "no_ad_hoc_type": "No hand-written column shape anywhere. The single type reference derives from the existing project type, so an upstream API column-shape change surfaces as a typecheck failure instead of drifting silently.",
+    "non_goals_respected": "git status --short lists only the three allowlisted paths plus pre-existing dirt (.gitignore modified, .claude/settings.local.json untracked) - both explicitly recorded in test-baseline.json:worktree_pre_existing_dirty as user changes made before the run started, and both absent from provenance.json:files_touched, which lists exactly the three intended paths. .sdlc/ and .hook-logs/ are gitignored by that pre-existing .gitignore edit and so do not appear. No Column->Lane rename (grep -rniE '\\blane\\b' over apps/web/src returns 0 hits). Nothing under apps/web/src/components/kanban-board/** is modified. No component shared between the private and public boards - PublicColumnHeader is independently declared. No container extraction: the two wrapper divs and the task list remain inline in kanban-view.tsx. package.json, apps/web/package.json and pnpm-lock.yaml are untouched, so no new runtime dependency.",
+    "no_unused_imports": "Every import in kanban-view.tsx is still referenced (occurrence counts, import + use: getColumnIcon 2, ProjectWithTasks 2, Task 8, PublicColumnHeader 2, PublicTaskCard 2). public-column-header.tsx has exactly the two planned imports, both used. Neither new file imports React (automatic JSX runtime, consistent with the rest of the directory). biome ci exit 0 independently confirms no unused-import or organize-imports violation. No dead code is left behind by the extraction.",
+    "test_constraints_honored": "Judged against the agreed constraints, not strengthened beyond them. @/lib/column is left genuinely unmocked - no 'vi' import and no mock/spy anywhere in the file - so the real getColumnIcon runs and emits a real lucide svg. Exactly three expect() calls. No className assertion, no toMatchSnapshot, no innerHTML comparison. The test name 'renders column name, task count, and an icon' says 'an icon', not which icon, so it does not overclaim what container.querySelector('svg') proves - the name is honest and needs no change. Fixture uses a single 'as' assertion (not 'as unknown as') and it compiles: typecheck exits 0. id: 'in-progress' resolves through DEFAULT_COLUMN_ICON_NAMES to 'CircleDot' (verified in apps/web/src/constants/column-icons.ts line 13), so the primary lookup branch of getColumnIcon runs rather than the isFinal/Circle fallback. Structure is a single describe with a single it, and afterEach(() => { cleanup(); }) matching task-labels.test.tsx.",
+    "public_bundle_safety": "public-column-header.tsx imports nothing auth-only: grep for hook|store|modal|mutation|i18n|permission|auth returns no match. Its entire import graph is @/lib/column plus a type-only @/types/project that is erased at build. No hook, store, modal, mutation, react-i18next or permission helper enters the public unauthenticated bundle. No new user-facing string literal was introduced, so no i18n key is needed."
+  },
+  "acceptance_criteria": {
+    "1_component_file_exists_and_exports": "pass",
+    "2_grep_font_medium_returns_nothing": "pass",
+    "3_exactly_one_PublicColumnHeader_usage": "pass",
+    "4_markup_diff_shows_no_tag_or_class_change": "pass - verified by normalized tag+class sequence comparison, see evidence",
+    "5_typecheck_exit_0": "pass",
+    "6_tests_exit_0_no_new_failures": "pass - 37/113 vs baseline 36/112",
+    "7_biome_ci_on_changed_paths_exit_0": "pass",
+    "8_files_touched_subset_of_allowlist": "pass"
+  },
+  "refinement_packets": [],
+  "notes": "Clean pure extraction. Zero blockers, zero majors, zero minors, zero nits - nothing was manufactured to pad the review. The DOM invariant holds under mechanical comparison, both source-text reflows are DOM-neutral under JSX whitespace rules, and the run's flagged trap (dropping the still-needed getColumnIcon import from kanban-view.tsx) was avoided. Env-fixture check is not applicable: intent is refactor, not feature-new/feature-extend, and this is a Vite React frontend with no validating config module in scope. Two observations, neither a finding against this run: (a) the modified .gitignore is pre-existing user work, recorded in test-baseline.json and absent from provenance.json:files_touched, and it is on the run's own off-limits list - correctly left alone; (b) the test proves an icon renders, not which icon, which is the accepted and proportionate bar for this run - deliberately not raised as a gap."
+}

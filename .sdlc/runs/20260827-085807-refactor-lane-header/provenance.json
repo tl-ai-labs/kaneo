@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "run_id": "20260827-085807-refactor-lane-header",
+  "intent": "refactor",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "apps/web/src/components/public-project/public-column-header.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:b2913c8a74beeaec65d40dfbcd103a7079dcf05a7c7c1d2ecf0c1871c72ef032",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_codegen_001r1",
+      "written_at": "2026-08-27T09:20:32.408Z"
+    },
+    {
+      "path": "apps/web/src/components/public-project/kanban-view.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:09a5624e749a9c7f9ef3763e0852bba8c7f5245821e2b289ab4fab2cc943f6c5",
+      "sha_after": "sha256:36346b77652991203caa8c6cb8d4901b90288508cb253663245b2aec37cfa94e",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_codegen_002",
+      "written_at": "2026-08-27T09:22:23.777Z"
+    },
+    {
+      "path": "apps/web/src/components/public-project/public-column-header.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:0f8566cd4e84d430439f91321df910440b0fcb3e21a6e2b24c566c7e67d6da2f",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_tests_001",
+      "written_at": "2026-08-27T09:23:33.454Z"
+    }
+  ]
+}

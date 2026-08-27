@@ -1,0 +1,26 @@
+[
+  {
+    "run_id": "20260827-085807-refactor-lane-header",
+    "intent": "refactor",
+    "policy": "opus-plus-flash-v37",
+    "auth_mode": "estimated",
+    "files_touched": 3,
+    "tests": "113/113",
+    "new_failures": 0,
+    "cost_pipeline_usd": 0.9731,
+    "cost_precheck_usd": 0.1362,
+    "cost_by_model": {
+      "claude-opus-5": 0.9402,
+      "gemini-3.7-flash": 0.0329
+    },
+    "reviews": {
+      "senior": "approved",
+      "security": "pass"
+    },
+    "outcome": "accepted",
+    "known_issues": [
+      "task_type routing gap: brownfield primitives miss opus-plus-flash-v37 codegen rule; silent fallthrough to default opus"
+    ],
+    "brief": ".sdlc/briefs/refactor-public-column-header.md"
+  }
+]

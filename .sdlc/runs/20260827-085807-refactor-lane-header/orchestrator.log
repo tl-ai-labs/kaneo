@@ -1,0 +1,62 @@
+MMO: 2026-08-27T08:58:42.921Z WARN   packet.validate.fail packet_id=smoke-1 missing_fields="module,inputs,outputSchema,acceptance,budget,pass_id"
+MMO: 2026-08-27T08:58:56.783Z INFO   route.decide packet_id=smoke-premium phase=codegen task_type=smoke module=precheck rule_index=-1 rule_reason="Unrecognized task — fail safe to premium" model_id=opus
+MMO: 2026-08-27T08:58:56.848Z INFO   dispatch.start packet_id=smoke-premium model_id=opus max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-27T08:59:03.442Z INFO   dispatch.end packet_id=smoke-premium model_id=opus ok=true terminal_reason=success tokens_in=12581 tokens_out=11 tokens_cached=16019 cost_usd=0.13517450000000003 latency_ms=6594 attempts=1
+MMO: 2026-08-27T08:59:11.812Z INFO   route.decide packet_id=smoke-mechanical phase=docs task_type=smoke module=precheck rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-27T08:59:11.813Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-27T08:59:11.815Z INFO   dispatch.start packet_id=smoke-mechanical model_id=flash-completion max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-27T08:59:15.323Z INFO   dispatch.end packet_id=smoke-mechanical model_id=flash-completion ok=true terminal_reason=success tokens_in=122 tokens_out=91 tokens_cached=0 cost_usd=0.001002 latency_ms=3508 attempts=1
+MMO: 2026-08-27T09:08:35.751Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-27T09:08:35.751Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-27T09:08:35.752Z INFO   preflight.model model_id=flash-completion adapter=mcp:model-dispatch ok=true
+MMO: 2026-08-27T09:08:35.752Z INFO   preflight.model model_id=flash-agsdk-worker ok=true classification=not_selected
+MMO: 2026-08-27T09:08:35.752Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-27T09:10:10.767Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-27T09:10:10.767Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-27T09:10:10.767Z INFO   preflight.model model_id=flash-completion adapter=mcp:model-dispatch ok=true
+MMO: 2026-08-27T09:10:10.767Z INFO   preflight.model model_id=flash-agsdk-worker ok=true classification=not_selected
+MMO: 2026-08-27T09:10:10.767Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-27T09:10:23.430Z INFO   run.start run_id=20260827-085807-refactor-lane-header mode=brownfield intent=refactor policy=opus-plus-flash-v37 auth_mode=estimated code_dir=/home/sangeetha/projects/kaneo output_dir=.sdlc/runs/20260827-085807-refactor-lane-header
+MMO: 2026-08-27T09:10:45.293Z INFO   phase.start run_id=20260827-085807-refactor-lane-header phase=requirements_analysis form=intent-specific
+MMO: 2026-08-27T09:11:50.702Z INFO   phase.end run_id=20260827-085807-refactor-lane-header phase=requirements_analysis form=intent-specific
+MMO: 2026-08-27T09:11:50.743Z INFO   gate.open run_id=20260827-085807-refactor-lane-header gate=gate-1 title="Requirements Approval"
+MMO: 2026-08-27T09:12:56.259Z INFO   gate.resolved run_id=20260827-085807-refactor-lane-header gate=gate-1 response=approved
+MMO: 2026-08-27T09:12:56.300Z INFO   phase.start run_id=20260827-085807-refactor-lane-header phase=change_plan form=intent-specific
+MMO: 2026-08-27T09:13:09.886Z INFO   delegate.subagent.start run_id=20260827-085807-refactor-lane-header phase=change_plan subagent=architect
+MMO: 2026-08-27T09:16:03.925Z INFO   delegate.subagent.end run_id=20260827-085807-refactor-lane-header phase=change_plan subagent=architect ok=true artifact_path=.sdlc/runs/20260827-085807-refactor-lane-header/change_plan.md
+MMO: 2026-08-27T09:16:03.966Z INFO   phase.end run_id=20260827-085807-refactor-lane-header phase=change_plan form=intent-specific
+MMO: 2026-08-27T09:16:04.009Z INFO   gate.open run_id=20260827-085807-refactor-lane-header gate=gate-2 title="Architecture Approval"
+MMO: 2026-08-27T09:17:46.948Z INFO   gate.resolved run_id=20260827-085807-refactor-lane-header gate=gate-2 response=approved
+MMO: 2026-08-27T09:17:46.991Z INFO   phase.start run_id=20260827-085807-refactor-lane-header phase=plan_task_packets form=default
+MMO: 2026-08-27T09:18:28.505Z INFO   phase.end run_id=20260827-085807-refactor-lane-header phase=plan_task_packets form=default
+MMO: 2026-08-27T09:18:28.639Z INFO   phase.start run_id=20260827-085807-refactor-lane-header phase=execute_packets form=default
+MMO: 2026-08-27T09:18:42.512Z INFO   route.decide packet_id=tp_codegen_001 phase=codegen intent=refactor task_type=react_component module=public-project rule_index=7 rule_reason="Schema-driven boilerplate" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-27T09:18:42.512Z INFO   dispatch.start packet_id=tp_codegen_001 model_id=flash-completion max_out=3000 max_in=4000 cache_context=refactor:public-column-header work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-27T09:18:46.934Z ERROR  dispatch.error packet_id=tp_codegen_001 model_id=flash-completion error_class=DispatchFailed message="{\"error\":{\"code\":429,\"message\":\"Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.\",\"status\":\"RESOURCE_EXHAUSTED\"}}"
+MMO: 2026-08-27T09:20:07.953Z INFO   route.decide packet_id=tp_codegen_001r1 phase=codegen intent=refactor task_type=react_component module=public-project rule_index=7 rule_reason="Schema-driven boilerplate" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-27T09:20:07.953Z INFO   dispatch.start packet_id=tp_codegen_001r1 model_id=flash-completion max_out=3000 max_in=4000 cache_context=refactor:public-column-header work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-27T09:20:13.837Z INFO   dispatch.end packet_id=tp_codegen_001r1 model_id=flash-completion ok=true terminal_reason=success tokens_in=521 tokens_out=695 tokens_cached=0 cost_usd=0.007037 latency_ms=5884 attempts=1
+MMO: 2026-08-27T09:21:07.603Z INFO   route.decide packet_id=tp_codegen_002 phase=codegen intent=refactor task_type=react_component module=public-project rule_index=7 rule_reason="Schema-driven boilerplate" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-27T09:21:07.604Z INFO   dispatch.start packet_id=tp_codegen_002 model_id=flash-completion max_out=3000 max_in=4000 cache_context=refactor:public-column-header work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-27T09:21:23.143Z INFO   dispatch.end packet_id=tp_codegen_002 model_id=flash-completion ok=true terminal_reason=success tokens_in=1090 tokens_out=1257 tokens_cached=0 cost_usd=0.012948 latency_ms=15539 attempts=1
+MMO: 2026-08-27T09:22:55.830Z INFO   route.decide packet_id=tp_tests_001 phase=tests intent=refactor task_type=test_add module=public-project rule_index=8 rule_reason="Scaffold-heavy, pattern-based" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-27T09:22:55.830Z INFO   dispatch.start packet_id=tp_tests_001 model_id=flash-completion max_out=3000 max_in=4000 cache_context=refactor:public-column-header work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-27T09:23:08.754Z INFO   dispatch.end packet_id=tp_tests_001 model_id=flash-completion ok=true terminal_reason=success tokens_in=919 tokens_out=1204 tokens_cached=0 cost_usd=0.012215 latency_ms=12924 attempts=1
+MMO: 2026-08-27T09:23:33.495Z INFO   phase.end run_id=20260827-085807-refactor-lane-header phase=execute_packets form=default
+MMO: 2026-08-27T09:23:33.541Z INFO   phase.start run_id=20260827-085807-refactor-lane-header phase=test_run form=intent-specific
+MMO: 2026-08-27T09:24:28.601Z INFO   phase.end run_id=20260827-085807-refactor-lane-header phase=test_run form=intent-specific
+MMO: 2026-08-27T09:24:28.641Z INFO   phase.start run_id=20260827-085807-refactor-lane-header phase=senior_code_review form=default
+MMO: 2026-08-27T09:24:28.681Z INFO   delegate.subagent.start run_id=20260827-085807-refactor-lane-header phase=senior_code_review subagent=senior-reviewer
+MMO: 2026-08-27T09:24:28.719Z INFO   phase.start run_id=20260827-085807-refactor-lane-header phase=security_review form=intent-specific
+MMO: 2026-08-27T09:24:28.761Z INFO   delegate.subagent.start run_id=20260827-085807-refactor-lane-header phase=security_review subagent=security-reviewer
+MMO: 2026-08-27T09:28:36.389Z INFO   delegate.subagent.end run_id=20260827-085807-refactor-lane-header phase=senior_code_review subagent=senior-reviewer ok=true artifact_path=.sdlc/runs/20260827-085807-refactor-lane-header/review.json
+MMO: 2026-08-27T09:28:36.424Z INFO   phase.end run_id=20260827-085807-refactor-lane-header phase=senior_code_review form=default
+MMO: 2026-08-27T09:28:36.460Z INFO   delegate.subagent.end run_id=20260827-085807-refactor-lane-header phase=security_review subagent=security-reviewer ok=true artifact_path=.sdlc/runs/20260827-085807-refactor-lane-header/security_review.md
+MMO: 2026-08-27T09:28:36.498Z INFO   phase.end run_id=20260827-085807-refactor-lane-header phase=security_review form=intent-specific
+MMO: 2026-08-27T09:28:36.533Z INFO   gate.open run_id=20260827-085807-refactor-lane-header gate=gate-3 title="Security Review"
+MMO: 2026-08-27T09:30:04.256Z INFO   gate.resolved run_id=20260827-085807-refactor-lane-header gate=gate-3 response=approved
+MMO: 2026-08-27T09:30:04.292Z INFO   phase.start run_id=20260827-085807-refactor-lane-header phase=generate_final_report form=default
+MMO: 2026-08-27T09:31:37.851Z INFO   phase.end run_id=20260827-085807-refactor-lane-header phase=generate_final_report form=default
+MMO: 2026-08-27T09:31:37.891Z INFO   gate.open run_id=20260827-085807-refactor-lane-header gate=gate-4 title="Final Acceptance"
+MMO: 2026-08-27T09:31:37.934Z INFO   run.end run_id=20260827-085807-refactor-lane-header outcome=completed total_cost_usd=0.9731
+MMO: 2026-08-27T09:33:40.930Z INFO   gate.resolved run_id=20260827-085807-refactor-lane-header gate=gate-4 response=approved

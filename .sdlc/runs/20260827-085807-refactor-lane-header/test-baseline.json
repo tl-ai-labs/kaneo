@@ -1,0 +1,13 @@
+{
+  "captured": "pre-change",
+  "test_command": "pnpm --filter @kaneo/web test",
+  "test_files_passed": 36,
+  "tests_passed": 112,
+  "tests_failed": 0,
+  "typecheck_command": "pnpm --filter @kaneo/web typecheck",
+  "typecheck_exit": 0,
+  "worktree_pre_existing_dirty": [
+    ".gitignore (modified by the user directly, outside this run, before it started: added .sdlc/ and .hook-logs/ so git add -A cannot sweep run artifacts whose backups/ echo source content. Off-limits to this run.)",
+    ".claude/settings.local.json (untracked, pre-existing)"
+  ]
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "tp_codegen_001",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "new_file_add",
+    "module": "public-project",
+    "pass_id": "20260827-085807-refactor-lane-header",
+    "intent": "refactor",
+    "artifact_path": "apps/web/src/components/public-project/public-column-header.tsx",
+    "instruction": "Create the file exactly as specified in the TARGET CONTENT input. Emit it verbatim, character for character. Do not add a React import (automatic JSX runtime). Do not add comments, a default export, or any extra import. Do not reformat, re-indent, or re-wrap any line. Return the full file content in the file_content field.",
+    "acceptance": [
+      "File content is byte-identical to the TARGET CONTENT slice",
+      "Exactly two imports: getColumnIcon from @/lib/column and a type-only ProjectWithTasks from @/types/project",
+      "Named export function PublicColumnHeader; no default export",
+      "Root element is div with className p-2 shrink-0; no fragment wrapper",
+      "No React import, no comments"
+    ],
+    "budget": { "maxInputTokens": 4000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_codegen_002",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "existing_file_edit",
+    "module": "public-project",
+    "pass_id": "20260827-085807-refactor-lane-header",
+    "intent": "refactor",
+    "artifact_path": "apps/web/src/components/public-project/kanban-view.tsx",
+    "instruction": "Apply exactly two edits to the CURRENT FILE input and return the complete resulting file. (A) Add the import line { PublicColumnHeader } from ./public-column-header immediately before the ./task-card import. (B) Replace the 13-line header block starting at the div with className p-2 shrink-0 with the single self-closing line <PublicColumnHeader column={column} />, indented 16 spaces, keeping the blank line that follows it. Change nothing else. CRITICAL: keep the getColumnIcon import; the empty-state block still calls it. Keep the ProjectWithTasks type import.",
+    "acceptance": [
+      "getColumnIcon appears exactly twice: the import and the empty-state call",
+      "The string 'font-medium text-foreground' does not appear",
+      "<PublicColumnHeader column={column} /> appears exactly once",
+      "The type-only ProjectWithTasks import is retained",
+      "Every other line is unchanged from the input"
+    ],
+    "budget": { "maxInputTokens": 4000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_tests_001",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "public-project",
+    "pass_id": "20260827-085807-refactor-lane-header",
+    "intent": "refactor",
+    "artifact_path": "apps/web/src/components/public-project/public-column-header.test.tsx",
+    "instruction": "Write a vitest + @testing-library/react test matching the PRECEDENT slice's shape. Import { cleanup, render, screen } from @testing-library/react and { afterEach, describe, expect, it } from vitest. Do NOT import vi and do NOT mock anything, especially not @/lib/column: the real icon must render. One describe, one it. Exactly three assertions: an svg exists via container.querySelector, the column name is visible, the task count is visible. Never assert on a className string, never snapshot. Use the FIXTURE slice verbatim.",
+    "acceptance": [
+      "No vi.mock call anywhere; @/lib/column is unmocked",
+      "Exactly three expect assertions",
+      "No className, toMatchSnapshot, or innerHTML assertion",
+      "afterEach(() => { cleanup(); }) present",
+      "Test name describes that an icon renders, not which icon"
+    ],
+    "budget": { "maxInputTokens": 4000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  }
+]

@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "run_id": "20260827-085807-refactor-lane-header",
+  "mode": "brownfield",
+  "intent": "refactor",
+  "policy": {
+    "name": "opus-plus-flash-v37",
+    "version": 1
+  },
+  "auth_mode": "estimated",
+  "provenance_note": "Mechanical-tier (gemini-3.7-flash) events carry vendor-reported tokens via the MCP server. Direct-tier (claude-opus-5) events are char-heuristic estimates per auth_mode=estimated; three were corrected upward using subagent-reported totals.",
+  "started_at": "2026-08-27T08:59:03.442Z",
+  "ended_at": "2026-08-27T09:28:48.732Z",
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260827-085807-refactor-lane-header",
+  "gates": {
+    "gate-1": "approved",
+    "gate-2": "approved",
+    "gate-3": "approved",
+    "gate-4": "accepted"
+  },
+  "totals": {
+    "cost_usd": 1.109308,
+    "input_tokens": 119870,
+    "output_tokens": 20032,
+    "events": 11,
+    "failed_dispatches": 1
+  },
+  "by_phase": {
+    "codegen": {
+      "cost_usd": 0.155891,
+      "input_tokens": 14679,
+      "output_tokens": 1963,
+      "events": 4,
+      "models": [
+        "claude-opus-5",
+        "gemini-3.7-flash"
+      ]
+    },
+    "docs": {
+      "cost_usd": 0.001002,
+      "input_tokens": 122,
+      "output_tokens": 91,
+      "events": 1,
+      "models": [
+        "gemini-3.7-flash"
+      ]
+    },
+    "requirements_analysis": {
+      "cost_usd": 0.1354,
+      "input_tokens": 15450,
+      "output_tokens": 2325,
+      "events": 1,
+      "models": [
+        "claude-opus-5"
+      ]
+    },
+    "change_plan": {
+      "cost_usd": 0.2225,
+      "input_tokens": 24500,
+      "output_tokens": 4000,
+      "events": 1,
+      "models": [
+        "claude-opus-5"
+      ]
+    },
+    "plan_task_packets": {
+      "cost_usd": 0.0673,
+      "input_tokens": 6200,
+      "output_tokens": 1450,
+      "events": 1,
+      "models": [
+        "claude-opus-5"
+      ]
+    },
+    "tests": {
+      "cost_usd": 0.012215,
+      "input_tokens": 919,
+      "output_tokens": 1204,
+      "events": 1,
+      "models": [
+        "gemini-3.7-flash"
+      ]
+    },
+    "senior_code_review": {
+      "cost_usd": 0.2796,
+      "input_tokens": 32000,
+      "output_tokens": 4783,
+      "events": 1,
+      "models": [
+        "claude-opus-5"
+      ]
+    },
+    "security_review": {
+      "cost_usd": 0.2354,
+      "input_tokens": 26000,
+      "output_tokens": 4216,
+      "events": 1,
+      "models": [
+        "claude-opus-5"
+      ]
+    }
+  },
+  "by_model": {
+    "claude-opus-5": {
+      "cost_usd": 1.075375,
+      "input_tokens": 116731,
+      "output_tokens": 16785,
+      "events": 6
+    },
+    "gemini-3.7-flash": {
+      "cost_usd": 0.033933,
+      "input_tokens": 3139,
+      "output_tokens": 3247,
+      "events": 5
+    }
+  },
+  "verification": {
+    "test_command": "pnpm --filter @kaneo/web test",
+    "baseline": {
+      "test_files": 36,
+      "tests": 112
+    },
+    "after": {
+      "test_files": 37,
+      "tests": 113
+    },
+    "new_failures": 0,
+    "typecheck_command": "pnpm --filter @kaneo/web typecheck",
+    "typecheck_exit": 0,
+    "lint_command": "pnpm exec biome ci <3 changed paths>",
+    "lint_exit": 0,
+    "lint_fixes_applied": 0
+  },
+  "reviews": {
+    "senior": {
+      "verdict": "approved",
+      "findings": 0
+    },
+    "security": {
+      "verdict": "pass",
+      "findings": 0
+    }
+  },
+  "files_touched": [
+    {
+      "path": "apps/web/src/components/public-project/public-column-header.tsx",
+      "existed_before": false,
+      "packet_id": "tp_codegen_001r1"
+    },
+    {
+      "path": "apps/web/src/components/public-project/kanban-view.tsx",
+      "existed_before": true,
+      "packet_id": "tp_codegen_002"
+    },
+    {
+      "path": "apps/web/src/components/public-project/public-column-header.test.tsx",
+      "existed_before": false,
+      "packet_id": "tp_tests_001"
+    }
+  ],
+  "artifacts": [
+    ".sdlc/runs/20260827-085807-refactor-lane-header/requirements.md",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/change_plan.md",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/packets.json",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/review.json",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/security_review.md",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/telemetry.jsonl",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/provenance.json",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/test-baseline.json",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/manifest.json",
+    ".sdlc/runs/20260827-085807-refactor-lane-header/SUMMARY.md"
+  ],
+  "rollback": {
+    "command": "/mmo:revert 20260827-085807-refactor-lane-header",
+    "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "commits": []
+  },
+  "cost_scope": {
+    "note": "telemetry.jsonl also holds the pre-check smoke dispatches from 08:59, which ran before this pipeline started. They are excluded from pipeline_cost_usd and reported separately so the per-run figure is comparable across the 4 planned policy runs.",
+    "pre_check_smoke_usd": 0.136177,
+    "pre_check_events": 2,
+    "pipeline_cost_usd": 0.973131,
+    "pipeline_events": 9,
+    "telemetry_file_total_usd": 1.109308,
+    "pipeline_by_model": {
+      "claude-opus-5": 0.9402,
+      "gemini-3.7-flash": 0.032931
+    },
+    "vertex_429": {
+      "task_id": "tp_codegen_001",
+      "cost_usd": 0.000731,
+      "output_tokens": 0,
+      "note": "Vertex 429 RESOURCE_EXHAUSTED on first P1 dispatch: billed input only, produced nothing. Cleared by a 60s backoff; retry tp_codegen_001r1 succeeded on attempt 1. Not a packet defect."
+    },
+    "why_split": "Folding the pre-check smoke into the per-run figure would inflate run 1 against the 3 runs that follow and quietly break the cross-policy comparison. Split unprompted; preserve this separation in the remaining runs."
+  },
+  "known_issues": [
+    {
+      "id": "task_type_routing_gap",
+      "severity": "major",
+      "scope": "policy, not this run",
+      "summary": "Brownfield task-type primitives are absent from opus-plus-flash-v37 codegen rule, so they fall through to default:opus.",
+      "workaround_applied": "task_type set to react_component (matched by codegen rule index 7); brownfield primitive carried in subtype (new_file_add / existing_file_edit).",
+      "without_workaround": "All 3 packets route to default:opus - the entire refactor runs at premium rates.",
+      "why_silent": "The run still succeeds and still reports success. No telemetry field marks the routing as wrong; only the model name on each event differs.",
+      "affects": "The 3 further planned runs of this task must apply the identical bend or the cross-policy cost comparison is invalid."
+    }
+  ],
+  "outcome": "completed",
+  "finalized": true,
+  "independent_verification": {
+    "by": "coordinator, re-run rather than trusting reported figures",
+    "typecheck_exit": 0,
+    "test_files": 37,
+    "tests": 113,
+    "reproduces_reported_figures": true
+  },
+  "scope_honesty": [
+    {
+      "id": "write_contract_unproven",
+      "severity": "important",
+      "statement": "The strict write contract is currently UNPROVEN on this repo, not proven working. Every write in this run targeted an allowlisted path, so the PreToolUse refusal path never ran. .hook-logs/hook.jsonl contains only 4 mcp_tool_postuse telemetry events (matching the 4 dispatches) and carries no write-decision entries. Confidence that only the 3 allowlisted paths changed rests on git status, not on any hook log. This is a negative result about the plugin's own safety machinery: absence of a refusal is not evidence that the gate would refuse."
+    },
+    {
+      "id": "npm_audit_not_run",
+      "severity": "note",
+      "statement": "No dependency delta exists, so npm audit would surface only pre-existing repo-wide advisories unactionable from this run. The repo's dependency posture is unassessed by this review, not clean."
+    },
+    {
+      "id": "test_proves_an_icon_not_which_icon",
+      "severity": "note",
+      "statement": "container.querySelector('svg') is truthy on every getColumnIcon branch. The test proves an icon renders, not that the correct icon renders. Accepted as proportionate; the test name says 'an icon' and does not overclaim."
+    },
+    {
+      "id": "direct_tier_costs_estimated",
+      "severity": "note",
+      "statement": "auth_mode=estimated: direct-tier costs are char-heuristic estimates. Three were corrected upward using subagent-reported totals after the heuristic understated per-turn context re-send. Mechanical-tier costs are vendor-reported."
+    },
+    {
+      "id": "gate2_description_incomplete",
+      "severity": "note",
+      "statement": "The orchestrator flagged only the span reflow at Gate 2; the h3 also collapsed from 3 lines to 1. Both are DOM-neutral, but the gate description the user approved on was incomplete. Caught later by the senior reviewer."
+    }
+  ]
+}
