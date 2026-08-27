@@ -40,36 +40,129 @@ function normalizeFilters(raw: unknown): BoardFilters {
   return normalized;
 }
 
+export function boardFiltersStorageKey(projectId: string): string {
+  return `kaneo:board-filters:${projectId}`;
+}
+
+/** Total: never throws, never returns a partial object. */
+export function readStoredBoardFilters(projectId: string): BoardFilters {
+  if (typeof window === "undefined") return DEFAULT_FILTERS;
+  try {
+    const stored = window.localStorage.getItem(
+      boardFiltersStorageKey(projectId),
+    );
+    if (!stored) return DEFAULT_FILTERS;
+    return normalizeFilters(JSON.parse(stored) as unknown);
+  } catch {
+    return DEFAULT_FILTERS;
+  }
+}
+
+/** The subset of filters an external owner (the board route's URL) can drive. */
+export type ControlledBoardFilters = Pick<BoardFilters, "assignee" | "labels">;
+
+export type UseTaskFiltersOptions = {
+  /**
+   * When present, `assignee` and `labels` are owned by the caller. Presence of the
+   * OBJECT is the controlled switch — not presence of its values, because
+   * `{ assignee: null }` legitimately means "the caller says: no assignee filter".
+   *
+   * Must be referentially stable across renders (memoize it on primitives), or
+   * `filterTasks` and `filteredProject` de-memoize on every render and filtering stops
+   * being free on task-heavy boards.
+   */
+  controlled?: ControlledBoardFilters;
+  /** Called with the full next value of BOTH controlled keys whenever either changes. */
+  onControlledChange?: (next: ControlledBoardFilters) => void;
+};
+
+function sameIdList(a: string[] | null, b: string[] | null): boolean {
+  if (a === b) return true;
+  if (!a || !b || a.length !== b.length) return false;
+  return a.every((value, index) => value === b[index]);
+}
+
 export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,
   projectId?: string,
   textQuery?: string,
+  options?: UseTaskFiltersOptions,
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
-  const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
-  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
+  const storageKey = projectId ? boardFiltersStorageKey(projectId) : null;
+  const [internalFilters, setInternalFilters] =
+    useState<BoardFilters>(DEFAULT_FILTERS);
+
+  const controlled = options?.controlled;
+  const onControlledChange = options?.onControlledChange;
+
+  // Render-phase, deliberately not an effect: a controlled value must be the rendered
+  // truth on the FIRST render, or the board paints unfiltered for a frame before the
+  // URL's filters land.
+  const filters = useMemo<BoardFilters>(
+    () =>
+      controlled
+        ? {
+            ...internalFilters,
+            assignee: controlled.assignee,
+            labels: controlled.labels,
+          }
+        : internalFilters,
+    [internalFilters, controlled],
+  );
 
   useEffect(() => {
-    if (!storageKey || typeof window === "undefined") return;
+    if (!projectId || typeof window === "undefined") return;
+    setInternalFilters(readStoredBoardFilters(projectId));
+  }, [projectId]);
 
-    try {
-      const stored = window.localStorage.getItem(storageKey);
-      if (!stored) {
-        setFilters(DEFAULT_FILTERS);
-        return;
-      }
-
-      const parsed = JSON.parse(stored) as unknown;
-      setFilters(normalizeFilters(parsed));
-    } catch {
-      setFilters(DEFAULT_FILTERS);
-    }
-  }, [storageKey]);
-
+  // Mirrors the EFFECTIVE filters, not internal state. That is what lets storage track a
+  // history pop (which changes the URL without any commit) and what stops storage from
+  // ever holding a value the URL contradicts. This effect writes localStorage and nothing
+  // else — no setState, no navigate — so it cannot participate in a loop.
   useEffect(() => {
     if (!storageKey || typeof window === "undefined") return;
     window.localStorage.setItem(storageKey, JSON.stringify(filters));
   }, [filters, storageKey]);
+
+  /**
+   * The single write path for every filter change.
+   *
+   * INVARIANT: at most one `commit` per RENDER, not merely per event handler. In
+   * controlled mode `commit` reads `filters` from the current render's closure, so every
+   * call made before the owner's navigate has re-rendered this hook sees the same
+   * pre-change value and only the last one survives. That covers N calls in one handler
+   * (compute the whole next value and commit it once) AND two separate user actions
+   * landing inside the same pre-navigate window — the second silently reverts the first.
+   */
+  const commit = (updater: (previous: BoardFilters) => BoardFilters) => {
+    if (!controlled) {
+      setInternalFilters(updater);
+      return;
+    }
+
+    const next = updater(filters);
+
+    // Uncontrolled keys keep living in React state, and therefore in localStorage.
+    setInternalFilters((previous) => ({
+      ...previous,
+      status: next.status,
+      priority: next.priority,
+      dueDate: next.dueDate,
+    }));
+
+    // Controlled keys are handed to the owner. This is their ONLY write path.
+    if (
+      !sameIdList(next.assignee, filters.assignee) ||
+      !sameIdList(next.labels, filters.labels)
+    ) {
+      onControlledChange?.({ assignee: next.assignee, labels: next.labels });
+    }
+  };
+
+  const setFilters = (
+    next: BoardFilters | ((prev: BoardFilters) => BoardFilters),
+  ) => commit(typeof next === "function" ? next : () => next);
 
   const filterTasks = useCallback(
     (tasks: Task[]): Task[] => {
@@ -202,20 +295,16 @@ export function useTaskFiltersWithLabelsSupport(
     Array.isArray(filter) ? filter.length > 0 : filter !== null,
   );
 
-  const clearFilters = () => {
-    setFilters(DEFAULT_FILTERS);
-  };
+  const clearFilters = () => commit(() => DEFAULT_FILTERS);
 
   const updateFilter = (
     key: keyof BoardFilters,
     value: BoardFilters[keyof BoardFilters],
-  ) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
+  ) => commit((previous) => ({ ...previous, [key]: value }));
 
-  const updateLabelFilter = (labelId: string) => {
-    setFilters((prev) => {
-      const currentLabels = prev.labels || [];
+  const updateLabelFilter = (labelId: string) =>
+    commit((previous) => {
+      const currentLabels = previous.labels || [];
       const isSelected = currentLabels.includes(labelId);
 
       let newLabels: string[] | null;
@@ -226,9 +315,8 @@ export function useTaskFiltersWithLabelsSupport(
         newLabels = [...currentLabels, labelId];
       }
 
-      return { ...prev, labels: newLabels };
+      return { ...previous, labels: newLabels };
     });
-  };
 
   return {
     filters,

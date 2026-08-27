@@ -1,7 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  applyFilterSearch,
+  type BoardSearchParams,
+  buildStorageSeedSearch,
+  clearTaskId,
+  parseFilterList,
+  validateBoardSearch,
+} from "@/components/board/board-search-params";
 import BoardToolbar from "@/components/board/board-toolbar";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
@@ -16,22 +24,20 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import {
+  type ControlledBoardFilters,
+  readStoredBoardFilters,
+  useTaskFiltersWithLabelsSupport,
+} from "@/hooks/use-task-filters-with-labels-support";
 import { sortTasks } from "@/lib/sort-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
-
-type BoardSearchParams = {
-  taskId?: string;
-};
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",
 )({
   component: RouteComponent,
-  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
-    taskId: typeof search.taskId === "string" ? search.taskId : undefined,
-  }),
+  validateSearch: validateBoardSearch,
 });
 
 const skeletonColumns = [
@@ -77,7 +83,8 @@ function BoardSkeleton() {
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
-  const { taskId } = Route.useSearch();
+  const search = Route.useSearch();
+  const { taskId } = search;
   const navigate = useNavigate();
   const { data } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
@@ -93,10 +100,13 @@ function RouteComponent() {
   const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
 
+  // Clears ONLY taskId. This used to be `search: {}`, which meant "the new search is the
+  // empty object" — indistinguishable from clearing taskId while taskId was the only
+  // param, and silently destructive now that the filters live here too.
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
-      search: {},
+      search: (previous: BoardSearchParams) => clearTaskId(previous),
       replace: true,
     });
   }, [navigate]);
@@ -156,14 +166,69 @@ function RouteComponent() {
     window.requestAnimationFrame(() => boardSearchInput?.focus());
   }, [isBoardSearchMounted, boardSearchInput]);
 
+  // Memoised on the PRIMITIVE search strings so `controlled` keeps a stable identity;
+  // an object literal here would de-memoise filterTasks and filteredProject every render.
+  const assigneeFilter = useMemo(
+    () => parseFilterList(search.assignee),
+    [search.assignee],
+  );
+  const labelsFilter = useMemo(
+    () => parseFilterList(search.labels),
+    [search.labels],
+  );
+  const controlledFilters = useMemo(
+    () => ({ assignee: assigneeFilter, labels: labelsFilter }),
+    [assigneeFilter, labelsFilter],
+  );
+
+  const handleControlledFiltersChange = useCallback(
+    (next: ControlledBoardFilters) => {
+      navigate({
+        to: ".",
+        search: (previous: BoardSearchParams) =>
+          applyFilterSearch(previous, next),
+      });
+    },
+    [navigate],
+  );
+
+  // Read during RENDER, not in the effect below. The filter hook mirrors the effective
+  // filters back to this same storage key in its own effect, so an effect-time read would
+  // be decided by useEffect registration order: hoist the hook call above this block and
+  // the mirror clears the key before the seed reads it, silently discarding the user's
+  // persisted filters. A lazy useState initializer runs before any effect on the first
+  // render, so no ordering can race it.
+  const [storedSeedFilters] = useState(() => readStoredBoardFilters(projectId));
+  const didSeedFromStorageRef = useRef(false);
+
+  // First mount only: if the URL carries neither filter param, adopt whatever the previous
+  // session left in storage. `replace` because the user did not perform this action, so it
+  // must not become a history entry. If the URL carries either param it is authoritative
+  // and the seed is skipped entirely.
+  useEffect(() => {
+    if (didSeedFromStorageRef.current) return;
+    didSeedFromStorageRef.current = true;
+
+    const seeded = buildStorageSeedSearch(search, storedSeedFilters);
+    if (!seeded) return;
+
+    navigate({
+      to: ".",
+      search: () => seeded,
+      replace: true,
+    });
+  }, [navigate, search, storedSeedFilters]);
+
   const {
     filters,
     updateFilter,
-    updateLabelFilter,
     filteredProject,
     hasActiveFilters,
     clearFilters,
-  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery);
+  } = useTaskFiltersWithLabelsSupport(project, projectId, boardSearchQuery, {
+    controlled: controlledFilters,
+    onControlledChange: handleControlledFiltersChange,
+  });
 
   const sortedProject = useMemo(() => {
     if (!filteredProject || sort.field === "position") return filteredProject;
@@ -221,7 +286,6 @@ function RouteComponent() {
           project={project}
           filters={filters}
           updateFilter={updateFilter}
-          updateLabelFilter={updateLabelFilter}
           clearFilters={clearFilters}
           hasActiveFilters={hasActiveFilters}
           users={users}

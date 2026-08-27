@@ -1838,6 +1838,7 @@
 			"allDueDates": "All due dates",
 			"allLabels": "All labels",
 			"selectedCount": "{{count}} selected",
+			"removeFilter": "Remove {{subject}} filter: {{value}}",
 			"subjects": {
 				"status": "Status",
 				"priority": "Priority",
@@ -1847,7 +1848,9 @@
 			},
 			"operators": {
 				"isAnyOf": "is any of",
-				"includeAnyOf": "include any of"
+				"includeAnyOf": "include any of",
+				"is": "is",
+				"includes": "includes"
 			}
 		},
 		"gantt": {

@@ -1,6 +1,6 @@
-import { Filter, PanelsTopLeft, Rows3, X } from "lucide-react";
-import type { ReactNode } from "react";
+import { Filter, PanelsTopLeft, Rows3 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import BoardFilterChips from "@/components/board/board-filter-chips";
 import SortControl from "@/components/common/sort-control";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -50,7 +50,6 @@ type BoardToolbarProps = {
     key: keyof BoardFilters,
     value: BoardFilters[keyof BoardFilters],
   ) => void;
-  updateLabelFilter: (labelId: string) => void;
   clearFilters: () => void;
   hasActiveFilters: boolean;
   users?: ActiveUsers;
@@ -75,66 +74,10 @@ function CheckSlot({ checked }: { checked: boolean }) {
   );
 }
 
-type ActiveFilterChipProps = {
-  subject: string;
-  operator: string;
-  value: ReactNode;
-  onClear: () => void;
-};
-
-function ActiveFilterChip({
-  subject,
-  operator,
-  value,
-  onClear,
-}: ActiveFilterChipProps) {
-  return (
-    <div className="inline-flex h-7 items-center rounded-md border border-border bg-background text-xs shadow-xs">
-      <span className="px-2 font-medium text-foreground">{subject}</span>
-      <span className="h-full w-px bg-border" />
-      <span className="px-2 text-foreground/80">{operator}</span>
-      <span className="h-full w-px bg-border" />
-      <span className="flex px-2 text-foreground">{value}</span>
-      <span className="h-full w-px bg-border" />
-      <button
-        className="inline-flex h-full w-7 items-center justify-center rounded-r-md text-foreground/70 hover:bg-accent/70 hover:text-foreground"
-        onClick={onClear}
-        type="button"
-      >
-        <X className="h-3.5 w-3.5" />
-      </button>
-    </div>
-  );
-}
-
-function StackedIcons({
-  items,
-  itemClassName,
-}: {
-  items: Array<{ id: string; node: ReactNode }>;
-  itemClassName?: string;
-}) {
-  if (items.length === 0) return null;
-
-  return (
-    <span className="inline-flex items-center -space-x-1.5">
-      {items.slice(0, 3).map((item) => (
-        <span
-          key={item.id}
-          className={`inline-flex size-4 items-center justify-center rounded-full bg-background ${itemClassName ?? ""}`}
-        >
-          {item.node}
-        </span>
-      ))}
-    </span>
-  );
-}
-
 export default function BoardToolbar({
   project,
   filters,
   updateFilter,
-  updateLabelFilter,
   clearFilters,
   hasActiveFilters,
   users,
@@ -150,10 +93,6 @@ export default function BoardToolbar({
   const selectedAssigneeIds = filters.assignee ?? [];
   const selectedDueDateFilters = filters.dueDate ?? [];
 
-  const getStatusDisplayName = (statusId: string) => {
-    const column = project?.columns?.find((col) => col.id === statusId);
-    return column?.name || statusId;
-  };
   const getStatusIcon = (statusId: string) => {
     const column = project?.columns?.find((col) => col.id === statusId);
     return getColumnIcon(statusId, column?.isFinal, column?.icon);
@@ -161,25 +100,6 @@ export default function BoardToolbar({
 
   const getPriorityDisplayName = (priority: string) =>
     getPriorityLabel(priority);
-
-  const getAssigneeDisplayName = (userId: string) => {
-    const member = users?.members?.find((m) => m.userId === userId);
-    return member?.user?.name || t("common:people.unknown");
-  };
-  const getAssigneeAvatar = (userId: string) => {
-    const member = users?.members?.find((m) => m.userId === userId);
-    return (
-      <Avatar className="h-4 w-4">
-        <AvatarImage
-          src={member?.user?.image ?? ""}
-          alt={member?.user?.name || ""}
-        />
-        <AvatarFallback className="border border-border/30 text-[9px] font-medium">
-          {getInitials(member?.user?.name)}
-        </AvatarFallback>
-      </Avatar>
-    );
-  };
 
   const uniqueLabels = workspaceLabels.reduce(
     (acc: WorkspaceLabel[], label: WorkspaceLabel) => {
@@ -230,25 +150,25 @@ export default function BoardToolbar({
     updateFilter("dueDate", next.length > 0 ? next : null);
   };
 
+  // Single-commit, deliberately. These used to loop over a per-id mutator, which was
+  // correct while filters lived in a functional setState but breaks once they live in the
+  // URL: each call would read the same pre-change value and issue its own navigate, so a
+  // multi-id label group would half-toggle and leave junk history entries behind.
   const toggleLabelGroup = (label: { name: string; color: string }) => {
-    const matching = workspaceLabels.filter(
-      (l) => l.name === label.name && l.color === label.color,
-    );
-    const anySelected = matching.some((l) => filters.labels?.includes(l.id));
-
-    for (const l of matching) {
-      if (
-        (anySelected && filters.labels?.includes(l.id)) ||
-        (!anySelected && !filters.labels?.includes(l.id))
-      ) {
-        updateLabelFilter(l.id);
-      }
-    }
+    const matchingIds = workspaceLabels
+      .filter((l) => l.name === label.name && l.color === label.color)
+      .map((l) => l.id);
+    const current = filters.labels ?? [];
+    const anySelected = matchingIds.some((id) => current.includes(id));
+    const next = anySelected
+      ? current.filter((id) => !matchingIds.includes(id))
+      : [...current, ...matchingIds.filter((id) => !current.includes(id))];
+    updateFilter("labels", next.length > 0 ? next : null);
   };
 
   const clearLabelFilters = () => {
     if (!filters.labels || filters.labels.length === 0) return;
-    for (const labelId of filters.labels) updateLabelFilter(labelId);
+    updateFilter("labels", null);
   };
 
   return (
@@ -530,117 +450,15 @@ export default function BoardToolbar({
 
             <SortControl sort={sort} onSortChange={onSortChange} />
 
-            {selectedStatusIds.length > 0 && (
-              <ActiveFilterChip
-                subject={t("tasks:boardFilters.subjects.status")}
-                operator={t("tasks:boardFilters.operators.isAnyOf")}
-                value={
-                  <span className="inline-flex items-center gap-1.5">
-                    <StackedIcons
-                      items={selectedStatusIds.map((statusId) => ({
-                        id: statusId,
-                        node: getStatusIcon(statusId),
-                      }))}
-                      itemClassName="[&>svg]:h-3.5 [&>svg]:w-3.5"
-                    />
-                    <span>
-                      {selectedStatusIds.length === 1
-                        ? getStatusDisplayName(selectedStatusIds[0])
-                        : t("tasks:boardFilters.selectedCount", {
-                            count: selectedStatusIds.length,
-                          })}
-                    </span>
-                  </span>
-                }
-                onClear={() => updateFilter("status", null)}
-              />
-            )}
-
-            {selectedPriorityIds.length > 0 && (
-              <ActiveFilterChip
-                subject={t("tasks:boardFilters.subjects.priority")}
-                operator={t("tasks:boardFilters.operators.isAnyOf")}
-                value={
-                  <span className="inline-flex items-center gap-1.5">
-                    <StackedIcons
-                      items={selectedPriorityIds.map((priority) => ({
-                        id: priority,
-                        node: getPriorityIcon(priority),
-                      }))}
-                    />
-                    <span>
-                      {selectedPriorityIds.length === 1
-                        ? getPriorityDisplayName(selectedPriorityIds[0])
-                        : t("tasks:boardFilters.selectedCount", {
-                            count: selectedPriorityIds.length,
-                          })}
-                    </span>
-                  </span>
-                }
-                onClear={() => updateFilter("priority", null)}
-              />
-            )}
-
-            {selectedAssigneeIds.length > 0 && (
-              <ActiveFilterChip
-                subject={t("tasks:boardFilters.subjects.assignee")}
-                operator={t("tasks:boardFilters.operators.isAnyOf")}
-                value={
-                  <span className="inline-flex items-center gap-1.5">
-                    <StackedIcons
-                      items={selectedAssigneeIds.map((userId) => ({
-                        id: userId,
-                        node: getAssigneeAvatar(userId),
-                      }))}
-                    />
-                    <span>
-                      {selectedAssigneeIds.length === 1
-                        ? getAssigneeDisplayName(selectedAssigneeIds[0])
-                        : t("tasks:boardFilters.selectedCount", {
-                            count: selectedAssigneeIds.length,
-                          })}
-                    </span>
-                  </span>
-                }
-                onClear={() => updateFilter("assignee", null)}
-              />
-            )}
-
-            {selectedDueDateFilters.length > 0 && (
-              <ActiveFilterChip
-                subject={t("tasks:boardFilters.subjects.dueDate")}
-                operator={t("tasks:boardFilters.operators.isAnyOf")}
-                value={
-                  selectedDueDateFilters.length === 1
-                    ? t(
-                        `tasks:backlog.filters.${
-                          selectedDueDateFilters[0] ===
-                          DUE_DATE_FILTER_VALUES.dueThisWeek
-                            ? "dueThisWeek"
-                            : selectedDueDateFilters[0] ===
-                                DUE_DATE_FILTER_VALUES.dueNextWeek
-                              ? "dueNextWeek"
-                              : "noDueDate"
-                        }`,
-                      )
-                    : t("tasks:boardFilters.selectedCount", {
-                        count: selectedDueDateFilters.length,
-                      })
-                }
-                onClear={() => updateFilter("dueDate", null)}
-              />
-            )}
-
-            {filters.labels && filters.labels.length > 0 && (
-              <ActiveFilterChip
-                subject={t("tasks:boardFilters.subjects.labels")}
-                operator={t("tasks:boardFilters.operators.includeAnyOf")}
-                value={t("tasks:boardFilters.selectedCount", {
-                  count: filters.labels.length,
-                })}
-                onClear={clearLabelFilters}
-              />
-            )}
+            <BoardFilterChips
+              project={project}
+              filters={filters}
+              updateFilter={updateFilter}
+              clearFilters={clearFilters}
+              hasActiveFilters={hasActiveFilters}
+              users={users}
+              workspaceLabels={workspaceLabels}
+            />
           </div>
 
           <div className="inline-flex items-center gap-1">
