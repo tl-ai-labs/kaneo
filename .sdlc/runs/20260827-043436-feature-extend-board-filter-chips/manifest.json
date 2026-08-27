@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "run_id": "20260827-043436-feature-extend-board-filter-chips",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": {
+    "name": "opus-only-v5",
+    "version": 1,
+    "tiers": [
+      "claude-opus-5"
+    ],
+    "hard_cost_cap_usd": 50
+  },
+  "auth_mode": "estimated",
+  "provenance_mix": {
+    "vendor": 1,
+    "estimated": 13
+  },
+  "outcome": "completed",
+  "gates": [
+    {
+      "gate": "gate-0",
+      "title": "Discovery Confirmation",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-1",
+      "title": "Requirements Approval",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-2",
+      "title": "Architecture Approval",
+      "response": "approved"
+    },
+    {
+      "gate": "P3-canary-escalation",
+      "title": "R-8 stringifier canary tripped",
+      "response": "option B (dot separator)"
+    },
+    {
+      "gate": "gate-3",
+      "title": "Security Review",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-4",
+      "title": "Final Acceptance",
+      "response": "accepted"
+    }
+  ],
+  "git": {
+    "rollback_anchor": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "committed": false,
+    "pushed": false,
+    "pr_opened": false,
+    "new_files_are_untracked": true,
+    "note": "git checkout restores the 5 modified files but will NOT remove the 5 new untracked files; .sdlc/ is deliberately not gitignored per the Gate 0 decision."
+  },
+  "verification": {
+    "test_command": "pnpm --filter @kaneo/web test",
+    "baseline": {
+      "files": 36,
+      "tests": 112,
+      "failing": 0
+    },
+    "after": {
+      "files": 39,
+      "tests": 200,
+      "failing": 0
+    },
+    "regressions": 0,
+    "typecheck": "clean (tsconfig.app.json + tsconfig.node.json)",
+    "format": "biome check clean on all 10 changed paths (non-writing verify; --write was scoped to changed files only, never repo-wide)"
+  },
+  "divergences_from_approved_requirements": [
+    {
+      "id": "FR-14",
+      "approved": "BoardSearchParams.assignee?: string[]",
+      "implemented": "assignee?: string (canonical joined list)",
+      "accepted_at": "gate-2",
+      "rationale": "main.tsx is off-limits and calls createRouter with no stringifySearch override; TanStack's default JSON-encodes object-typed values, so an array yields ?assignee=%5B%22u1%22%5D. The string[] shape is derived during render and never reaches the URL boundary."
+    },
+    {
+      "id": "OQ-2",
+      "approved": "comma separator, ?assignee=u1,u2",
+      "implemented": "dot separator, ?assignee=u1.u2; reader accepts BOTH dot and comma",
+      "accepted_at": "P3-canary-escalation",
+      "rationale": "qss.encode() builds the query via URLSearchParams.toString(), whose form-urlencoding turns a comma into %2C, one layer below stringifySearch. Of the characters surviving unescaped (. * - _), ids are cuid2 [a-z0-9]{24} so all were collision-free; dot reads best. Caught by the P3 canary before any board wiring."
+    }
+  ],
+  "open_items": [
+    {
+      "id": "AC-7-dnd-kit",
+      "severity": "needs-manual-verification",
+      "detail": "No automated coverage for drag-and-drop under active filters. Manual browser pass required: filter by an assignee, drag a card between columns, confirm it stays visible and the URL is unchanged. The realtime half of AC-7 IS covered by a test."
+    },
+    {
+      "id": "senior-m3",
+      "severity": "deferred",
+      "detail": "updateLabelFilter is dead in the UI after the R-9 rewrite. Retained deliberately: still part of the hook's public return, FR-11 requires backward compatibility, and controlled-mode tests exercise it."
+    },
+    {
+      "id": "i18n-locales",
+      "severity": "follow-up",
+      "out_of_allowlist": true,
+      "detail": "3 new keys exist only in i18n/en-US.json; the 16 other locales will report them missing.",
+      "commands": [
+        "pnpm i18n:check",
+        "pnpm i18n:check:fix"
+      ]
+    },
+    {
+      "id": "i18n-schema",
+      "severity": "follow-up",
+      "out_of_allowlist": true,
+      "detail": "Generated i18n/schema.json is stale (additionalProperties:false) until regenerated.",
+      "commands": [
+        "pnpm i18n:schema"
+      ]
+    },
+    {
+      "id": "gitignore-sdlc",
+      "severity": "informational",
+      "detail": ".sdlc/ is deliberately NOT gitignored per the Gate 0 decision, so `git add -A` will sweep run artifacts into a commit. By design; stage selectively for a code-only commit."
+    },
+    {
+      "id": "dep-advisory",
+      "severity": "pre-existing",
+      "from_this_run": false,
+      "detail": "pnpm audit --prod reports 2 highs (nanoid, deepmerge-ts) via better-auth in apps/api; not in the web runtime. No dependency was added or changed by this run."
+    },
+    {
+      "id": "provenance-backfill",
+      "severity": "informational",
+      "detail": "--before provenance calls were missed for the P2 and P5 new files and backfilled. All 10 paths are recorded with correct hashes; for those 4 new files the pre-write record was reconstructed, which is inert since they had no prior content."
+    }
+  ],
+  "review_findings": {
+    "security": {
+      "recommendation": "PASS WITH FOLLOW-UPS",
+      "medium": 1,
+      "low": 1,
+      "fixed_this_run": 2
+    },
+    "senior": {
+      "recommendation": "needs_changes",
+      "major": 1,
+      "minor": 6,
+      "fixed_this_run": 6,
+      "deferred": 1
+    }
+  },
+  "bugs_found_in_preexisting_code": [
+    {
+      "id": "R-9",
+      "detail": "toggleLabelGroup/clearLabelFilters looped over a per-id mutator; under the controlled model each iteration reads the same pre-change value and fires its own navigate, half-toggling a multi-id label group and creating N-1 junk history entries.",
+      "fixed": true
+    },
+    {
+      "id": "R-2/FR-19",
+      "detail": "handleCloseTaskSheet navigated with an empty search object, which silently discards every active filter once filters live in the URL.",
+      "fixed": true
+    }
+  ],
+  "packets": {
+    "planned": 7,
+    "succeeded": 7,
+    "failed_attempts": 1,
+    "failed_detail": "tp_P3_router_canary attempt 1 tripped the R-8 stringifier assumption by design; retried green after the OQ-2 separator revision."
+  },
+  "files_touched": [
+    {
+      "path": "i18n/en-US.json",
+      "kind": "modified"
+    },
+    {
+      "path": "apps/web/src/components/board/board-search-params.ts",
+      "kind": "new"
+    },
+    {
+      "path": "apps/web/src/components/board/board-search-params.test.ts",
+      "kind": "new"
+    },
+    {
+      "path": "apps/web/src/components/board/board-search-params.router.test.tsx",
+      "kind": "new"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "kind": "modified"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "apps/web/src/components/board/board-toolbar.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "kind": "modified"
+    },
+    {
+      "path": "apps/web/src/components/board/board-filter-chips.test.tsx",
+      "kind": "new"
+    },
+    {
+      "path": "apps/web/src/components/board/board-filter-chips.tsx",
+      "kind": "new"
+    }
+  ],
+  "cost": {
+    "by_phase": {
+      "codegen": {
+        "events": 6,
+        "input_tokens": 888391,
+        "input_tokens_cached": 752019,
+        "output_tokens": 20906,
+        "cost_usd": 1.723655
+      },
+      "requirements_analysis": {
+        "events": 1,
+        "input_tokens": 62000,
+        "input_tokens_cached": 40000,
+        "output_tokens": 4200,
+        "cost_usd": 0.235
+      },
+      "change_plan": {
+        "events": 1,
+        "input_tokens": 124600,
+        "input_tokens_cached": 60000,
+        "output_tokens": 22500,
+        "cost_usd": 0.9155
+      },
+      "plan_task_packets": {
+        "events": 1,
+        "input_tokens": 150000,
+        "input_tokens_cached": 95000,
+        "output_tokens": 4500,
+        "cost_usd": 0.435
+      },
+      "tests": {
+        "events": 2,
+        "input_tokens": 340000,
+        "input_tokens_cached": 290000,
+        "output_tokens": 6000,
+        "cost_usd": 0.555
+      },
+      "test_run": {
+        "events": 1,
+        "input_tokens": 202000,
+        "input_tokens_cached": 178000,
+        "output_tokens": 1800,
+        "cost_usd": 0.254
+      },
+      "senior_code_review": {
+        "events": 1,
+        "input_tokens": 112000,
+        "input_tokens_cached": 58000,
+        "output_tokens": 17000,
+        "cost_usd": 0.724
+      },
+      "security_review": {
+        "events": 1,
+        "input_tokens": 68000,
+        "input_tokens_cached": 34000,
+        "output_tokens": 9000,
+        "cost_usd": 0.412
+      }
+    },
+    "total": {
+      "events": 14,
+      "input_tokens": 1946991,
+      "input_tokens_cached": 1507019,
+      "output_tokens": 85906,
+      "cost_usd": 5.2542
+    },
+    "pricing_source": "opus-only-v5 policy pricing block (input $5/M, input_cached $0.50/M, output $25/M)",
+    "note": "estimated mode: 13 of 14 events use the ~3.8 chars/token heuristic; only the pre-check smoke packet carries vendor-reported tokens. Not vendor billing."
+  },
+  "artifacts": {
+    "intent_brief.md": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/intent_brief.md",
+    "discovery.md": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/discovery.md",
+    "baseline.json": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/baseline.json",
+    "requirements.md": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/requirements.md",
+    "change_plan.md": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/change_plan.md",
+    "packets.json": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/packets.json",
+    "review.md": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/review.md",
+    "security_review.md": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/security_review.md",
+    "telemetry.jsonl": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/telemetry.jsonl",
+    "provenance.json": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/provenance.json",
+    "SUMMARY.md": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/SUMMARY.md"
+  },
+  "finalized_at": "2026-08-27T06:10:49.945956Z",
+  "closeout": {
+    "committed": false,
+    "pushed": false,
+    "pr_opened": false,
+    "worktree": "10 file changes left uncommitted by explicit instruction",
+    "ledger_row_written_by_orchestrator": false,
+    "sdlc_fingerprint_written_by_orchestrator": false,
+    "write_contract_deactivated_by_orchestrator": false,
+    "note": "Ledger, .sdlc/CLAUDE-SDLC.md fingerprint and write-contract deactivation were deliberately NOT performed here; the invoking coordinator owns them. No duplicate rows to reconcile."
+  }
+}

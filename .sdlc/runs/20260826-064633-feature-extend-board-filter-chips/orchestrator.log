@@ -1,0 +1,14 @@
+MMO: 2026-08-26T10:33:00.751Z INFO   policy.load policy_name=flash-agsdk-only source=name version=1 model_count=1 rule_count=12
+MMO: 2026-08-26T10:33:00.754Z INFO   route.decide packet_id=smoke-agsdk phase=codegen task_type=smoke module=precheck rule_index=7 rule_reason="Mechanical tier — all codegen task types" model_id=flash
+MMO: 2026-08-26T10:33:00.765Z INFO   dispatch.start packet_id=smoke-agsdk model_id=flash max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-26T10:33:00.921Z INFO   agsdk.spawn packet_id=smoke-agsdk python_path=/home/sangeetha/.claude/plugins/cache/tilicho-ai-labs/mmo/0.6.0/mcp/model-dispatch/worker/.venv/bin/python arg_count=17 work_dir=/home/sangeetha/projects/kaneo timeout_sec=540 forwarded_env_keys="HOME,LOGNAME,PATH,SHELL,TERM,USER,NVM_INC,WSL2_GUI_APPS_ENABLED,WSL_DISTRO_NAME,NAME,PWD,MOTD_SHOWN,LANG,WSL_INTEROP,LS_COLORS,WAYLAND_DISPLAY,NVM_DIR,LESSCLOSE,LESSOPEN,DISPLAY,SHLVL,NVM_CD_FLAGS,XDG_RUNTIME_DIR,WSLENV,XDG_DATA_DIRS,DBUS_SESSION_BUS_ADDRESS,NVM_BIN,HOSTTYPE,PULSE_SERVER,_,NoDefaultCurrentDirectoryInExePath,COREPACK_ENABLE_AUTO_PIN,AI_AGENT,CLAUDE_CODE_ENTRYPOINT,CLAUDE_CODE_MESSAGING_SOCKET,CLAUDE_CODE_MESSAGING_TOKEN,CLAUDE_PROJECT_DIR,CLAUDE_CODE_SESSION_ID,CLAUDECODE,CLAUDE_PLUGIN_ROOT,CLAUDE_PLUGIN_DATA,GOOGLE_CLOUD_PROJECT,GOOGLE_CLOUD_LOCATION,PYTHONUNBUFFERED" project=ai-studies-console location=global
+MMO: 2026-08-26T10:33:06.620Z INFO   agsdk.exit packet_id=smoke-agsdk exit_code=0 timed_out=false duration_ms=5697 stdout_bytes=17 stderr_bytes=0
+MMO: 2026-08-26T10:33:06.734Z INFO   agsdk.sidecar packet_id=smoke-agsdk sdk=google-antigravity sdk_version=0.1.12 vertex_project=ai-studies-console vertex_location=global thinking=NONE tool_call_count=0 tool_calls_truncated=false
+MMO: 2026-08-26T10:33:06.762Z INFO   agsdk.diff packet_id=smoke-agsdk added_n=0 modified_n=0 removed_n=0 unchanged=1677 truncated=false unreadable_n=0
+MMO: 2026-08-26T10:33:06.765Z INFO   dispatch.end packet_id=smoke-agsdk model_id=flash ok=true terminal_reason=success tokens_in=10931 tokens_out=179 tokens_cached=0 cost_usd=0.018008 latency_ms=6000 attempts=1
+MMO: 2026-08-26T10:41:36.024Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-26T10:41:36.024Z INFO   preflight.model model_id=flash adapter=antigravity-worker ok=true
+MMO: 2026-08-26T10:41:36.024Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-26T10:42:37.757Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-26T10:42:37.757Z INFO   preflight.model model_id=flash adapter=antigravity-worker ok=true
+MMO: 2026-08-26T10:42:37.757Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global

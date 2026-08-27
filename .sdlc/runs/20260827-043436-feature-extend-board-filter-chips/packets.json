@@ -1,0 +1,201 @@
+[
+  {
+    "id": "tp_P1_i18n_keys",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "i18n_keys",
+    "module": "i18n",
+    "pass_id": "20260827-043436-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "artifact_path": "i18n/en-US.json",
+    "artifact_paths": ["i18n/en-US.json"],
+    "atomic_group": null,
+    "depends_on": [],
+    "instruction": "Add exactly three new static keys to i18n/en-US.json, preserving the file's TAB indentation. Into tasks.boardFilters.operators add \"is\": \"is\" and \"includes\": \"includes\". As a sibling of tasks.boardFilters.selectedCount add \"removeFilter\": \"Remove {{subject}} filter: {{value}}\". Change nothing else; do not remove operators.includeAnyOf. Do not touch any other locale file or i18n/schema.json.",
+    "inputs": [{ "path": "i18n/en-US.json", "reason": "tasks.boardFilters block, currently lines 1833-1852" }],
+    "outputSchema": { "type": "object", "properties": { "keys_added": { "type": "array", "items": { "type": "string" } } }, "required": ["keys_added"] },
+    "acceptance": [
+      "tasks.boardFilters.operators.is === 'is'",
+      "tasks.boardFilters.operators.includes === 'includes'",
+      "tasks.boardFilters.removeFilter === 'Remove {{subject}} filter: {{value}}'",
+      "tasks.boardFilters.operators.includeAnyOf still present",
+      "file remains valid JSON with tab indentation; no other key changed"
+    ],
+    "budget": { "maxInputTokens": 4000, "maxOutputTokens": 1000 }
+  },
+  {
+    "id": "tp_P2_url_contract_module",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "subtype": "pure_module",
+    "module": "board-search-params",
+    "pass_id": "20260827-043436-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/board/board-search-params.ts",
+    "artifact_paths": [
+      "apps/web/src/components/board/board-search-params.ts",
+      "apps/web/src/components/board/board-search-params.test.ts"
+    ],
+    "atomic_group": "P2",
+    "depends_on": [],
+    "instruction": "Create the pure URL-contract module exactly as specified in change_plan.md section 2.2: BoardSearchParams, ControlledBoardFilterValues, MAX_FILTER_VALUES=50, MAX_FILTER_VALUE_LENGTH=128, parseFilterList, serializeFilterList, validateBoardSearch, applyFilterSearch, clearTaskId. Every function must be total — no throw on any input, no JSON.parse, bounded allocation (check raw length BEFORE split). Ship the table-driven test file in the same packet covering the full section 2.4 malformed-input matrix, the caps, determinism/round-trip (FR-16), applyFilterSearch taskId preservation (FR-17) and clearTaskId (FR-19).",
+    "inputs": [{ "path": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/change_plan.md", "reason": "sections 2.2, 2.3, 2.4, 8.2" }],
+    "outputSchema": { "type": "object", "properties": { "module": { "type": "string" }, "test": { "type": "string" } }, "required": ["module", "test"] },
+    "acceptance": [
+      "no function throws for any input in the section 2.4 table",
+      "serializeFilterList returns undefined for null/empty/all-empty input, never '' and never []",
+      "serializeFilterList output is sorted and deduped so the same set always yields the same string",
+      "parseFilterList checks text.length > MAX_RAW_LENGTH before calling split",
+      "validateBoardSearch returns a fresh object so unknown search keys are dropped",
+      "clearTaskId clears only taskId and preserves assignee and labels"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 4000 }
+  },
+  {
+    "id": "tp_P3_router_canary",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "integration",
+    "module": "board-search-params",
+    "pass_id": "20260827-043436-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/board/board-search-params.router.test.tsx",
+    "artifact_paths": ["apps/web/src/components/board/board-search-params.router.test.tsx"],
+    "atomic_group": null,
+    "depends_on": ["tp_P2_url_contract_module"],
+    "instruction": "HARD GATE (R-8 canary). Build a real createRouter + createMemoryHistory + RouterProvider test over a SYNTHETIC route that uses the production validateBoardSearch and applyFilterSearch on a trivial probe component. Do not mount the real board route. Assert: (1) a filter change writes a LITERAL 'assignee=u1,u2' into location.searchStr with no %5B anywhere — this is the OQ-2 proof; (2) history.back() restores the prior filter state (AC-4); (3) garbage search params still mount (AC-5); (4) clearTaskId navigation keeps assignee and labels and drops taskId (AC-6/R-2 end-to-end pin). If assertion (1) fails, STOP the run and escalate — do NOT fall back to JSON encoding.",
+    "inputs": [
+      { "path": "apps/web/src/components/board/board-search-params.ts", "reason": "module under test" },
+      { "path": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/change_plan.md", "reason": "sections 2.1, 8.1, 8.2" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "test": { "type": "string" }, "canary_passed": { "type": "boolean" } }, "required": ["test", "canary_passed"] },
+    "acceptance": [
+      "location.searchStr contains the literal substring 'assignee=u1,u2'",
+      "location.searchStr contains no '%5B'",
+      "history.back() restores the previous assignee value",
+      "a route with ?assignee=&labels=,,&taskId= mounts without throwing",
+      "after clearTaskId navigation the searchStr retains assignee and labels and has no taskId"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 4000 }
+  },
+  {
+    "id": "tp_P4_controlled_hook",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "react_hook",
+    "module": "task-filters",
+    "pass_id": "20260827-043436-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+    "artifact_paths": [
+      "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx"
+    ],
+    "atomic_group": "P4",
+    "depends_on": [],
+    "instruction": "Implement the controlled hook exactly per change_plan.md sections 3.1-3.7. Add optional 4th options arg {controlled, onControlledChange}. Derive `filters` with useMemo during RENDER (never an effect) so a controlled value is truth on the first render — this is FR-9/AC-3. Funnel all four mutators through one private `commit` helper; onControlledChange is the ONLY write path for assignee/labels. Change the mirror effect to persist `filters` (the effective memo) instead of internal state — that one word resolves DR-13. Simplify the hydrate effect to setInternalFilters(readStoredBoardFilters(projectId)) on [projectId]. Export boardFiltersStorageKey and readStoredBoardFilters. Do NOT add a controlled-to-internal sync effect. Include the required INVARIANT code comment: at most one commit per event handler. Append a new describe block to the test file; DO NOT edit the two existing tests.",
+    "inputs": [
+      { "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts", "reason": "file under edit" },
+      { "path": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/change_plan.md", "reason": "sections 3.1-3.7, 8.2" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "hook": { "type": "string" }, "test": { "type": "string" } }, "required": ["hook", "test"] },
+    "acceptance": [
+      "the two pre-existing tests are byte-identical and still pass (FR-11)",
+      "no useEffect appears on the controlled-value to filters path (FR-9/NFR-1)",
+      "the AC-3 render probe records the filtered count on renders[0] and on every render",
+      "storage is overwritten by the controlled value, never the reverse (FR-13)",
+      "updateFilter on status/priority/dueDate does not call onControlledChange",
+      "the INVARIANT comment about one commit per handler is present in the source"
+    ],
+    "budget": { "maxInputTokens": 12000, "maxOutputTokens": 6000 }
+  },
+  {
+    "id": "tp_P5_chip_row",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "subtype": "react_component",
+    "module": "board-chips",
+    "pass_id": "20260827-043436-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/board/board-filter-chips.tsx",
+    "artifact_paths": [
+      "apps/web/src/components/board/board-filter-chips.tsx",
+      "apps/web/src/components/board/board-filter-chips.test.tsx"
+    ],
+    "atomic_group": "P5",
+    "depends_on": ["tp_P1_i18n_keys"],
+    "instruction": "Create the extracted chip row per change_plan.md section 5. Move ActiveFilterChip and StackedIcons here verbatim from board-toolbar.tsx (move, not copy). Return a Fragment, not a wrapper div, so the parent flex-wrap layout is unchanged; return null when !hasActiveFilters (FR-7). Rows 1-3 (status/priority/dueDate) are a VERBATIM lift of the aggregate chips — same JSX, class strings and t() keys. Rows 4-5 decompose into one chip per assignee and one chip per label GROUP (name+color, U+0000-joined group key). Remove-one clears the subject to null when it was the last value (FR-4), and issues exactly ONE updateFilter call. Add a clear-all control. Every control is a real <button type='button'> with an aria-label from tasks:boardFilters.removeFilter. Ship the test file in the same packet covering all five subjects, per-value removal, group removal, clear-all, empty case, unresolvable ids, and a11y.",
+    "inputs": [
+      { "path": "apps/web/src/components/board/board-toolbar.tsx", "reason": "source of the chip block being moved, lines 78-131 and 527-643" },
+      { "path": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/change_plan.md", "reason": "sections 5.1-5.8, 8.1, 8.2" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "component": { "type": "string" }, "test": { "type": "string" } }, "required": ["component", "test"] },
+    "acceptance": [
+      "renders one chip per assignee and one chip per label group",
+      "status, priority and dueDate each render exactly one aggregate chip (R-4)",
+      "removing the last value of a subject calls updateFilter with null, not []",
+      "removing a label chip removes every id in that group in ONE updateFilter call",
+      "unresolvable label ids render no chip and do not throw; unresolvable assignee ids render the unknown-person copy",
+      "renders nothing at all when no filter is active",
+      "every control is a BUTTON element with type='button'",
+      "no literal English copy in the rendered output — i18n keys only (AC-8)"
+    ],
+    "budget": { "maxInputTokens": 16000, "maxOutputTokens": 8000 }
+  },
+  {
+    "id": "tp_P6_toolbar_and_route",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "subtype": "wiring",
+    "module": "board",
+    "pass_id": "20260827-043436-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/board/board-toolbar.tsx",
+    "artifact_paths": [
+      "apps/web/src/components/board/board-toolbar.tsx",
+      "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx"
+    ],
+    "atomic_group": "P6",
+    "depends_on": ["tp_P2_url_contract_module", "tp_P4_controlled_hook", "tp_P5_chip_row"],
+    "instruction": "ATOMIC PAIR — both files must land together or tsc fails in between (removing updateLabelFilter from BoardToolbarProps while board.tsx still passes it fails JSX excess-property checks). In board-toolbar.tsx: delete the inline chip block and the eight symbols listed in change_plan.md section 5.6 (ActiveFilterChipProps, ActiveFilterChip, StackedIcons, getStatusDisplayName, getAssigneeDisplayName, getAssigneeAvatar, the X lucide import, the whole ReactNode type import) — each is a hard tsc error under noUnusedLocals (R-11); retain the twelve listed symbols; render <BoardFilterChips /> in the chips' exact former position after <SortControl />; rewrite toggleLabelGroup and clearLabelFilters to single-commit updateFilter form (R-9); drop the updateLabelFilter prop. In board.tsx: validateSearch: validateBoardSearch; derive assignee/labels from Route.useSearch() with useMemo on the PRIMITIVE strings and memoize the controlled object (R-13); pass controlled + onControlledChange to the hook, navigating WITHOUT replace on genuine filter changes; add the one-shot storage seed of section 4.1 with replace:true; FIX handleCloseTaskSheet to search: (previous) => clearTaskId(previous) — the search:{} form must not survive anywhere in the file (FR-19/R-2); stop passing updateLabelFilter.",
+    "inputs": [
+      { "path": "apps/web/src/components/board/board-toolbar.tsx", "reason": "file under edit" },
+      { "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx", "reason": "file under edit" },
+      { "path": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/change_plan.md", "reason": "sections 4.1, 5.6, 5.7, 6" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "toolbar": { "type": "string" }, "route": { "type": "string" } }, "required": ["toolbar", "route"] },
+    "acceptance": [
+      "the literal 'search: {}' appears nowhere in board.tsx (R-2 reviewer rejection criterion)",
+      "all eight orphaned symbols are gone from board-toolbar.tsx and the twelve retained ones remain",
+      "toggleLabelGroup and clearLabelFilters each issue exactly one updateFilter call (R-9)",
+      "updateLabelFilter is no longer a BoardToolbarProps member nor passed from board.tsx",
+      "the controlled object is memoized on primitive search strings (R-13)",
+      "the storage seed is one-shot, guarded on a ref, uses replace:true, and no-ops when storage holds nothing",
+      "tsc --noEmit -p tsconfig.app.json passes after both files land"
+    ],
+    "budget": { "maxInputTokens": 24000, "maxOutputTokens": 10000 }
+  },
+  {
+    "id": "tp_P7_verification_sweep",
+    "phase": "tests",
+    "task_type": "test_run",
+    "subtype": "suite",
+    "module": "cross",
+    "pass_id": "20260827-043436-feature-extend-board-filter-chips",
+    "intent": "feature-extend",
+    "artifact_path": null,
+    "artifact_paths": [],
+    "atomic_group": null,
+    "depends_on": ["tp_P1_i18n_keys", "tp_P2_url_contract_module", "tp_P3_router_canary", "tp_P4_controlled_hook", "tp_P5_chip_row", "tp_P6_toolbar_and_route"],
+    "instruction": "Run pnpm --filter @kaneo/web test and compare against the 36-file / 112-test / 0-failing baseline. Run tsc --noEmit -p tsconfig.app.json. Run a targeted NON-WRITING biome check scoped to the changed paths only — never pnpm lint or biome check --write, which reformat unrelated files (NFR-7/R-6). Do not commit, push or open a PR.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "tests_passed": { "type": "number" }, "tests_failed": { "type": "number" }, "typecheck_ok": { "type": "boolean" }, "format_ok": { "type": "boolean" } }, "required": ["tests_passed", "tests_failed", "typecheck_ok", "format_ok"] },
+    "acceptance": [
+      "test count >= 112 passing with 0 failing",
+      "tsc --noEmit exits 0",
+      "biome check on the changed paths reports no diagnostics",
+      "no commit, push or PR is made"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 2000 }
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-27T04:42:08.148Z",
+  "steps": {
+    "discovery_smoke": {
+      "status": "pass",
+      "note": "Tier 1 completed cleanly; Tier 2b stack-profile written (React 19 + Vite + TanStack, no pre-authored adapter)"
+    },
+    "test_command_probe": {
+      "status": "skip",
+      "note": "No test command provided (unknown at discovery). Gate 0 will ask the user."
+    },
+    "dispatch_smoke": {
+      "status": "pass",
+      "tiers_tested": [
+        "opus"
+      ]
+    },
+    "write_contract_smoke": {
+      "status": "pass",
+      "path": "/home/sangeetha/projects/kaneo/.sdlc/pre-check/hello.txt",
+      "note": "Wrote a file under .sdlc/pre-check/; write-contract auto-allowlists paths under .sdlc/."
+    },
+    "rollback_smoke": {
+      "status": "pass",
+      "path": "/home/sangeetha/projects/kaneo/.sdlc/pre-check/hello.txt"
+    },
+    "report_finalized": {
+      "status": "pass",
+      "note": "Script-side steps recorded. Steps 1 (discovery) and 3 (dispatch) are the orchestrator's responsibility and get posted via --record."
+    }
+  },
+  "ok": true
+}

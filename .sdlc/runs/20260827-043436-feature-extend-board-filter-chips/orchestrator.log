@@ -1,0 +1,42 @@
+MMO: 2026-08-27T04:35:06.809Z WARN   packet.validate.fail packet_id=smoke-1 missing_fields="module,inputs,outputSchema,acceptance,budget,pass_id"
+MMO: 2026-08-27T04:35:13.092Z WARN   packet.validate.fail packet_id=smoke-1 missing_fields=inputs
+MMO: 2026-08-27T04:35:19.141Z WARN   packet.validate.fail packet_id=smoke-1 missing_fields=budget
+MMO: 2026-08-27T04:35:25.810Z INFO   policy.load policy_name=opus-only-v5 source=name version=1 model_count=1 rule_count=3
+MMO: 2026-08-27T04:35:25.811Z INFO   route.decide packet_id=smoke-1 phase=codegen task_type=smoke module=precheck rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-27T04:35:25.829Z INFO   dispatch.start packet_id=smoke-1 model_id=opus max_out=64 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-27T04:35:30.560Z INFO   dispatch.end packet_id=smoke-1 model_id=opus ok=true terminal_reason=success tokens_in=12391 tokens_out=6 tokens_cached=16019 cost_usd=0.1331545 latency_ms=4730 attempts=1
+MMO: 2026-08-27T04:47:05.528Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-27T04:47:05.529Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-27T04:47:05.530Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-27T04:47:16.358Z INFO   run.start run_id=20260827-043436-feature-extend-board-filter-chips mode=brownfield intent=feature-extend policy=opus-only-v5 auth_mode=estimated code_dir=/home/sangeetha/projects/kaneo output_dir=.sdlc/runs/20260827-043436-feature-extend-board-filter-chips
+MMO: 2026-08-27T04:47:30.145Z INFO   phase.start run_id=20260827-043436-feature-extend-board-filter-chips phase=requirements_analysis form=intent-specific
+MMO: 2026-08-27T04:52:16.051Z INFO   phase.end run_id=20260827-043436-feature-extend-board-filter-chips phase=requirements_analysis form=intent-specific
+MMO: 2026-08-27T04:52:16.087Z INFO   gate.open run_id=20260827-043436-feature-extend-board-filter-chips gate=gate-1 title="Requirements Approval"
+MMO: 2026-08-27T04:54:15.750Z INFO   gate.resolved run_id=20260827-043436-feature-extend-board-filter-chips gate=gate-1 response=approved
+MMO: 2026-08-27T04:54:15.816Z INFO   phase.start run_id=20260827-043436-feature-extend-board-filter-chips phase=change_plan form=intent-specific
+MMO: 2026-08-27T04:54:15.853Z INFO   delegate.subagent.start run_id=20260827-043436-feature-extend-board-filter-chips phase=change_plan subagent=architect
+MMO: 2026-08-27T05:08:47.634Z INFO   delegate.subagent.end run_id=20260827-043436-feature-extend-board-filter-chips phase=change_plan subagent=architect ok=true artifact_path=.sdlc/runs/20260827-043436-feature-extend-board-filter-chips/change_plan.md
+MMO: 2026-08-27T05:09:59.530Z INFO   phase.end run_id=20260827-043436-feature-extend-board-filter-chips phase=change_plan form=intent-specific
+MMO: 2026-08-27T05:09:59.591Z INFO   gate.open run_id=20260827-043436-feature-extend-board-filter-chips gate=gate-2 title="Architecture Approval"
+MMO: 2026-08-27T05:13:06.634Z INFO   gate.resolved run_id=20260827-043436-feature-extend-board-filter-chips gate=gate-2 response=approved
+MMO: 2026-08-27T05:13:06.676Z INFO   phase.start run_id=20260827-043436-feature-extend-board-filter-chips phase=plan_task_packets form=default
+MMO: 2026-08-27T05:14:59.417Z INFO   phase.end run_id=20260827-043436-feature-extend-board-filter-chips phase=plan_task_packets form=default
+MMO: 2026-08-27T05:14:59.455Z INFO   phase.start run_id=20260827-043436-feature-extend-board-filter-chips phase=execute_packets form=default
+MMO: 2026-08-27T05:19:13.193Z WARN   gate.open run_id=20260827-043436-feature-extend-board-filter-chips gate=P3-canary-escalation title="R-8 stringifier canary tripped"
+MMO: 2026-08-27T05:21:56.112Z INFO   gate.resolved run_id=20260827-043436-feature-extend-board-filter-chips gate=P3-canary-escalation response=approved
+MMO: 2026-08-27T05:30:19.888Z INFO   phase.end run_id=20260827-043436-feature-extend-board-filter-chips phase=execute_packets form=default
+MMO: 2026-08-27T05:30:19.927Z INFO   phase.start run_id=20260827-043436-feature-extend-board-filter-chips phase=senior_code_review form=default
+MMO: 2026-08-27T05:30:19.974Z INFO   delegate.subagent.start run_id=20260827-043436-feature-extend-board-filter-chips phase=senior_code_review subagent=senior-reviewer
+MMO: 2026-08-27T05:31:10.051Z INFO   phase.start run_id=20260827-043436-feature-extend-board-filter-chips phase=security_review form=intent-specific
+MMO: 2026-08-27T05:31:10.254Z INFO   delegate.subagent.start run_id=20260827-043436-feature-extend-board-filter-chips phase=security_review subagent=security-reviewer
+MMO: 2026-08-27T05:42:49.838Z INFO   delegate.subagent.end run_id=20260827-043436-feature-extend-board-filter-chips phase=senior_code_review subagent=senior-reviewer ok=true artifact_path=.sdlc/runs/20260827-043436-feature-extend-board-filter-chips/review.md
+MMO: 2026-08-27T05:42:49.879Z INFO   delegate.subagent.end run_id=20260827-043436-feature-extend-board-filter-chips phase=security_review subagent=security-reviewer ok=true artifact_path=.sdlc/runs/20260827-043436-feature-extend-board-filter-chips/security_review.md
+MMO: 2026-08-27T05:47:15.758Z INFO   phase.end run_id=20260827-043436-feature-extend-board-filter-chips phase=senior_code_review form=default
+MMO: 2026-08-27T05:47:15.801Z INFO   phase.end run_id=20260827-043436-feature-extend-board-filter-chips phase=security_review form=intent-specific
+MMO: 2026-08-27T05:47:15.864Z INFO   gate.open run_id=20260827-043436-feature-extend-board-filter-chips gate=gate-3 title="Security Review"
+MMO: 2026-08-27T05:57:16.286Z INFO   gate.resolved run_id=20260827-043436-feature-extend-board-filter-chips gate=gate-3 response=approved
+MMO: 2026-08-27T05:57:16.331Z INFO   phase.start run_id=20260827-043436-feature-extend-board-filter-chips phase=generate_final_report form=default
+MMO: 2026-08-27T06:03:58.032Z INFO   phase.end run_id=20260827-043436-feature-extend-board-filter-chips phase=generate_final_report form=default
+MMO: 2026-08-27T06:03:58.099Z INFO   gate.open run_id=20260827-043436-feature-extend-board-filter-chips gate=gate-4 title="Final Acceptance"
+MMO: 2026-08-27T06:10:49.919Z INFO   gate.resolved run_id=20260827-043436-feature-extend-board-filter-chips gate=gate-4 response=approved
+MMO: 2026-08-27T06:10:49.989Z INFO   run.end run_id=20260827-043436-feature-extend-board-filter-chips outcome=completed total_cost_usd=5.2542

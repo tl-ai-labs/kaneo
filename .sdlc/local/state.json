@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "run_id": "20260827-043436-feature-extend-board-filter-chips",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "opus-only-v5",
+  "auth_mode": "estimated",
+  "phase": "complete",
+  "status": "terminal",
+  "gate": null,
+  "gates_resolved": [
+    {
+      "gate": "gate-0",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-1",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-2",
+      "response": "approved"
+    },
+    {
+      "gate": "P3-canary-escalation",
+      "response": "option B (dot separator)"
+    },
+    {
+      "gate": "gate-3",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-4",
+      "response": "accepted"
+    }
+  ],
+  "gate_1_decisions": {
+    "OQ-1": "URL authoritative; localStorage first-mount fallback only; seed via navigate({replace:true}) only when URL carries neither param",
+    "OQ-2": "comma-separated human-readable ?assignee=u1,u2; validateSearch drops garbage safely, never throws",
+    "OQ-3": "per label group (name + color), matching existing dropdown grouping",
+    "OQ-4": "chip row inline in existing toolbar row (today's position)"
+  },
+  "carried_directives": [
+    "FR-19 handleCloseTaskSheet search:{} fix is IN SCOPE for this run, not deferred",
+    "i18n follow-ups (16 non-en-US locales, generated i18n/schema.json) are out-of-allowlist; record commands in Phase 9 report only"
+  ],
+  "next_phase": null,
+  "test_baseline": {
+    "command": "pnpm --filter @kaneo/web test",
+    "files": 36,
+    "tests": 112,
+    "failing": 0,
+    "exit_code": 0
+  },
+  "gate_title": null,
+  "artifact": ".sdlc/runs/20260827-043436-feature-extend-board-filter-chips/SUMMARY.md",
+  "open_decisions_for_gate_2": [
+    "FR-14 deviation: BoardSearchParams stores assignee?: string (comma-joined) not string[]; forced by off-limits main.tsx default stringifySearch",
+    "R-8 canary packet P3 verifies the TanStack default-stringifier assumption before board wiring"
+  ],
+  "packets_complete": [
+    "tp_P1_i18n_keys",
+    "tp_P2_url_contract_module",
+    "tp_P3_router_canary",
+    "tp_P4_controlled_hook",
+    "tp_P5_chip_row",
+    "tp_P6_toolbar_and_route",
+    "tp_P7_verification_sweep"
+  ],
+  "packets_blocked": [],
+  "canary_finding": {
+    "observed": "?assignee=u1%2Cu2",
+    "expected_by_OQ2": "?assignee=u1,u2",
+    "root_cause": "qss.encode() uses URLSearchParams.toString() (form-urlencoding) AFTER stringifyValue passes the string through unchanged; comma becomes %2C. Not the JSON-encoding failure mode the architect anticipated.",
+    "functional_impact": "none - decode() reverses it, round-trip exact, 3 substantive canary tests pass",
+    "separators_surviving_encoding": [
+      ".",
+      "*",
+      "-",
+      "_"
+    ],
+    "id_format": "cuid2 [a-z0-9]{24} - all four candidate separators are collision-free"
+  },
+  "verification": {
+    "tests": "39 files / 200 tests passing",
+    "baseline": "36 files / 112 tests",
+    "regressions": 0,
+    "typecheck": "clean (app+node)",
+    "format": "biome check clean on 10 changed paths"
+  },
+  "divergences_for_final_report": [
+    "FR-14: BoardSearchParams.assignee/labels are string (dot-joined) not string[] - forced by off-limits main.tsx default stringifySearch (accepted at Gate 2)",
+    "OQ-2: comma separator revised to dot at the P3 canary escalation - qss.encode() uses URLSearchParams.toString() which percent-encodes comma to %2C; reader accepts both separators (accepted by user)"
+  ],
+  "review_outcomes": {
+    "security": "PASS WITH FOLLOW-UPS - 1 Medium + 1 Low, both fixed this run",
+    "senior": "needs_changes - 1 major + 6 minor; 6 fixed, 1 (m3) deferred with rationale"
+  },
+  "outcome": "completed",
+  "finalized_at": "2026-08-27T06:10:49.945956Z"
+}

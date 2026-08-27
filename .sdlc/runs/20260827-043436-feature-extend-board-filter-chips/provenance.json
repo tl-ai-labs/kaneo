@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "run_id": "20260827-043436-feature-extend-board-filter-chips",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "i18n/en-US.json",
+      "existed_before": true,
+      "sha_before": "sha256:cdf16d5924db4dfe140bf8ec73dce566b1fe80669a1fa4587fcbd4517757a092",
+      "sha_after": "sha256:f6da7b9fcfd71d9c7197551eef456338060f3a77547639f19480d96738f42a42",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_P1_i18n_keys",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-search-params.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:a35cbc6f07d97f0aae78a3d738ec48be4138ef26edce0e816e6db511fee68206",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_P2_url_contract_module",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-search-params.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:c37c3594024cecc9e55ac871300075ab7d531c934a3823f4cb7263c895754163",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_P2_url_contract_module",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-search-params.router.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:740734802b6437484ee680dd8e4ef61ca0160c2a9f370294a1a3d1209a9a8fc7",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_P3_router_canary",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "existed_before": true,
+      "sha_before": "sha256:68006baec18174fa61e96237e0c49f05e02972cc740c2c623eeb1b551b91bdbb",
+      "sha_after": "sha256:35f2abbb5a4a4785fa3e46e4dfec596af979763c7cd6f901897712765deb6045",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_P4_controlled_hook",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:eb005cd71ff66234b5eaad6852db5e77a4eecfbfbf711dc735eb75e0905f596e",
+      "sha_after": "sha256:d8b35d2129147f033d82fd45eadcd97937042d22c468266b6c0572b9d3a93005",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_P4_controlled_hook",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-toolbar.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:f33f4c13becbc6257961a5a34cb32838f6eacd5adbf96f4e31686b815fecb716",
+      "sha_after": "sha256:274a7db859cdfc62e94813a69ed9e744eaa6781256884ce6eb97b7cbdebb933c",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_P6_toolbar_and_route",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:8422b157f2a4d1c28a0b2d2ebc61167c528a0723ce957db23963ad609f452411",
+      "sha_after": "sha256:16404c75f8dff7bd5d596aa3adb8a64d1dabb99d59433dbf7c9e87006a67fde7",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_P6_toolbar_and_route",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-filter-chips.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:a9d88ab5203bb5e0cb5244f137bdaa4ad4c08dcd7d82f1d60ef45331aa99d530",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_P5_chip_row",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-filter-chips.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:f40661d68a11f1b67ea38462e0576456008d8a43ebea17790e0870cdd5adf018",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_P5_chip_row",
+      "written_at": "2026-08-27T05:46:47.084633Z"
+    }
+  ]
+}

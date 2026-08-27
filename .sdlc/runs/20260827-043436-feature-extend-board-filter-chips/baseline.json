@@ -1,0 +1,730 @@
+{
+  "schema_version": 1,
+  "plugin_version": "0.6.0",
+  "built_at": "2026-08-27T04:38:57.907Z",
+  "run_id": "20260827-043436-feature-extend-board-filter-chips",
+  "discovery_mode": "first-time",
+  "discovery_tier": "tier-1 + tier-2b",
+  "git": {
+    "head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "branch": "feature-extend-3/opus-only",
+    "dirty": true,
+    "dirty_detail": {
+      "tracked_modified": [],
+      "untracked": [
+        ".claude/settings.local.json",
+        ".hook-logs/",
+        ".sdlc/"
+      ],
+      "note": "No tracked file is modified. All dirt is untracked tooling output; the worktree is clean with respect to user source."
+    },
+    "remotes": [
+      {
+        "name": "origin",
+        "url": "https://github.com/tl-ai-labs/kaneo.git"
+      }
+    ],
+    "gitignore_covers_sdlc": false
+  },
+  "topology": {
+    "top_level_dirs": [
+      ".agents",
+      ".claude",
+      ".cursor",
+      ".devcontainer",
+      ".github",
+      ".husky",
+      ".turbo",
+      ".vscode",
+      "apps",
+      "charts",
+      "deploy",
+      "i18n",
+      "packages",
+      "plans",
+      "scripts",
+      "sentry",
+      "skills",
+      "tests"
+    ],
+    "app_dirs": [
+      "apps/api",
+      "apps/docs",
+      "apps/site",
+      "apps/web"
+    ],
+    "package_dirs": [
+      "packages/email",
+      "packages/libs",
+      "packages/mcp",
+      "packages/permissions",
+      "packages/planka-import",
+      "packages/typescript-config"
+    ],
+    "test_dirs": [
+      "tests/api",
+      "tests/api-integration",
+      "apps/web/src/**/*.test.{ts,tsx}"
+    ],
+    "entry_points": [
+      "apps/web/src/main.tsx",
+      "apps/api/src/index.ts",
+      "apps/site/app/page.tsx"
+    ],
+    "tracked_file_count": 1578
+  },
+  "stacks": [
+    {
+      "manifest": "package.json",
+      "stack": "node-typescript",
+      "role": "monorepo-root",
+      "detected_frameworks": [
+        "turborepo",
+        "pnpm-workspaces",
+        "biome",
+        "husky",
+        "commitlint"
+      ]
+    },
+    {
+      "manifest": "apps/web/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/web",
+      "role": "primary-target-for-this-run",
+      "detected_frameworks": [
+        "react-19",
+        "vite-8",
+        "tanstack-router",
+        "tanstack-query",
+        "zustand",
+        "nanostores",
+        "tailwindcss-4",
+        "radix-ui",
+        "base-ui",
+        "framer-motion",
+        "dnd-kit",
+        "tiptap",
+        "react-hook-form",
+        "zod",
+        "i18next",
+        "vitest",
+        "testing-library",
+        "jsdom",
+        "sentry"
+      ]
+    },
+    {
+      "manifest": "apps/api/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/api",
+      "detected_frameworks": [
+        "hono",
+        "hono-openapi",
+        "better-auth",
+        "drizzle-orm",
+        "postgres-pg",
+        "valibot",
+        "ioredis",
+        "modelcontextprotocol-sdk",
+        "vitest",
+        "sentry"
+      ]
+    },
+    {
+      "manifest": "apps/site/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/site",
+      "detected_frameworks": [
+        "next",
+        "react",
+        "tailwindcss"
+      ]
+    },
+    {
+      "manifest": null,
+      "stack": "docs-content",
+      "root": "apps/docs",
+      "role": "content-only",
+      "detected_frameworks": [
+        "mdx",
+        "docs.json"
+      ],
+      "note": "No package.json at apps/docs — not a workspace package; content-only (docs.json + .mdx)."
+    },
+    {
+      "manifest": "packages/libs/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/libs",
+      "detected_frameworks": [
+        "hono-client",
+        "vitest"
+      ]
+    },
+    {
+      "manifest": "packages/permissions/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/permissions",
+      "detected_frameworks": [
+        "better-auth",
+        "vitest"
+      ]
+    },
+    {
+      "manifest": "packages/email/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/email",
+      "detected_frameworks": [
+        "vitest"
+      ]
+    },
+    {
+      "manifest": "packages/mcp/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/mcp",
+      "detected_frameworks": [
+        "modelcontextprotocol-sdk",
+        "vitest"
+      ]
+    },
+    {
+      "manifest": "packages/planka-import/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/planka-import",
+      "detected_frameworks": [
+        "vitest"
+      ]
+    },
+    {
+      "manifest": "packages/typescript-config/package.json",
+      "stack": "node-typescript",
+      "package": "@kaneo/typescript-config",
+      "detected_frameworks": []
+    }
+  ],
+  "test_command_proposed": "pnpm --filter @kaneo/web test",
+  "test_command_source": "apps/web/package.json#scripts.test (vitest run --config vitest.config.ts); scoped to the package this run targets",
+  "test_command_repo_wide": "pnpm test",
+  "test_command_repo_wide_source": "package.json#scripts.test (turbo test) — same command CI runs in .github/workflows/ci.yml",
+  "test_command_alternatives": [
+    {
+      "command": "pnpm --filter @kaneo/web test",
+      "scope": "apps/web only (fast, jsdom, ~unit/component)",
+      "recommended": true
+    },
+    {
+      "command": "pnpm test",
+      "scope": "all workspaces via turbo (matches CI 'test' job)"
+    },
+    {
+      "command": "pnpm test:integration",
+      "scope": "PostgreSQL-backed API integration tests; needs a live database"
+    },
+    {
+      "command": "pnpm typecheck",
+      "scope": "turbo typecheck across packages"
+    },
+    {
+      "command": "pnpm exec biome ci .",
+      "scope": "lint/format gate that CI and the husky pre-commit hook both run"
+    }
+  ],
+  "test_command_confidence": "high",
+  "test_runs_performed": false,
+  "test_baseline_note": "Discovery is read-only; no test suite was executed. Pre-existing failures are UNKNOWN. Gate 0 or Phase 7 should capture a green/red baseline before edits.",
+  "docs_present": [
+    {
+      "path": "README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "AGENTS.md",
+      "kind": "agent-instructions"
+    },
+    {
+      "path": "CLAUDE.md",
+      "kind": "claude-instructions"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "kind": "contributing"
+    },
+    {
+      "path": "SECURITY.md",
+      "kind": "security-policy"
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "kind": "code-of-conduct"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "kind": "changelog"
+    },
+    {
+      "path": "ENVIRONMENT_SETUP.md",
+      "kind": "environment-setup"
+    },
+    {
+      "path": "apps/docs/README.md",
+      "kind": "docs-readme"
+    },
+    {
+      "path": "apps/docs/index.mdx",
+      "kind": "product-docs"
+    },
+    {
+      "path": "tests/api-integration/README.md",
+      "kind": "test-readme"
+    },
+    {
+      "path": "plans/",
+      "kind": "plans-dir"
+    }
+  ],
+  "adr_dirs_found": [],
+  "ai_configs_detected": [
+    {
+      "path": ".claude/",
+      "type": "claude-code-project-config"
+    },
+    {
+      "path": ".claude/settings.local.json",
+      "type": "claude-code-local-settings",
+      "tracked": false
+    },
+    {
+      "path": ".claude/skills/",
+      "type": "claude-code-skills",
+      "count": 13
+    },
+    {
+      "path": "CLAUDE.md",
+      "type": "claude-instructions"
+    },
+    {
+      "path": "AGENTS.md",
+      "type": "agent-instructions"
+    },
+    {
+      "path": ".cursor/rules/",
+      "type": "cursor",
+      "count": 7,
+      "files": [
+        ".cursor/rules/project-overview.mdc",
+        ".cursor/rules/backend-api.mdc",
+        ".cursor/rules/frontend-web.mdc",
+        ".cursor/rules/database-schema.mdc",
+        ".cursor/rules/development-conventions.mdc",
+        ".cursor/rules/deployment-devops.mdc",
+        ".cursor/rules/cursor-rules.mdc"
+      ]
+    },
+    {
+      "path": ".agents/skills/",
+      "type": "agent-skills-mirror",
+      "count": 10
+    },
+    {
+      "path": "skills/",
+      "type": "agent-skills-source",
+      "count": 10
+    },
+    {
+      "path": "skills-lock.json",
+      "type": "agent-skills-lockfile"
+    },
+    {
+      "path": ".coderabbit.yaml",
+      "type": "ai-code-review"
+    },
+    {
+      "path": ".devcontainer/",
+      "type": "devcontainer"
+    }
+  ],
+  "ai_configs_absent": [
+    ".mcp.json",
+    "CLAUDE.local.md",
+    ".cursorrules",
+    ".aider.conf.yml",
+    ".continue/",
+    ".roo/",
+    ".github/copilot-instructions.md",
+    "gemini*.{yaml,json}"
+  ],
+  "repo_local_routing_policy": null,
+  "env_keys_by_file": {
+    ".env": [
+      "AUTH_SECRET",
+      "DATABASE_URL",
+      "KANEO_API_URL",
+      "KANEO_CLIENT_URL",
+      "POSTGRES_DB",
+      "POSTGRES_HOST",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_PORT",
+      "POSTGRES_USER"
+    ],
+    ".env.local": [
+      "POSTGRES_DB",
+      "POSTGRES_HOST",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_PORT",
+      "POSTGRES_USER"
+    ],
+    ".env.sample": [
+      "AUTH_SECRET",
+      "GITHUB_APP_ID",
+      "GITHUB_APP_NAME",
+      "GITHUB_CLIENT_ID",
+      "GITHUB_CLIENT_SECRET",
+      "GITHUB_OAUTH_CLIENT_ID",
+      "GITHUB_OAUTH_CLIENT_SECRET",
+      "GITHUB_PRIVATE_KEY",
+      "GITHUB_WEBHOOK_SECRET",
+      "KANEO_CLIENT_URL",
+      "POSTGRES_DB",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_USER",
+      "SMTP_FROM",
+      "SMTP_HOST",
+      "SMTP_PASSWORD",
+      "SMTP_PORT",
+      "SMTP_REQUIRE_TLS",
+      "SMTP_SECURE",
+      "SMTP_USER"
+    ],
+    "apps/api/.env.test.example": [
+      "AUTH_SECRET",
+      "DATABASE_URL",
+      "DISABLE_GUEST_ACCESS",
+      "KANEO_API_URL",
+      "KANEO_CLIENT_URL",
+      "NODE_ENV"
+    ],
+    "apps/web/.env.development": [
+      "VITE_API_URL",
+      "VITE_CLIENT_URL"
+    ],
+    "apps/web/.env.production": [
+      "VITE_API_URL",
+      "VITE_CLIENT_URL",
+      "VITE_SENTRY_DSN",
+      "VITE_TURNSTILE_SITE_KEY"
+    ]
+  },
+  "env_keys_all": [
+    "AUTH_SECRET",
+    "DATABASE_URL",
+    "DISABLE_GUEST_ACCESS",
+    "GITHUB_APP_ID",
+    "GITHUB_APP_NAME",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GITHUB_OAUTH_CLIENT_ID",
+    "GITHUB_OAUTH_CLIENT_SECRET",
+    "GITHUB_PRIVATE_KEY",
+    "GITHUB_WEBHOOK_SECRET",
+    "KANEO_API_URL",
+    "KANEO_CLIENT_URL",
+    "NODE_ENV",
+    "POSTGRES_DB",
+    "POSTGRES_HOST",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_PORT",
+    "POSTGRES_USER",
+    "SMTP_FROM",
+    "SMTP_HOST",
+    "SMTP_PASSWORD",
+    "SMTP_PORT",
+    "SMTP_REQUIRE_TLS",
+    "SMTP_SECURE",
+    "SMTP_USER",
+    "VITE_API_URL",
+    "VITE_CLIENT_URL",
+    "VITE_SENTRY_DSN",
+    "VITE_TURNSTILE_SITE_KEY"
+  ],
+  "env_keys_referenced_in_code_count": 98,
+  "env_keys_referenced_in_code_web": [
+    "DEV",
+    "MODE",
+    "VITE_API_URL",
+    "VITE_APP_URL",
+    "VITE_CLIENT_URL",
+    "VITE_SENTRY_DSN",
+    "VITE_TURNSTILE_SITE_KEY"
+  ],
+  "env_values_read": false,
+  "env_privacy_note": "Key names only. No value on the right-hand side of any assignment was read, recorded, or transmitted.",
+  "monorepo": {
+    "type": "pnpm-workspaces + turborepo",
+    "workspace_manifest": "pnpm-workspace.yaml",
+    "globs": [
+      "packages/**",
+      "apps/**"
+    ],
+    "package_manager": "pnpm@10.32.1",
+    "node_engine": ">=20.19.0",
+    "packages": [
+      {
+        "name": "@kaneo/api",
+        "root": "apps/api",
+        "manifest": "apps/api/package.json",
+        "test_command": "pnpm --filter @kaneo/api test"
+      },
+      {
+        "name": "@kaneo/web",
+        "root": "apps/web",
+        "manifest": "apps/web/package.json",
+        "test_command": "pnpm --filter @kaneo/web test"
+      },
+      {
+        "name": "@kaneo/site",
+        "root": "apps/site",
+        "manifest": "apps/site/package.json",
+        "test_command": null
+      },
+      {
+        "name": "@kaneo/email",
+        "root": "packages/email",
+        "manifest": "packages/email/package.json",
+        "test_command": "pnpm --filter @kaneo/email test"
+      },
+      {
+        "name": "@kaneo/libs",
+        "root": "packages/libs",
+        "manifest": "packages/libs/package.json",
+        "test_command": "pnpm --filter @kaneo/libs test"
+      },
+      {
+        "name": "@kaneo/mcp",
+        "root": "packages/mcp",
+        "manifest": "packages/mcp/package.json",
+        "test_command": "pnpm --filter @kaneo/mcp test"
+      },
+      {
+        "name": "@kaneo/permissions",
+        "root": "packages/permissions",
+        "manifest": "packages/permissions/package.json",
+        "test_command": "pnpm --filter @kaneo/permissions test"
+      },
+      {
+        "name": "@kaneo/planka-import",
+        "root": "packages/planka-import",
+        "manifest": "packages/planka-import/package.json",
+        "test_command": null
+      },
+      {
+        "name": "@kaneo/typescript-config",
+        "root": "packages/typescript-config",
+        "manifest": "packages/typescript-config/package.json",
+        "test_command": null
+      }
+    ],
+    "note": "tests/api and tests/api-integration are NOT workspace packages; they are source dirs consumed by @kaneo/api vitest configs (vitest.config.ts, vitest.integration.config.ts)."
+  },
+  "submodules": [],
+  "lfs": false,
+  "lfs_patterns": [],
+  "gitattributes_present": true,
+  "gitattributes_note": ".gitattributes only enforces LF on .husky/* — no LFS filters.",
+  "infra_hints": {
+    "dockerfile": true,
+    "dockerfile_paths": [
+      "Dockerfile.kaneo",
+      "apps/api/Dockerfile"
+    ],
+    "docker_compose": true,
+    "docker_compose_paths": [
+      "compose.yml",
+      "compose.local.yml"
+    ],
+    "terraform": false,
+    "github_workflows": true,
+    "github_workflow_count": 13,
+    "gitlab_ci": false,
+    "circleci": false,
+    "jenkins": false,
+    "helm": true,
+    "helm_path": "charts/kaneo",
+    "devcontainer": true
+  },
+  "hooks": {
+    "husky": true,
+    "pre_commit": [
+      "pnpm exec biome ci .",
+      "pnpm run build"
+    ],
+    "commit_msg": [
+      "commitlint (@commitlint/config-conventional)"
+    ],
+    "note": "pre-commit runs a full monorepo build and a strict biome gate; commit messages must be conventional-commit shaped."
+  },
+  "generated_paths_detected": [
+    {
+      "path": "apps/web/src/routeTree.gen.ts",
+      "reason": "TanStack Router generated route tree (@ts-nocheck / eslint-disable header)"
+    },
+    {
+      "path": "apps/api/drizzle/**",
+      "reason": "drizzle-kit generated SQL migrations; regenerate with pnpm --filter @kaneo/api db:generate, never hand-edit"
+    },
+    {
+      "path": "apps/api/auth-schema.ts",
+      "reason": "better-auth generated schema surface"
+    },
+    {
+      "path": "i18n/schema.json",
+      "reason": "generated by pnpm i18n:schema"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "reason": "package manager lockfile"
+    },
+    {
+      "path": "CONTRIBUTORS.svg",
+      "reason": "generated by update-contributors workflow"
+    }
+  ],
+  "regulated_repo_signals": [
+    {
+      "kind": "security-policy",
+      "path": "SECURITY.md"
+    }
+  ],
+  "regulated_repo_warning_required": true,
+  "regulated_repo_signal_strength": "weak",
+  "regulated_repo_note": "Only a standard OSS SECURITY.md was found. No HIPAA/PCI/SOC2/GDPR/PRIVACY/COMPLIANCE docs, no compliance-named directories, no CODEOWNERS file at all. Treat as low-signal; the repo does handle self-hosted user data, workspace boundaries and OAuth/SMTP/S3 secrets, so off-limits still matters.",
+  "off_limits_proposed": [
+    ".git/**",
+    ".sdlc/**",
+    ".env",
+    ".env.*",
+    ".env.local",
+    ".env.sample",
+    "apps/api/.env.test.example",
+    "apps/web/.env.development",
+    "apps/web/.env.production",
+    ".claude/**",
+    "CLAUDE.md",
+    "AGENTS.md",
+    ".cursor/**",
+    ".agents/**",
+    "skills/**",
+    "skills-lock.json",
+    ".coderabbit.yaml",
+    ".devcontainer/**",
+    ".husky/**",
+    ".github/workflows/**",
+    "node_modules/**",
+    "**/node_modules/**",
+    "dist/**",
+    "**/dist/**",
+    "build/**",
+    ".next/**",
+    "out/**",
+    ".turbo/**",
+    "coverage/**",
+    ".hook-logs/**",
+    "pnpm-lock.yaml",
+    "apps/web/src/routeTree.gen.ts",
+    "apps/api/drizzle/**",
+    "apps/api/auth-schema.ts",
+    "i18n/schema.json",
+    "charts/**",
+    "deploy/**",
+    "sentry/**"
+  ],
+  "off_limits_soft": [
+    {
+      "path": "charts/**",
+      "reason": "Helm deploy surface — editable but out of scope for a web-only board filter change"
+    },
+    {
+      "path": "apps/api/**",
+      "reason": "API is not expected to change for a client-side URL-persisted filter feature; unlock at Gate 0 only if the plan needs a server-side filter"
+    },
+    {
+      "path": "apps/site/**",
+      "reason": "marketing site, unrelated"
+    },
+    {
+      "path": "apps/docs/**",
+      "reason": "product docs; unlock if the feature warrants user documentation"
+    }
+  ],
+  "likely_in_scope_for_intent": [
+    "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+    "apps/web/src/components/board/board-toolbar.tsx",
+    "apps/web/src/hooks/use-task-filters.ts",
+    "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+    "apps/web/src/store/user-preferences.ts",
+    "i18n/en-US.json"
+  ],
+  "coexistence_notes": [
+    "Cursor rules detected at .cursor/rules (7 .mdc files). The plugin will never touch them, but if Cursor's auto-lint-on-save is running, changes we make may trigger it.",
+    "Claude Code project config detected at .claude/ with 13 skills and an UNTRACKED .claude/settings.local.json. Untouched by default.",
+    "A second agent-skill tree exists at .agents/skills and skills/ with skills-lock.json — some sync tool owns these. Untouched.",
+    ".coderabbit.yaml detected: AI code review runs on pull requests. It will comment on whatever this run produces once a PR exists.",
+    "No .mcp.json in the repo — no custom MCP servers are registered project-locally. The plugin uses its own bundled model-dispatch server.",
+    "No repo-local routing-policy.yaml — policy resolution will use the shipped/global policy.",
+    "Your .gitignore doesn't cover .sdlc/. Run artifacts under .sdlc/ (packets, backups, telemetry) will be untracked but visible to `git add -A`. Gate 0 will offer to add .gitignore to this run's allowlist so the plugin can add the entry as part of the run. Note .hook-logs/ is also untracked and unignored.",
+    "husky pre-commit runs `pnpm exec biome ci .` AND `pnpm run build` (full turbo build). Any commit this run makes will be slow and will hard-fail on a single formatting deviation. Run `pnpm exec biome check --write <changed files>` before committing.",
+    "Root and package `lint` scripts run Biome with --write and can modify unrelated files (AGENTS.md warns about this). Prefer `biome check --write` on changed paths only.",
+    "commitlint with conventional-commit config is wired to commit-msg — commit subjects must be e.g. `feat(web): ...`.",
+    "AGENTS.md is explicit: do not commit, push, or open a PR unless explicitly requested."
+  ],
+  "repo_state_risks": [
+    {
+      "kind": "gitignore-gap",
+      "severity": "medium",
+      "detail": ".sdlc/ and .hook-logs/ are untracked and not gitignored."
+    },
+    {
+      "kind": "dirty-worktree",
+      "severity": "low",
+      "detail": "Untracked only (.claude/settings.local.json, .hook-logs/, .sdlc/). No tracked file modified; rollback anchor at 5d1fc910 is clean."
+    },
+    {
+      "kind": "branch",
+      "severity": "low",
+      "detail": "On feature-extend-3/opus-only, not main. Prior .sdlc runs exist for the same intent slug (20260826-064633, 20260826-103235) — check for leftover partial work before planning."
+    },
+    {
+      "kind": "unknown-test-baseline",
+      "severity": "medium",
+      "detail": "No suite was executed during discovery. Pre-existing failures unknown."
+    },
+    {
+      "kind": "pre-commit-heaviness",
+      "severity": "medium",
+      "detail": "pre-commit runs a full monorepo build; expect long commits and hard failures on formatting."
+    },
+    {
+      "kind": "plaintext-local-secrets",
+      "severity": "medium",
+      "detail": ".env and .env.local exist in the worktree with DB/auth keys. They ARE gitignored. No encrypted-secret tooling (no sops/age/git-crypt/vault files found). Values were never read."
+    },
+    {
+      "kind": "no-codeowners",
+      "severity": "low",
+      "detail": "No CODEOWNERS file; no automatic reviewer routing."
+    },
+    {
+      "kind": "aggressive-gitignore",
+      "severity": "none",
+      "detail": ".gitignore is conventional (deps, env, build outputs, coverage, .turbo). Nothing under apps/web/src is ignored except apps/web/.tanstack/."
+    }
+  ],
+  "tier2b": {
+    "triggered": true,
+    "reason": "Primary stack for this run (React 19 + Vite + TanStack Router/Query under apps/web) has no pre-authored adapter. Shipped adapters are generic.md, nest.md, python.md; the API is Hono, not Nest.",
+    "profile_path": ".sdlc/baseline/stack-profile.md"
+  },
+  "timing": {
+    "tier1_seconds_approx": 12,
+    "within_timebox": true,
+    "sampling_used": false
+  }
+}
