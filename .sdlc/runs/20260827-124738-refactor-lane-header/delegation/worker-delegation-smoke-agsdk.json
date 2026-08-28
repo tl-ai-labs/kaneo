@@ -1,0 +1,46 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "smoke-agsdk",
+  "phase": "docs",
+  "task_type": "smoke",
+  "module": "precheck",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": null,
+    "sdk_version": null,
+    "vertex_project": null,
+    "vertex_location": null,
+    "thinking": null
+  },
+  "workdir": "/tmp/claude-1000/-home-sangeetha-projects-kaneo/203aa79e-33fe-4774-83ff-cc7b937c551b/scratchpad",
+  "started_at": "2026-08-27T12:48:15.920Z",
+  "duration_ms": 1083,
+  "success": false,
+  "error": "The agent worker exited 1. gemini_worker failed: FileNotFoundError: [Errno 2] No such file or directory: '.sdlc/runs/20260827-124738-refactor-lane-header/delegation/worker-task-smoke-agsdk.md'",
+  "cost_usd": 0,
+  "tokens": {
+    "input": 0,
+    "input_cached": 0,
+    "output": 0,
+    "output_reasoning": 0
+  },
+  "tool_calls": {
+    "count": 0,
+    "truncated": false,
+    "sample": []
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 15,
+    "scanned": 15,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-smoke-agsdk.md",
+    "usage": "worker-usage-smoke-agsdk.json"
+  }
+}

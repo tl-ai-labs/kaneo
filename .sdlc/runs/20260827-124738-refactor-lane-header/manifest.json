@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "run_id": "20260827-124738-refactor-lane-header",
+  "mode": "brownfield",
+  "intent": "refactor",
+  "policy": "flash-agsdk-only",
+  "auth_mode": "estimated",
+  "provenance_note": "All 8 pipeline events are vendor-reported (provenance: vendor). This policy has no premium tier, so no phase ran in-session and nothing was char-estimated.",
+  "base_commit": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "branch": "refactor/flash-only",
+  "commits_made": 0,
+  "models": [
+    {
+      "id": "flash",
+      "model_name": "gemini-3.7-flash",
+      "adapter": "antigravity-worker",
+      "backend": "vertex-adc",
+      "project": "ai-studies-console",
+      "location": "global"
+    }
+  ],
+  "gates": {
+    "gate-0": "approved (pre-frozen)",
+    "gate-1": "approved",
+    "gate-2": "revise -> test packet added by coordinator instruction",
+    "gate-3": "approved",
+    "gate-4": "accepted"
+  },
+  "totals": {
+    "pipeline_cost_usd": 1.032307,
+    "pipeline_packets": 8,
+    "pipeline_wall_clock_hours": 15.428,
+    "precheck_smoke_cost_usd": 0.018666,
+    "file_total_cost_usd": 1.050973,
+    "input_tokens": 453877,
+    "input_tokens_cached": 477081,
+    "output_tokens": 31103
+  },
+  "by_phase": {
+    "requirements_analysis": {
+      "cost_usd": 0.071,
+      "input_tokens": 27587,
+      "input_tokens_cached": 0,
+      "output_tokens": 3291,
+      "latency_ms": 28234,
+      "packets": 1,
+      "wall_clock_s": 28.2
+    },
+    "change_plan": {
+      "cost_usd": 0.080999,
+      "input_tokens": 35419,
+      "input_tokens_cached": 22061,
+      "output_tokens": 2729,
+      "latency_ms": 54415269,
+      "packets": 1,
+      "wall_clock_s": 54415.3
+    },
+    "plan_task_packets": {
+      "cost_usd": 0.337333,
+      "input_tokens": 157291,
+      "input_tokens_cached": 261194,
+      "output_tokens": 6913,
+      "latency_ms": 474897,
+      "packets": 1,
+      "wall_clock_s": 474.9
+    },
+    "codegen": {
+      "cost_usd": 0.150295,
+      "input_tokens": 70155,
+      "input_tokens_cached": 21957,
+      "output_tokens": 4641,
+      "latency_ms": 47633,
+      "packets": 2,
+      "wall_clock_s": 47.6
+    },
+    "tests": {
+      "cost_usd": 0.253635,
+      "input_tokens": 109819,
+      "input_tokens_cached": 171869,
+      "output_tokens": 7014,
+      "latency_ms": 420664,
+      "packets": 1,
+      "wall_clock_s": 420.7
+    },
+    "senior_code_review": {
+      "cost_usd": 0.103736,
+      "input_tokens": 41515,
+      "input_tokens_cached": 0,
+      "output_tokens": 4607,
+      "latency_ms": 137807,
+      "packets": 1,
+      "wall_clock_s": 137.8
+    },
+    "security_review": {
+      "cost_usd": 0.035309,
+      "input_tokens": 12091,
+      "input_tokens_cached": 0,
+      "output_tokens": 1908,
+      "latency_ms": 16695,
+      "packets": 1,
+      "wall_clock_s": 16.7
+    }
+  },
+  "by_model": {
+    "gemini-3.7-flash": {
+      "cost_usd": 1.032307,
+      "share": "100%"
+    }
+  },
+  "artifacts": {
+    "code": [
+      "apps/web/src/components/public-project/public-column-header.tsx",
+      "apps/web/src/components/public-project/kanban-view.tsx",
+      "apps/web/src/components/public-project/public-column-header.test.tsx"
+    ],
+    "run_record": [
+      "requirements.md",
+      "change_plan.md",
+      "gate2-decision.md",
+      "packets.json",
+      "review.json",
+      "review.md",
+      "security_review.md",
+      "telemetry.jsonl",
+      "provenance.json",
+      "test-baseline.json",
+      "manifest.json",
+      "SUMMARY.md"
+    ]
+  },
+  "verification": {
+    "typecheck": "exit 0",
+    "test": "37 files / 115 tests passing (baseline 36/112)",
+    "lint": "biome ci on 3 changed paths, exit 0, no fixes applied",
+    "senior_review": "approved_with_findings, dom_identical=true, 1 nit (not actioned - frozen spec)",
+    "security_review": "pass, 0 findings"
+  },
+  "cross_run": {
+    "run_1": {
+      "policy": "opus-plus-flash-v37",
+      "pipeline_cost_usd": 0.9731,
+      "note": "6 of 8 phases estimated, 3 corrected upward"
+    },
+    "run_2": {
+      "policy": "flash-agsdk-only",
+      "pipeline_cost_usd": 1.032307,
+      "note": "8 of 8 vendor-reported"
+    },
+    "source_byte_identical": [
+      "public-column-header.tsx",
+      "kanban-view.tsx"
+    ],
+    "diverged": [
+      "public-column-header.test.tsx (same coverage, 3 it-blocks vs 1)"
+    ]
+  },
+  "status": "closed",
+  "independently_verified_by_coordinator": {
+    "source_byte_identity_vs_run_1": "confirmed independently by diff against run 1 committed versions",
+    "typecheck": "exit 0",
+    "test": "37 files / 115 tests"
+  },
+  "findings": [
+    {
+      "id": 1,
+      "severity": "high",
+      "title": "Write-contract refusal path is UNPROVABLE on the antigravity-worker adapter",
+      "detail": "The PreToolUse hook matches on Write|Edit. The Antigravity worker writes from its own process and does not use those tools, so the hook is not in the write path at all. Three real writes to user source landed this run without a single write decision being recorded: .hook-logs/hook.jsonl holds 268 mcp_tool_postuse events and zero write-decision entries. Only enforcement layer 2 (artifact_path validation against the allowlist) constrained this run. Run 1 left the refusal path UNPROVEN. Run 2 establishes that it is UNPROVABLE on this adapter. That is a stronger and worse result: it is a statement about a safety guarantee the plugin advertises and does not deliver here, not merely an untested code path."
+    },
+    {
+      "id": 2,
+      "severity": "high",
+      "title": "Configured 540s worker timeout did not fire after 15.1 hours",
+      "detail": "tp_plan_001: worker_timeout_sec 540 configured, actual duration_ms 54415269, timed_out false, success true, error null, 3 tool calls, normal cost and token counts. Nothing in telemetry marks the run anomalous. The MCP client aborted on its own idle timeout at ~54343s; the payload was recovered from delegation/worker-usage-tp_plan_001.json rather than re-dispatched, so it was billed exactly once."
+    },
+    {
+      "id": 3,
+      "severity": "medium",
+      "title": "Cost inversion \u2014 reported as unsettled",
+      "detail": "Run 1 $0.9731 (six of eight phases Opus estimates, three corrected upward) vs run 2 $1.0323 (eight of eight vendor-reported). The all-Flash floor policy cost 1.06x the mixed policy for byte-identical source output. This is a vendor-vs-estimate comparison, NOT vendor-vs-vendor. The direction survives the caveat; the precise multiple rests on the soft baseline and is NOT settled."
+    },
+    {
+      "id": 4,
+      "severity": "medium",
+      "title": "Session context accumulates across the worker's own turns",
+      "detail": "The actionable engineering finding. tp_decomp_001 billed 157291 fresh input PLUS 261194 cached on a single-turn packet whose entire input was inlined in the instruction. Cached input exceeding fresh input on a packet that required no file reads is a specific, reproducible signature of session context accumulating across the worker's own turns - not a vague 'the agent wandered'. tp_tests_001 shows the same signature (109819 + 171869). Consequence: plan_task_packets 5.0x and tests 21x run 1's cost, both despite explicit 'do NOT search the repo' instructions. Per-packet floor overhead is ~10.9k input tokens."
+    },
+    {
+      "id": 5,
+      "severity": "low",
+      "title": "Antigravity sandbox refusal leaked into the response payload",
+      "detail": "tp_decomp_001 attempted to read /home/sangeetha/.claude/plugins/cache and was refused as outside its allowed workspace directories. Containment held, but at the vendor's layer rather than the plugin's, and the refusal text was emitted ahead of the JSON, breaking schema validation and forcing salvage from the sidecar."
+    },
+    {
+      "id": 6,
+      "severity": "info",
+      "title": "Routing clean without run 1's task_type bend",
+      "detail": "new_file_add and existing_file_edit both matched codegen rule index 7; test_add matched tests rule index 8. The react_component workaround required by opus-plus-flash-v37 was NOT applied and was NOT needed. flash-agsdk-only matches on phase alone and is immune to the run 1 policy gap."
+    }
+  ]
+}

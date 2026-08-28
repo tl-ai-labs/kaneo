@@ -1,0 +1,46 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_decomp_001",
+  "phase": "plan_task_packets",
+  "task_type": "decomposition",
+  "module": "public-project",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-28T04:11:55.637Z",
+  "duration_ms": 474897,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.337333,
+  "tokens": {
+    "input": 157291,
+    "input_cached": 261194,
+    "output": 6913,
+    "output_reasoning": 4204
+  },
+  "tool_calls": {
+    "count": 0,
+    "truncated": false,
+    "sample": []
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1677,
+    "scanned": 1677,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_decomp_001.md",
+    "usage": "worker-usage-tp_decomp_001.json"
+  }
+}

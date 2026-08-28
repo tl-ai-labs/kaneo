@@ -1,0 +1,151 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 281688,
+    "cached_content_token_count": 171869,
+    "candidates_token_count": 2218,
+    "thoughts_token_count": 4796,
+    "total_token_count": 288702,
+    "service_tier": null
+  },
+  "tool_call_count": 14,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.test.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web test public-column-header.test.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "search_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/web",
+        "query": "cleanup",
+        "num_results": "0"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-labels.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-labels.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/vitest.config.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/vitest.config.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/test/setup.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/test/setup.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-subtasks.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-subtasks.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.test.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web test public-column-header.test.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.test.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web test public-column-header.test.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/public-column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status --short",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"filePath\": \"apps/web/src/components/public-project/public-column-header.test.tsx\",\n  \"content\": \"import { cleanup, render, screen } from \\\"@testing-library/react\\\";\\nimport { afterEach, describe, expect, it } from \\\"vitest\\\";\\nimport type { ProjectWithTasks } from \\\"@/types/project\\\";\\nimport { PublicColumnHeader } from \\\"./public-column-header\\\";\\n\\nafterEach(() => {\\n  cleanup();\\n});\\n\\ndescribe(\\\"PublicColumnHeader\\\", () => {\\n  const column = {\\n    id: \\\"in-progress\\\",\\n    name: \\\"In Progress\\\",\\n    isFinal: false,\\n    icon: null,\\n    tasks: [{}, {}],\\n  } as unknown as ProjectWithTasks[\\\"columns\\\"][number];\\n\\n  it(\\\"renders the column icon\\\", () => {\\n    const { container } = render(<PublicColumnHeader column={column} />);\\n    expect(container.querySelector(\\\"svg\\\")).toBeTruthy();\\n  });\\n\\n  it(\\\"renders the column name\\\", () => {\\n    render(<PublicColumnHeader column={column} />);\\n    expect(screen.getByText(\\\"In Progress\\\")).toBeTruthy();\\n  });\\n\\n  it(\\\"renders the task count\\\", () => {\\n    render(<PublicColumnHeader column={column} />);\\n    expect(screen.getByText(\\\"2\\\")).toBeTruthy();\\n  });\\n});\\n\",\n  \"wrote_file\": true\n}"
+}

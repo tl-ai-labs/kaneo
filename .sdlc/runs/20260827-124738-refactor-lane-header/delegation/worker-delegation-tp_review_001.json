@@ -1,0 +1,66 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_review_001",
+  "phase": "senior_code_review",
+  "task_type": "review",
+  "module": "public-project",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-28T04:32:33.865Z",
+  "duration_ms": 137807,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.103736,
+  "tokens": {
+    "input": 41515,
+    "input_cached": 0,
+    "output": 4607,
+    "output_reasoning": 3308
+  },
+  "tool_calls": {
+    "count": 2,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "find_file",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo",
+          "query": "*column*"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/column.tsx",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/column.tsx",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1679,
+    "scanned": 1679,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_review_001.md",
+    "usage": "worker-usage-tp_review_001.json"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 12091,
+    "cached_content_token_count": 0,
+    "candidates_token_count": 851,
+    "thoughts_token_count": 1057,
+    "total_token_count": 13999,
+    "service_tier": null
+  },
+  "tool_call_count": 0,
+  "tool_calls_truncated": false,
+  "tool_calls": [],
+  "text": "{\n  \"verdict\": \"pass\",\n  \"findings\": [],\n  \"security_markdown\": \"### Security Review: Changed Files (Public Column Header Refactor)\\n\\n#### 1. Data Exposure\\n- **Before markup fields rendered:**\\n  - `column.id` (passed as argument to `getColumnIcon`)\\n  - `column.isFinal` (passed as argument to `getColumnIcon`)\\n  - `column.icon` (passed as argument to `getColumnIcon`)\\n  - `column.name` (rendered as text inside `<h3>`)\\n  - `column.tasks.length` (rendered as text inside `<span>`)\\n- **After markup (`PublicColumnHeader`) fields rendered:**\\n  - `column.id` (passed as argument to `getColumnIcon`)\\n  - `column.isFinal` (passed as argument to `getColumnIcon`)\\n  - `column.icon` (passed as argument to `getColumnIcon`)\\n  - `column.name` (rendered as text inside `<h3>`)\\n  - `column.tasks.length` (rendered as text inside `<span>`)\\n- **Comparison Result:** The field usage is identical between baseline and refactored component. No additional properties, sensitive fields, or metadata from `column` or `tasks` are exposed. This is a pure structural extraction that exposes nothing new.\\n\\n#### 2. Bundle & Import Review (Public vs Private Surface)\\n- **Imports in `public-column-header.tsx`:**\\n  - `import { getColumnIcon } from \\\"@/lib/column\\\";` (pure icon resolver utility)\\n  - `import type { ProjectWithTasks } from \\\"@/types/project\\\";` (TypeScript type-only import, erased at build time)\\n- **Check for Leaks:**\\n  - No auth or session imports (e.g. session hooks, auth tokens)\\n  - No permission/role checking utilities\\n  - No mutation handlers, API callers, or state action imports\\n  - No i18n runtime bundles or private board column header logic\\n- **Result:** The public bundle remains lightweight, read-only, and free from private-board capabilities.\\n\\n#### 3. Injection / XSS Analysis\\n- No use of `dangerouslySetInnerHTML`, `innerHTML`, or raw HTML rendering mechanisms.\\n- All dynamic text interpolations (`column.name` and `column.tasks.length`) are rendered as standard React JSX children, which are automatically escaped by React's rendering engine.\\n- `getColumnIcon` returns standard React elements without dynamic HTML injection.\\n\\n#### 4. Test Fixtures & Secrets\\n- `public-column-header.test.tsx` defines a synthetic column fixture:\\n  - `id: \\\"in-progress\\\"`\\n  - `name: \\\"In Progress\\\"`\\n  - `isFinal: false`\\n  - `icon: null`\\n  - `tasks: [{}, {}]`\\n- The fixture uses hardcoded dummy strings and empty objects. It contains no real user identifiers, real project data, tokens, or secrets.\\n\\n#### 5. Dependencies\\n- No new runtime or dev dependencies were added (`package.json` and lockfiles were not modified).\\n\\n#### 6. Scope Limitations & Unassessed Areas\\n- **Dependency Vulnerabilities / Advisory Scan:** No dependency-advisory scan (such as `npm audit` or CVE scanner) was performed. The repository's overall dependency security posture is **UNASSESSED** by this review, not clean.\\n- **Out-of-Scope Files:** Only the 3 changed files under `apps/web/src/components/public-project/` were reviewed. Private board components (`apps/web/src/components/kanban-board/**`), backend API endpoints, and authentication middleware were not reviewed.\"\n}"
+}

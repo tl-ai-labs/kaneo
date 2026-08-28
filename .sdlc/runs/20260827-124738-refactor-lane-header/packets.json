@@ -1,0 +1,132 @@
+[
+  {
+    "id": "tp_codegen_001",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "public-project",
+    "pass_id": "20260827-124738-refactor-lane-header",
+    "intent": "refactor",
+    "artifact_path": "apps/web/src/components/public-project/public-column-header.tsx",
+    "inputs": [],
+    "instruction": "Create a new file `apps/web/src/components/public-project/public-column-header.tsx` with the following exact content:\n\n```tsx\nimport { getColumnIcon } from \"@/lib/column\";\nimport type { ProjectWithTasks } from \"@/types/project\";\n\ntype PublicColumnHeaderProps = {\n  column: ProjectWithTasks[\"columns\"][number];\n};\n\nexport function PublicColumnHeader({ column }: PublicColumnHeaderProps) {\n  return (\n    <div className=\"p-2 shrink-0\">\n      <div className=\"flex items-center justify-between\">\n        <div className=\"flex items-center gap-2\">\n          {getColumnIcon(column.id, column.isFinal, column.icon)}\n          <h3 className=\"font-medium text-foreground\">{column.name}</h3>\n          <span className=\"text-sm text-muted-foreground\">\n            {column.tasks.length}\n          </span>\n        </div>\n      </div>\n    </div>\n  );\n}\n```",
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filePath",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "File apps/web/src/components/public-project/public-column-header.tsx is created",
+      "Exports PublicColumnHeader component taking a column prop typed as ProjectWithTasks['columns'][number]",
+      "Renders getColumnIcon, column name in h3, and tasks length in span within the matching DOM container hierarchy",
+      "TypeScript typecheck passes without errors"
+    ],
+    "budget": {
+      "maxInputTokens": 16000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_codegen_002",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "public-project",
+    "pass_id": "20260827-124738-refactor-lane-header",
+    "intent": "refactor",
+    "artifact_path": "apps/web/src/components/public-project/kanban-view.tsx",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/public-project/public-column-header.tsx",
+        "reason": "dependency read at execution time"
+      },
+      {
+        "path": "apps/web/src/components/public-project/kanban-view.tsx",
+        "reason": "dependency read at execution time"
+      }
+    ],
+    "instruction": "Edit `apps/web/src/components/public-project/kanban-view.tsx`:\n- ADD import: `import { PublicColumnHeader } from \"./public-column-header\";`\n- The existing `import { getColumnIcon } from \"@/lib/column\";` MUST STAY (line 57 empty-state still calls it).\n- DELETE lines 27-39 inclusive (the `<div className=\"p-2 shrink-0\">` block through its closing `</div>`), REPLACE with the single line `<PublicColumnHeader column={column} />`.\n- Change NOTHING else in the file.\n\nDOM invariant:\nOuter `p-2 shrink-0` div > `flex items-center justify-between` div > `flex items-center gap-2` div > getColumnIcon(column.id, column.isFinal, column.icon) > h3.font-medium.text-foreground with {column.name} > span.text-sm.text-muted-foreground with {column.tasks.length}. Byte-identical before and after.",
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "type": "string"
+        },
+        "patch": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filePath",
+        "patch"
+      ]
+    },
+    "acceptance": [
+      "kanban-view.tsx imports PublicColumnHeader from ./public-column-header",
+      "kanban-view.tsx retains import { getColumnIcon } from @/lib/column for empty column state",
+      "The inline header markup in PublicKanbanView is replaced with <PublicColumnHeader column={column} />",
+      "DOM invariant preserved byte-identically",
+      "TypeScript typecheck passes without errors"
+    ],
+    "budget": {
+      "maxInputTokens": 16000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_tests_001",
+    "phase": "tests",
+    "task_type": "test_add",
+    "subtype": "unit",
+    "module": "public-project",
+    "pass_id": "20260827-124738-refactor-lane-header",
+    "intent": "refactor",
+    "artifact_path": "apps/web/src/components/public-project/public-column-header.test.tsx",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/public-project/public-column-header.tsx",
+        "reason": "dependency read at execution time"
+      }
+    ],
+    "instruction": "Create unit tests in `apps/web/src/components/public-project/public-column-header.test.tsx` according to the frozen test spec:\n- vitest + @testing-library/react (this repo uses `describe`/`it`/`expect` imported from \"vitest\", and `render`/`screen` from \"@testing-library/react\")\n- Column fixture MUST use id: \"in-progress\" - it maps to CircleDot in apps/web/src/constants/column-icons.ts, so the UNMOCKED getColumnIcon takes its primary branch.\n- Do NOT mock `@/lib/column`. Leave it real.\n- Assert the icon renders via `container.querySelector(\"svg\")` being truthy.\n- Assert the column name and the task count via `screen` queries.\n- Do NOT assert on any Tailwind class string.\n- The fixture column needs at minimum: id, name, isFinal, icon, tasks (an array whose length is asserted). Cast the fixture with `as` to the ProjectWithTasks column element type if the full shape is large - do not hand-write a new exported type.",
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filePath",
+        "content"
+      ]
+    },
+    "acceptance": [
+      "Test file apps/web/src/components/public-project/public-column-header.test.tsx is added",
+      "Uses describe/it/expect from vitest and render/screen from @testing-library/react",
+      "Column fixture uses id 'in-progress' and does not mock @/lib/column",
+      "Asserts icon renders via container.querySelector('svg')",
+      "Asserts column name and task count via screen queries",
+      "Does not assert on Tailwind class strings",
+      "Unit test passes successfully under vitest"
+    ],
+    "budget": {
+      "maxInputTokens": 16000,
+      "maxOutputTokens": 3000
+    },
+    "retry_count": 0
+  }
+]

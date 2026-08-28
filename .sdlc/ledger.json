@@ -1,0 +1,30 @@
+[
+  {
+    "run_id": "20260827-124738-refactor-lane-header",
+    "intent": "refactor",
+    "policy": "flash-agsdk-only",
+    "auth_mode": "estimated",
+    "files_touched": 3,
+    "tests": "115/115",
+    "new_failures": 0,
+    "cost_pipeline_usd": 1.0323,
+    "cost_precheck_usd": 0.0187,
+    "wall_clock_hours": 15.43,
+    "cost_by_model": {
+      "gemini-3.7-flash": 1.0323
+    },
+    "all_vendor_reported": true,
+    "reviews": {
+      "senior": "approved_with_findings",
+      "security": "pass"
+    },
+    "outcome": "accepted",
+    "source_byte_identical_to_run1": true,
+    "known_issues": [
+      "write-contract hook structurally bypassed: worker writes outside Write/Edit, refusal path unprovable on antigravity-worker",
+      "worker_timeout_sec 540 did not fire after 54415269ms; timed_out:false, success:true",
+      "plan_task_packets 5.0x and tests 21x vs run 1; cached input exceeded fresh input on single-turn packets"
+    ],
+    "brief": ".sdlc/briefs/refactor-public-column-header.md"
+  }
+]

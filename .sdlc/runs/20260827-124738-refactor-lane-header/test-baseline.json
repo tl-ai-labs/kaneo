@@ -1,0 +1,9 @@
+{
+  "captured_at_commit": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "command": "pnpm --filter @kaneo/web test",
+  "test_files_passed": 36,
+  "test_files_total": 36,
+  "tests_passed": 112,
+  "tests_total": 112,
+  "failures": 0
+}

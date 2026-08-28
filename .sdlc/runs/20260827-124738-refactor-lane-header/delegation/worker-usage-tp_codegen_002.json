@@ -1,0 +1,57 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 68240,
+    "cached_content_token_count": 21957,
+    "candidates_token_count": 1239,
+    "thoughts_token_count": 1624,
+    "total_token_count": 71103,
+    "service_tier": null
+  },
+  "tool_call_count": 4,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/kanban-view.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/kanban-view.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/kanban-view.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/kanban-view.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/kanban-view.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/kanban-view.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/kanban-view.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/public-project/kanban-view.tsx",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"filePath\": \"apps/web/src/components/public-project/kanban-view.tsx\",\n  \"content\": \"import { getColumnIcon } from \\\"@/lib/column\\\";\\nimport type { ProjectWithTasks } from \\\"@/types/project\\\";\\nimport type Task from \\\"@/types/task\\\";\\nimport { PublicColumnHeader } from \\\"./public-column-header\\\";\\nimport { PublicTaskCard } from \\\"./task-card\\\";\\n\\ntype PublicKanbanViewProps = {\\n  project: ProjectWithTasks;\\n  onTaskClick: (task: Task) => void;\\n};\\n\\nexport function PublicKanbanView({\\n  project,\\n  onTaskClick,\\n}: PublicKanbanViewProps) {\\n  const columns = project.columns ?? [];\\n\\n  return (\\n    <div className=\\\"flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]\\\">\\n      <div className=\\\"flex gap-3 p-3 h-full min-w-max\\\">\\n        {columns.map((column) => {\\n          return (\\n            <div\\n              key={column.id}\\n              className=\\\"h-full flex-1 min-w-80 max-w-96 flex-shrink-0\\\"\\n            >\\n              <div className=\\\"flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50 transition-[background-color,box-shadow] duration-150 ease hover:bg-accent/20 hover:shadow-sm\\\">\\n                <PublicColumnHeader column={column} />\\n\\n                <div className=\\\"p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]\\\">\\n                  <div className=\\\"flex flex-col gap-1.5\\\">\\n                    {column.tasks.map((task) => (\\n                      <PublicTaskCard\\n                        key={task.id}\\n                        task={task}\\n                        projectSlug={project.slug}\\n                        isCompleted={column.isFinal}\\n                        onTaskClick={onTaskClick}\\n                      />\\n                    ))}\\n                  </div>\\n\\n                  {column.tasks.length === 0 && (\\n                    <div className=\\\"text-center text-sm text-muted-foreground py-12 px-4\\\">\\n                      <div className=\\\"w-8 h-8 rounded-full bg-muted flex items-center justify-center mx-auto mb-2\\\">\\n                        {getColumnIcon(column.id, column.isFinal, column.icon)}\\n                      </div>\\n                      No tasks in {column.name.toLowerCase()}\\n                    </div>\\n                  )}\\n                </div>\\n              </div>\\n            </div>\\n          );\\n        })}\\n      </div>\\n    </div>\\n  );\\n}\\n\",\n  \"wrote_file\": true,\n  \"getcolumnicon_import_retained\": true\n}"
+}
