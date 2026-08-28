@@ -1,0 +1,27 @@
+[
+  {
+    "run_id": "20260828-050440-refactor-lane-header",
+    "intent": "refactor",
+    "policy": "opus-only-v5",
+    "auth_mode": "vendor",
+    "files_touched": 3,
+    "tests": "113/113",
+    "new_failures": 0,
+    "cost_pipeline_usd": 2.58435,
+    "cost_precheck_usd": 0.13513,
+    "wall_clock": "26m44s",
+    "model_time": "7m49s",
+    "all_vendor_reported": true,
+    "source_byte_identical_to_run1": true,
+    "reviews": {
+      "senior": "approve",
+      "security": "pass"
+    },
+    "outcome": "accepted",
+    "known_issues": [
+      "write-contract-check.mjs deny() exits 1; PreToolUse blocks only on exit 2, so the gate has NEVER blocked on any adapter. Fix order: exit(2) without a .sdlc run-dir carve-out breaks every run at its first artifact write.",
+      "provenance schema field is files_touched not files; two orchestrators independently misread it"
+    ],
+    "brief": ".sdlc/briefs/refactor-public-column-header.md"
+  }
+]

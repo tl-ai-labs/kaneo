@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "run_id": "20260828-050440-refactor-lane-header",
+  "mode": "brownfield",
+  "intent": "refactor",
+  "policy": "opus-only-v5",
+  "auth_mode": "vendor",
+  "models": [
+    {
+      "id": "opus",
+      "model_name": "claude-opus-5",
+      "adapter": "claude-cli"
+    }
+  ],
+  "provenance": "vendor",
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260828-050440-refactor-lane-header",
+  "git_head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "totals": {
+    "dispatches": 8,
+    "cost_usd": 2.58435,
+    "input_tokens": 136550,
+    "input_tokens_cached": 493995,
+    "output_tokens": 37634,
+    "model_latency_ms": 468632
+  },
+  "excluded_from_totals": {
+    "reason": "Pre-check smoke is excluded per the study comparability rule; runs 2-4 skip pre-check (cached), so folding it in only inflates run 1.",
+    "events": [
+      {
+        "task_id": "smoke-opus-vendor",
+        "cost_usd": 0.13513
+      }
+    ]
+  },
+  "per_phase": [
+    {
+      "phase": "requirements_analysis",
+      "packets": 1,
+      "cost_usd": 0.23596,
+      "input_tokens": 13908,
+      "input_tokens_cached": 13200,
+      "output_tokens": 3444,
+      "latency_ms": 39386
+    },
+    {
+      "phase": "change_plan",
+      "packets": 1,
+      "cost_usd": 0.43582,
+      "input_tokens": 17434,
+      "input_tokens_cached": 68985,
+      "output_tokens": 8898,
+      "latency_ms": 103683
+    },
+    {
+      "phase": "plan_task_packets",
+      "packets": 1,
+      "cost_usd": 0.29543,
+      "input_tokens": 14369,
+      "input_tokens_cached": 40281,
+      "output_tokens": 5095,
+      "latency_ms": 52240
+    },
+    {
+      "phase": "codegen",
+      "packets": 3,
+      "cost_usd": 0.50873,
+      "input_tokens": 42294,
+      "input_tokens_cached": 33396,
+      "output_tokens": 2417,
+      "latency_ms": 45129
+    },
+    {
+      "phase": "senior_code_review",
+      "packets": 1,
+      "cost_usd": 0.53688,
+      "input_tokens": 24677,
+      "input_tokens_cached": 206746,
+      "output_tokens": 7256,
+      "latency_ms": 98363
+    },
+    {
+      "phase": "security_review",
+      "packets": 1,
+      "cost_usd": 0.57152,
+      "input_tokens": 23868,
+      "input_tokens_cached": 131387,
+      "output_tokens": 10524,
+      "latency_ms": 129831
+    }
+  ],
+  "artifacts": {
+    "run_record": [
+      "requirements.md",
+      "change_plan.md",
+      "packets.json",
+      "review.json",
+      "security_review.md",
+      "telemetry.jsonl",
+      "provenance.json",
+      "manifest.json",
+      "SUMMARY.md"
+    ],
+    "source_changed": [
+      "apps/web/src/components/public-project/public-column-header.tsx (new)",
+      "apps/web/src/components/public-project/kanban-view.tsx (edited, +2/-13)",
+      "apps/web/src/components/public-project/public-column-header.test.tsx (new)"
+    ]
+  },
+  "verification": {
+    "test": {
+      "command": "pnpm --filter @kaneo/web test",
+      "result": "pass",
+      "files": 37,
+      "tests": 113
+    },
+    "typecheck": {
+      "command": "pnpm --filter @kaneo/web typecheck",
+      "result": "pass",
+      "exit_code": 0
+    },
+    "lint": {
+      "command": "pnpm exec biome ci <3 changed paths>",
+      "result": "pass",
+      "note": "Checked 3 files. No fixes applied."
+    },
+    "build": {
+      "command": "pnpm --filter @kaneo/web build",
+      "result": "not_run",
+      "note": "Outside the frozen verification set; not run in any of the three runs. react-compiler babel preset therefore unexercised."
+    }
+  },
+  "reviews": {
+    "senior": {
+      "verdict": "approve",
+      "dom_identical": true,
+      "blockers": 0,
+      "majors": 0,
+      "refinement_packets": 0
+    },
+    "security": {
+      "verdict": "pass",
+      "finding_count": 0,
+      "highest_severity": "none"
+    }
+  },
+  "gates": [
+    {
+      "gate": "gate-1",
+      "response": "approved",
+      "note": "operator override recorded on FR-7 and AC-12"
+    },
+    {
+      "gate": "gate-2",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-3",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-4",
+      "response": "accepted"
+    }
+  ],
+  "outcome": "completed",
+  "findings": [
+    {
+      "id": "MMO-F1",
+      "severity": "critical",
+      "component": "plugin/scripts/write-contract-check.mjs",
+      "title": "The brownfield write contract has never blocked anything, on any adapter",
+      "summary": "The hook runs, decides correctly, logs the denial, and lets the write through.",
+      "mechanism": "deny() calls process.exit(1) at line 158. Claude Code PreToolUse treats exit 2 as the blocking error and every other non-zero code as a non-blocking error, so the tool call proceeds. The only exit codes in the file are 0, 1, 0. It never emits the alternative hookSpecificOutput / permissionDecision JSON protocol either (grep -c for both returns 0).",
+      "decision_logic_is_correct": true,
+      "decision_logic_evidence": "Fed synthetic PreToolUse payloads the checker ALLOWs all three allowlisted paths and correctly DENYs apps/web/src/components/kanban-board/** (off-limits pattern) and the unlisted apps/web/src/components/public-project/list-view.tsx (absent from allowlist).",
+      "live_proof": "A Write was issued to apps/web/src/components/kanban-board/__mmo_gate_probe.tmp, a path matching an off-limits pattern. The write SUCCEEDED. The file was deleted immediately; git status on kanban-board/ is clean.",
+      "three_run_progression": [
+        {
+          "run": 1,
+          "adapter": "mixed opus + flash",
+          "reported": "enforcement path unproven",
+          "status_now": "correct but understated"
+        },
+        {
+          "run": 2,
+          "adapter": "antigravity-worker",
+          "reported": "unprovable on this adapter - the worker writes through its own process so the Write|Edit matcher never fires",
+          "status_now": "still true, but now the lesser problem"
+        },
+        {
+          "run": 3,
+          "adapter": "claude-cli",
+          "reported": "NON-FUNCTIONAL ON EVERY ADAPTER",
+          "status_now": "the matcher does fire here and the gate still cannot refuse"
+        }
+      ],
+      "progression_note": "Stated as a progression because each run saw only part of it, and that is why it took three runs to see. claude-cli never writes files at all - the adapter spawns `claude -p --output-format json` with no --allowedTools and returns file_content, so the orchestrator performs every write via Write/Edit. That is the best case for the hook, and it is still advisory. Of the three claimed enforcement layers only two were ever live: orchestrator discipline (1) and the allowlist check run over packets.json before dispatch (2). Layer 3, described as the layer you cannot talk your way past, is a warning.",
+      "corollary": "Fed .sdlc/runs/<run-id>/security_review.md the checker DENYs it: .sdlc/** is off-limits and no carve-out exists for the run own output directory, contrary to the orchestrator contract which states paths under .sdlc/runs/<run-id>/ are auto-allowlisted. Had the gate ever enforced, every brownfield run would have failed on its own first artifact write at Gate 1. A safety gate that would break the product the moment it started working has clearly never been exercised in anger.",
+      "fix": [
+        "1. deny() must process.exit(2), or emit hookSpecificOutput.permissionDecision: \"deny\".",
+        "2. Add a run-directory carve-out so .sdlc/runs/<run-id>/** is allowed before .sdlc/** is tested.",
+        "3. ORDER MATTERS: shipping (1) without (2) converts a silent no-op into a run that cannot start. Anyone reading this finding will reach for the one-character exit-code fix; applied alone it breaks every brownfield run at Gate 1 on its own first artifact write."
+      ],
+      "fix_order_warning": "exit(2) without the carve-out converts a silent no-op into a run that cannot start."
+    },
+    {
+      "id": "MMO-F2",
+      "severity": "high",
+      "component": "telemetry / auth_mode=estimated",
+      "title": "The character-count estimator understates premium-tier cost, with a diagnosed cause",
+      "per_phase_ratios": [
+        {
+          "phase": "requirements_analysis",
+          "run1_estimated": 0.1354,
+          "run3_measured": 0.23596,
+          "ratio": 1.74
+        },
+        {
+          "phase": "change_plan",
+          "run1_estimated": 0.2225,
+          "run3_measured": 0.43582,
+          "ratio": 1.96
+        }
+      ],
+      "mechanism": "Per-turn context re-send, which a chars/3.8 estimate on the visible prompt cannot see. Run 3 measured 493995 cached input tokens against 136550 uncached - a 3.6x ratio. That turns run 1 three upward corrections from an anecdote into a diagnosed cause.",
+      "totals_caveat": "Run 3 measured $2.58435 against run 1 reported $0.9731 estimated (2.66x). This does NOT mean run 1 really cost $2.58. The runs differ in phase count and packet shape, and run 1 dispatched three codegen packets to Flash at mechanical-tier rates. The honest comparison is the per-phase ratios, not the totals.",
+      "only_measurable_here": "Run 3 is the only run in the set that can produce this comparison: same model and same adapter as run 1 premium tier, but auth_mode vendor, so the CLI returns real total_cost_usd."
+    },
+    {
+      "id": "MMO-F3",
+      "severity": "info",
+      "component": "routing policy design",
+      "title": "Review phases were 43% of run cost on a 22-line component",
+      "data": {
+        "review_phases_usd": 1.10838,
+        "all_three_codegen_packets_usd": 0.50874,
+        "run_total_usd": 2.58435,
+        "review_share": 0.43
+      },
+      "hypothesis": "Suggests the premium tier earns its keep on judgment about LARGE changes and is poor value reviewing small mechanical ones - an argument for a policy that routes review by DIFF SIZE rather than by phase name.",
+      "confidence": "HYPOTHESIS THIS RUN CANNOT CONFIRM. n=1, on a single small refactor. Stated as an observation to be tested, not a conclusion."
+    },
+    {
+      "id": "MMO-F4",
+      "severity": "low",
+      "component": "docs - provenance contract",
+      "title": "provenance.json schema field is files_touched, not files - documentation problem",
+      "detail": "An orchestrator inspection script read p.files and reported 0 files recorded, a false alarm; the record was complete and correct all along (3 files with sha_before, sha_after, tracked_in_git, packet_id). Run 2 hit this identically. Two orchestrators making the same wrong assumption about the same schema is a documentation problem in the provenance contract, not two independent slips.",
+      "fix": "Name the field explicitly in the provenance contract docs and in the revert readers schema reference."
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+MMO: 2026-08-28T05:26:17.665Z INFO   policy.load policy_name=opus-only-v5 source=name version=1 model_count=1 rule_count=3
+MMO: 2026-08-28T05:26:17.669Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-28T05:26:17.670Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-28T05:26:17.670Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global

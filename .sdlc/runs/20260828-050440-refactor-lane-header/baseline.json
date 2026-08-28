@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "plugin_version": "0.6.0",
+  "built_at": "2026-08-28T05:06:43.425Z",
+  "run_id": "20260828-050440-refactor-lane-header",
+  "mode": "first-time",
+  "intent_hint": "refactor",
+
+  "git": {
+    "head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "branch": "refactor/opus-only",
+    "dirty": true,
+    "dirty_entries": [".claude/settings.local.json", ".hook-logs/", ".sdlc/"],
+    "dirty_kind": "untracked-only",
+    "remotes": [
+      { "name": "origin", "url": "https://github.com/tl-ai-labs/kaneo.git" }
+    ],
+    "gitignore_covers_sdlc": false
+  },
+
+  "topology": {
+    "top_level_dirs": [
+      ".agents", ".claude", ".cursor", ".devcontainer", ".husky", ".vscode",
+      "apps", "charts", "deploy", "i18n", "packages", "plans", "scripts",
+      "sentry", "skills", "tests"
+    ],
+    "app_dirs": ["apps/api", "apps/docs", "apps/site", "apps/web"],
+    "package_dirs": [
+      "packages/email", "packages/libs", "packages/mcp",
+      "packages/permissions", "packages/planka-import", "packages/typescript-config"
+    ],
+    "test_dirs": ["tests/api", "tests/api-integration"],
+    "entry_points": [
+      "apps/api/src/index.ts",
+      "apps/web/src/main.tsx",
+      "apps/site/app",
+      "packages/mcp/src/index.ts"
+    ]
+  },
+
+  "stacks": [
+    {
+      "manifest": "package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["turborepo", "pnpm-workspace", "biome", "husky", "commitlint"],
+      "role": "monorepo-root"
+    },
+    {
+      "manifest": "apps/api/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["hono", "hono-openapi", "better-auth", "drizzle-orm", "valibot", "pg", "ioredis", "vitest", "esbuild", "modelcontextprotocol-sdk", "sentry"],
+      "role": "api"
+    },
+    {
+      "manifest": "apps/web/package.json",
+      "stack": "node-typescript-react",
+      "detected_frameworks": ["react", "vite", "tanstack-router", "tanstack-query", "tailwind", "radix-ui", "base-ui", "dnd-kit", "tiptap", "zustand", "nanostores", "react-i18next", "vitest", "sentry"],
+      "role": "web"
+    },
+    {
+      "manifest": "apps/site/package.json",
+      "stack": "node-typescript-react",
+      "detected_frameworks": ["next", "react", "tailwind", "radix-ui"],
+      "role": "site"
+    },
+    {
+      "manifest": "packages/libs/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["vitest"],
+      "role": "shared-typed-client"
+    },
+    {
+      "manifest": "packages/permissions/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["better-auth", "vitest"],
+      "role": "permissions-vocabulary"
+    },
+    {
+      "manifest": "packages/mcp/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["modelcontextprotocol-sdk", "zod", "vitest"],
+      "role": "published-mcp-package"
+    },
+    {
+      "manifest": "packages/email/package.json",
+      "stack": "node-typescript-react",
+      "detected_frameworks": ["react-email", "nodemailer", "vitest"],
+      "role": "email-templates"
+    },
+    {
+      "manifest": "packages/planka-import/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["vitest"],
+      "role": "import-cli"
+    },
+    {
+      "manifest": "packages/typescript-config/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": [],
+      "role": "shared-tsconfig"
+    }
+  ],
+
+  "test_command_proposed": "pnpm test",
+  "test_command_source": "package.json#scripts.test (turbo test) + pnpm-workspace.yaml + packageManager pnpm@10.32.1",
+  "test_commands_scoped": {
+    "web_unit": "pnpm --filter @kaneo/web test",
+    "api_unit": "pnpm --filter @kaneo/api test",
+    "api_integration": "pnpm --filter @kaneo/api test:integration",
+    "libs": "pnpm --filter @kaneo/libs test",
+    "permissions": "pnpm --filter @kaneo/permissions test",
+    "typecheck": "pnpm typecheck",
+    "all_integration": "pnpm test:integration"
+  },
+  "test_command_notes": "Root `pnpm test` fans out via turbo and depends on ^build, so it is slower than a filtered run. For a web-only refactor, `pnpm --filter @kaneo/web test` is the smallest proof. Integration tests require PostgreSQL and are a separate turbo task (test:integration), not part of `pnpm test`.",
+
+  "docs_present": [
+    { "path": "README.md", "kind": "readme" },
+    { "path": "CLAUDE.md", "kind": "claude-instructions" },
+    { "path": "AGENTS.md", "kind": "agent-guide" },
+    { "path": "CONTRIBUTING.md", "kind": "contributing" },
+    { "path": "SECURITY.md", "kind": "security-policy" },
+    { "path": "CODE_OF_CONDUCT.md", "kind": "code-of-conduct" },
+    { "path": "ENVIRONMENT_SETUP.md", "kind": "environment-setup" },
+    { "path": "CHANGELOG.md", "kind": "changelog" },
+    { "path": "apps/docs/README.md", "kind": "docs-readme" },
+    { "path": "apps/docs/index.mdx", "kind": "docs-index" },
+    { "path": "tests/api/README.md", "kind": "test-readme" }
+  ],
+  "adr_dirs": [],
+
+  "ai_configs_detected": [
+    { "path": ".claude/", "type": "claude-code-project-config" },
+    { "path": ".claude/settings.local.json", "type": "claude-code-local-settings" },
+    { "path": ".claude/skills/", "type": "claude-code-skills" },
+    { "path": "CLAUDE.md", "type": "claude-instructions" },
+    { "path": "AGENTS.md", "type": "agent-instructions" },
+    { "path": ".cursor/rules/", "type": "cursor" },
+    { "path": ".agents/skills/", "type": "agent-skills" },
+    { "path": "skills/", "type": "agent-skills" },
+    { "path": "skills-lock.json", "type": "agent-skills-lockfile" },
+    { "path": ".coderabbit.yaml", "type": "coderabbit-review-bot" }
+  ],
+  "ai_configs_absent": [
+    ".mcp.json", ".cursorrules", ".aider.conf.yml", ".continue/",
+    ".github/copilot-instructions.md", ".roo/", "routing-policy.yaml", "gemini*.{yaml,json}"
+  ],
+  "cursor_rule_files": [
+    ".cursor/rules/backend-api.mdc",
+    ".cursor/rules/cursor-rules.mdc",
+    ".cursor/rules/database-schema.mdc",
+    ".cursor/rules/deployment-devops.mdc",
+    ".cursor/rules/development-conventions.mdc",
+    ".cursor/rules/frontend-web.mdc",
+    ".cursor/rules/project-overview.mdc"
+  ],
+
+  "env_keys_by_file": {
+    ".env": ["AUTH_SECRET", "DATABASE_URL", "KANEO_API_URL", "KANEO_CLIENT_URL", "POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER"],
+    ".env.local": ["POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER"],
+    ".env.sample": ["AUTH_SECRET", "GITHUB_APP_ID", "GITHUB_APP_NAME", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET", "GITHUB_PRIVATE_KEY", "GITHUB_WEBHOOK_SECRET", "KANEO_CLIENT_URL", "POSTGRES_DB", "POSTGRES_PASSWORD", "POSTGRES_USER", "SMTP_FROM", "SMTP_HOST", "SMTP_PASSWORD", "SMTP_PORT", "SMTP_REQUIRE_TLS", "SMTP_SECURE", "SMTP_USER"],
+    "apps/api/.env.test.example": ["AUTH_SECRET", "DATABASE_URL", "DISABLE_GUEST_ACCESS", "KANEO_API_URL", "KANEO_CLIENT_URL", "NODE_ENV"],
+    "apps/web/.env.development": ["VITE_API_URL", "VITE_CLIENT_URL"],
+    "apps/web/.env.production": ["VITE_API_URL", "VITE_CLIENT_URL", "VITE_SENTRY_DSN", "VITE_TURNSTILE_SITE_KEY"]
+  },
+  "env_keys_all": [
+    "AUTH_SECRET", "DATABASE_URL", "DISABLE_GUEST_ACCESS", "GITHUB_APP_ID", "GITHUB_APP_NAME",
+    "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET",
+    "GITHUB_PRIVATE_KEY", "GITHUB_WEBHOOK_SECRET", "KANEO_API_URL", "KANEO_CLIENT_URL", "NODE_ENV",
+    "POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER",
+    "SMTP_FROM", "SMTP_HOST", "SMTP_PASSWORD", "SMTP_PORT", "SMTP_REQUIRE_TLS", "SMTP_SECURE", "SMTP_USER",
+    "VITE_API_URL", "VITE_CLIENT_URL", "VITE_SENTRY_DSN", "VITE_TURNSTILE_SITE_KEY"
+  ],
+  "env_keys_referenced_in_code": [
+    "APPDATA", "AUTH_SECRET", "BILLING_FOUNDING_CUTOFF", "BILLING_REMINDER_MAX_PER_RUN", "BILLING_TRIAL_DAYS",
+    "COOKIE_DOMAIN", "CORS_ORIGINS", "CREEM_API_KEY", "CREEM_TEST_MODE", "CREEM_WEBHOOK_SECRET",
+    "CUSTOM_AUTH_PKCE", "CUSTOM_OAUTH_AUTHORIZATION_URL", "CUSTOM_OAUTH_AUTO_LOGIN", "CUSTOM_OAUTH_CLIENT_ID",
+    "CUSTOM_OAUTH_CLIENT_SECRET", "CUSTOM_OAUTH_DISCOVERY_URL", "CUSTOM_OAUTH_LOGOUT_URL",
+    "CUSTOM_OAUTH_RESPONSE_TYPE", "CUSTOM_OAUTH_SCOPES", "CUSTOM_OAUTH_TOKEN_URL", "CUSTOM_OAUTH_USER_INFO_URL",
+    "DATABASE_URL", "DEMO_MODE", "DEVICE_AUTH_CLIENT_IDS", "DISABLE_EMAIL_OTP_SIGN_IN", "DISABLE_GUEST_ACCESS",
+    "DISABLE_LOGIN_FORM", "DISABLE_PASSWORD_REGISTRATION", "DISABLE_REGISTRATION", "DISCORD_CLIENT_ID",
+    "DISCORD_CLIENT_SECRET", "GH_TOKEN", "GITHUB_APP_ID", "GITHUB_APP_NAME", "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET", "GITHUB_PRIVATE_KEY",
+    "GITHUB_PRIVATE_KEY_BASE64", "GITHUB_TOKEN", "GITHUB_WEBHOOK_SECRET", "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET", "KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "KANEO_API_KEY", "KANEO_API_URL",
+    "KANEO_CLIENT_URL", "KANEO_CLOUD", "KANEO_INTERNAL_API_URL", "KANEO_MCP_CLIENT_ID", "NODE_ENV",
+    "NOTIFICATION_SECRET_ENCRYPTION_KEY", "PLANKA_API_KEY", "PLANKA_PASSWORD", "POSTGRES_DB", "POSTGRES_HOST",
+    "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER", "REDIS_CLUSTER_NODES", "REDIS_PASSWORD",
+    "REDIS_SENTINELS", "REDIS_SENTINEL_MASTER_NAME", "REDIS_SENTINEL_PASSWORD", "REDIS_SENTINEL_TLS",
+    "REDIS_URL", "S3_FORCE_PATH_STYLE", "S3_MAX_IMAGE_UPLOAD_BYTES", "S3_PRESIGN_TTL_SECONDS",
+    "SENTRY_AUTH_TOKEN", "SENTRY_DSN", "SENTRY_ENVIRONMENT", "SENTRY_ORG", "SENTRY_PROFILES_SAMPLE_RATE",
+    "SENTRY_PROJECT", "SENTRY_RELEASE", "SENTRY_TRACES_SAMPLE_RATE", "SMTP_FROM", "TRUSTED_PROXIES",
+    "TURNSTILE_SECRET_KEY", "XDG_CONFIG_HOME",
+    "VITE_API_URL", "VITE_APP_URL", "VITE_CLIENT_URL", "VITE_SENTRY_DSN", "VITE_TURNSTILE_SITE_KEY"
+  ],
+
+  "monorepo": {
+    "type": "pnpm-workspace + turborepo",
+    "workspace_globs": ["packages/**", "apps/**"],
+    "package_manager": "pnpm@10.32.1",
+    "node_engine": ">=20.19.0",
+    "packages": [
+      { "name": "@kaneo/api", "root": "apps/api", "manifest": "apps/api/package.json", "test_command": "pnpm --filter @kaneo/api test" },
+      { "name": "@kaneo/web", "root": "apps/web", "manifest": "apps/web/package.json", "test_command": "pnpm --filter @kaneo/web test" },
+      { "name": "@kaneo/site", "root": "apps/site", "manifest": "apps/site/package.json", "test_command": null },
+      { "name": "@kaneo/libs", "root": "packages/libs", "manifest": "packages/libs/package.json", "test_command": "pnpm --filter @kaneo/libs test" },
+      { "name": "@kaneo/permissions", "root": "packages/permissions", "manifest": "packages/permissions/package.json", "test_command": "pnpm --filter @kaneo/permissions test" },
+      { "name": "@kaneo/mcp", "root": "packages/mcp", "manifest": "packages/mcp/package.json", "test_command": "pnpm --filter @kaneo/mcp test" },
+      { "name": "@kaneo/email", "root": "packages/email", "manifest": "packages/email/package.json", "test_command": "pnpm --filter @kaneo/email test" },
+      { "name": "@kaneo/planka-import", "root": "packages/planka-import", "manifest": "packages/planka-import/package.json", "test_command": "pnpm --filter @kaneo/planka-import test" },
+      { "name": "@kaneo/typescript-config", "root": "packages/typescript-config", "manifest": "packages/typescript-config/package.json", "test_command": null }
+    ],
+    "non_package_dirs": ["apps/docs", "tests/api", "tests/api-integration", "charts/kaneo", "i18n", "scripts", "deploy"]
+  },
+
+  "submodules": [],
+  "lfs": false,
+  "lfs_patterns": [],
+
+  "infra_hints": {
+    "dockerfile": true,
+    "dockerfile_paths": ["Dockerfile.kaneo"],
+    "docker_compose": true,
+    "docker_compose_paths": ["compose.yml", "compose.local.yml"],
+    "terraform": false,
+    "github_workflows": true,
+    "github_workflow_count": 13,
+    "gitlab_ci": false,
+    "circleci": false,
+    "jenkins": false,
+    "helm": true,
+    "helm_path": "charts/kaneo",
+    "devcontainer": true
+  },
+
+  "repo_size": {
+    "tracked_files": 1578,
+    "sampling_used": false
+  },
+
+  "regulated_repo_signals": [
+    { "kind": "security-policy", "path": "SECURITY.md" }
+  ],
+  "regulated_repo_warning_required": true,
+  "regulated_repo_signal_strength": "weak",
+  "regulated_repo_rule_applied": "Agent definition group 9: signals list non-empty => regulated_repo_warning_required = true. SECURITY.md is an enumerated root-file marker. No compliance directories, no CODEOWNERS, no PRIVACY/HIPAA/SOC2/PCI/GDPR docs were found, so strength is weak and the warning is informational, not a blocker.",
+
+  "off_limits_proposed": [
+    ".git/**",
+    ".env",
+    ".env.*",
+    ".env.local",
+    ".env.sample",
+    "apps/api/.env.test.example",
+    "apps/web/.env.development",
+    "apps/web/.env.production",
+    ".claude/**",
+    "CLAUDE.md",
+    "AGENTS.md",
+    ".cursor/**",
+    ".agents/**",
+    "skills/**",
+    "skills-lock.json",
+    ".coderabbit.yaml",
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    "out/**",
+    ".turbo/**",
+    "coverage/**",
+    ".husky/**",
+    "apps/web/src/routeTree.gen.ts",
+    "apps/api/src/database/migrations/**",
+    "pnpm-lock.yaml",
+    ".hook-logs/**",
+    ".sdlc/**"
+  ],
+  "off_limits_rationale": {
+    "apps/web/src/routeTree.gen.ts": "TanStack Router generated file — regenerated by the router plugin, never hand-edited.",
+    "apps/api/src/database/migrations/**": "Drizzle-generated SQL. AGENTS.md requires migrations be produced by `pnpm --filter @kaneo/api db:generate`, not written by hand.",
+    "pnpm-lock.yaml": "Lockfile — must be regenerated by pnpm, not edited.",
+    "CLAUDE.md": "Project agent instructions — plugin must not rewrite its own operating guide.",
+    "AGENTS.md": "Canonical operating guide referenced by CLAUDE.md.",
+    ".coderabbit.yaml": "Third-party review-bot config."
+  },
+
+  "policy_relevant_repo_rules": [
+    "AGENTS.md: API is the authority for authz; UI hiding is not an authorization check.",
+    "AGENTS.md: user-facing web copy must use static i18n keys; i18n/en-US.json is the source of truth.",
+    "AGENTS.md: root and package `lint` scripts run Biome with --write and can modify unrelated files — prefer targeted checks.",
+    "AGENTS.md: do not commit, push, or open a pull request unless explicitly requested.",
+    "AGENTS.md: preserve unrelated work in a dirty worktree."
+  ],
+
+  "coexistence_notes": [
+    "Cursor rules detected at .cursor/rules/ (7 .mdc files). Untouched by default. If Cursor auto-lint-on-save is running, plugin edits may trigger it.",
+    "No .mcp.json in the repo — no custom MCP servers registered at project scope. The repo does publish its own MCP package (packages/mcp) and serves MCP HTTP routes from apps/api, but neither is a Claude Code MCP registration.",
+    "No repo-local routing-policy.yaml — policy resolution falls back to the shipped/default policy.",
+    ".coderabbit.yaml detected — an automated PR review bot is configured. It acts on pushed branches, not on local edits.",
+    "Two parallel agent-skill trees exist (.claude/skills, .agents/skills, skills/ with skills-lock.json). All are off-limits; do not reconcile them as part of a run.",
+    "Your .gitignore does not cover .sdlc/. Run artifacts under .sdlc/ (packets, backups, telemetry) will be untracked but visible to `git add -A`. Gate 0 should offer to add .gitignore to this run's allowlist so the plugin can append the entry.",
+    "Worktree is dirty with untracked-only entries (.claude/settings.local.json, .hook-logs/, .sdlc/). No tracked-file modifications, so the rollback anchor at 5d1fc910 is clean.",
+    "Root `pnpm test` runs turbo across all packages with dependsOn ^build. For a scoped web refactor, propose the filtered command at Gate 0 to keep the verification loop short."
+  ],
+
+  "tier2b": {
+    "triggered": true,
+    "trigger_reason": "Primary stacks (Hono API, React+Vite+TanStack web, Next.js site) have no pre-authored adapter; plugin ships only generic.md, nest.md, python.md.",
+    "profile_path": ".sdlc/baseline/stack-profile.md"
+  }
+}

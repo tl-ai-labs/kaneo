@@ -1,0 +1,171 @@
+[
+  {
+    "id": "tp_codegen_001",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "new_file_add",
+    "module": "public-project",
+    "intent": "refactor",
+    "pass_id": "20260828-050440-refactor-lane-header",
+    "artifact_path": "apps/web/src/components/public-project/public-column-header.tsx",
+    "depends_on": [],
+    "instruction": "Create a new React component file: apps/web/src/components/public-project/public-column-header.tsx. It presents the header of one public-project kanban column. Return the file's COMPLETE content.\n\nImports — exactly two lines, in this exact order, no others (no React import, no Task import, no @/constants/column-icons import):\nimport { getColumnIcon } from \"@/lib/column\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nThe second MUST be a type-only import.\n\nProps — use `type`, not `interface`. Module-local, NOT exported. The literal text ProjectWithTasks[\"columns\"][number] must appear verbatim; do not introduce an intermediate alias:\ntype PublicColumnHeaderProps = {\n  column: ProjectWithTasks[\"columns\"][number];\n};\n\nExport — named function export only. No default export, no React.FC. Destructure the prop. Emit exactly this body, with these exact Tailwind class strings, this exact nesting, and this exact line-breaking (h3 on one line; the span broken across three lines):\nexport function PublicColumnHeader({ column }: PublicColumnHeaderProps) {\n  return (\n    <div className=\"p-2 shrink-0\">\n      <div className=\"flex items-center justify-between\">\n        <div className=\"flex items-center gap-2\">\n          {getColumnIcon(column.id, column.isFinal, column.icon)}\n          <h3 className=\"font-medium text-foreground\">{column.name}</h3>\n          <span className=\"text-sm text-muted-foreground\">\n            {column.tasks.length}\n          </span>\n        </div>\n      </div>\n    </div>\n  );\n}\n\nThe outer p-2 shrink-0 div is the single root — no wrapper, no fragment, no class reordering. No hooks, state, handlers, i18n, permission checks, or comment header. Two-space indent, double quotes, semicolons (Biome defaults).",
+    "acceptance": [
+      "File contains exactly two import statements, `@/lib/column` first then `@/types/project`",
+      "The ProjectWithTasks import uses `import type`",
+      "`type PublicColumnHeaderProps` is declared with `type` (no `interface`) and is not exported",
+      "The literal string ProjectWithTasks[\"columns\"][number] appears at least once in the file",
+      "File contains `export function PublicColumnHeader({ column }: PublicColumnHeaderProps)` and no `export default`",
+      "grep -c 'p-2 shrink-0' on the file returns 1",
+      "JSX class strings are exactly: \"p-2 shrink-0\", \"flex items-center justify-between\", \"flex items-center gap-2\", \"font-medium text-foreground\", \"text-sm text-muted-foreground\"",
+      "getColumnIcon is called as getColumnIcon(column.id, column.isFinal, column.icon)",
+      "No React import, no useState/useEffect, no i18n or permission usage"
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "file_content": {
+          "type": "string",
+          "description": "Complete contents of apps/web/src/components/public-project/public-column-header.tsx"
+        }
+      },
+      "required": [
+        "file_content"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 700
+    },
+    "inputs": [
+      {
+        "path": "apps/web/src/components/public-project/kanban-view.tsx",
+        "reason": "Source of the header JSX being lifted verbatim (lines 27-39)",
+        "content": "import { getColumnIcon } from \"@/lib/column\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\nimport { PublicTaskCard } from \"./task-card\";\n\ntype PublicKanbanViewProps = {\n  project: ProjectWithTasks;\n  onTaskClick: (task: Task) => void;\n};\n\nexport function PublicKanbanView({\n  project,\n  onTaskClick,\n}: PublicKanbanViewProps) {\n  const columns = project.columns ?? [];\n\n  return (\n    <div className=\"flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]\">\n      <div className=\"flex gap-3 p-3 h-full min-w-max\">\n        {columns.map((column) => {\n          return (\n            <div\n              key={column.id}\n              className=\"h-full flex-1 min-w-80 max-w-96 flex-shrink-0\"\n            >\n              <div className=\"flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50 transition-[background-color,box-shadow] duration-150 ease hover:bg-accent/20 hover:shadow-sm\">\n                <div className=\"p-2 shrink-0\">\n                  <div className=\"flex items-center justify-between\">\n                    <div className=\"flex items-center gap-2\">\n                      {getColumnIcon(column.id, column.isFinal, column.icon)}\n                      <h3 className=\"font-medium text-foreground\">\n                        {column.name}\n                      </h3>\n                      <span className=\"text-sm text-muted-foreground\">\n                        {column.tasks.length}\n                      </span>\n                    </div>\n                  </div>\n                </div>\n\n                <div className=\"p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]\">\n                  <div className=\"flex flex-col gap-1.5\">\n                    {column.tasks.map((task) => (\n                      <PublicTaskCard\n                        key={task.id}\n                        task={task}\n                        projectSlug={project.slug}\n                        isCompleted={column.isFinal}\n                        onTaskClick={onTaskClick}\n                      />\n                    ))}\n                  </div>\n\n                  {column.tasks.length === 0 && (\n                    <div className=\"text-center text-sm text-muted-foreground py-12 px-4\">\n                      <div className=\"w-8 h-8 rounded-full bg-muted flex items-center justify-center mx-auto mb-2\">\n                        {getColumnIcon(column.id, column.isFinal, column.icon)}\n                      </div>\n                      No tasks in {column.name.toLowerCase()}\n                    </div>\n                  )}\n                </div>\n              </div>\n            </div>\n          );\n        })}\n      </div>\n    </div>\n  );\n}\n"
+      },
+      {
+        "path": "apps/web/src/lib/column.tsx",
+        "reason": "Signature of getColumnIcon(id, isFinal, icon)",
+        "content": "import { CheckCircle2, Circle } from \"lucide-react\";\nimport columnIcons, {\n  DEFAULT_COLUMN_ICON_NAMES,\n} from \"@/constants/column-icons\";\n\nexport const getColumnIcon = (\n  columnId: string,\n  isFinal?: boolean,\n  iconName?: string | null,\n) => {\n  const resolvedIconName =\n    iconName ||\n    DEFAULT_COLUMN_ICON_NAMES[\n      columnId as keyof typeof DEFAULT_COLUMN_ICON_NAMES\n    ];\n  const Icon =\n    resolvedIconName &&\n    columnIcons[resolvedIconName as keyof typeof columnIcons];\n\n  if (Icon) {\n    return <Icon className=\"w-4 h-4 text-muted-foreground\" />;\n  }\n\n  return isFinal ? (\n    <CheckCircle2 className=\"w-4 h-4 text-muted-foreground\" />\n  ) : (\n    <Circle className=\"w-4 h-4 text-muted-foreground\" />\n  );\n};\n"
+      },
+      {
+        "path": "apps/web/src/types/project/index.ts",
+        "reason": "Shape of ProjectWithTasks and its columns element",
+        "content": "import type { client } from \"@kaneo/libs\";\nimport type { InferResponseType } from \"hono/client\";\nimport type Task from \"@/types/task\";\n\nexport type Project = Extract<\n  InferResponseType<(typeof client)[\"project\"][\":id\"][\"$get\"], 200>,\n  { id: string }\n>;\n\ntype TasksApiResponse = InferResponseType<\n  (typeof client)[\"task\"][\"tasks\"][\":projectId\"][\"$get\"],\n  200\n>;\n\ntype ProjectWithTasksRaw = TasksApiResponse[\"data\"];\n\nexport type ProjectWithTasks = Omit<\n  ProjectWithTasksRaw,\n  \"archivedTasks\" | \"columns\" | \"plannedTasks\"\n> & {\n  archivedTasks: Task[];\n  columns: Array<\n    Omit<ProjectWithTasksRaw[\"columns\"][number], \"tasks\"> & {\n      tasks: Task[];\n    }\n  >;\n  plannedTasks: Task[];\n};\n"
+      }
+    ],
+    "retry_count": 0
+  },
+  {
+    "id": "tp_codegen_002",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "existing_file_edit",
+    "module": "public-project",
+    "intent": "refactor",
+    "pass_id": "20260828-050440-refactor-lane-header",
+    "artifact_path": "apps/web/src/components/public-project/kanban-view.tsx",
+    "depends_on": [
+      "tp_codegen_001"
+    ],
+    "instruction": "Edit apps/web/src/components/public-project/kanban-view.tsx to delegate its column header to the sibling component PublicColumnHeader, which already exists at ./public-column-header and is exported as `export function PublicColumnHeader({ column }: { column: ProjectWithTasks[\"columns\"][number] })`. Return the file's COMPLETE post-edit content. Apply exactly these three hunks and change NOTHING else — everything outside them must stay byte-for-byte identical.\n\nHunk 1 (import): add the single line\nimport { PublicColumnHeader } from \"./public-column-header\";\nplaced immediately AFTER the `@/types/task` import line and immediately BEFORE the `./task-card` import line — Biome sorts the relative group alphabetically and \"./public-column-header\" sorts before \"./task-card\". Do NOT append it at the end of the imports. Do NOT insert a blank line between the alias (@/) group and the relative (./) group. KEEP the existing getColumnIcon import: the empty-state block further down still calls it, so after the edit getColumnIcon must appear exactly twice in the file (the import plus that one call).\n\nHunk 2 (delete): remove exactly the 13-line header block — the `<div className=\"p-2 shrink-0\">` element through its matching closing `</div>`. The `bg-sidebar` div above it is NOT part of the deletion, and neither is the blank line below it.\n\nHunk 3 (insert): at that same position put the bare line\n<PublicColumnHeader column={column} />\nat 16-space indentation. No wrapper element, no fragment, no key prop. Preserve exactly one blank line between it and the following task-list `<div className=\"p-2 overflow-y-auto ...\">`.\n\nUnchanged: PublicKanbanViewProps, the PublicKanbanView signature and named export, `const columns = project.columns ?? []`, both scroll containers, the columns.map callback shape, the PublicTaskCard render, and the empty-state block.",
+    "acceptance": [
+      "grep -c 'p-2 shrink-0' on kanban-view.tsx returns 0",
+      "grep -c 'getColumnIcon' on kanban-view.tsx returns 2 (import + empty-state call)",
+      "grep -c '<PublicColumnHeader column={column} />' on kanban-view.tsx returns 1",
+      "The line `import { PublicColumnHeader } from \"./public-column-header\";` sits between the `@/types/task` import and the `./task-card` import",
+      "No blank line separates the @/ import group from the ./ import group",
+      "Exactly one blank line precedes the `<div className=\"p-2 overflow-y-auto` element",
+      "`<PublicColumnHeader column={column} />` is indented 16 spaces with no wrapper, fragment, or key prop",
+      "PublicKanbanViewProps, the PublicKanbanView export, `const columns = project.columns ?? []`, the columns.map callback, PublicTaskCard render, and the empty-state block are unchanged"
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "file_content": {
+          "type": "string",
+          "description": "Complete post-edit contents of apps/web/src/components/public-project/kanban-view.tsx"
+        }
+      },
+      "required": [
+        "file_content"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 1600
+    },
+    "inputs": [
+      {
+        "path": "apps/web/src/components/public-project/kanban-view.tsx",
+        "reason": "The file being edited; all three hunks apply to it",
+        "content": "import { getColumnIcon } from \"@/lib/column\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\nimport { PublicTaskCard } from \"./task-card\";\n\ntype PublicKanbanViewProps = {\n  project: ProjectWithTasks;\n  onTaskClick: (task: Task) => void;\n};\n\nexport function PublicKanbanView({\n  project,\n  onTaskClick,\n}: PublicKanbanViewProps) {\n  const columns = project.columns ?? [];\n\n  return (\n    <div className=\"flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]\">\n      <div className=\"flex gap-3 p-3 h-full min-w-max\">\n        {columns.map((column) => {\n          return (\n            <div\n              key={column.id}\n              className=\"h-full flex-1 min-w-80 max-w-96 flex-shrink-0\"\n            >\n              <div className=\"flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50 transition-[background-color,box-shadow] duration-150 ease hover:bg-accent/20 hover:shadow-sm\">\n                <div className=\"p-2 shrink-0\">\n                  <div className=\"flex items-center justify-between\">\n                    <div className=\"flex items-center gap-2\">\n                      {getColumnIcon(column.id, column.isFinal, column.icon)}\n                      <h3 className=\"font-medium text-foreground\">\n                        {column.name}\n                      </h3>\n                      <span className=\"text-sm text-muted-foreground\">\n                        {column.tasks.length}\n                      </span>\n                    </div>\n                  </div>\n                </div>\n\n                <div className=\"p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]\">\n                  <div className=\"flex flex-col gap-1.5\">\n                    {column.tasks.map((task) => (\n                      <PublicTaskCard\n                        key={task.id}\n                        task={task}\n                        projectSlug={project.slug}\n                        isCompleted={column.isFinal}\n                        onTaskClick={onTaskClick}\n                      />\n                    ))}\n                  </div>\n\n                  {column.tasks.length === 0 && (\n                    <div className=\"text-center text-sm text-muted-foreground py-12 px-4\">\n                      <div className=\"w-8 h-8 rounded-full bg-muted flex items-center justify-center mx-auto mb-2\">\n                        {getColumnIcon(column.id, column.isFinal, column.icon)}\n                      </div>\n                      No tasks in {column.name.toLowerCase()}\n                    </div>\n                  )}\n                </div>\n              </div>\n            </div>\n          );\n        })}\n      </div>\n    </div>\n  );\n}\n"
+      }
+    ],
+    "retry_count": 0
+  },
+  {
+    "id": "tp_codegen_003",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "subtype": "test_add",
+    "module": "public-project",
+    "intent": "refactor",
+    "pass_id": "20260828-050440-refactor-lane-header",
+    "artifact_path": "apps/web/src/components/public-project/public-column-header.test.tsx",
+    "depends_on": [
+      "tp_codegen_001"
+    ],
+    "instruction": "Create apps/web/src/components/public-project/public-column-header.test.tsx, a vitest + @testing-library/react test for the sibling component at ./public-column-header, which exports `export function PublicColumnHeader({ column }: { column: ProjectWithTasks[\"columns\"][number] })` and renders the column icon (via the real getColumnIcon from @/lib/column), the column name, and column.tasks.length. Return the file's COMPLETE content.\n\nThe test shape is FROZEN by an operator decision — reproduce it, do not redesign it. Hard constraints: mock NOTHING (no vi.mock, no vi.clearAllMocks, no `vi` import at all — @/lib/column must run for real so a real lucide <svg> renders). Assert the icon only via container.querySelector(\"svg\"). Assert name and count only via screen.getByText. Use toBeVisible(), not toBeTruthy(); jest-dom matchers are already loaded by src/test/setup.ts, so add no per-file matcher import. NO assertion may mention any Tailwind class string — no class assertions, no snapshots, no extra fixtures. An explicit afterEach(() => { cleanup(); }) IS REQUIRED: vitest.config.ts sets no test.globals and setup.ts registers no global afterEach, so Testing Library auto-cleanup does not activate. The fixture id must be \"in-progress\" so getColumnIcon takes its primary Icon branch. Cast the fixture with `as ProjectWithTasks[\"columns\"][number]`, NOT `as unknown as`; if tsc needs more non-optional fields, add minimal literal fields rather than widening. Import order: @testing-library/react, then vitest, then the @/ alias, then the relative import.\n\nEmit exactly this:\nimport { cleanup, render, screen } from \"@testing-library/react\";\nimport { afterEach, describe, expect, it } from \"vitest\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport { PublicColumnHeader } from \"./public-column-header\";\n\nafterEach(() => {\n  cleanup();\n});\n\nconst column = {\n  id: \"in-progress\",\n  name: \"In Progress\",\n  isFinal: false,\n  icon: null,\n  tasks: [{ id: \"task-1\" }, { id: \"task-2\" }],\n} as ProjectWithTasks[\"columns\"][number];\n\ndescribe(\"PublicColumnHeader\", () => {\n  it(\"renders the column name, task count, and icon\", () => {\n    const { container } = render(<PublicColumnHeader column={column} />);\n    expect(screen.getByText(\"In Progress\")).toBeVisible();\n    expect(screen.getByText(\"2\")).toBeVisible();\n    expect(container.querySelector(\"svg\")).toBeVisible();\n  });\n});",
+    "acceptance": [
+      "File contains no `vi.mock`, no `vi.clearAllMocks`, and no import of `vi`",
+      "File contains an explicit `afterEach(() => { cleanup(); });` block",
+      "Imports appear in order: @testing-library/react, vitest, @/types/project (type-only), ./public-column-header",
+      "The fixture uses id \"in-progress\" and is cast with `as ProjectWithTasks[\"columns\"][number]` (no `as unknown as`)",
+      "Exactly one describe block and one it block",
+      "Assertions use toBeVisible(); no toBeTruthy(), no snapshots",
+      "The icon is asserted only via container.querySelector(\"svg\")",
+      "No assertion references any Tailwind class string and no jest-dom matcher import is present",
+      "pnpm --filter @kaneo/web test passes for this file"
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "file_content": {
+          "type": "string",
+          "description": "Complete contents of apps/web/src/components/public-project/public-column-header.test.tsx"
+        }
+      },
+      "required": [
+        "file_content"
+      ]
+    },
+    "budget": {
+      "maxInputTokens": 4000,
+      "maxOutputTokens": 800
+    },
+    "inputs": [
+      {
+        "path": "apps/web/src/lib/column.tsx",
+        "reason": "Confirms the \"in-progress\" id maps to a real lucide icon so an <svg> renders unmocked",
+        "content": "import { CheckCircle2, Circle } from \"lucide-react\";\nimport columnIcons, {\n  DEFAULT_COLUMN_ICON_NAMES,\n} from \"@/constants/column-icons\";\n\nexport const getColumnIcon = (\n  columnId: string,\n  isFinal?: boolean,\n  iconName?: string | null,\n) => {\n  const resolvedIconName =\n    iconName ||\n    DEFAULT_COLUMN_ICON_NAMES[\n      columnId as keyof typeof DEFAULT_COLUMN_ICON_NAMES\n    ];\n  const Icon =\n    resolvedIconName &&\n    columnIcons[resolvedIconName as keyof typeof columnIcons];\n\n  if (Icon) {\n    return <Icon className=\"w-4 h-4 text-muted-foreground\" />;\n  }\n\n  return isFinal ? (\n    <CheckCircle2 className=\"w-4 h-4 text-muted-foreground\" />\n  ) : (\n    <Circle className=\"w-4 h-4 text-muted-foreground\" />\n  );\n};\n"
+      },
+      {
+        "path": "apps/web/src/types/project/index.ts",
+        "reason": "Fields required on a columns element so the fixture cast typechecks",
+        "content": "import type { client } from \"@kaneo/libs\";\nimport type { InferResponseType } from \"hono/client\";\nimport type Task from \"@/types/task\";\n\nexport type Project = Extract<\n  InferResponseType<(typeof client)[\"project\"][\":id\"][\"$get\"], 200>,\n  { id: string }\n>;\n\ntype TasksApiResponse = InferResponseType<\n  (typeof client)[\"task\"][\"tasks\"][\":projectId\"][\"$get\"],\n  200\n>;\n\ntype ProjectWithTasksRaw = TasksApiResponse[\"data\"];\n\nexport type ProjectWithTasks = Omit<\n  ProjectWithTasksRaw,\n  \"archivedTasks\" | \"columns\" | \"plannedTasks\"\n> & {\n  archivedTasks: Task[];\n  columns: Array<\n    Omit<ProjectWithTasksRaw[\"columns\"][number], \"tasks\"> & {\n      tasks: Task[];\n    }\n  >;\n  plannedTasks: Task[];\n};\n"
+      },
+      {
+        "path": "apps/web/src/test/setup.ts",
+        "reason": "Confirms jest-dom is preloaded and no global afterEach is registered",
+        "content": "import \"@testing-library/jest-dom/vitest\";\n"
+      },
+      {
+        "path": "apps/web/vitest.config.ts",
+        "reason": "Confirms jsdom env, @ alias, and absence of test.globals",
+        "content": "import path from \"node:path\";\nimport react from \"@vitejs/plugin-react\";\nimport { defineConfig } from \"vitest/config\";\n\nexport default defineConfig({\n  plugins: [react()],\n  test: {\n    environment: \"jsdom\",\n    setupFiles: [\"./src/test/setup.ts\"],\n    include: [\"src/**/*.test.{ts,tsx}\"],\n    coverage: {\n      enabled: false,\n    },\n  },\n  resolve: {\n    alias: {\n      \"@\": path.resolve(__dirname, \"./src\"),\n      \"@i18n\": path.resolve(__dirname, \"../../i18n\"),\n    },\n  },\n});\n"
+      }
+    ],
+    "retry_count": 0
+  }
+]

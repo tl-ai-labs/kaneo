@@ -1,0 +1,56 @@
+MMO: 2026-08-28T05:26:24.184Z INFO   route.decide packet_id=smoke-opus-vendor phase=docs task_type=smoke module=precheck rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-28T05:26:24.185Z INFO   dispatch.start packet_id=smoke-opus-vendor model_id=opus max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:26:29.496Z INFO   dispatch.end packet_id=smoke-opus-vendor model_id=opus ok=true terminal_reason=success tokens_in=12870 tokens_out=11 tokens_cached=10098 cost_usd=0.13513 latency_ms=5311 attempts=1
+MMO: 2026-08-28T05:27:38.592Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-28T05:27:38.593Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-28T05:27:38.593Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-28T05:27:50.576Z INFO   run.start run_id=20260828-050440-refactor-lane-header mode=brownfield intent=refactor policy=opus-only-v5 auth_mode=vendor code_dir=/home/sangeetha/projects/kaneo output_dir=.sdlc/runs/20260828-050440-refactor-lane-header
+MMO: 2026-08-28T05:29:09.396Z INFO   phase.start run_id=20260828-050440-refactor-lane-header phase=requirements_analysis form=intent-specific
+MMO: 2026-08-28T05:29:58.482Z INFO   route.decide packet_id=tp_req_001 phase=requirements_analysis intent=refactor task_type=delta_requirements module=public-project rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-28T05:29:58.483Z INFO   dispatch.start packet_id=tp_req_001 model_id=opus max_out=5000 max_in=12000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:30:39.413Z INFO   dispatch.end packet_id=tp_req_001 model_id=opus ok=true terminal_reason=success tokens_in=13908 tokens_out=3444 tokens_cached=13200 cost_usd=0.23595999999999998 latency_ms=40930 attempts=1
+MMO: 2026-08-28T05:31:24.620Z INFO   phase.end run_id=20260828-050440-refactor-lane-header phase=requirements_analysis form=intent-specific
+MMO: 2026-08-28T05:31:24.695Z INFO   gate.open run_id=20260828-050440-refactor-lane-header gate=gate-1 title="Requirements Approval"
+MMO: 2026-08-28T05:32:38.493Z INFO   gate.resolved run_id=20260828-050440-refactor-lane-header gate=gate-1 response=approved
+MMO: 2026-08-28T05:32:38.539Z INFO   phase.start run_id=20260828-050440-refactor-lane-header phase=change_plan form=intent-specific
+MMO: 2026-08-28T05:33:40.070Z INFO   route.decide packet_id=tp_plan_001 phase=change_plan intent=refactor task_type=delta_refactor_plan module=public-project rule_index=1 rule_reason="Judgment: delta design for brownfield feature-extend / refactor / deps" model_id=opus
+MMO: 2026-08-28T05:33:40.070Z INFO   dispatch.start packet_id=tp_plan_001 model_id=opus max_out=5000 max_in=14000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:35:25.257Z INFO   dispatch.end packet_id=tp_plan_001 model_id=opus ok=true terminal_reason=success tokens_in=17434 tokens_out=8898 tokens_cached=68985 cost_usd=0.43581949999999997 latency_ms=105187 attempts=1
+MMO: 2026-08-28T05:36:35.282Z INFO   phase.end run_id=20260828-050440-refactor-lane-header phase=change_plan form=intent-specific
+MMO: 2026-08-28T05:36:35.323Z INFO   gate.open run_id=20260828-050440-refactor-lane-header gate=gate-2 title="Architecture Approval (change plan)"
+MMO: 2026-08-28T05:37:41.200Z INFO   gate.resolved run_id=20260828-050440-refactor-lane-header gate=gate-2 response=approved
+MMO: 2026-08-28T05:37:41.243Z INFO   phase.start run_id=20260828-050440-refactor-lane-header phase=plan_task_packets form=intent-specific
+MMO: 2026-08-28T05:38:35.177Z INFO   route.decide packet_id=tp_decomp_001 phase=plan_task_packets intent=refactor task_type=decomposition module=public-project rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-28T05:38:35.178Z INFO   dispatch.start packet_id=tp_decomp_001 model_id=opus max_out=6000 max_in=8000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:39:28.667Z INFO   dispatch.end packet_id=tp_decomp_001 model_id=opus ok=true terminal_reason=success tokens_in=14369 tokens_out=5095 tokens_cached=40281 cost_usd=0.2954325 latency_ms=53489 attempts=1
+MMO: 2026-08-28T05:40:26.804Z INFO   phase.end run_id=20260828-050440-refactor-lane-header phase=plan_task_packets form=intent-specific
+MMO: 2026-08-28T05:40:37.449Z INFO   phase.start run_id=20260828-050440-refactor-lane-header phase=execute_packets form=default
+MMO: 2026-08-28T05:41:09.448Z INFO   route.decide packet_id=tp_codegen_001 phase=codegen intent=refactor task_type=react_component module=public-project rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-28T05:41:09.448Z INFO   dispatch.start packet_id=tp_codegen_001 model_id=opus max_out=700 max_in=4000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:41:33.239Z INFO   dispatch.end packet_id=tp_codegen_001 model_id=opus ok=true terminal_reason=success tokens_in=12496 tokens_out=436 tokens_cached=13200 cost_usd=0.14567 latency_ms=23791 attempts=1
+MMO: 2026-08-28T05:43:31.512Z INFO   route.decide packet_id=tp_codegen_002 phase=codegen intent=refactor task_type=react_component module=public-project rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-28T05:43:31.513Z INFO   dispatch.start packet_id=tp_codegen_002 model_id=opus max_out=1600 max_in=4000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:43:47.850Z INFO   dispatch.end packet_id=tp_codegen_002 model_id=opus ok=true terminal_reason=success tokens_in=14709 tokens_out=1424 tokens_cached=10098 cost_usd=0.190397 latency_ms=16337 attempts=1
+MMO: 2026-08-28T05:44:48.726Z INFO   route.decide packet_id=tp_codegen_003 phase=codegen intent=refactor task_type=react_component module=public-project rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-28T05:44:48.726Z INFO   dispatch.start packet_id=tp_codegen_003 model_id=opus max_out=800 max_in=4000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:44:58.457Z INFO   dispatch.end packet_id=tp_codegen_003 model_id=opus ok=true terminal_reason=success tokens_in=15089 tokens_out=557 tokens_cached=10098 cost_usd=0.17266600000000001 latency_ms=9730 attempts=1
+MMO: 2026-08-28T05:45:19.349Z INFO   phase.end run_id=20260828-050440-refactor-lane-header phase=execute_packets form=default
+MMO: 2026-08-28T05:45:33.289Z INFO   phase.start run_id=20260828-050440-refactor-lane-header phase=senior_code_review form=default
+MMO: 2026-08-28T05:46:36.821Z INFO   route.decide packet_id=tp_review_001 phase=senior_code_review intent=refactor task_type=module_review module=public-project rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-28T05:46:36.823Z INFO   dispatch.start packet_id=tp_review_001 model_id=opus max_out=5000 max_in=14000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:48:16.447Z INFO   dispatch.end packet_id=tp_review_001 model_id=opus ok=true terminal_reason=success tokens_in=24677 tokens_out=7256 tokens_cached=206746 cost_usd=0.536881 latency_ms=99624 attempts=1
+MMO: 2026-08-28T05:48:47.806Z INFO   phase.end run_id=20260828-050440-refactor-lane-header phase=senior_code_review form=default
+MMO: 2026-08-28T05:48:47.888Z INFO   phase.start run_id=20260828-050440-refactor-lane-header phase=test_run form=intent-specific
+MMO: 2026-08-28T05:50:01.493Z INFO   phase.end run_id=20260828-050440-refactor-lane-header phase=test_run form=intent-specific
+MMO: 2026-08-28T05:50:01.551Z INFO   phase.start run_id=20260828-050440-refactor-lane-header phase=security_review form=intent-specific
+MMO: 2026-08-28T05:50:57.368Z INFO   route.decide packet_id=tp_sec_001 phase=security_review intent=refactor task_type=changed_files_review module=public-project rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-28T05:50:57.369Z INFO   dispatch.start packet_id=tp_sec_001 model_id=opus max_out=4000 max_in=12000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-28T05:53:09.324Z INFO   dispatch.end packet_id=tp_sec_001 model_id=opus ok=true terminal_reason=success tokens_in=23868 tokens_out=10524 tokens_cached=131387 cost_usd=0.5715245 latency_ms=131955 attempts=1
+MMO: 2026-08-28T05:54:13.437Z INFO   phase.end run_id=20260828-050440-refactor-lane-header phase=security_review form=intent-specific
+MMO: 2026-08-28T05:54:13.481Z INFO   gate.open run_id=20260828-050440-refactor-lane-header gate=gate-3 title="Security Review"
+MMO: 2026-08-28T05:56:30.135Z INFO   gate.resolved run_id=20260828-050440-refactor-lane-header gate=gate-3 response=approved
+MMO: 2026-08-28T05:56:30.176Z INFO   phase.start run_id=20260828-050440-refactor-lane-header phase=generate_final_report form=default
+MMO: 2026-08-28T05:58:23.797Z INFO   phase.end run_id=20260828-050440-refactor-lane-header phase=generate_final_report form=default
+MMO: 2026-08-28T05:58:23.851Z INFO   run.end run_id=20260828-050440-refactor-lane-header outcome=completed total_cost_usd=2.58435
+MMO: 2026-08-28T05:58:23.903Z INFO   gate.open run_id=20260828-050440-refactor-lane-header gate=gate-4 title="Final Acceptance"
+MMO: 2026-08-28T06:00:01.719Z INFO   gate.resolved run_id=20260828-050440-refactor-lane-header gate=gate-4 response=approved

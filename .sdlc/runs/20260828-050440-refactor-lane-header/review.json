@@ -1,0 +1,62 @@
+{
+  "packet_id": "tp_review_001",
+  "phase": "senior_code_review",
+  "model": "claude-opus-5",
+  "verdict": "approve",
+  "dom_identical": true,
+  "tokenized_before": [
+    "div | \"p-2 shrink-0\"",
+    "  div | \"flex items-center justify-between\"",
+    "    div | \"flex items-center gap-2\"",
+    "      {expr} | getColumnIcon(column.id, column.isFinal, column.icon)",
+    "      h3 | \"font-medium text-foreground\" | text: {column.name}",
+    "      span | \"text-sm text-muted-foreground\" | text: {column.tasks.length}"
+  ],
+  "tokenized_after": [
+    "div | \"p-2 shrink-0\"",
+    "  div | \"flex items-center justify-between\"",
+    "    div | \"flex items-center gap-2\"",
+    "      {expr} | getColumnIcon(column.id, column.isFinal, column.icon)",
+    "      h3 | \"font-medium text-foreground\" | text: {column.name}",
+    "      span | \"text-sm text-muted-foreground\" | text: {column.tasks.length}"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "info",
+      "file": "apps/web/src/components/public-project/public-column-header.test.tsx",
+      "summary": "The svg assertion is non-vacuous but branch-insensitive.",
+      "detail": "Fixture icon is null, so iconName || DEFAULT_COLUMN_ICON_NAMES[columnId] resolves via \"in-progress\" to \"CircleDot\", which is present in columnIcons, so Icon is truthy and the primary <Icon /> branch renders. lucide-react renders an <svg> root, so container.querySelector(\"svg\") matches a real node - not vacuous. Observation only: the isFinal fallback also renders an <svg>, so the assertion would still pass if icon resolution silently regressed to the fallback. On getByText(\"2\"): the subtree contains exactly two text nodes, \"In Progress\" and \"2\"; the icon contributes none, so the query is unambiguous."
+    },
+    {
+      "id": "F2",
+      "severity": "info",
+      "file": "apps/web/src/components/public-project/public-column-header.tsx",
+      "summary": "Repo conventions all satisfied; props type correctly left unexported.",
+      "detail": "type not interface; no narrating comments; named export only; type-only import; no React import (correct under the automatic JSX runtime, matching every sibling); filename matches the public-* prefix convention of public-pr-badge.tsx / public-task-labels.tsx. PublicColumnHeaderProps intentionally unexported - the sole consumer passes column={column} inline and never names the type. ProjectWithTasks[\"columns\"] is a non-optional Array, so the [number] indexed access is well-formed."
+    },
+    {
+      "id": "F3",
+      "severity": "info",
+      "file": "apps/web/src/components/public-project/kanban-view.tsx",
+      "summary": "Call site and empty-state confirmed intact.",
+      "detail": "bg-sidebar div element children unchanged in count and order: BEFORE [div.p-2 shrink-0, div.p-2 overflow-y-auto], AFTER [<PublicColumnHeader />, div.p-2 overflow-y-auto] - exactly two, header first. The blank source line produces no node. Empty-state block still calls getColumnIcon and the import survives, so it will not trip an unused-import lint. grep count of 2 is exactly one import plus one remaining call."
+    },
+    {
+      "id": "F4",
+      "severity": "info",
+      "file": "apps/web/src/components/public-project/public-column-header.test.tsx",
+      "summary": "Explicit afterEach(cleanup) is required here, not redundant.",
+      "detail": "vitest.config.ts does not set globals: true, so Testing Library auto-cleanup (which self-registers only when a global afterEach exists) does not run. The explicit cleanup is load-bearing. toBeVisible is available via src/test/setup.ts importing @testing-library/jest-dom/vitest as setupFiles."
+    }
+  ],
+  "refinement_packets": [],
+  "uncovered_risks": [
+    "Composition is untested. The leaf test covers PublicColumnHeader in isolation, but nothing asserts kanban-view.tsx still renders it. If the call site were dropped in a future edit, every test would still pass and the header would vanish from the public board. The extraction moved coverage to the leaf without adding coverage at the seam it created.",
+    "test and typecheck had not been run at review time and the reviewer could not execute commands. Static tracing says both should pass, but that is analysis, not execution.",
+    "The web build (and the react-compiler babel preset) is unexercised by test or typecheck, so the new component has never been through the compiler. Known and accepted, but it is the one transform that could treat a component boundary differently from an inline JSX subtree.",
+    "The fixture uses a whole-object `as` cast with { id } task stubs. If the column shape gains a required field the header later reads, the cast keeps the test compiling and green while production narrows or breaks.",
+    "Acceptance criteria are framed entirely around DOM identity. The React tree did change - the header is now a distinct component instance rather than inline JSX. Behavior-neutral here (no state, key, effects, or ref), but it is the one axis the criteria do not check."
+  ],
+  "notes": "Clean structural extraction. Tokenized (tag, className, rendered-expression) sequences are element-for-element identical in nesting, order, and class strings; the only source differences are line-breaking inside the h3 and the component boundary itself, neither of which produces a DOM difference. Zero blocker or major findings, hence no refinement packets. No objection to the frozen test shape - omitting class assertions is the right call given this tokenized comparison already covers them."
+}

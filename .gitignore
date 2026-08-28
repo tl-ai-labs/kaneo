@@ -55,3 +55,11 @@ compose.override.yml
 # TanStack Router generated cache
 apps/web/.tanstack/
 .pi/
+
+# AI-SDLC plugin run artifacts
+# Text run records ARE tracked; agent trajectory databases are not (opaque
+# session transcripts, ~20MB, unauditable for secrets).
+.sdlc/**/*.db
+.sdlc/local/
+.hook-logs/
+.claude/settings.local.json
