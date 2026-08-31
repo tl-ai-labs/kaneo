@@ -1,0 +1,60 @@
+[
+  {
+    "id": "tp_docs_001",
+    "phase": "docs",
+    "task_type": "doc_update",
+    "module": "docs-board-filters",
+    "instruction": "Edit exactly one file: apps/docs/core/functional/plan-and-execute-tasks.mdx. Extend ONLY the body of the section headed `## 5. Use filters to focus`. Change nothing else in the file — not the frontmatter, not any heading, not sections 1-4, not section 6, not the `## Next` list. Do not create any new file. Do not touch apps/docs/docs.json, README.md, or anything under apps/web/src.\n\nCURRENT CONTENT OF SECTION 5 (lines 45-55) — preserve every line of this verbatim, in this order, and add your new prose around/after it:\n\n```\n## 5. Use filters to focus\n\nThe board toolbar supports filtering by:\n\n- Status\n- Priority\n- Assignee\n- Due date\n- Labels\n\nUse filters aggressively during standups, planning, and triage.\n```\n\nWHAT TO ADD: user-facing prose describing the active-filter chips that the board toolbar renders. Roughly 10-25 lines of new content. Plain markdown only (paragraphs, bullet list, bold, optionally one simple markdown table) — no MDX imports, no components, no JSX, no images, no screenshots.\n\nThe facts you must convey, all verified against the shipped board toolbar:\n\n1. WHEN A CHIP EXISTS. A chip is rendered for a field only while that field has at least one value selected. Each of the five fields gets at most one chip — never one chip per selected value.\n\n2. WHERE CHIPS APPEAR. Chips appear in the board toolbar itself, in the same left-hand row as the **Filter** button and the sort control, after them. That row wraps when it runs out of width. Do NOT say the chips appear on a separate row, in a separate bar, in a filter bar, or below the toolbar. Present them in their render order: Status, Priority, Assignee, Due date, Labels.\n\n3. CHIP ANATOMY. A chip shows four divider-separated segments: the subject (the field name), the operator, the value, and an `X` (clear) control. Refer to the clear control as the chip's `X` control — never identify it by colour or position alone.\n\n4. SUBJECT WORDING. Use the shipped subject strings exactly as written: **Status**, **Priority**, **Assignee**, **Due date**, **Labels**. Note the lowercase \"d\" in \"Due date\", matching the existing bullet list.\n\n5. OPERATOR AND VALUE, PER FIELD. These five fields do NOT behave alike; state the differences explicitly. This table is the authority — reproduce its content faithfully in whatever form you choose (a markdown table is acceptable and probably clearest):\n\n| Field | Operator text | Icon preview in the value segment | Value text when exactly ONE value is selected | Value text when TWO OR MORE are selected |\n| --- | --- | --- | --- | --- |\n| Status | is any of | Yes — stacked status/column icons | The column's name | a count, e.g. \"3 selected\" |\n| Priority | is any of | Yes — stacked priority icons | The priority's name | a count, e.g. \"3 selected\" |\n| Assignee | is any of | Yes — stacked member avatars | The member's name | a count, e.g. \"3 selected\" |\n| Due date | is any of | NO icons | The chosen option's name: **Due this week**, **Due next week**, or **No due date** | a count, e.g. \"3 selected\" |\n| Labels | include any of | NO icons | ALWAYS a count, even for a single label — the label is never named | a count, e.g. \"3 selected\" |\n\nThe operator difference must be stated explicitly: Status, Priority, Assignee and Due date chips read **is any of**; the Labels chip reads **include any of**. Do not describe a single uniform operator.\n\nYou must explicitly call out two exceptions: (a) the Labels chip never names the selected label — it always shows the count, unlike the other four fields, which name a single selected value; (b) the Due date chip shows no icon preview, unlike Status, Priority and Assignee.\n\nIf you mention the icon/avatar preview at all, you must state that at most three icons are shown regardless of how many values are selected, and you must not imply one icon per selected value. Do not attribute an icon preview to the Due date or Labels chip.\n\nThe multi-selection text renders as a number followed by the word `selected` — write it as e.g. \"3 selected\".\n\n6. WHAT THE `X` CLEARS — the rule most easily got wrong. For ALL FIVE fields, including Labels, the chip's `X` clears that field's ENTIRE selection, not a single value: the chip disappears and every value selected for that field is removed. State that the `X` never affects the other four fields' chips — the other chips and their selections are left untouched. Do not suggest the `X` removes one value at a time or that you must click it repeatedly.\n\n7. CLEAR ALL FILTERS. **Clear all filters** is NOT a standalone toolbar button and is NOT part of any chip. It is the last item inside the **Filter** dropdown menu, below a separator, and it is shown only once at least one filter is active. It clears every filter at once. Use the neutral phrasing \"once at least one filter is active\" rather than enumerating the five fields.\n\nCONSTRAINTS:\n- Scope every claim to the board toolbar. Do NOT claim the chips appear in List view, in Backlog, or on the task page. The section's existing opening (\"The board toolbar supports filtering by:\") sets this scope; stay inside it.\n- Terminology: \"chip\" and \"filter chip\" ARE permitted as the descriptive noun. Do not invent any other product terminology — no \"filter pill\", \"filter bar\", \"facet\", \"token\", \"filter tray\" — and no invented option names.\n- Quoted UI strings must match the shipped English strings character for character: \"Clear all filters\", \"is any of\", \"include any of\", \"Due this week\", \"Due next week\", \"No due date\", and a count rendered as \"3 selected\".\n- Do not mention WIP limits, work in progress limits, or hours rollup anywhere.\n- Do not document the filter dropdown's internals beyond the location of **Clear all filters** (skip the per-field submenus, the \"All statuses\"/\"All priorities\" reset rows, and select-all label behaviour). Do not document sorting, the Board/List view-mode toggle, or backlog filtering.\n- Do not claim anything about filter persistence, URL state, or how filtering is applied to the task list.\n- Omit internal edge-case fallbacks (unmatched status ids, unresolved assignees).\n- House style: short prose, second person, imperative where instructional, matching sections 1-4. Match the surrounding page's markdown conventions.\n- Diff hygiene: no reformatting of untouched lines, no trailing-whitespace churn, no reordering of the existing bullets.",
+    "artifact_path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+    "inputs": [],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "file_content": {
+          "type": "string",
+          "description": "Complete new content of plan-and-execute-tasks.mdx"
+        },
+        "changed_section_only": {
+          "type": "string",
+          "description": "Just the rewritten section 5 block"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_content",
+        "changed_section_only"
+      ]
+    },
+    "acceptance": [
+      "git diff touches exactly one file: apps/docs/core/functional/plan-and-execute-tasks.mdx; no new file under apps/docs/ and apps/docs/docs.json unmodified",
+      "The frontmatter block and every heading in the file are byte-identical to the pre-change version; only the body of '## 5. Use filters to focus' changed",
+      "The bullets '- Status', '- Priority', '- Assignee', '- Due date', '- Labels' still exist in section 5 in that order, and the line 'Use filters aggressively during standups, planning, and triage.' is still present",
+      "Section 5 states a chip appears for a field only while that field has at least one selected value, and that each field gets at most one chip",
+      "Section 5 places chips in the board toolbar alongside the Filter button and the sort control, and does not describe them as a separate bar or row",
+      "Section 5 describes a chip as showing a subject, an operator, a value, and an X clear control",
+      "The added text contains both 'is any of' and 'include any of', and states that Status/Priority/Assignee/Due date use the former while Labels uses the latter",
+      "Section 5 states that for Status, Priority, Assignee and Due date a single selection is shown by name and two or more are shown as a count such as '3 selected'",
+      "Section 5 states the Labels chip always shows a count and never names the label, even for a single selection",
+      "Section 5 names the Due date single-selection values as Due this week, Due next week, No due date",
+      "If the icon/avatar preview is mentioned, it is stated as capped at three icons, and no icon preview is attributed to the Due date or Labels chip",
+      "Section 5 states that a chip's X clears that whole field's selection (all its values) for all five fields including Labels, and leaves the other filters untouched",
+      "Section 5 states Clear all filters is the last item inside the Filter dropdown menu, shown only once at least one filter is active, and clears every filter; it is not described as a toolbar button or part of a chip",
+      "grep -Ei 'wip|work in progress|hours' returns no match introduced by this change",
+      "No added sentence asserts chip behaviour outside the board toolbar (no List view, Backlog, or task page claims)",
+      "Every quoted UI string in the added text matches i18n/en-US.json character for character",
+      "The added text introduces no MDX imports, components or JSX; the page remains valid MDX",
+      "The addition is roughly 10-25 lines of new content and matches the page's second-person, short-prose house style",
+      "No reformatting of untouched lines, no trailing-whitespace churn, no reordering of existing bullets",
+      "No PII table and no role/permission matrix added"
+    ],
+    "budget": {
+      "maxInputTokens": 24000,
+      "maxOutputTokens": 6000
+    },
+    "pass_id": "20260831-083417-docs-board-features",
+    "intent": "docs",
+    "retry_count": 0
+  }
+]

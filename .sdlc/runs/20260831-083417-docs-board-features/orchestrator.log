@@ -1,0 +1,48 @@
+MMO: 2026-08-31T08:34:51.372Z INFO   route.decide packet_id=smoke-docs-sonnet phase=docs task_type=smoke module=precheck rule_index=9 rule_reason="Volume work" model_id=sonnet
+MMO: 2026-08-31T08:34:51.373Z INFO   dispatch.start packet_id=smoke-docs-sonnet model_id=sonnet max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T08:34:58.304Z INFO   dispatch.end packet_id=smoke-docs-sonnet model_id=sonnet ok=true terminal_reason=success tokens_in=17991 tokens_out=11 tokens_cached=18534 cost_usd=0.07688880000000001 latency_ms=6931 attempts=1
+MMO: 2026-08-31T08:42:57.293Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-31T08:42:57.294Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-31T08:42:57.295Z INFO   preflight.model model_id=sonnet adapter=claude-cli ok=true
+MMO: 2026-08-31T08:42:57.296Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-31T08:43:07.421Z INFO   run.start run_id=20260831-083417-docs-board-features mode=brownfield intent=docs policy=opus-plus-sonnet-max auth_mode=vendor code_dir=/home/sangeetha/projects/kaneo output_dir=.sdlc/runs/20260831-083417-docs-board-features
+MMO: 2026-08-31T08:46:00.499Z INFO   phase.start run_id=20260831-083417-docs-board-features phase=requirements_analysis form=intent-specific
+MMO: 2026-08-31T08:46:56.475Z INFO   route.decide packet_id=tp_req_001 phase=requirements_analysis intent=docs task_type=requirements module=docs-board-filters rule_index=0 rule_reason="Judgment-heavy, low volume" model_id=opus
+MMO: 2026-08-31T08:46:56.475Z INFO   dispatch.start packet_id=tp_req_001 model_id=opus max_out=5000 max_in=12000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T08:49:00.696Z INFO   dispatch.end packet_id=tp_req_001 model_id=opus ok=true terminal_reason=success tokens_in=27475 tokens_out=9371 tokens_cached=72140 cost_usd=0.5496369999999999 latency_ms=124220 attempts=1
+MMO: 2026-08-31T08:50:16.221Z INFO   phase.end run_id=20260831-083417-docs-board-features phase=requirements_analysis form=intent-specific
+MMO: 2026-08-31T08:50:16.276Z INFO   phase.skip run_id=20260831-083417-docs-board-features phase=architecture_design reason=docs-skips-architecture
+MMO: 2026-08-31T08:50:16.320Z INFO   gate.open run_id=20260831-083417-docs-board-features gate=gate-1 title="Requirements Approval"
+MMO: 2026-08-31T08:51:49.092Z INFO   gate.resolved run_id=20260831-083417-docs-board-features gate=gate-1 response=approved
+MMO: 2026-08-31T08:51:49.134Z INFO   phase.start run_id=20260831-083417-docs-board-features phase=plan_task_packets form=intent-specific
+MMO: 2026-08-31T08:52:19.535Z INFO   route.decide packet_id=tp_plan_001 phase=plan_task_packets intent=docs task_type=decomposition module=docs-board-filters rule_index=2 rule_reason="Needs full context to slice work cleanly" model_id=opus
+MMO: 2026-08-31T08:52:19.536Z INFO   dispatch.start packet_id=tp_plan_001 model_id=opus max_out=5000 max_in=12000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T08:53:12.011Z INFO   dispatch.end packet_id=tp_plan_001 model_id=opus ok=true terminal_reason=success tokens_in=20948 tokens_out=4241 tokens_cached=38329 cost_usd=0.3374425 latency_ms=52475 attempts=1
+MMO: 2026-08-31T08:54:12.987Z INFO   phase.end run_id=20260831-083417-docs-board-features phase=plan_task_packets form=intent-specific
+MMO: 2026-08-31T08:54:13.033Z INFO   phase.start run_id=20260831-083417-docs-board-features phase=execute_packets form=intent-specific
+MMO: 2026-08-31T08:54:51.820Z INFO   route.decide packet_id=tp_docs_001 phase=docs intent=docs task_type=doc_update module=docs-board-filters rule_index=9 rule_reason="Volume work" model_id=sonnet
+MMO: 2026-08-31T08:54:51.820Z INFO   dispatch.start packet_id=tp_docs_001 model_id=sonnet max_out=6000 max_in=24000 cache_context=docs:20260831-083417-docs-board-features work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T08:55:52.650Z INFO   dispatch.end packet_id=tp_docs_001 model_id=sonnet ok=true terminal_reason=success tokens_in=21108 tokens_out=6704 tokens_cached=18534 cost_usd=0.1585748 latency_ms=60829 attempts=1
+MMO: 2026-08-31T08:56:37.474Z INFO   phase.end run_id=20260831-083417-docs-board-features phase=execute_packets form=intent-specific
+MMO: 2026-08-31T08:57:03.675Z INFO   phase.start run_id=20260831-083417-docs-board-features phase=senior_code_review form=default
+MMO: 2026-08-31T08:57:34.984Z INFO   route.decide packet_id=tp_review_001 phase=senior_code_review intent=docs task_type=doc_review module=docs-board-filters rule_index=3 rule_reason="Cross-file reasoning + judgment" model_id=opus
+MMO: 2026-08-31T08:57:34.985Z INFO   dispatch.start packet_id=tp_review_001 model_id=opus max_out=6000 max_in=24000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T09:01:13.315Z INFO   dispatch.end packet_id=tp_review_001 model_id=opus ok=true terminal_reason=success tokens_in=47353 tokens_out=17136 tokens_cached=268296 cost_usd=1.038807 latency_ms=218331 attempts=1
+MMO: 2026-08-31T09:02:34.838Z INFO   route.decide packet_id=tp_docs_002 phase=docs intent=docs task_type=doc_update module=docs-board-filters rule_index=9 rule_reason="Volume work" model_id=sonnet
+MMO: 2026-08-31T09:02:34.839Z INFO   dispatch.start packet_id=tp_docs_002 model_id=sonnet max_out=4000 max_in=16000 cache_context=docs:20260831-083417-docs-board-features work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T09:02:54.181Z INFO   dispatch.end packet_id=tp_docs_002 model_id=sonnet ok=true terminal_reason=success tokens_in=20591 tokens_out=1500 tokens_cached=18534 cost_usd=0.1041478 latency_ms=19343 attempts=1
+MMO: 2026-08-31T09:03:32.826Z INFO   phase.end run_id=20260831-083417-docs-board-features phase=senior_code_review form=default
+MMO: 2026-08-31T09:03:32.894Z INFO   phase.start run_id=20260831-083417-docs-board-features phase=test_run form=intent-specific
+MMO: 2026-08-31T09:03:51.905Z INFO   phase.end run_id=20260831-083417-docs-board-features phase=test_run form=intent-specific
+MMO: 2026-08-31T09:03:51.950Z INFO   phase.start run_id=20260831-083417-docs-board-features phase=security_review form=intent-specific
+MMO: 2026-08-31T09:04:25.739Z INFO   route.decide packet_id=tp_sec_001 phase=security_review intent=docs task_type=changed_files_review module=docs-board-filters rule_index=4 rule_reason="Risk-bearing, low volume" model_id=opus
+MMO: 2026-08-31T09:04:25.739Z INFO   dispatch.start packet_id=tp_sec_001 model_id=opus max_out=5000 max_in=16000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T09:06:51.745Z INFO   dispatch.end packet_id=tp_sec_001 model_id=opus ok=true terminal_reason=success tokens_in=26855 tokens_out=9356 tokens_cached=288292 cost_usd=0.649235 latency_ms=145999 attempts=1
+MMO: 2026-08-31T09:07:48.372Z INFO   phase.end run_id=20260831-083417-docs-board-features phase=security_review form=intent-specific
+MMO: 2026-08-31T09:07:48.416Z INFO   gate.open run_id=20260831-083417-docs-board-features gate=gate-3 title="Security Review"
+MMO: 2026-08-31T09:11:26.375Z INFO   gate.resolved run_id=20260831-083417-docs-board-features gate=gate-3 response=approved
+MMO: 2026-08-31T09:11:26.433Z INFO   phase.start run_id=20260831-083417-docs-board-features phase=generate_final_report form=default
+MMO: 2026-08-31T09:12:14.372Z INFO   phase.end run_id=20260831-083417-docs-board-features phase=generate_final_report form=default
+MMO: 2026-08-31T09:12:14.417Z INFO   gate.open run_id=20260831-083417-docs-board-features gate=gate-4 title="Final Acceptance"
+MMO: 2026-08-31T09:13:35.722Z INFO   gate.resolved run_id=20260831-083417-docs-board-features gate=gate-4 response=approved
+MMO: 2026-08-31T09:13:35.813Z INFO   run.end run_id=20260831-083417-docs-board-features outcome=completed total_cost_usd=2.837844

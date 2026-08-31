@@ -1,0 +1,5 @@
+MMO: 2026-08-31T08:34:43.332Z INFO   policy.load policy_name=opus-plus-sonnet-max source=name version=1 model_count=2 rule_count=13
+MMO: 2026-08-31T08:34:43.347Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-31T08:34:43.350Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-31T08:34:43.350Z INFO   preflight.model model_id=sonnet adapter=claude-cli ok=true
+MMO: 2026-08-31T08:34:43.351Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global

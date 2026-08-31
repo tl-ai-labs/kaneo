@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "run_id": "20260831-083417-docs-board-features",
+  "intent": "docs",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+      "existed_before": true,
+      "sha_before": "sha256:0eb427e331a8e992f577666fbf12fc0061256960b5347acbdb12d6a9c44b90c0",
+      "sha_after": "sha256:67d77c6d5500543aea1cf699edb17eca619b5ddbb661ae02a3c8fd158dd8ed0f",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_docs_001",
+      "written_at": "2026-08-31T08:56:37.437Z"
+    },
+    {
+      "path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+      "existed_before": true,
+      "sha_before": "sha256:67d77c6d5500543aea1cf699edb17eca619b5ddbb661ae02a3c8fd158dd8ed0f",
+      "sha_after": "sha256:253b0554f23cf4555c4e521f98d8229dc162393f5f07fa633dfe4789214c0f72",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260831-083417-docs-board-features/backups/apps__docs__core__functional__plan-and-execute-tasks.mdx",
+      "packet_id": "tp_docs_002",
+      "written_at": "2026-08-31T09:03:18.852Z"
+    }
+  ]
+}

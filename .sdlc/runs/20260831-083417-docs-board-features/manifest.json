@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "run_id": "20260831-083417-docs-board-features",
+  "mode": "brownfield",
+  "intent": "docs",
+  "policy": "opus-plus-sonnet-max",
+  "policy_version": 1,
+  "auth_mode": "vendor",
+  "cost_basis": "measured",
+  "cost_basis_note": "Every phase dispatched through the MCP server to the claude-cli adapter; cost_usd is the CLI-reported total_cost_usd verbatim, not a char-count estimate. No phase ran in-session.",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "committed": false,
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260831-083417-docs-board-features",
+  "totals": {
+    "cost_usd": 2.837844,
+    "dispatch_latency_ms": 606348,
+    "dispatch_latency_min": 10.11,
+    "input_tokens": 164330,
+    "input_tokens_cached": 704125,
+    "output_tokens": 48308,
+    "llm_dispatches": 6
+  },
+  "pre_check": {
+    "cost_usd": 0.076889,
+    "note": "Operator pre-check smoke packet, dispatched before run.start. Excluded from run totals."
+  },
+  "by_phase": [
+    {
+      "phase": "requirements_analysis",
+      "packets": 1,
+      "cost_usd": 0.549637,
+      "latency_ms": 121519,
+      "input_tokens": 27475,
+      "input_tokens_cached": 72140,
+      "output_tokens": 9371,
+      "models": [
+        "claude-opus-5"
+      ],
+      "rule_indices": [
+        0
+      ]
+    },
+    {
+      "phase": "architecture_design",
+      "packets": 1,
+      "cost_usd": 0,
+      "latency_ms": 0,
+      "input_tokens": 0,
+      "input_tokens_cached": 0,
+      "output_tokens": 0,
+      "models": [],
+      "rule_indices": []
+    },
+    {
+      "phase": "plan_task_packets",
+      "packets": 1,
+      "cost_usd": 0.337442,
+      "latency_ms": 50902,
+      "input_tokens": 20948,
+      "input_tokens_cached": 38329,
+      "output_tokens": 4241,
+      "models": [
+        "claude-opus-5"
+      ],
+      "rule_indices": [
+        2
+      ]
+    },
+    {
+      "phase": "docs",
+      "packets": 2,
+      "cost_usd": 0.262723,
+      "latency_ms": 73818,
+      "input_tokens": 41699,
+      "input_tokens_cached": 37068,
+      "output_tokens": 8204,
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "rule_indices": [
+        9
+      ]
+    },
+    {
+      "phase": "senior_code_review",
+      "packets": 1,
+      "cost_usd": 1.038807,
+      "latency_ms": 217228,
+      "input_tokens": 47353,
+      "input_tokens_cached": 268296,
+      "output_tokens": 17136,
+      "models": [
+        "claude-opus-5"
+      ],
+      "rule_indices": [
+        3
+      ]
+    },
+    {
+      "phase": "tests",
+      "packets": 1,
+      "cost_usd": 0,
+      "latency_ms": 0,
+      "input_tokens": 0,
+      "input_tokens_cached": 0,
+      "output_tokens": 0,
+      "models": [],
+      "rule_indices": []
+    },
+    {
+      "phase": "security_review",
+      "packets": 1,
+      "cost_usd": 0.649235,
+      "latency_ms": 142881,
+      "input_tokens": 26855,
+      "input_tokens_cached": 288292,
+      "output_tokens": 9356,
+      "models": [
+        "claude-opus-5"
+      ],
+      "rule_indices": [
+        4
+      ]
+    }
+  ],
+  "by_model": [
+    {
+      "model": "claude-opus-5",
+      "packets": 4,
+      "cost_usd": 2.575121,
+      "latency_ms": 532530,
+      "output_tokens": 40104,
+      "input_tokens_cached": 667057,
+      "cost_share_pct": 90.7
+    },
+    {
+      "model": "claude-sonnet-5",
+      "packets": 2,
+      "cost_usd": 0.262723,
+      "latency_ms": 73818,
+      "output_tokens": 8204,
+      "input_tokens_cached": 37068,
+      "cost_share_pct": 9.3
+    }
+  ],
+  "phases_skipped": [
+    {
+      "phase": "architecture_design",
+      "reason": "Intent matrix: docs SKIPs architecture_design; Gate 2 skipped with it"
+    }
+  ],
+  "verification": {
+    "automated_tests_run": false,
+    "reason": "apps/docs has no package.json (content-only Mintlify dir, not a workspace package despite apps/** glob) and biome.json excludes .mdx. No automated check exists for this artifact. Deliberate, not an omission.",
+    "checks_performed": [
+      "git diff --stat: 18 insertions, 0 deletions, 1 file",
+      "em dashes in file: 0; em dashes across apps/docs: 0",
+      "markdown table lines in file: 0",
+      "prohibited-topic grep (wip|work in progress|hours): no match",
+      "apps/docs/docs.json unmodified",
+      "sha256 of artifact matches provenance sha_after"
+    ]
+  },
+  "gates": [
+    {
+      "gate": "gate-0",
+      "response": "approved",
+      "note": "pre-approved by operator before this session"
+    },
+    {
+      "gate": "gate-1",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-2",
+      "response": "skipped",
+      "note": "architecture_design skipped"
+    },
+    {
+      "gate": "gate-3",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-4",
+      "response": "accepted",
+      "note": "Operator accepted; run closed. Closes the four-leg docs-intent policy comparison."
+    }
+  ],
+  "reviews": {
+    "senior": {
+      "verdict": "approved_with_refinements",
+      "defects": 4,
+      "factual": 2,
+      "style": 2,
+      "refinement_packet": "tp_docs_002"
+    },
+    "security": {
+      "verdict": "pass-with-notes",
+      "notes": 3
+    }
+  },
+  "files_changed": [
+    {
+      "path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+      "insertions": 18,
+      "deletions": 0,
+      "writes": 2,
+      "tracked_in_git": true,
+      "sha_before": "sha256:0eb427e331a8e992f577666fbf12fc0061256960b5347acbdb12d6a9c44b90c0",
+      "sha_after": "sha256:253b0554f23cf4555c4e521f98d8229dc162393f5f07fa633dfe4789214c0f72"
+    }
+  ],
+  "files_changed_outside_run": [
+    {
+      "path": ".gitignore",
+      "note": "+6 lines, mtime 08:42:12, Gate 0 setup, 55s before run.start; absent from provenance.json"
+    },
+    {
+      "path": "biome.json",
+      "note": "+1 line, mtime 08:42:12, Gate 0 setup; absent from provenance.json"
+    }
+  ],
+  "artifacts": [
+    "requirements.md",
+    "packets.json",
+    "review.md",
+    "security_review.md",
+    "provenance.json",
+    "telemetry.jsonl",
+    "manifest.json",
+    "SUMMARY.md",
+    "intent_brief.md",
+    "discovery.md",
+    "baseline.json"
+  ],
+  "known_defects_observed": [
+    {
+      "id": "brief-ac5",
+      "summary": "Frozen brief AC-5 names apps/web/src/hooks/use-task-filters.ts as falsifiability anchor; the board route wires useTaskFiltersWithLabelsSupport instead.",
+      "handling": "Neutralised in the requirements packet by declaring the reference inaccurate and anchoring on board-toolbar.tsx.",
+      "impact": "none",
+      "sighting": 3
+    },
+    {
+      "id": "provenance-double-write-backup",
+      "summary": "Second write to the same path records backup=yes but the backup captures post-first-write content, not pristine.",
+      "evidence": "record1 sha_before 0eb427e3 -> sha_after 67d77c6d, backup_path null; record2 sha_before 67d77c6d -> sha_after 253b0554, backup_path set.",
+      "workaround": "git checkout to HEAD before applying the refinement; only valid for a tracked, clean target.",
+      "impact": "none this run",
+      "sighting": 4
+    },
+    {
+      "id": "write-contract-scope-gap",
+      "summary": "The write contract governs packet writes but not the setup step that writes the contract, so Gate 0 repo edits land outside provenance.json entirely and have never been covered by /mmo:revert.",
+      "evidence": ".gitignore and biome.json mtime 08:42:12, 55s before run.start; absent from provenance.json.",
+      "impact": "latent",
+      "sighting": 1,
+      "actionability": "highest of the four — small, precise, fixable",
+      "mtime_evidence": {
+        ".gitignore": "08:42:12",
+        "biome.json": "08:42:12",
+        "run_start": "08:43:07",
+        "first_packet_write": "08:56:37",
+        "gap_seconds_before_run_start": 55
+      },
+      "scope": "Every run of both comparisons (8 runs). Setup-phase repo edits are invisible to provenance.json and therefore to /mmo:revert.",
+      "disposition": "Provenance correctly excludes these paths and should stay that way. Operator stages them deliberately at commit time, attributed as setup rather than run output."
+    },
+    {
+      "id": "pretooluse-hook-cannot-block",
+      "summary": "write-contract-check.mjs deny path exits 1; PreToolUse blocks only on exit 2, so the hook was advisory all run.",
+      "impact": "none this run; latent for a non-docs intent",
+      "sighting": "carried"
+    }
+  ],
+  "headline_finding": {
+    "id": "review-cost-scales-with-repo-surface",
+    "claim": "On an agent-capable adapter, review cost scales with repo surface rather than diff size.",
+    "cross_adapter": true,
+    "evidence": "senior_code_review 268,296 cached input for a 20-line diff at $1.038807 (6.5x the writing phase); security_review 288,292 cached. Both reviews 59% of run cost vs 9% for both writing passes. Same shape previously observed on antigravity-worker (flash-agsdk leg); claude-cli is a different adapter.",
+    "counterweight": "That cost bought the quality: all four senior-review defects (F1, F2, S1, S2) required reading beyond the diff. S1/S2 required grepping the whole apps/docs tree; F2 required opening toggleLabelGroup, a function the diff never touched.",
+    "durable_result": true,
+    "transfers_to": "policies and adapters not exercised in either comparison",
+    "adapters_converging": [
+      "antigravity-worker",
+      "claude-cli"
+    ],
+    "why_it_transfers": "Two adapters with different vendor paths, different auth, and different model families converge on the same structural property. That is worth more than any cost number in either comparison, because it is the one finding that generalises beyond the policies actually run.",
+    "misreading_warning": "Anyone who reads \"59% of cost went to review\" without \"and that is what found the four defects\" will draw the wrong conclusion and start trimming review scope. The counterweight is not optional context: all four defects required reading past the diff, and F2 required opening toggleLabelGroup, a function the diff never touches."
+  },
+  "run_outcome": "completed",
+  "finalized_at": "2026-08-31T09:13:35.758Z",
+  "cost_comparison_basis": {
+    "ranking_prohibited": true,
+    "statement": "Not a ranking. The four legs do not share a cost basis.",
+    "measured": [
+      {
+        "leg": "opus-plus-sonnet-max (this run)",
+        "total_usd": 2.837844
+      },
+      {
+        "leg": "flash-agsdk-only",
+        "total_usd": 1.053734
+      }
+    ],
+    "estimated": [
+      {
+        "leg": "opus-plus-flash-v37",
+        "total_usd": 0.638539
+      },
+      {
+        "leg": "opus-only-v5",
+        "total_usd": 0.663891
+      }
+    ],
+    "estimated_error_direction": "known-low",
+    "estimated_error_evidence": "opus-only measured its own estimator undercounting agentic phases by 2.03-2.64x. The factor is unquantified for the other estimated leg."
+  },
+  "methodology_finding": {
+    "id": "withheld-help-produces-unconfounded-results",
+    "claim": "The legs that received no pre-solved trap answers are the legs whose results are usable.",
+    "detail": "This run was the second of four legs to receive no pre-solved trap answers. Both withheld-help legs (flash-agsdk-only and opus-plus-sonnet-max) derived every trap discrimination unaided. The two legs that received help (opus-plus-flash-v37, opus-only-v5) are the two whose results are confounded; opus-only says so in its own report.",
+    "pattern_held": 2,
+    "scope": "a finding about how to run comparisons, not about which policy is better",
+    "traps_derived_unaided": [
+      "Labels chip value is always a count, never the label name",
+      "Labels operator is include any of, not is any of",
+      "the chip X clears the entire field, not one value",
+      "Clear all filters lives inside the Filter dropdown, not the toolbar",
+      "StackedIcons caps the icon preview at three; Due date and Labels render none"
+    ],
+    "corroboration": "The icon-cap discrimination was found independently by both withheld-help legs."
+  }
+}

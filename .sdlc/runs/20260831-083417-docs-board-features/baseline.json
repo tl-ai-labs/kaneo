@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "plugin_version": "0.6.0",
+  "built_at": "2026-08-31T08:34:17Z",
+  "run_id": "20260831-083417-docs-board-features",
+  "mode": "first-time",
+  "intent_hint": "docs",
+
+  "git": {
+    "head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "branch": "docs/opus-sonnet",
+    "dirty": true,
+    "dirty_tracked": false,
+    "dirty_detail": "Working tree is clean for all tracked files (git diff HEAD is empty). Only untracked paths present: .claude/settings.local.json, .hook-logs/, .sdlc/",
+    "untracked": [".claude/settings.local.json", ".hook-logs/", ".sdlc/"],
+    "remotes": [
+      { "name": "origin", "url": "https://github.com/tl-ai-labs/kaneo.git" }
+    ],
+    "gitignore_covers_sdlc": false
+  },
+
+  "topology": {
+    "top_level_dirs": [
+      ".agents", ".claude", ".cursor", ".devcontainer", ".husky", ".turbo", ".vscode",
+      "apps", "charts", "deploy", "i18n", "packages", "plans", "scripts", "sentry",
+      "skills", "tests"
+    ],
+    "entry_points": [
+      "apps/api/src/index.ts",
+      "apps/web/src/main.tsx",
+      "packages/mcp/src/index.ts"
+    ],
+    "tracked_file_count": 1578
+  },
+
+  "stacks": [
+    {
+      "manifest": "package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["turborepo", "pnpm-workspace", "biome", "husky", "commitlint"]
+    },
+    {
+      "manifest": "apps/api/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["hono", "hono-openapi", "better-auth", "drizzle-orm", "valibot", "postgres", "ioredis", "mcp-sdk", "sentry", "vitest"]
+    },
+    {
+      "manifest": "apps/web/package.json",
+      "stack": "node-typescript-react",
+      "detected_frameworks": ["react", "vite", "tanstack-router", "tanstack-query", "tailwind", "radix-ui", "dnd-kit", "tiptap", "zustand", "i18next", "vitest"]
+    },
+    {
+      "manifest": "apps/site/package.json",
+      "stack": "node-typescript-react",
+      "detected_frameworks": ["next", "react", "tailwind"]
+    },
+    {
+      "manifest": "apps/docs/docs.json",
+      "stack": "mintlify-docs",
+      "detected_frameworks": ["mintlify"]
+    },
+    {
+      "manifest": "packages/libs/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["hono-client"]
+    },
+    {
+      "manifest": "packages/permissions/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["better-auth"]
+    },
+    {
+      "manifest": "packages/mcp/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": ["mcp-sdk", "zod"]
+    },
+    {
+      "manifest": "packages/email/package.json",
+      "stack": "node-typescript-react",
+      "detected_frameworks": ["react-email", "nodemailer"]
+    },
+    {
+      "manifest": "packages/planka-import/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": []
+    }
+  ],
+
+  "test_command_proposed": "pnpm test",
+  "test_command_source": "package.json#scripts.test (turbo test); pnpm-workspace.yaml present so pnpm is the package manager",
+  "test_command_caveats": [
+    "Root `pnpm test` runs `turbo test` across all packages and rebuilds dependencies; it is slow.",
+    "Prefer filtered commands for a docs-scoped run: `pnpm --filter @kaneo/web test`, `pnpm --filter @kaneo/api test`.",
+    "Integration tests are a separate target: `pnpm test:integration` (PostgreSQL-backed, tests/api-integration).",
+    "Root `pnpm lint` runs Biome with --write and rewrites files; use `biome ci` for a read-only check."
+  ],
+  "test_commands_by_package": {
+    "@kaneo/api": "pnpm --filter @kaneo/api test",
+    "@kaneo/web": "pnpm --filter @kaneo/web test",
+    "@kaneo/libs": "pnpm --filter @kaneo/libs test",
+    "@kaneo/permissions": "pnpm --filter @kaneo/permissions test",
+    "@kaneo/mcp": "pnpm --filter @kaneo/mcp test",
+    "@kaneo/email": "pnpm --filter @kaneo/email test",
+    "@kaneo/planka-import": "pnpm --filter @kaneo/planka-import test",
+    "@kaneo/docs": "none — Mintlify content package, no test script",
+    "@kaneo/site": "none — no test script"
+  },
+
+  "docs_present": [
+    { "path": "README.md", "kind": "readme" },
+    { "path": "CLAUDE.md", "kind": "claude-instructions" },
+    { "path": "AGENTS.md", "kind": "agents-instructions" },
+    { "path": "CONTRIBUTING.md", "kind": "contributing" },
+    { "path": "SECURITY.md", "kind": "security-policy" },
+    { "path": "CODE_OF_CONDUCT.md", "kind": "code-of-conduct" },
+    { "path": "CHANGELOG.md", "kind": "changelog" },
+    { "path": "LICENSE", "kind": "license" },
+    { "path": "ENVIRONMENT_SETUP.md", "kind": "setup-guide" },
+    { "path": "apps/docs/", "kind": "mintlify-docs-site" },
+    { "path": "apps/docs/docs.json", "kind": "mintlify-config" },
+    { "path": "apps/docs/core/functional/", "kind": "user-facing-feature-docs" },
+    { "path": "apps/docs/api-reference/", "kind": "api-reference" },
+    { "path": "apps/docs/openapi.json", "kind": "openapi-spec" },
+    { "path": "apps/docs/README.md", "kind": "readme" },
+    { "path": "apps/docs/CONTRIBUTING.md", "kind": "contributing" },
+    { "path": "plans/", "kind": "planning-docs" }
+  ],
+  "adr_dirs": [],
+
+  "ai_configs_detected": [
+    { "path": ".claude/", "type": "claude-code-project-config" },
+    { "path": ".claude/settings.local.json", "type": "claude-code-settings-local", "tracked": false },
+    { "path": ".claude/skills/", "type": "claude-code-skills" },
+    { "path": "CLAUDE.md", "type": "claude-instructions" },
+    { "path": "AGENTS.md", "type": "agents-instructions" },
+    { "path": ".agents/", "type": "agent-config" },
+    { "path": ".agents/skills/", "type": "agent-skills" },
+    { "path": "skills/", "type": "repo-skills" },
+    { "path": ".cursor/", "type": "cursor" },
+    { "path": ".cursor/rules/", "type": "cursor-rules", "rule_files": ["backend-api.mdc", "cursor-rules.mdc", "database-schema.mdc", "deployment-devops.mdc", "development-conventions.mdc", "frontend-web.mdc", "project-overview.mdc"] },
+    { "path": ".vscode/", "type": "editor-config" },
+    { "path": ".devcontainer/", "type": "devcontainer" }
+  ],
+  "ai_configs_absent": [
+    ".mcp.json", ".cursorrules", ".aider.conf.yml", ".continue/",
+    ".github/copilot-instructions.md", ".roo/", "routing-policy.yaml", "gemini*.{yaml,json}"
+  ],
+
+  "env_keys_by_file": {
+    ".env": ["AUTH_SECRET", "DATABASE_URL", "KANEO_API_URL", "KANEO_CLIENT_URL", "POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER"],
+    ".env.local": ["POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER"],
+    ".env.sample": ["AUTH_SECRET", "GITHUB_APP_ID", "GITHUB_APP_NAME", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET", "GITHUB_PRIVATE_KEY", "GITHUB_WEBHOOK_SECRET", "KANEO_CLIENT_URL", "POSTGRES_DB", "POSTGRES_PASSWORD", "POSTGRES_USER", "SMTP_FROM", "SMTP_HOST", "SMTP_PASSWORD", "SMTP_PORT", "SMTP_REQUIRE_TLS", "SMTP_SECURE", "SMTP_USER"],
+    "apps/api/.env.test.example": ["AUTH_SECRET", "DATABASE_URL", "DISABLE_GUEST_ACCESS", "KANEO_API_URL", "KANEO_CLIENT_URL", "NODE_ENV"],
+    "apps/web/.env.development": ["VITE_API_URL", "VITE_CLIENT_URL"],
+    "apps/web/.env.production": ["VITE_API_URL", "VITE_CLIENT_URL", "VITE_SENTRY_DSN", "VITE_TURNSTILE_SITE_KEY"]
+  },
+  "env_keys_all": [
+    "AUTH_SECRET", "DATABASE_URL", "DISABLE_GUEST_ACCESS", "GITHUB_APP_ID", "GITHUB_APP_NAME",
+    "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET",
+    "GITHUB_PRIVATE_KEY", "GITHUB_WEBHOOK_SECRET", "KANEO_API_URL", "KANEO_CLIENT_URL", "NODE_ENV",
+    "POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER",
+    "SMTP_FROM", "SMTP_HOST", "SMTP_PASSWORD", "SMTP_PORT", "SMTP_REQUIRE_TLS", "SMTP_SECURE",
+    "SMTP_USER", "VITE_API_URL", "VITE_CLIENT_URL", "VITE_SENTRY_DSN", "VITE_TURNSTILE_SITE_KEY"
+  ],
+  "env_keys_referenced_in_code": [
+    "AUTH_SECRET", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "BILLING_FOUNDING_CUTOFF",
+    "BILLING_REMINDER_MAX_PER_RUN", "BILLING_TRIAL_DAYS", "COOKIE_DOMAIN", "CORS_ORIGINS",
+    "CREEM_API_KEY", "CREEM_PRODUCT_PERSONAL_MONTHLY", "CREEM_PRODUCT_TEAM_ANNUAL",
+    "CREEM_TEST_MODE", "CREEM_WEBHOOK_SECRET", "CUSTOM_AUTH_PKCE", "CUSTOM_OAUTH_AUTHORIZATION_URL",
+    "CUSTOM_OAUTH_AUTO_LOGIN", "CUSTOM_OAUTH_CLIENT_ID", "CUSTOM_OAUTH_CLIENT_SECRET",
+    "CUSTOM_OAUTH_DISCOVERY_URL", "CUSTOM_OAUTH_LOGOUT_URL", "CUSTOM_OAUTH_RESPONSE_TYPE",
+    "CUSTOM_OAUTH_SCOPES", "CUSTOM_OAUTH_TOKEN_URL", "CUSTOM_OAUTH_USER_INFO_URL", "DATABASE_URL",
+    "DEMO_MODE", "DEVICE_AUTH_CLIENT_IDS", "DISABLE_EMAIL_OTP_SIGN_IN", "DISABLE_GUEST_ACCESS",
+    "DISABLE_LOGIN_FORM", "DISABLE_PASSWORD_REGISTRATION", "DISABLE_REGISTRATION",
+    "DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET", "GH_TOKEN", "GITHUB_APP_ID", "GITHUB_APP_NAME",
+    "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_OAUTH_CLIENT_ID",
+    "GITHUB_OAUTH_CLIENT_SECRET", "GITHUB_PRIVATE_KEY", "GITHUB_PRIVATE_KEY_BASE64",
+    "GITHUB_TOKEN", "GITHUB_WEBHOOK_SECRET", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET",
+    "KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "KANEO_API_KEY", "KANEO_API_URL",
+    "KANEO_CLIENT_URL", "KANEO_CLOUD", "KANEO_INTERNAL_API_URL", "KANEO_MCP_CLIENT_ID",
+    "NODE_ENV", "NOTIFICATION_SECRET_ENCRYPTION_KEY", "PLANKA_API_KEY", "PLANKA_PASSWORD",
+    "POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER",
+    "REDIS_CLUSTER_NODES", "REDIS_PASSWORD", "REDIS_SENTINELS", "REDIS_SENTINEL_MASTER_NAME",
+    "REDIS_SENTINEL_PASSWORD", "REDIS_SENTINEL_TLS", "REDIS_URL", "S3_ACCESS_KEY_ID", "S3_BUCKET",
+    "S3_ENDPOINT", "S3_FORCE_PATH_STYLE", "S3_KEY_PREFIX", "S3_MAX_IMAGE_UPLOAD_BYTES",
+    "S3_PRESIGN_TTL_SECONDS", "S3_REGION", "S3_SECRET_ACCESS_KEY", "SENTRY_AUTH_TOKEN",
+    "SENTRY_DSN", "SENTRY_ENVIRONMENT", "SENTRY_ORG", "SENTRY_PROFILES_SAMPLE_RATE",
+    "SENTRY_PROJECT", "SENTRY_RELEASE", "SENTRY_TRACES_SAMPLE_RATE", "SMTP_FROM", "SMTP_HOST",
+    "SMTP_PASSWORD", "SMTP_PORT", "SMTP_SECURE", "SMTP_USER", "TRUSTED_PROXIES",
+    "TSS_INLINE_CSS_ENABLED", "TURNSTILE_SECRET_KEY", "VITE_API_URL", "VITE_APP_URL",
+    "VITE_CLIENT_URL", "VITE_SENTRY_DSN", "VITE_TURNSTILE_SITE_KEY"
+  ],
+
+  "monorepo": {
+    "type": "pnpm-workspace + turborepo",
+    "workspace_manifest": "pnpm-workspace.yaml",
+    "package_manager": "pnpm@10.32.1",
+    "node_engine": ">=20.19.0",
+    "packages": [
+      { "name": "@kaneo/api", "root": "apps/api", "manifest": "apps/api/package.json" },
+      { "name": "@kaneo/web", "root": "apps/web", "manifest": "apps/web/package.json" },
+      { "name": "@kaneo/site", "root": "apps/site", "manifest": "apps/site/package.json" },
+      { "name": "apps/docs", "root": "apps/docs", "manifest": "apps/docs/docs.json" },
+      { "name": "@kaneo/libs", "root": "packages/libs", "manifest": "packages/libs/package.json" },
+      { "name": "@kaneo/permissions", "root": "packages/permissions", "manifest": "packages/permissions/package.json" },
+      { "name": "@kaneo/mcp", "root": "packages/mcp", "manifest": "packages/mcp/package.json" },
+      { "name": "@kaneo/email", "root": "packages/email", "manifest": "packages/email/package.json" },
+      { "name": "@kaneo/planka-import", "root": "packages/planka-import", "manifest": "packages/planka-import/package.json" },
+      { "name": "@kaneo/typescript-config", "root": "packages/typescript-config", "manifest": "packages/typescript-config/package.json" }
+    ]
+  },
+
+  "submodules": [],
+  "lfs": false,
+  "lfs_patterns": [],
+
+  "infra_hints": {
+    "dockerfile": true,
+    "dockerfile_paths": ["Dockerfile.kaneo"],
+    "docker_compose": true,
+    "docker_compose_paths": ["compose.yml", "compose.local.yml"],
+    "terraform": false,
+    "github_workflows": true,
+    "github_workflow_files": ["auto-assign.yml", "auto-merge.yml", "ci.yml", "deploy-site.yml", "docker.yml", "helm-chart.yml", "issue-notify.yml", "nightly.yml", "publish-mcp.yml", "publish-planka-import.yml"],
+    "gitlab_ci": false,
+    "circleci": false,
+    "jenkins": false,
+    "helm": true,
+    "helm_path": "charts/kaneo",
+    "husky_hooks": true
+  },
+
+  "regulated_repo_signals": [
+    { "kind": "SECURITY.md", "path": "SECURITY.md" }
+  ],
+  "regulated_repo_warning_required": true,
+
+  "off_limits_proposed": [
+    ".git/**",
+    ".env", ".env.*", ".env.local", ".env.sample",
+    "apps/api/.env.test.example", "apps/web/.env.development", "apps/web/.env.production",
+    ".claude/**", "CLAUDE.md", "CLAUDE.local.md",
+    "AGENTS.md", ".agents/**", "skills/**",
+    ".cursor/**",
+    ".vscode/**", ".devcontainer/**",
+    ".husky/**",
+    "node_modules/**", "dist/**", "build/**", ".next/**", ".turbo/**", "out/**", "coverage/**",
+    "apps/web/src/routeTree.gen.ts",
+    "apps/api/src/migrations/**",
+    "apps/docs/openapi.json",
+    "pnpm-lock.yaml",
+    ".sdlc/**"
+  ],
+  "off_limits_notes": [
+    "apps/web/src/routeTree.gen.ts is TanStack Router generated output.",
+    "apps/api/src/migrations/** is Drizzle-generated SQL; AGENTS.md requires regeneration via `pnpm --filter @kaneo/api db:generate`, never hand-editing.",
+    "apps/docs/openapi.json is generated by `pnpm --filter @kaneo/api openapi:export`.",
+    "This run's intent is docs; source directories are read-only by nature of the intent."
+  ],
+
+  "coexistence_notes": [
+    "Cursor rules detected at .cursor/rules/ (7 .mdc files). The plugin will never touch them, but if Cursor auto-lint-on-save is running, changes we make may trigger it.",
+    "No .mcp.json in the repo — no custom MCP servers registered at repo scope.",
+    "No repo-local routing-policy.yaml — the shipped/default policy applies.",
+    "Your .gitignore does not cover .sdlc/. Run artifacts under .sdlc/ (packets, backups, telemetry) will be untracked but visible to `git add -A`. Gate 0 will offer to add .gitignore to this run's allowlist so the plugin can add the entry as part of the run.",
+    ".claude/settings.local.json and .hook-logs/ are untracked and pre-existing; neither is gitignored. Preserve them.",
+    "Root `pnpm lint` runs Biome with --write and can rewrite unrelated files. Prefer `biome ci` for read-only verification during this run.",
+    "Repo ships both CLAUDE.md and AGENTS.md, with CLAUDE.md delegating to AGENTS.md via @AGENTS.md import. AGENTS.md is the canonical operating guide and constrains this run's conventions."
+  ],
+
+  "tier2b": {
+    "triggered": true,
+    "reason": "Primary stacks are Hono (API) and React/Vite + Next.js (web/site). Pre-authored adapters in plugin/skills/pipeline/stacks/ are generic.md, nest.md, python.md only — no match.",
+    "profile_path": ".sdlc/baseline/stack-profile.md"
+  },
+
+  "docs_landscape_verification": {
+    "verified_at_head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "worktree_clean_vs_head": true,
+    "plan_and_execute_tasks_mdx_diff_empty": true,
+    "wip_limits": {
+      "status": "absent",
+      "evidence": "git grep -inE 'wip[ _-]?limit|wipLimit|work[ _-]in[ _-]progress' across all tracked files returns 0 matches. No matches in apps/docs or README.md.",
+      "only_on": ["feature-extend-1/* (unmerged)"]
+    },
+    "hours_rollup": {
+      "status": "partial",
+      "evidence": "apps/api/src/time-entry/ exists with index.ts and controllers/{create-time-entry,get-time-entries,get-time-entry,update-time-entry}.ts. timeEntryTable exists in apps/api/src/database/schema.ts with taskId, userId, description, startTime, endTime, duration. taskTable has NO estimate field (grep 'estimate' in schema.ts returns 0 matches). No column-level aggregation: grep for totalHours|hoursRollup|sumHours|totalMinutes|columnHours returns 0 real matches.",
+      "only_on": ["feature-extend-2/* (unmerged)"]
+    },
+    "filter_chips": {
+      "status": "shipped",
+      "evidence": "ActiveFilterChip declared at apps/web/src/components/board/board-toolbar.tsx:78 (type), :85 (function), rendered at lines 534, 560, 585, 610, 635 — five instances matching the five filterable fields.",
+      "docs_gap": "apps/docs/core/functional/plan-and-execute-tasks.mdx section 5 'Use filters to focus' (line 45) lists Status, Priority, Assignee, Due date, Labels but does not describe the chip UI. No occurrence of 'chip' anywhere in apps/docs or README.md."
+    },
+    "docs_convention": {
+      "finding": "confirmed",
+      "evidence": "apps/docs is a Mintlify site (apps/docs/docs.json with $schema https://mintlify.com/docs.json). User-facing feature docs live under apps/docs/core/functional/ (10 .mdx pages). README.md headings are deployment/getting-started oriented (Why Kaneo, Sponsors, Getting Started, Kubernetes Deployment, Development, MCP Server, Community, Contributing, License) with no feature-documentation section."
+    },
+    "ac5_file_reference": {
+      "brief_claims_file": "apps/web/src/hooks/use-task-filters.ts",
+      "verdict": "brief AC-5 names the WRONG file",
+      "correct_file": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "evidence": [
+        "Board route apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx:19 imports useTaskFiltersWithLabelsSupport from @/hooks/use-task-filters-with-labels-support, and calls it at line 166.",
+        "useTaskFilters (defined at apps/web/src/hooks/use-task-filters.ts:56) has ZERO call sites anywhere in apps/web/src — the function is exported but never invoked.",
+        "The labels filtering branch is at apps/web/src/hooks/use-task-filters-with-labels-support.ts:169-180, inside filterTasks, under the comment '// Label filtering'.",
+        "apps/web/src/hooks/use-task-filters.ts has its own filterTasks at line 86, but grep for label|Label in that file matches only lines 12 (BoardFilters type field), 26 (DEFAULT_FILTERS), 34 (FILTER_KEYS), and 186-207 (updateLabelFilter state setter). No label match appears within the filterTasks range 86-165 — there is no filtering branch.",
+        "use-task-filters.ts is still load-bearing but only as a types/constants module: board-toolbar.tsx:19-22 imports { type BoardFilters, DUE_DATE_FILTER_VALUES }, backlog.tsx:32 imports DUE_DATE_FILTER_VALUES, and use-task-filters-with-labels-support.ts:6 imports both from it.",
+        "Test coverage confirms the split: apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx exists; there is no use-task-filters.test.ts."
+      ]
+    }
+  }
+}
