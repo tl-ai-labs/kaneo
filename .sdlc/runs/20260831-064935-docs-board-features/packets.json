@@ -1,0 +1,24 @@
+[
+  {
+    "id": "doc_update_plan_and_execute_tasks_filters",
+    "phase": "docs",
+    "task_type": "doc_update",
+    "module": "docs",
+    "intent": "docs",
+    "pass_id": "20260831-064935-docs-board-features",
+    "artifact_path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+    "instruction": "Update section '## 5. Use filters to focus' in 'apps/docs/core/functional/plan-and-execute-tasks.mdx' to describe the board filter chip anatomy and clearing behavior in detail while preserving the existing five-filter list. Ensure the documentation reflects the following factual contract:\n\n1. Active Filter Chips (FR-1):\n- Active filters render as removable ActiveFilterChip components in the board toolbar next to the Filter dropdown and Sort control.\n- Each chip contains divider-separated sections: Subject, Operator, Value, and a Clear button (X).\n\n2. Chip Behaviors & Display Asymmetry (FR-2):\n- Status: subject 'Status', operator 'is any of', stacked status icons (up to 3), value displays column name if exactly 1 is selected, otherwise '{count} selected'.\n- Priority: subject 'Priority', operator 'is any of', stacked priority icons (up to 3), value displays priority label if exactly 1 is selected, otherwise '{count} selected'.\n- Assignee: subject 'Assignee', operator 'is any of', stacked avatars (up to 3), value displays user name if exactly 1 is selected, otherwise '{count} selected'.\n- Due date: subject 'Due date', operator 'is any of', no stacked icons, value displays 'Due this week', 'Due next week', or 'No due date' if exactly 1 is selected, otherwise '{count} selected'.\n- Labels: subject 'Labels', operator 'include any of' (note operator difference from 'is any of'), value is ALWAYS '{count} selected' (there is no single-label naming branch; it always displays a count).\n\n3. Filter Clearing (FR-3):\n- Clicking the Clear button (X) on an individual chip resets only that specific filter criterion without affecting others.\n- 'Clear all filters' is a menu item located INSIDE the Filter dropdown menu (shown only when at least one filter is active); it is not a standalone toolbar button.\n\n4. Constraints (NFR-1, NFR-3):\n- Match repo .mdx house style.\n- Keep frontmatter and sections 1, 2, 3, 4, 6, and Next untouched.\n- Do not modify any other file.",
+    "acceptance": [
+      "Section '## 5. Use filters to focus' accurately documents ActiveFilterChip placement, chip anatomy (Subject, Operator, Value, Clear X), and clearing mechanics.",
+      "The documentation details all 5 filter types with exact operators ('is any of' for Status, Priority, Assignee, Due date; 'include any of' for Labels).",
+      "The documentation explicitly notes that Status, Priority, Assignee, and Due date display named values when exactly 1 option is selected vs '{count} selected' when multiple are selected, while Labels always displays '{count} selected' with no single-label naming branch.",
+      "The documentation notes stacked icons (max 3) for Status, Priority, Assignee, and no icons for Due date.",
+      "The documentation states that 'Clear all filters' resides inside the Filter dropdown menu (when active filters exist), not as a standalone toolbar button.",
+      "The five-filter bullet list (- Status, - Priority, - Assignee, - Due date, - Labels) is preserved.",
+      "Frontmatter and sections 1, 2, 3, 4, 6, Next remain untouched."
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 4000 },
+    "retry_count": 0,
+    "_planning_notes": "A single TaskPacket is planned because the scope is strictly confined to rewriting section 5 within one file. The write allowlist contains only this file; splitting a single section update across packets would add complexity without benefit."
+  }
+]

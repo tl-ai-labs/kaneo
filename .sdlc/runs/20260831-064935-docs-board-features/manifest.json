@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "run_id": "20260831-064935-docs-board-features",
+  "mode": "brownfield",
+  "intent": "docs",
+  "task_type": "doc_update",
+  "policy": {
+    "name": "flash-agsdk-only",
+    "version": 1,
+    "single_tier": true,
+    "note": "Floor policy: every phase routes to gemini-3.7-flash via the antigravity-worker agent adapter. No premium/mechanical split. The orchestrator's own session turns run on Claude and are NOT counted in these totals."
+  },
+  "auth_mode": "estimated",
+  "provenance_note": "All 6 dispatched events carry vendor-reported tokens from the MCP server (provenance=vendor). The single skipped-phase event is provenance=estimated with zero cost. No char-count estimation was used for any billed figure in this run.",
+  "code_dir": "/home/sangeetha/projects/kaneo",
+  "output_dir": ".sdlc/runs/20260831-064935-docs-board-features",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "run_span": {
+    "first_event": "2026-08-31T06:50:20.215Z",
+    "last_event": "2026-08-31T07:32:31.427Z"
+  },
+  "totals": {
+    "dispatches": 6,
+    "cost_usd": 1.053734,
+    "dispatch_latency_ms": 473371,
+    "dispatch_latency_human": "7m 53s",
+    "input_tokens": 365570,
+    "input_tokens_cached": 1091222,
+    "output_tokens": 37966,
+    "output_tokens_reasoning": 24599
+  },
+  "model_breakdown": {
+    "gemini-3.7-flash": {
+      "dispatches": 6,
+      "cost_usd": 1.053734
+    }
+  },
+  "phase_breakdown": [
+    {
+      "phase": "docs",
+      "task_type": "smoke",
+      "task_id": "smoke-agsdk",
+      "rule_index": 9,
+      "cost_usd": 0.018179,
+      "latency_ms": 6834,
+      "input_tokens": 10937,
+      "input_tokens_cached": 0,
+      "output_tokens": 197,
+      "success": true
+    },
+    {
+      "phase": "requirements_analysis",
+      "task_type": "scoped_requirements",
+      "task_id": "tp_requirements_001",
+      "rule_index": 0,
+      "cost_usd": 0.195071,
+      "latency_ms": 118660,
+      "input_tokens": 59242,
+      "input_tokens_cached": 255470,
+      "output_tokens": 7543,
+      "success": true
+    },
+    {
+      "phase": "architecture_design",
+      "task_type": "skipped",
+      "task_id": "tp_arch_skipped",
+      "rule_index": null,
+      "cost_usd": 0,
+      "latency_ms": null,
+      "input_tokens": 0,
+      "input_tokens_cached": 0,
+      "output_tokens": 0,
+      "success": true
+    },
+    {
+      "phase": "plan_task_packets",
+      "task_type": "decomposition",
+      "task_id": "tp_plan_001",
+      "rule_index": 2,
+      "cost_usd": 0.045533,
+      "latency_ms": 21225,
+      "input_tokens": 12229,
+      "input_tokens_cached": 0,
+      "output_tokens": 3021,
+      "success": true
+    },
+    {
+      "phase": "docs",
+      "task_type": "doc_update",
+      "task_id": "doc_update_plan_and_execute_tasks_filters",
+      "rule_index": 9,
+      "cost_usd": 0.225037,
+      "latency_ms": 88388,
+      "input_tokens": 72700,
+      "input_tokens_cached": 154588,
+      "output_tokens": 10311,
+      "success": true
+    },
+    {
+      "phase": "senior_code_review",
+      "task_type": "doc_review",
+      "task_id": "tp_senior_review_001",
+      "rule_index": 3,
+      "cost_usd": 0.473263,
+      "latency_ms": 175493,
+      "input_tokens": 174630,
+      "input_tokens_cached": 609826,
+      "output_tokens": 13316,
+      "success": true
+    },
+    {
+      "phase": "security_review",
+      "task_type": "changed_files_review",
+      "task_id": "tp_security_review_001",
+      "rule_index": 4,
+      "cost_usd": 0.096651,
+      "latency_ms": 62771,
+      "input_tokens": 35832,
+      "input_tokens_cached": 71338,
+      "output_tokens": 3578,
+      "success": true
+    }
+  ],
+  "phases_skipped": [
+    {
+      "phase": "architecture_design",
+      "reason": "intent matrix: docs SKIPs architecture_design; Gate 2 also skipped"
+    }
+  ],
+  "gates": [
+    {
+      "gate": "gate-0",
+      "response": "approved",
+      "note": "pre-approved before this session"
+    },
+    {
+      "gate": "gate-1",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-2",
+      "response": "skipped",
+      "note": "follows skipped architecture_design phase"
+    },
+    {
+      "gate": "mini-gate-diff-preview-1",
+      "response": "approved",
+      "note": "first write to plan-and-execute-tasks.mdx"
+    },
+    {
+      "gate": "mini-gate-diff-preview-2",
+      "response": "approved",
+      "note": "STYLE-001 refinement, second write"
+    },
+    {
+      "gate": "gate-3",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-4",
+      "response": "accepted"
+    }
+  ],
+  "artifacts": {
+    "source_changed": [
+      {
+        "path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+        "insertions": 16,
+        "deletions": 0,
+        "writes": 2
+      }
+    ],
+    "run_record": [
+      "requirements.md",
+      "packets.json",
+      "review.json",
+      "security_review.md",
+      "manifest.json",
+      "SUMMARY.md",
+      "telemetry.jsonl",
+      "provenance.json",
+      "discovery.md",
+      "baseline.json",
+      "intent_brief.md"
+    ]
+  },
+  "review": {
+    "verdict": "approve_with_nits",
+    "findings": 1,
+    "findings_applied": 1,
+    "note": "Writer and reviewer were the SAME model tier (gemini-3.7-flash), separate agent sessions. Reviewer was given no hint; it caught the writer's only defect (STYLE-001, em dashes) and audited 11/11 factual claims as true with cited source lines."
+  },
+  "security": {
+    "verdict": "pass",
+    "findings": 0,
+    "scope": "changed files only"
+  },
+  "tests": {
+    "ran": false,
+    "reason": "apps/docs has no package.json, no test runner and no lint target; it is Mintlify content compiled by apps/site. Correct-and-deliberate, not a silently skipped step.",
+    "doc_lint_checks_performed": [
+      "frontmatter intact",
+      "heading set and order unchanged",
+      "five-filter list preserved",
+      "closing line preserved",
+      "no code fences or MDX components introduced",
+      "page still registered in docs.json (1 nav entry, file untouched)",
+      "no identifier leakage (13 patterns, 0 hits)",
+      "0 em/en dashes across all 99 apps/docs mdx files"
+    ]
+  },
+  "interruptions": [
+    {
+      "kind": "orchestrator_tier_rate_limit",
+      "model": "claude-opus-5",
+      "after": "run.start 07:05:50Z",
+      "resumed": "07:14:37Z",
+      "dead_time_approx_min": 9,
+      "work_lost": "none",
+      "note": "Orchestrator tier only, not the policy's flash leaf. Exclude this dead time from cross-run wall-clock comparison."
+    }
+  ],
+  "anomaly_watch": {
+    "longest_dispatch_ms": 175493,
+    "threshold_ms": 600000,
+    "stall_detected": false,
+    "note": "Standing 15.1h client-side stall finding on this adapter did not recur. All 6 dispatches completed between 6.8s and 175.5s."
+  },
+  "cost_comparability": {
+    "this_run_total_usd": 1.053734,
+    "basis": "MEASURED. All 6 dispatched events carry vendor-reported tokens returned by the MCP server. The repo's artifact-level estimator was not used for any billed figure here, so its known 2-3x agentic undercount does not apply to this total.",
+    "sibling_totals_as_reported": {
+      "docs/opus-plus-flash-v37": 0.638539,
+      "docs/opus-only-v5": 0.663891
+    },
+    "why_the_raw_totals_CANNOT_be_ranked": [
+      {
+        "mechanism": 1,
+        "name": "different unit of work",
+        "detail": "Under flash-agsdk-only every phase - including requirements, planning, review and security - is a delegated agent session with repo tool access, which re-reads real files. The siblings' corresponding phases were plain completion calls or in-session subagent turns. Additionally this run's orchestrator session turns run on Claude and are OUTSIDE this total entirely, per the policy YAML's own note. The two sides are not billing the same activity."
+      },
+      {
+        "mechanism": 2,
+        "name": "measured vs known-low basis",
+        "detail": "This run's figure is measured. Both siblings' totals are estimated: docs/opus-plus-flash reports 6 of 9 telemetry events with provenance 'estimated', and docs/opus-only directly measured its own estimator undercounting agentic phases by 2.03x and 2.64x against actual subagent token consumption. The comparison is therefore a measured figure against two figures that are known-low, by a factor measured on exactly the phase type that dominates all three runs."
+      }
+    ],
+    "scenario_not_a_correction": {
+      "guard_rail": "Presented as a scenario only. Nobody has re-measured either sibling the way this run and docs/opus-only were measured, so no scaled number below is a corrected total and none should be quoted as one.",
+      "scale_factor_for_parity_if_applied_to_the_WHOLE_sibling_total": {
+        "docs/opus-plus-flash-v37": 1.6502,
+        "docs/opus-only-v5": 1.5872,
+        "note": "Both (1.65x, 1.59x) sit BELOW the 2.03-2.64x undercount band docs/opus-only measured on its own agentic phases."
+      },
+      "honest_counterweight": "That whole-total framing overstates the case. Only part of each sibling's total was estimated (docs/opus-plus-flash: 6 of 9 events), so scaling only the estimated portion would demand a HIGHER factor on that portion to reach parity. The per-phase cost shares of the siblings' estimated events are not known to this run, so the parity point cannot be pinned.",
+      "what_is_actually_established": "Narrower than parity, and still decisive: the three raw totals cannot be ranked against each other, and the direction of the error is known - the siblings' figures are low, this run's is not. The naive reading that flash-agsdk-only cost ~60% more than the Opus runs is not merely uncertain; it may be backwards."
+    }
+  },
+  "experimental_design_note": {
+    "unassisted_on_both_axes": true,
+    "detail": "This was the only one of the three docs runs to receive no pre-solved answers on either measured axis. On factual precision, its requirements packet was told only 'verify against source, here are the files' - docs/opus-plus-flash was given no help and shipped the trap wrong; docs/opus-only avoided it only because the operator pre-solved FT-1/FT-2/FT-3 into its requirements, which its own report records as confounded. On the review loop, the em-dash defect was deliberately not pre-flagged to the reviewer by either the operator or the orchestrator.",
+    "why_it_matters": "Both of this run's clean results came from that absence of help. This is a note on experimental design, NOT a claim that the policy is better: the comparison's most informative run was the one where the operator intervened least. Worth remembering the next time intervention is tempting.",
+    "orchestrator_restraint": "The orchestrator declined to fix the em dashes itself at the diff-preview mini-gate, on the grounds that substituting its own tier's editing for the policy's output would contaminate the property under measurement. That restraint is what left the review-loop test intact."
+  },
+  "outcome": "completed",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits_made": 0
+}

@@ -1,0 +1,94 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_security_review_001",
+  "phase": "security_review",
+  "task_type": "changed_files_review",
+  "module": "docs",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T07:31:28.654Z",
+  "duration_ms": 62771,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.096651,
+  "tokens": {
+    "input": 35832,
+    "input_cached": 71338,
+    "output": 3578,
+    "output_reasoning": 2182
+  },
+  "tool_calls": {
+    "count": 5,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status --porcelain && git diff",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git log -n 3 --oneline && git diff HEAD~1..HEAD",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/docs/core/functional/plan-and-execute-tasks.mdx",
+          "start_line": "29",
+          "end_line": "89"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/docs/core/functional/plan-and-execute-tasks.mdx",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git diff apps/docs/core/functional/plan-and-execute-tasks.mdx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1677,
+    "scanned": 1677,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_security_review_001.md",
+    "usage": "worker-usage-tp_security_review_001.json"
+  }
+}

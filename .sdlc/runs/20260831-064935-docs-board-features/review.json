@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "run_id": "20260831-064935-docs-board-features",
+    "phase": "senior_code_review",
+    "packet_id": "tp_senior_review_001",
+    "model": "gemini-3.7-flash via antigravity-worker",
+    "policy": "flash-agsdk-only",
+    "rule_index": 3,
+    "cost_usd": 0.473263,
+    "latency_ms": 175493,
+    "note": "Writer and reviewer are the SAME model tier under this floor policy. The reviewer was given no hint about any known defect."
+  },
+  "verdict": "approve_with_nits",
+  "findings": [
+    {
+      "id": "STYLE-001",
+      "severity": "nit",
+      "category": "house_style",
+      "finding": "The added text uses unspaced em dashes, which do not appear anywhere else in the apps/docs corpus.",
+      "evidence": "Zero occurrences of em dash (U+2014) or en dash (U+2013) across all .mdx under apps/docs. Existing files use parentheses or spaced hyphens for parenthetical clauses.",
+      "suggested_fix": "Replace the unspaced em dashes with parentheses.",
+      "orchestrator_verification": "CONFIRMED. Independent count: 99 mdx files, 2 em dashes total, both introduced by this run's own edit. Pre-existing corpus is 0. Parenthetical style is attested in the corpus ('(user-wide)', '(project-level)')."
+    }
+  ],
+  "factual_claim_audit_summary": {
+    "claims_audited": 11,
+    "claims_true_on_this_branch": 11,
+    "claims_false_or_overstated": 0,
+    "orchestrator_verification": "Independently re-derived by the orchestrator before Gate 1 and again after the write. No claim in the shipped prose is falsifiable against board-toolbar.tsx, use-task-filters-with-labels-support.ts, or i18n/en-US.json at 5d1fc910."
+  },
+  "factual_claim_audit": [
+    { "claim": "A chip appears once a filter has a selection, beside the Filter and Sort controls", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:531-643" },
+    { "claim": "A chip reads subject, operator, value, and ends in an X button", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:91-107" },
+    { "claim": "Operator is 'is any of' for Status, Priority, Assignee, Due date", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:536,562,587,612" },
+    { "claim": "Operator is 'include any of' for Labels", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:637" },
+    { "claim": "Exactly one value selected names it, for the four non-Labels fields", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:548,573,598,614-625" },
+    { "claim": "Multiple values selected shows a count for those four fields", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:549-551,574-576,599-601,626-628" },
+    { "claim": "Labels always shows a count and never names a label", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:638-640" },
+    { "claim": "Status, Priority, Assignee chips show stacked icons/avatars capped at three", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:110-131,539-545,564-570,589-595" },
+    { "claim": "Due date and Labels chips show no icons", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:613-629,638-640" },
+    { "claim": "A chip's X clears the whole field, not one value", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:555,580,605,630,641" },
+    { "claim": "'Clear all filters' sits inside the Filter dropdown, only when a filter is active", "true_on_this_branch": true, "source_line": "board-toolbar.tsx:517-527" }
+  ],
+  "house_style_files_compared": [
+    "apps/docs/core/functional/backlog-planning.mdx",
+    "apps/docs/core/functional/manage-workspace-labels.mdx",
+    "apps/docs/core/functional/configure-workflows.mdx",
+    "apps/docs/core/functional/collaborate-with-team.mdx",
+    "apps/docs/core/functional/account-notifications.mdx",
+    "apps/docs/core/functional/manage-your-account.mdx",
+    "apps/docs/core/functional/personalize-your-workspace.mdx"
+  ],
+  "refinement_packets": [
+    {
+      "finding_id": "STYLE-001",
+      "artifact_path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+      "exact_old_text": "- Clicking a chip's **X** button clears that one field entirely—removing all values selected for it—while leaving other chips untouched. It is not a per-value control.",
+      "exact_new_text": "- Clicking a chip's **X** button clears that one field entirely (removing all values selected for it) while leaving other chips untouched. It is not a per-value control.",
+      "orchestrator_verification": "exact_old_text matches the file byte-for-byte, 1 occurrence."
+    }
+  ],
+  "summary": "The 16 added lines are factually accurate against board-toolbar.tsx, use-task-filters-with-labels-support.ts and i18n/en-US.json. Scope is confined to section 5 with no leaked implementation symbols. The single finding is a house-style nit about unspaced em dashes."
+}
