@@ -1,0 +1,72 @@
+[
+  {
+    "id": "tp_docs_001",
+    "phase": "docs",
+    "task_type": "doc_update",
+    "module": "docs",
+    "pass_id": "20260831-060942-docs-board-features",
+    "intent": "docs",
+    "artifact_path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+    "retry_count": 0,
+    "instruction": "Rewrite ONLY section '## 5. Use filters to focus' of the given .mdx file, returning the full file contents with every other byte unchanged (frontmatter, sections 1-4, 6, Next). Keep the existing five-item field list (Status, Priority, Assignee, Due date, Labels) in place and in order. Add prose describing the active-filter-chip UI: each active filter renders as its own chip in the board toolbar next to the filter control, reading subject + operator + value; each chip has its own clear control that clears that WHOLE filter field, not one selected value; a 'Clear all filters' item appears inside the filter menu once any filter is active. State the value-display rule with its asymmetry intact: Status, Priority, Assignee and Due date chips name the selection only when exactly one value is selected and otherwise show a count; the Labels chip always shows a count and never names a label. Do NOT write that chips 'show the selected values'. Do NOT add a new heading, change heading levels, or renumber. Do NOT mention component names, file paths, i18n keys, WIP limits, or hours rollup. Match the surrounding imperative, second-person house style.",
+    "inputs": [
+      {
+        "path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+        "content": "---\ntitle: Plan and Execute Tasks in Board and List\ndescription: Create tasks, set metadata, and execute work using Board and List views\n---\n\nUse this workflow to move from planning to execution with minimal overhead.\n\n## 1. Create tasks quickly\n\nIn a project:\n\n1. Open **Board** or **List** view.\n2. Click **Create task**.\n3. Add a short, action-oriented title.\n4. Optionally set description, assignee, priority, due date, and labels.\n\n## 2. Keep task data clean\n\nWhen editing tasks, prioritize:\n\n- Clear scope in the description\n- One owner (assignee)\n- Explicit priority\n- Realistic due dates\n- Reusable labels\n\n## 3. Execute in Board view\n\nBoard view is best for flow-based execution:\n\n1. Pull tasks into active columns.\n2. Drag tasks across columns as status changes.\n3. Open a task to edit details without losing board context.\n\n## 4. Switch to List view for dense review\n\nList view is useful when you need to scan many tasks quickly.\n\nTypical uses:\n\n- Reviewing priorities across the project\n- Spotting overdue work\n- Finding unassigned or under-specified tasks\n\n## 5. Use filters to focus\n\nThe board toolbar supports filtering by:\n\n- Status\n- Priority\n- Assignee\n- Due date\n- Labels\n\nUse filters aggressively during standups, planning, and triage.\n\n## 6. Open full task page when needed\n\nFrom the task sheet, use **Open in full page** for deeper edits and focused context.\n\n## Next\n\n- [Plan work in Backlog](/core/functional/backlog-planning)\n- [Configure project workflows](/core/functional/configure-workflows)\n",
+        "reason": "Target file, full text \u2014 the packet must return it whole with only section 5 changed."
+      },
+      {
+        "path": "apps/web/src/components/board/board-toolbar.tsx#L78-L101,L517-L526,L532-L643",
+        "content": "ActiveFilterChip definition (subject|operator|value|clear button); the hasActiveFilters-gated 'Clear all filters' DropdownMenuItem after a DropdownMenuSeparator inside the filter dropdown; the five chip render sites with their length===1 ? name : selectedCount ternaries, and the Labels chip's unconditional selectedCount value plus its clearLabelFilters onClear.",
+        "reason": "Sole source of truth for every behavioral claim; encodes traps FT-1/FT-2/FT-3."
+      },
+      {
+        "path": "i18n/en-US.json#tasks.boardFilters,common.actions.clearAllFilters",
+        "content": "subjects: Status/Priority/Assignee/Due date/Labels; operators.isAnyOf='is any of', operators.includeAnyOf='include any of'; selectedCount='{{count}} selected'; common.actions.clearAllFilters='Clear all filters'",
+        "reason": "AGENTS.md makes en-US.json the source of truth for user-facing copy; quoted UI labels must match it exactly."
+      },
+      {
+        "path": ".sdlc/runs/20260831-060942-docs-board-features/requirements.md#5",
+        "content": "FT-1 chips do not universally show selected values (Labels is always a count; the other four only name a single selection). FT-2 'Clear all filters' is a menu item, not a toolbar button. FT-3 the chip clear control is per-field, not per-value (Labels via clearLabelFilters looping updateLabelFilter).",
+        "reason": "Approved falsifiability traps \u2014 the packet must satisfy all three on the first attempt."
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "file_content": {
+          "type": "string",
+          "description": "Full .mdx file contents after the edit"
+        },
+        "section_5_only": {
+          "type": "boolean",
+          "description": "True if no bytes outside section 5 changed"
+        }
+      },
+      "required": [
+        "file_content",
+        "section_5_only"
+      ]
+    },
+    "acceptance": [
+      "Frontmatter (title, description) byte-identical to input.",
+      "Sections 1-4, 6 and 'Next' byte-identical to input.",
+      "Heading '## 5. Use filters to focus' unchanged; no new heading added; numbering 1-6 intact.",
+      "The five-item list Status/Priority/Assignee/Due date/Labels is present, in order, not replaced.",
+      "Text states each active filter appears as its own chip in the board toolbar.",
+      "Text states each chip's clear control clears the whole filter field, not a single value.",
+      "Text states 'Clear all filters' appears inside the filter menu once any filter is active.",
+      "FT-1 satisfied: no claim that chips show selected values; the single-selection-names / otherwise-count rule is stated, and Labels is stated to always show a count.",
+      "FT-2 satisfied: 'Clear all filters' is not described as a toolbar button or as always visible.",
+      "FT-3 satisfied: no wording implying a chip removes one value.",
+      "Quoted UI labels match i18n/en-US.json exactly.",
+      "No component name, file path, i18n key, or line number appears in the prose.",
+      "No mention of WIP limits or hours rollup.",
+      "Closing line 'Use filters aggressively during standups, planning, and triage.' preserved."
+    ],
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    }
+  }
+]

@@ -1,0 +1,98 @@
+{
+  "module": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+  "mode": "brownfield",
+  "intent": "docs",
+  "task_type": "doc_update",
+  "scope": [
+    "apps/docs/core/functional/plan-and-execute-tasks.mdx"
+  ],
+  "verdict": "approved",
+  "checks": [
+    {
+      "id": "FT-1-chip-value-semantics",
+      "status": "PASS",
+      "evidence": "board-toolbar.tsx:547-551 `selectedStatusIds.length === 1 ? getStatusDisplayName(selectedStatusIds[0]) : t(\"tasks:boardFilters.selectedCount\", { count })`; identical shape at 572-576 (priority), 597-601 (assignee), 610-627 (dueDate). Labels chip at 634-642 is unconditional: `value={t(\"tasks:boardFilters.selectedCount\", { count: filters.labels.length })}` with no name branch. Prose matches exactly: 'Status, Priority, Assignee, and Due date chips name the selection when exactly one value is active, and switch to a count ... once more than one is. The Labels chip always shows a count.' No generalized 'chips show selected values' claim appears anywhere in the added text."
+    },
+    {
+      "id": "FT-2-clear-all-is-gated-menu-item",
+      "status": "PASS",
+      "evidence": "board-toolbar.tsx:516-526 renders `{hasActiveFilters && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={clearFilters}>{t(\"common:actions.clearAllFilters\")}</DropdownMenuItem></>)}` INSIDE `<DropdownMenuContent>` (closed at 527), i.e. not a toolbar-level button. `hasActiveFilters` is defined in use-task-filters.ts:164 as `Object.values(filters).some((filter) => filter !== null)`. Prose: 'Once any filter is active, the filter menu also offers **Clear all filters**' — correctly states both the location (menu) and the gate (any filter active). No standalone-button or always-visible claim."
+    },
+    {
+      "id": "FT-3-clear-control-clears-whole-field",
+      "status": "PASS",
+      "evidence": "Chip onClear handlers are `() => updateFilter(\"status\", null)` (board-toolbar.tsx:555), `\"priority\", null` (580), `\"assignee\", null` (605), `\"dueDate\", null` (631) — each nulls the entire field. Labels uses `onClear={clearLabelFilters}` (641), defined at 249-252: `if (!filters.labels || filters.labels.length === 0) return; for (const labelId of filters.labels) updateLabelFilter(labelId);` — loops the toggle over every selected id, emptying the field. Prose: 'it clears that whole filter rather than a single value. Clearing the Status chip while three statuses are selected removes all three.' Correct."
+    },
+    {
+      "id": "fabricated-affordance-labels-menu",
+      "status": "PASS",
+      "evidence": "The sentence 'open the filter menu to see which labels are applied' is a real affordance. board-toolbar.tsx:469-513 renders the Labels DropdownMenuSub: each entry from `uniqueLabels` renders `<CheckSlot checked={isLabelGroupSelected(label)} />`, a color dot, and `{label.name}` in a truncating span. `isLabelGroupSelected` (195-199) returns true when any workspace label row sharing that name+color is in `filters.labels`. So the menu does visibly mark which labels are selected, by name. Not a fabricated affordance."
+    },
+    {
+      "id": "quoted-ui-copy-matches-i18n",
+      "status": "PASS",
+      "evidence": "i18n/en-US.json: tasks.boardFilters.subjects.status='Status', .labels='Labels'; operators.isAnyOf='is any of', .includeAnyOf='include any of'; selectedCount='{{count}} selected'; common.actions.clearAllFilters='Clear all filters'. The chip renders subject|operator|value as adjacent spans, so '**Status is any of**' and '**Labels include any of**' reproduce the rendered chip text; '**3 selected**' is selectedCount at count=3; '**Clear all filters**' is byte-identical to the menu item. No invented copy."
+    },
+    {
+      "id": "frontmatter-byte-identical",
+      "status": "PASS",
+      "evidence": "`git diff --numstat` = `6\t0` (6 insertions, 0 deletions); single hunk header `@@ -52,6 +52,12 @@`, so bytes 1..line-51 including the `---` frontmatter block (lines 1-4: title 'Plan and Execute Tasks in Board and List', description 'Create tasks, set metadata, and execute work using Board and List views') are untouched."
+    },
+    {
+      "id": "no-heading-added-or-renumbered",
+      "status": "PASS",
+      "evidence": "All six added lines are prose/blank; none begins with '#'. Headings remain '## 1. Create tasks quickly' through '## 6. Open full task page when needed' plus '## Next', unchanged and unrenumbered (zero deleted lines)."
+    },
+    {
+      "id": "five-item-filter-list-preserved-in-order",
+      "status": "PASS",
+      "evidence": "File lines 47-51 still read '- Status', '- Priority', '- Assignee', '- Due date', '- Labels' in that order; they appear as unmodified context lines in the diff and there are zero deletions. Order also matches BoardFilters key order in use-task-filters.ts:29-35."
+    },
+    {
+      "id": "closing-line-preserved",
+      "status": "PASS",
+      "evidence": "'Use filters aggressively during standups, planning, and triage.' survives as an unmodified context line after the inserted block (file line 61); the new paragraphs were inserted above it, not in place of it."
+    },
+    {
+      "id": "zero-deleted-lines",
+      "status": "PASS",
+      "evidence": "`git diff --numstat` = 6 added / 0 deleted; `git diff -U0 | grep -c '^-[^-]'` = 0."
+    },
+    {
+      "id": "no-implementation-leakage",
+      "status": "PASS",
+      "evidence": "Added prose contains no component name (no 'ActiveFilterChip', 'BoardToolbar'), no file path, no i18n key (no 'tasks:boardFilters...' / 'common:actions...'), and no line numbers. It uses only user-facing vocabulary: 'chip', 'toolbar', 'filter menu', 'clear control', plus bolded UI copy."
+    },
+    {
+      "id": "no-out-of-scope-features",
+      "status": "PASS",
+      "evidence": "No mention of WIP limits or an hours/estimate rollup in the added text; the block stays inside section '## 5. Use filters to focus'. (Prior runs 20260820-...-lane-wip-limit and 20260824-...-estimated-hours did not bleed into this prose.)"
+    },
+    {
+      "id": "house-style-single-unwrapped-paragraph-lines",
+      "status": "PASS",
+      "evidence": "Each added paragraph is one unwrapped line (lengths 175, 324, 288) separated by blank lines, matching the tree convention: sibling files reach comparable single-line paragraph lengths (account-notifications.mdx max 334, collaborate-with-team.mdx max 204, manage-workspace-labels.mdx max 210). Bold emphasis uses `**...**`, consistent with existing '**Board**', '**Create task**', '**Open in full page**' in the same file."
+    },
+    {
+      "id": "chips-exist-for-every-listed-filter",
+      "status": "PASS",
+      "evidence": "'Each active filter also appears as its own chip in the toolbar' — chip render sites exist for all five fields the preceding list enumerates (board-toolbar.tsx:532, 557, 582, 607, 634), each gated on that field being non-empty (`selectedStatusIds = filters.status ?? []`, 148-151). The sentence's 'each active filter' is anaphoric to the five-item list directly above it, so the separate board text-search query (`boardSearchQuery` threaded into useTaskFiltersWithLabelsSupport at board.tsx:166, which renders no chip) is not in the referent set and does not falsify the claim."
+    },
+    {
+      "id": "env-fixture-completeness",
+      "status": "N/A",
+      "evidence": "Skipped per brownfield policy: intent is `docs`, not feature-new/feature-extend. The run touches exactly one .mdx file (provenance.json files_touched) and introduces no required env keys."
+    }
+  ],
+  "defects": [
+    {
+      "severity": "minor",
+      "blocking": false,
+      "origin": "pre-existing-ui",
+      "file": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+      "issue": "Advisory, non-blocking, and NOT a defect in the prose as written. 'The Labels chip always shows a count' is true, but the number a user sees may not equal the number of labels they checked. The chip counts raw ids (`count: filters.labels.length`, board-toolbar.tsx:638-640) while the menu lists labels grouped by name+color (`uniqueLabels`, 184-193) and `toggleLabelGroup` (233-247) selects EVERY workspace label row sharing that name+color. Because get-labels-by-workspace-id.ts returns all rows in `labelTable` for the workspace (including per-task label rows, which task-labels-popover.tsx:86 filters with `taskId === null`), checking one label named 'bug' that is applied to six tasks can render 'Labels include any of 7 selected'. The doc never claims the count equals a number of labels, and its own remedy ('open the filter menu to see which labels are applied') is exactly the right mitigation, so no wording change is required.",
+      "fix": "No doc change requested. Root cause is the id-vs-group counting mismatch in apps/web/src/components/board/board-toolbar.tsx (untouched by this run) — out of scope for a docs-intent brownfield run per the changed-files rule. Recommend the orchestrator log this as a separate UI backlog item (chip should count selected label groups, not label rows) rather than dispatching a docs refinement that would either restate the bug or leak implementation detail into user-facing prose."
+    }
+  ],
+  "refinement_packets": []
+}

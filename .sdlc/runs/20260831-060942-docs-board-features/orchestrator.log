@@ -1,0 +1,34 @@
+MMO: 2026-08-31T06:10:13.262Z INFO   policy.load policy_name=opus-only-v5 source=name version=1 model_count=1 rule_count=3
+MMO: 2026-08-31T06:10:13.272Z INFO   route.decide packet_id=smoke-opus phase=docs task_type=smoke module=precheck rule_index=-1 rule_reason="Single-model, premium tier" model_id=opus
+MMO: 2026-08-31T06:10:13.274Z INFO   dispatch.start packet_id=smoke-opus model_id=opus max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T06:10:22.701Z INFO   dispatch.end packet_id=smoke-opus model_id=opus ok=true terminal_reason=success tokens_in=13197 tokens_out=11 tokens_cached=8144 cost_usd=0.137411 latency_ms=9425 attempts=1
+MMO: 2026-08-31T06:16:43.119Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-31T06:16:43.123Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-31T06:16:43.124Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-31T06:16:57.999Z INFO   run.start run_id=20260831-060942-docs-board-features mode=brownfield intent=docs policy=opus-only-v5 auth_mode=estimated code_dir=/home/sangeetha/projects/kaneo output_dir=.sdlc/runs/20260831-060942-docs-board-features
+MMO: 2026-08-31T06:17:13.896Z INFO   phase.start run_id=20260831-060942-docs-board-features phase=requirements_analysis form=intent-specific
+MMO: 2026-08-31T06:19:08.579Z INFO   phase.end run_id=20260831-060942-docs-board-features phase=requirements_analysis form=intent-specific
+MMO: 2026-08-31T06:20:35.841Z INFO   phase.skip run_id=20260831-060942-docs-board-features phase=architecture_design reason=docs-skips-architecture
+MMO: 2026-08-31T06:20:35.898Z INFO   gate.open run_id=20260831-060942-docs-board-features gate=gate-1 title="Requirements Approval"
+MMO: 2026-08-31T06:22:14.101Z INFO   gate.resolved run_id=20260831-060942-docs-board-features gate=gate-1 response=approved
+MMO: 2026-08-31T06:22:14.147Z INFO   phase.start run_id=20260831-060942-docs-board-features phase=plan_task_packets form=intent-specific
+MMO: 2026-08-31T06:22:57.246Z INFO   phase.end run_id=20260831-060942-docs-board-features phase=plan_task_packets form=intent-specific
+MMO: 2026-08-31T06:23:11.049Z INFO   phase.start run_id=20260831-060942-docs-board-features phase=execute_packets form=intent-specific
+MMO: 2026-08-31T06:23:23.624Z INFO   phase.end run_id=20260831-060942-docs-board-features phase=execute_packets form=intent-specific
+MMO: 2026-08-31T06:24:15.649Z INFO   phase.start run_id=20260831-060942-docs-board-features phase=senior_code_review form=intent-specific
+MMO: 2026-08-31T06:24:15.693Z INFO   delegate.subagent.start run_id=20260831-060942-docs-board-features phase=senior_code_review subagent=senior-reviewer
+MMO: 2026-08-31T06:28:26.081Z INFO   delegate.subagent.end run_id=20260831-060942-docs-board-features phase=senior_code_review subagent=senior-reviewer ok=true artifact_path=.sdlc/runs/20260831-060942-docs-board-features/review.json
+MMO: 2026-08-31T06:28:26.127Z INFO   phase.end run_id=20260831-060942-docs-board-features phase=senior_code_review form=intent-specific
+MMO: 2026-08-31T06:28:39.657Z INFO   phase.start run_id=20260831-060942-docs-board-features phase=test_run form=intent-specific
+MMO: 2026-08-31T06:28:39.713Z INFO   phase.end run_id=20260831-060942-docs-board-features phase=test_run form=intent-specific
+MMO: 2026-08-31T06:29:00.633Z INFO   phase.start run_id=20260831-060942-docs-board-features phase=security_review form=intent-specific
+MMO: 2026-08-31T06:29:00.680Z INFO   delegate.subagent.start run_id=20260831-060942-docs-board-features phase=security_review subagent=security-reviewer
+MMO: 2026-08-31T06:32:10.534Z INFO   delegate.subagent.end run_id=20260831-060942-docs-board-features phase=security_review subagent=security-reviewer ok=true artifact_path=.sdlc/runs/20260831-060942-docs-board-features/security_review.md
+MMO: 2026-08-31T06:32:10.590Z INFO   phase.end run_id=20260831-060942-docs-board-features phase=security_review form=intent-specific
+MMO: 2026-08-31T06:32:10.635Z INFO   gate.open run_id=20260831-060942-docs-board-features gate=gate-3 title="Security Review"
+MMO: 2026-08-31T06:34:22.805Z INFO   gate.resolved run_id=20260831-060942-docs-board-features gate=gate-3 response=approved
+MMO: 2026-08-31T06:34:22.857Z INFO   phase.start run_id=20260831-060942-docs-board-features phase=generate_final_report form=default
+MMO: 2026-08-31T06:35:47.172Z INFO   phase.end run_id=20260831-060942-docs-board-features phase=generate_final_report form=default
+MMO: 2026-08-31T06:35:47.218Z INFO   gate.open run_id=20260831-060942-docs-board-features gate=gate-4 title="Final Acceptance"
+MMO: 2026-08-31T06:35:53.707Z INFO   run.end run_id=20260831-060942-docs-board-features outcome=completed total_cost_usd=0.663891
+MMO: 2026-08-31T06:37:06.783Z INFO   gate.resolved run_id=20260831-060942-docs-board-features gate=gate-4 response=approved
