@@ -1753,6 +1753,13 @@
 					"rose": "Rosa",
 					"crimson": "Carmesí"
 				}
+			},
+			"estimatedHours": {
+				"clear": "Clear estimate",
+				"label": "Estimate",
+				"placeholder": "Hours, e.g. 2.5",
+				"updateError": "Failed to update task estimate",
+				"updateSuccess": "Task estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -1848,7 +1855,8 @@
 			"noTasks": "No hay tareas"
 		},
 		"kanban": {
-			"addTask": "Añadir tarea"
+			"addTask": "Añadir tarea",
+			"estimatedHoursRollup": "Total estimate"
 		},
 		"pr": {
 			"merged": "Mergeada",

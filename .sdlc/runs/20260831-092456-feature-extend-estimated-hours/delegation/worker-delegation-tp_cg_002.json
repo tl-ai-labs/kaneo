@@ -1,0 +1,90 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_002",
+  "phase": "codegen",
+  "task_type": "migration",
+  "module": "api-schema",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T10:21:41.987Z",
+  "duration_ms": 23856,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.079316,
+  "tokens": {
+    "input": 41851,
+    "input_cached": 21765,
+    "output": 1475,
+    "output_reasoning": 1121
+  },
+  "tool_calls": {
+    "count": 4,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api db:generate",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/0043_odd_random.sql",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/0043_odd_random.sql",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/meta/_journal.json",
+          "start_line": "299",
+          "end_line": "1098"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/meta/_journal.json",
+        "args_clipped": false
+      },
+      {
+        "name": "find_file",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle",
+          "query": "0043*"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "apps/api/drizzle/0043_odd_random.sql",
+      "apps/api/drizzle/meta/0043_snapshot.json"
+    ],
+    "modified": [
+      "apps/api/drizzle/meta/_journal.json"
+    ],
+    "removed": [],
+    "unchanged": 1678,
+    "scanned": 1681,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_002.md",
+    "usage": "worker-usage-tp_cg_002.json"
+  }
+}

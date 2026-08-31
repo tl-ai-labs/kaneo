@@ -1764,6 +1764,13 @@
 					"rose": "Rose",
 					"crimson": "Crimson"
 				}
+			},
+			"estimatedHours": {
+				"clear": "Clear estimate",
+				"label": "Estimate",
+				"placeholder": "Hours, e.g. 2.5",
+				"updateError": "Failed to update task estimate",
+				"updateSuccess": "Task estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1866,8 @@
 			"noTasks": "Tidak ada tugas"
 		},
 		"kanban": {
-			"addTask": "Tambah tugas"
+			"addTask": "Tambah tugas",
+			"estimatedHoursRollup": "Total estimate"
 		},
 		"pr": {
 			"merged": "Digabung",

@@ -1,0 +1,46 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "smoke-fe2-agsdk",
+  "phase": "docs",
+  "task_type": "smoke",
+  "module": "precheck",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T09:25:25.888Z",
+  "duration_ms": 6322,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.018317,
+  "tokens": {
+    "input": 10945,
+    "input_cached": 0,
+    "output": 211,
+    "output_reasoning": 205
+  },
+  "tool_calls": {
+    "count": 0,
+    "truncated": false,
+    "sample": []
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1677,
+    "scanned": 1677,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-smoke-fe2-agsdk.md",
+    "usage": "worker-usage-smoke-fe2-agsdk.json"
+  }
+}

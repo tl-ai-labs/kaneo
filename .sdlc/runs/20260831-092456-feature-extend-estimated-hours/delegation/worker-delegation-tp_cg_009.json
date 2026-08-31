@@ -1,0 +1,77 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_009",
+  "phase": "codegen",
+  "task_type": "existing_file_edit",
+  "module": "web-data",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T10:25:52.006Z",
+  "duration_ms": 46508,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.046243,
+  "tokens": {
+    "input": 23917,
+    "input_cached": 25315,
+    "output": 730,
+    "output_reasoning": 415
+  },
+  "tool_calls": {
+    "count": 3,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/web/src/types/task/index.ts"
+    ],
+    "removed": [],
+    "unchanged": 1680,
+    "scanned": 1681,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_009.md",
+    "usage": "worker-usage-tp_cg_009.json"
+  }
+}

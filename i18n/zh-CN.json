@@ -1764,6 +1764,13 @@
 					"rose": "玫红",
 					"crimson": "深红"
 				}
+			},
+			"estimatedHours": {
+				"clear": "Clear estimate",
+				"label": "Estimate",
+				"placeholder": "Hours, e.g. 2.5",
+				"updateError": "Failed to update task estimate",
+				"updateSuccess": "Task estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1866,8 @@
 			"noTasks": "无任务"
 		},
 		"kanban": {
-			"addTask": "添加任务"
+			"addTask": "添加任务",
+			"estimatedHoursRollup": "Total estimate"
 		},
 		"pr": {
 			"merged": "已合并",

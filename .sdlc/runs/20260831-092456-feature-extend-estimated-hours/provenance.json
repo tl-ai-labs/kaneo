@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "run_id": "20260831-092456-feature-extend-estimated-hours",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "apps/api/src/database/schema.ts",
+      "existed_before": true,
+      "sha_before": "sha256:54a934956aef8af8ec867205724021e2d016f9b0c1ba2ae74c3d4fac30fc91b4",
+      "sha_after": "sha256:0aa65fc5423ec9001fad6f6cb5eec5b15b1ae7d73c80188198c1601816aa6094",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_001",
+      "written_at": "2026-08-31T10:15:20.294Z"
+    },
+    {
+      "path": "apps/api/src/task/validate-task-fields.ts",
+      "existed_before": true,
+      "sha_before": "sha256:46d64132bfd9777d67050502798258c0f87b9739f96ea85139fb22cfa654a60d",
+      "sha_after": "sha256:5818c118c3df7264f5f44a8dd5c52a7a7553a7724277dc6179260be626c6d1f2",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_003",
+      "written_at": "2026-08-31T10:15:20.341Z"
+    },
+    {
+      "path": "apps/api/src/schemas.ts",
+      "existed_before": true,
+      "sha_before": "sha256:821d7af952e3330a4e4eb115eef4a1f8f8bbf6eb82916ce11c748259daebfe3b",
+      "sha_after": "sha256:f0b981da62d630f1b0c8ebe8537932f2195ac7af531dc875978068720a0371c0",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave2",
+      "written_at": "2026-08-31T10:21:11.130Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/get-task.ts",
+      "existed_before": true,
+      "sha_before": "sha256:ef959c553ca92fff9b07f8880a9c87fe820664aed056727704b178dba87a4e8c",
+      "sha_after": "sha256:e3c035ca7d5ae425432a8c8564af33090fffcbcadc5386a23c8688f50160ab49",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave2",
+      "written_at": "2026-08-31T10:21:11.300Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/get-tasks.ts",
+      "existed_before": true,
+      "sha_before": "sha256:41b8a1714187c8ccd2ab62ca0d317aad1d230ea663100abeb3715272ed691d96",
+      "sha_after": "sha256:34e9a017903d6b4ae759db4a7257c911e80a9f63faa401492b8420ca52777bcd",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave2",
+      "written_at": "2026-08-31T10:21:11.370Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/update-task-estimated-minutes.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:cdd885c920b04656c636cbd8bfdfbd202b991a2b8b4042de732a0b216b66b1b0",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave2",
+      "written_at": "2026-08-31T10:21:11.569Z"
+    },
+    {
+      "path": "apps/api/src/task/index.ts",
+      "existed_before": true,
+      "sha_before": "sha256:2c6328b48f17c498949ad1883769c527917b99d469ef3a2143a73166f7e18ff9",
+      "sha_after": "sha256:043d4b0d699400872eaa144874032ba35d2b64526b9e82477a59fd99b4c495b5",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_008",
+      "written_at": "2026-08-31T10:24:50.652Z"
+    },
+    {
+      "path": "apps/web/src/types/task/index.ts",
+      "existed_before": true,
+      "sha_before": "sha256:c4b143c1838f2d6d66e021f7daea80ff3dc9c7d5cf8929dafb171259e9519148",
+      "sha_after": "sha256:ad11bea2f430b5836a2b51569c3b68ede456d4264b8f6aaef69fa398ab2e9ce2",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave3",
+      "written_at": "2026-08-31T10:30:45.874Z"
+    },
+    {
+      "path": "apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:9a8933fc2332dbb27351954809019580590db262f0f7205aed33411f2fa91b64",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave3",
+      "written_at": "2026-08-31T10:30:45.923Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:8a9177860958f7d8ec807d2fa2c74a8e7f7b605a06804cb4fe25c33ea7fefe20",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave3",
+      "written_at": "2026-08-31T10:30:45.964Z"
+    },
+    {
+      "path": "i18n/en-US.json",
+      "existed_before": true,
+      "sha_before": "sha256:cdf16d5924db4dfe140bf8ec73dce566b1fe80669a1fa4587fcbd4517757a092",
+      "sha_after": "sha256:4a069267ade528bcdf24b5cc4fa8276a61fcb7a57e038c397a6bd562cd0e40d6",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave3",
+      "written_at": "2026-08-31T10:30:46.005Z"
+    },
+    {
+      "path": "i18n/de-DE.json",
+      "existed_before": true,
+      "sha_before": "sha256:e66353646385f4d4d5c7ddd0a0cf91ddd9862b9f7ffe7ef8255a22527528170a",
+      "sha_after": "sha256:cc14b587a54ca4bdd38241546e7c10c3f929777699f894b96b80d15d1317ff79",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.212Z"
+    },
+    {
+      "path": "i18n/el-GR.json",
+      "existed_before": true,
+      "sha_before": "sha256:eb8a4be7907c0cdecd3a1e0b16a8e126b8e433d08c380ece30569ee9a33cc7d8",
+      "sha_after": "sha256:8c7cdea2f5bd468816e4db6ce7685ec6dd1d31e1322fdd3a395d2e76ec311b55",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.252Z"
+    },
+    {
+      "path": "i18n/es-ES.json",
+      "existed_before": true,
+      "sha_before": "sha256:2324a03ca56d48c4376ced3e0a0f47a127020dcb93668dab8f5622285c34b5c5",
+      "sha_after": "sha256:b3e81c68e169002fd93afff2f0869668b3512ead90f9f4419aeac180f5e2d0b4",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.332Z"
+    },
+    {
+      "path": "i18n/fr-FR.json",
+      "existed_before": true,
+      "sha_before": "sha256:00437855640463a939db8617d1d4712c270ec78874d0f5f1cd19ea25502fe2a0",
+      "sha_after": "sha256:bea3cb52886a073f01d08ef4ce6fa4a724d4b8e8fa89844f4e85ec47d7806904",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.381Z"
+    },
+    {
+      "path": "i18n/hi-IN.json",
+      "existed_before": true,
+      "sha_before": "sha256:85aa16733ef1f12ac45f58fc6aeed6aefaf74ae4978c46305ea586fa11912ef4",
+      "sha_after": "sha256:00245d782d31ff370a851c27c4fac97e755fb96885c3956b33b9e79c339d7138",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.418Z"
+    },
+    {
+      "path": "i18n/id-ID.json",
+      "existed_before": true,
+      "sha_before": "sha256:7df68697b2bac981c3e39a943ed748a5d0467e77ebbc32d539a9e4bd1eaf7604",
+      "sha_after": "sha256:df9b880c531f2bb9347c346a93ddf4d28ee6395f080aa13d016f1d110677f4ad",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.457Z"
+    },
+    {
+      "path": "i18n/it-IT.json",
+      "existed_before": true,
+      "sha_before": "sha256:d7297e208d7959235e6e4d33996697b0c003aabc71e1e4823151786b36063cf5",
+      "sha_after": "sha256:649ec7a4d111257255b9bff58357508c7f35bc0ed0dbb889dec52ede5d0b3fc4",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.504Z"
+    },
+    {
+      "path": "i18n/ko-KR.json",
+      "existed_before": true,
+      "sha_before": "sha256:f7e7399525c149bf76723ef30440ced8b79687a0b6b677a1c3f55f10965ce70e",
+      "sha_after": "sha256:5eb77ee625df23be725b7196010c8f6f0d3ff7ebf1cee72bf5ea107b26137470",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.546Z"
+    },
+    {
+      "path": "i18n/mk-MK.json",
+      "existed_before": true,
+      "sha_before": "sha256:0f065480ad4736d0a849a253df61d980a0ea538512fb44cf80423a6ea5277003",
+      "sha_after": "sha256:6699b9a5efe4e9d0ba6baa520911cfb2b1bdcd109b2844ababdca83bd5e0d5af",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.592Z"
+    },
+    {
+      "path": "i18n/nl-NL.json",
+      "existed_before": true,
+      "sha_before": "sha256:e7ac281a88bf77c8be736e2472e2320c10606637a2796c46ba3c993e8741be10",
+      "sha_after": "sha256:c15a39fdacae064290cbd15a987107aea7c8c7d918b7ded316210916fe22ab82",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.643Z"
+    },
+    {
+      "path": "i18n/pt-BR.json",
+      "existed_before": true,
+      "sha_before": "sha256:1be64b47793c03c633511b0ce1d3b9441cc2bb61960af3ccf8c26e37b71588c2",
+      "sha_after": "sha256:b58aff0039c533870274c624cc290820d7d7b48a68abd290cb34813272658fb8",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.681Z"
+    },
+    {
+      "path": "i18n/ru-RU.json",
+      "existed_before": true,
+      "sha_before": "sha256:38d67c3e1f7a0d6a5f8ee2e1f9ff1fae4f521dbe75d8c13cf773ed6321785766",
+      "sha_after": "sha256:0dbf11235945dfe348b8e21852b346d4501fb09ab4adf7ffcce1b682df50008c",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.720Z"
+    },
+    {
+      "path": "i18n/tr-TR.json",
+      "existed_before": true,
+      "sha_before": "sha256:eed957b6fef09d2f9f5868142d5825272aa47fc7962dbd95f7b0033fdf2d1abd",
+      "sha_after": "sha256:7bbea8ba0fdc5e15e97e677ea0735396c5272c4802090216d4bb793df9d29417",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.766Z"
+    },
+    {
+      "path": "i18n/uk-UA.json",
+      "existed_before": true,
+      "sha_before": "sha256:ff31e076f506a747bd29b6b63a8835e8ca2d526ef5f515ab8b20f0dd48af6d21",
+      "sha_after": "sha256:97cb836b42e0429963003aef5c246db18e676b7fc546793bfb50f8f760d91b76",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.807Z"
+    },
+    {
+      "path": "i18n/vi-VN.json",
+      "existed_before": true,
+      "sha_before": "sha256:bade97630664891a78d9f605d5ebc7c5f221de236bea2dabce5c10fbe891a0c0",
+      "sha_after": "sha256:7db1d3efe9796d69daf28c95b02a05626c6546d1a0fcab8bfa76f9da20fdf0f3",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.849Z"
+    },
+    {
+      "path": "i18n/zh-CN.json",
+      "existed_before": true,
+      "sha_before": "sha256:6852020ae8cbf867b9d2a5791d4867076b44a1be861ded2e8a069476c72e0ac0",
+      "sha_after": "sha256:4e0d4987152bc11bcfd6cfa6619506f7a67bdf573d25fb86d6f5fc01a4a4dfdd",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_cg_014",
+      "written_at": "2026-08-31T10:37:08.884Z"
+    },
+    {
+      "path": "apps/web/src/lib/format-estimated-hours.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:0952a85bace9f67f29ec00f8f1f3cd03aac36bd60a2005c2ba003482c5323526",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave4",
+      "written_at": "2026-08-31T11:01:00.586Z"
+    },
+    {
+      "path": "apps/web/src/lib/format-estimated-hours.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:8c1b251daabc416a8ed555b94ca6c7f424e813af7f2aaee44fddf33ab4053849",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave4",
+      "written_at": "2026-08-31T11:01:00.623Z"
+    },
+    {
+      "path": "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:5d7213b3533c44b520bbe0b090a6bc1871af11bd514cd09b0dbb5d968022533d",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave4",
+      "written_at": "2026-08-31T11:01:00.665Z"
+    },
+    {
+      "path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:69f2d59d1a598f79f8324987a4d67fab7c6ef580674cff34d106ce78d41a74bf",
+      "sha_after": "sha256:537dc96e64e17bb4cf398012e874faf25d2aa0f9349074e3526e480d3c6f8ab1",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave4",
+      "written_at": "2026-08-31T11:01:00.784Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/task-card.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:9000f13988a3307836602f28aa698593e505478b392319264a4c61763d7f5603",
+      "sha_after": "sha256:2736424fa7c0d1e88ef843a8f533cfaf2e78a8ed344f923f29de67ab4755608c",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave4",
+      "written_at": "2026-08-31T11:01:00.823Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:c7eb59de90cc57961067be7ec101b4b9305c25e31ee3e7bc65c26b69c46c9f58",
+      "sha_after": "sha256:ee5ddfe81e7bb85b1285ec00e602b917aedd2ae932537918d1e24881665b42ea",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "wave4",
+      "written_at": "2026-08-31T11:01:00.860Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/task-card.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:a1a9155c3ef5ed88863084a0c347f60373cb52f42e7c5a34f96c9c133ca6ea9f",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave4",
+      "written_at": "2026-08-31T11:01:00.895Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:3de56fa819d01fdec280f46adf2f8dceed9cc2269e94ed1a3879c5425428935f",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "wave4",
+      "written_at": "2026-08-31T11:01:00.934Z"
+    }
+  ]
+}

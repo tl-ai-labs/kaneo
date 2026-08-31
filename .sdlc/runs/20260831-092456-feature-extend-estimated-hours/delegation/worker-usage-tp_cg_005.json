@@ -1,0 +1,49 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 49996,
+    "cached_content_token_count": 18138,
+    "candidates_token_count": 382,
+    "thoughts_token_count": 629,
+    "total_token_count": 51007,
+    "service_tier": null
+  },
+  "tool_call_count": 3,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-task.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-task.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-task.ts"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-task.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-task.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-task.ts",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"edited\": true,\n  \"summary\": \"Added estimatedMinutes: taskTable.estimatedMinutes directly after priority in the select projection object in apps/api/src/task/controllers/get-task.ts.\"\n}"
+}

@@ -1,0 +1,67 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 77764,
+    "cached_content_token_count": 47238,
+    "candidates_token_count": 597,
+    "thoughts_token_count": 1313,
+    "total_token_count": 79674,
+    "service_tier": null
+  },
+  "tool_call_count": 5,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "list_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-due-date.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-due-date.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-title.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-title.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"created\": true,\n  \"summary\": \"Created apps/web/src/fetchers/task/update-task-estimated-minutes.ts default-exporting updateTaskEstimatedMinutes that calls client.task[\\\"estimated-minutes\\\"][\\\":id\\\"].$put and handles error response parsing.\"\n}"
+}

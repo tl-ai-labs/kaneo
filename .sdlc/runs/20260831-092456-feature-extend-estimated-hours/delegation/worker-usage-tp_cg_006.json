@@ -1,0 +1,59 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 75056,
+    "cached_content_token_count": 33320,
+    "candidates_token_count": 480,
+    "thoughts_token_count": 1380,
+    "total_token_count": 76916,
+    "service_tier": null
+  },
+  "tool_call_count": 4,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "search_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+        "query": "estimatedMinutes",
+        "num_results": "0"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+        "start_line": "119",
+        "end_line": "144"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"edited\": true,\n  \"summary\": \"Added estimatedMinutes: taskTable.estimatedMinutes to taskSelection immediately after priority in apps/api/src/task/controllers/get-tasks.ts\"\n}"
+}

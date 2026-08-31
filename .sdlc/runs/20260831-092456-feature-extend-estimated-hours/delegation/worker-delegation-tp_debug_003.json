@@ -1,0 +1,217 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_debug_003",
+  "phase": "debug",
+  "task_type": "review_refinement",
+  "module": "cross",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T11:18:37.609Z",
+  "duration_ms": 197589,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.310604,
+  "tokens": {
+    "input": 112998,
+    "input_cached": 485131,
+    "output": 7593,
+    "output_reasoning": 3977
+  },
+  "tool_calls": {
+    "count": 18,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/schemas.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/schemas.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/validate-task-fields.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/validate-task-fields.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimated-hours-popover.tsx",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimated-hours-popover.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/schemas.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/schemas.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/validate-task-fields.ts",
+          "start_line": "0",
+          "end_line": "34"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/validate-task-fields.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/validate-task-fields.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/validate-task-fields.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimated-hours-popover.tsx",
+          "start_line": "0",
+          "end_line": "64"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimated-hours-popover.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimated-hours-popover.tsx"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimated-hours-popover.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimated-hours-popover.tsx"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimated-hours-popover.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api typecheck",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web typecheck",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm exec biome ci apps/api/src/schemas.ts apps/api/src/task/validate-task-fields.ts apps/web/src/lib/format-estimated-hours.ts apps/web/src/components/task/task-estimated-hours-popover.tsx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api test tests/api/task/validate-task-fields.test.ts",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "search_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps",
+          "query": "525",
+          "num_results": "0"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps",
+        "args_clipped": false
+      },
+      {
+        "name": "search_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web",
+          "query": "525",
+          "num_results": "0"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api typecheck && pnpm --filter @kaneo/web typecheck && pnpm exec biome ci apps/api/src/schemas.ts apps/api/src/task/validate-task-fields.ts apps/web/src/lib/format-estimated-hours.ts apps/web/src/components/task/task-estimated-hours-popover.tsx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/api/src/schemas.ts",
+      "apps/api/src/task/validate-task-fields.ts",
+      "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+      "apps/web/src/lib/format-estimated-hours.ts"
+    ],
+    "removed": [],
+    "unchanged": 1684,
+    "scanned": 1688,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_debug_003.md",
+    "usage": "worker-usage-tp_debug_003.json"
+  }
+}

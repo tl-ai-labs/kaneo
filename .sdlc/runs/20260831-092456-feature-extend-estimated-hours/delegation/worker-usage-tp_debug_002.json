@@ -1,0 +1,39 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 35251,
+    "cached_content_token_count": 14396,
+    "candidates_token_count": 292,
+    "thoughts_token_count": 834,
+    "total_token_count": 36377,
+    "service_tier": null
+  },
+  "tool_call_count": 2,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm exec biome format --write apps/api/drizzle/meta/0043_snapshot.json apps/api/drizzle/meta/_journal.json",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm exec biome ci apps/api/drizzle",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"formatted\": true,\n  \"biome_clean\": true,\n  \"biome_output\": \"Checked 39 files in 110ms. No fixes applied.\",\n  \"summary\": \"Successfully reformatted apps/api/drizzle/meta/0043_snapshot.json and apps/api/drizzle/meta/_journal.json using biome format --write. Biome CI check on apps/api/drizzle passed with 0 errors.\"\n}"
+}

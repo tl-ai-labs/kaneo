@@ -1,0 +1,120 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_014",
+  "phase": "codegen",
+  "task_type": "existing_file_edit",
+  "module": "i18n",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T10:31:27.599Z",
+  "duration_ms": 60013,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.131308,
+  "tokens": {
+    "input": 36311,
+    "input_cached": 78177,
+    "output": 7235,
+    "output_reasoning": 5256
+  },
+  "tool_calls": {
+    "count": 6,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm i18n:check:fix",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm i18n:check",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/package.json",
+          "start_line": "0",
+          "end_line": "99"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/package.json",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/scripts/i18n/check.mjs",
+          "start_line": "0",
+          "end_line": "199"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/scripts/i18n/check.mjs",
+        "args_clipped": false
+      },
+      {
+        "name": "list_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/i18n"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/i18n",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/scripts/i18n/shared.mjs",
+          "start_line": "0",
+          "end_line": "99"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/scripts/i18n/shared.mjs",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "i18n/de-DE.json",
+      "i18n/el-GR.json",
+      "i18n/es-ES.json",
+      "i18n/fr-FR.json",
+      "i18n/hi-IN.json",
+      "i18n/id-ID.json",
+      "i18n/it-IT.json",
+      "i18n/ko-KR.json",
+      "i18n/mk-MK.json",
+      "i18n/nl-NL.json",
+      "i18n/pt-BR.json",
+      "i18n/ru-RU.json",
+      "i18n/tr-TR.json",
+      "i18n/uk-UA.json",
+      "i18n/vi-VN.json",
+      "i18n/zh-CN.json"
+    ],
+    "removed": [],
+    "unchanged": 1667,
+    "scanned": 1683,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_014.md",
+    "usage": "worker-usage-tp_cg_014.json"
+  }
+}

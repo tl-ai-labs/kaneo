@@ -6,6 +6,7 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
+  Clock,
   GitMerge,
   GitPullRequest,
 } from "lucide-react";
@@ -34,6 +35,7 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
+import { formatEstimatedHours } from "@/lib/format-estimated-hours";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -78,6 +80,7 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
   const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
   const isTaskSelected = isSelected(task.id);
   const isTaskFocused = isFocused(task.id);
+  const estimatedHours = formatEstimatedHours(task.estimatedMinutes);
 
   const pullRequests = useMemo(() => {
     return (task.externalLinks ?? []).filter(
@@ -277,6 +280,13 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                       "no-due-date") && <Calendar className="w-3 h-3" />}
                   <span>{format(new Date(task.dueDate), "MMM d")}</span>
                 </div>
+              )}
+
+              {estimatedHours && (
+                <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                  <Clock className="w-3 h-3" />
+                  {estimatedHours}
+                </span>
               )}
 
               {pullRequests.length === 1 && (

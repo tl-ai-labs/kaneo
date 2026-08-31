@@ -1,0 +1,95 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_011",
+  "phase": "codegen",
+  "task_type": "new_file_add",
+  "module": "web-data",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T10:26:40.439Z",
+  "duration_ms": 29537,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.070065,
+  "tokens": {
+    "input": 30526,
+    "input_cached": 47238,
+    "output": 1910,
+    "output_reasoning": 1313
+  },
+  "tool_calls": {
+    "count": 5,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "list_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-due-date.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-due-date.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-title.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-title.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "apps/web/src/fetchers/task/update-task-estimated-minutes.ts"
+    ],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1681,
+    "scanned": 1682,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_011.md",
+    "usage": "worker-usage-tp_cg_011.json"
+  }
+}

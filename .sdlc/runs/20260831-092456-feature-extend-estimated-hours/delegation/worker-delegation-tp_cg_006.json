@@ -1,0 +1,87 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_006",
+  "phase": "codegen",
+  "task_type": "existing_file_edit",
+  "module": "api-read",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T10:16:58.456Z",
+  "duration_ms": 87354,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.084342,
+  "tokens": {
+    "input": 41736,
+    "input_cached": 33320,
+    "output": 1860,
+    "output_reasoning": 1380
+  },
+  "tool_calls": {
+    "count": 4,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "search_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+          "query": "estimatedMinutes",
+          "num_results": "0"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+          "start_line": "119",
+          "end_line": "144"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/task/controllers/get-tasks.ts",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/api/src/task/controllers/get-tasks.ts"
+    ],
+    "removed": [],
+    "unchanged": 1676,
+    "scanned": 1677,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_006.md",
+    "usage": "worker-usage-tp_cg_006.json"
+  }
+}

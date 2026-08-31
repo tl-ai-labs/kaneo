@@ -1,0 +1,212 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 1184248,
+    "cached_content_token_count": 959960,
+    "candidates_token_count": 3293,
+    "thoughts_token_count": 7346,
+    "total_token_count": 1194887,
+    "service_tier": null
+  },
+  "tool_call_count": 20,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "find_file",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/web",
+        "query": "*.test.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/ui/context-menu.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/ui/context-menu.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-labels.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-labels.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/package.json",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/package.json",
+      "args_clipped": false
+    },
+    {
+      "name": "find_file",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src",
+        "query": "*task*"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src",
+      "args_clipped": false
+    },
+    {
+      "name": "find_file",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/types",
+        "query": "*"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/package.json",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/package.json",
+      "args_clipped": false
+    },
+    {
+      "name": "search_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/web",
+        "query": "toBeInTheDocument",
+        "num_results": "0"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/vitest.config.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/vitest.config.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/test/setup.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/test/setup.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.test.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web test src/components/kanban-board/task-card.test.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web lint && pnpm --filter @kaneo/web typecheck",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/task-card.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web test src/components/kanban-board/task-card.test.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web test",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\"created\": true, \"tests_pass\": true, \"summary\": \"Created apps/web/src/components/kanban-board/task-card.test.tsx with isolated mocks for all TaskCard dependencies and tested estimate badge behavior when estimatedMinutes is 150, null, or omitted.\"}"
+}

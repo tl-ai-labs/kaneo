@@ -1764,6 +1764,13 @@
 					"rose": "Rosa",
 					"crimson": "Cremisi"
 				}
+			},
+			"estimatedHours": {
+				"clear": "Clear estimate",
+				"label": "Estimate",
+				"placeholder": "Hours, e.g. 2.5",
+				"updateError": "Failed to update task estimate",
+				"updateSuccess": "Task estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1866,8 @@
 			"noTasks": "Nessuna attività"
 		},
 		"kanban": {
-			"addTask": "Aggiungi attività"
+			"addTask": "Aggiungi attività",
+			"estimatedHoursRollup": "Total estimate"
 		},
 		"pr": {
 			"merged": "Unito",

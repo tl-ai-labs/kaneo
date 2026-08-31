@@ -22,6 +22,9 @@ export const projectSchema = v.object({
   position: v.number(),
 });
 
+// 525_600 is one year in minutes
+export const ESTIMATED_MINUTES_MAX = 525_600;
+
 export const taskSchema = v.object({
   id: v.string(),
   projectId: v.string(),
@@ -38,6 +41,16 @@ export const taskSchema = v.object({
     "high",
     "urgent",
   ] as const),
+  estimatedMinutes: v.optional(
+    v.nullable(
+      v.pipe(
+        v.number(),
+        v.integer(),
+        v.minValue(0),
+        v.maxValue(ESTIMATED_MINUTES_MAX),
+      ),
+    ),
+  ),
   startDate: v.optional(v.date()),
   dueDate: v.optional(v.date()),
   createdAt: v.date(),

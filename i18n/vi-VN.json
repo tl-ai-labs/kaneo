@@ -1764,6 +1764,13 @@
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
 				}
+			},
+			"estimatedHours": {
+				"clear": "Clear estimate",
+				"label": "Estimate",
+				"placeholder": "Hours, e.g. 2.5",
+				"updateError": "Failed to update task estimate",
+				"updateSuccess": "Task estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1866,8 @@
 			"noTasks": "Không có công việc"
 		},
 		"kanban": {
-			"addTask": "Thêm công việc"
+			"addTask": "Thêm công việc",
+			"estimatedHoursRollup": "Total estimate"
 		},
 		"pr": {
 			"merged": "Đã gộp",

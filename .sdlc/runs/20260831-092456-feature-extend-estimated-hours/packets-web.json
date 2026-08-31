@@ -1,0 +1,279 @@
+[
+  {
+    "id": "tp_cg_009",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "web-data",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/types/task/index.ts",
+    "instruction": "Open apps/web/src/types/task/index.ts. Add estimatedMinutes?: number | null to the Task interface/type definition. Ensure no other fields or types in this file are modified.",
+    "acceptance": [
+      "Task type includes optional estimatedMinutes property of type number | null.",
+      "TypeScript compiler verifies the type definition without errors."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": []
+  },
+  {
+    "id": "tp_cg_010",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-data",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/lib/format-estimated-hours.ts",
+    "instruction": "Create apps/web/src/lib/format-estimated-hours.ts. Named-export a pure function formatEstimatedHours(minutes: number | null | undefined): string | null. Return null when minutes is null, undefined, NaN, or <= 0. Convert valid minutes to hours by dividing by 60, round to at most 2 decimal places, strip trailing zeros, and suffix with 'h'. Do not use React, i18n, or side effects.",
+    "acceptance": [
+      "formatEstimatedHours returns null for null, undefined, 0, or negative numbers.",
+      "formatEstimatedHours converts 150 to '2.5h', 120 to '2h', and 45 to '0.75h'."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": []
+  },
+  {
+    "id": "tp_test_002",
+    "phase": "tests",
+    "task_type": "test_add",
+    "module": "tests",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/lib/format-estimated-hours.test.ts",
+    "instruction": "Create apps/web/src/lib/format-estimated-hours.test.ts using vitest. Import describe, it, expect from vitest and formatEstimatedHours from ./format-estimated-hours. Write test cases asserting that 120 returns '2h', 60 returns '1h', 150 returns '2.5h', and 45 returns '0.75h'. Write test cases asserting null is returned for 0, -10, null, and undefined.",
+    "acceptance": [
+      "Test suite covers positive minute conversions including whole and decimal values.",
+      "Test suite asserts null for zero, negative, null, and undefined inputs.",
+      "Vitest test suite executes and passes."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    },
+    "depends_on": [
+      "tp_cg_010"
+    ]
+  },
+  {
+    "id": "tp_cg_011",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-data",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+    "instruction": "Create apps/web/src/fetchers/task/update-task-estimated-minutes.ts following the pattern of update-task-due-date.ts. Default-export async function updateTaskEstimatedMinutes(taskId: string, estimatedMinutes: number | null). Call client.task[\"estimated-minutes\"][\":id\"].$put({ param: { id: taskId }, json: { estimatedMinutes } }). If !response.ok, read response.text() and throw new Error(text); otherwise return await response.json(). Import { client } from \"@kaneo/libs\".",
+    "acceptance": [
+      "updateTaskEstimatedMinutes default-exported function sends PUT request to client.task['estimated-minutes'][':id'].",
+      "Throws an Error with response text on !response.ok and returns parsed JSON on success."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": [
+      "tp_cg_009"
+    ]
+  },
+  {
+    "id": "tp_cg_012",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-data",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts",
+    "instruction": "Create apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts following use-update-task-due-date.ts. Named-export useUpdateTaskEstimatedMinutes using useMutation from @tanstack/react-query. Set mutationFn to take ({ task, estimatedMinutes }: { task: Task; estimatedMinutes: number | null }) and invoke updateTaskEstimatedMinutes(task.id, estimatedMinutes). On success, invalidate query keys [\"task\", variables.task.id], [\"tasks\", variables.task.projectId], and [\"projects\"].",
+    "acceptance": [
+      "useUpdateTaskEstimatedMinutes hook is created and named-exported.",
+      "mutationFn delegates to updateTaskEstimatedMinutes using task.id and estimatedMinutes.",
+      "onSuccess handler invalidates task, tasks, and projects query keys."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": [
+      "tp_cg_011"
+    ]
+  },
+  {
+    "id": "tp_cg_013",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "i18n",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "i18n/en-US.json",
+    "instruction": "Edit i18n/en-US.json to add static translation keys matching the surrounding style of dueDate and startDate entries. Under tasks.popover, add estimatedHours object with keys label, placeholder, clear, updateSuccess, and updateError. Under tasks.kanban, add estimatedHoursRollup key. Do not modify i18n/schema.json or any other locale files.",
+    "acceptance": [
+      "i18n/en-US.json contains tasks.popover.estimatedHours with label, placeholder, clear, updateSuccess, and updateError.",
+      "i18n/en-US.json contains tasks.kanban.estimatedHoursRollup.",
+      "Valid JSON syntax is preserved in i18n/en-US.json without modifying i18n/schema.json."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": []
+  },
+  {
+    "id": "tp_cg_014",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "i18n",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "i18n/",
+    "instruction": "Execute pnpm i18n:check:fix from the repository root to propagate new keys from en-US.json into all 16 other locale files. Next, execute pnpm i18n:check and verify it exits with code 0. Do not manually edit any locale file or i18n/schema.json. Report which locale files were updated.",
+    "acceptance": [
+      "pnpm i18n:check:fix propagates keys across all locale files.",
+      "pnpm i18n:check runs cleanly and exits 0.",
+      "i18n/schema.json remains untouched."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": [
+      "tp_cg_013"
+    ]
+  },
+  {
+    "id": "tp_cg_015",
+    "phase": "codegen",
+    "task_type": "new_file_add",
+    "module": "web-ui",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+    "instruction": "Create apps/web/src/components/task/task-estimated-hours-popover.tsx matching task-due-date-popover.tsx structure. Export default component taking { task, children }. Use useTranslation, useState for open and text input, useUpdateTaskEstimatedMinutes mutateAsync, and useWorkspacePermission (returning <>{children}</> if !canEdit). Parse input hours with Math.round(parseFloat(value) * 60); reject NaN, negative, or > 525600 without API calls. Support clear sending null, show toast.success/error messages, and close popover.",
+    "acceptance": [
+      "TaskEstimatedHoursPopover renders trigger and popover form with input validation and clear action.",
+      "Guards edits with canEdit permission check.",
+      "Calls mutation with converted minutes or null and displays appropriate toast notifications."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": [
+      "tp_cg_010",
+      "tp_cg_012",
+      "tp_cg_013"
+    ]
+  },
+  {
+    "id": "tp_cg_016",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "web-ui",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+    "instruction": "Edit apps/web/src/components/task/task-properties-sidebar.tsx. Register TaskEstimatedHoursPopover alongside existing due-date and priority popovers in both compact and desktop layouts. Display formatEstimatedHours(task.estimatedMinutes) when set, or the tasks:popover.estimatedHours.label placeholder when unset. Follow the existing neighbouring popover conventions and change nothing else.",
+    "acceptance": [
+      "TaskEstimatedHoursPopover is integrated into both compact and desktop sidebar views.",
+      "Displays formatted estimate when present and translated placeholder when unset."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": [
+      "tp_cg_015"
+    ]
+  },
+  {
+    "id": "tp_cg_017",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "web-ui",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/task-card.tsx",
+    "instruction": "Edit apps/web/src/components/kanban-board/task-card.tsx. Compute formatEstimatedHours(task.estimatedMinutes) once. If null, render nothing so unset cards remain byte-identical. If non-null, render an estimate badge matching the styling of existing card metadata badges. Change nothing else.",
+    "acceptance": [
+      "Renders estimate badge next to existing metadata badges when formatEstimatedHours returns non-null.",
+      "Renders nothing extra when formatEstimatedHours returns null."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": [
+      "tp_cg_010"
+    ]
+  },
+  {
+    "id": "tp_test_003",
+    "phase": "tests",
+    "task_type": "test_add",
+    "module": "tests",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/task-card.test.tsx",
+    "instruction": "Create apps/web/src/components/kanban-board/task-card.test.tsx using vitest and @testing-library/react following the vi.mock style of apps/web/src/components/list-view/task-row.test.tsx. Mock all imported hooks and child components. Assert badge text '2.5h' is rendered when estimatedMinutes is 150. Assert no estimate badge is rendered when estimatedMinutes is null, 0, or undefined. Include cleanup in afterEach.",
+    "acceptance": [
+      "Test mocks all component dependencies matching task-row.test.tsx style.",
+      "Asserts estimate badge '2.5h' is present when estimatedMinutes is 150.",
+      "Asserts no estimate badge appears when estimatedMinutes is null, 0, or undefined."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    },
+    "depends_on": [
+      "tp_cg_017"
+    ]
+  },
+  {
+    "id": "tp_cg_018",
+    "phase": "codegen",
+    "task_type": "existing_file_edit",
+    "module": "web-ui",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "instruction": "Edit apps/web/src/components/kanban-board/column/column-header.tsx. Calculate the sum of estimatedMinutes across column.tasks, treating null or undefined values as 0. Pass the total sum to formatEstimatedHours; if null, render nothing. If non-null, render a rollup badge matching the styling of the column.tasks.length count badge. Change nothing else.",
+    "acceptance": [
+      "Calculates total estimated minutes across column.tasks.",
+      "Renders rollup badge next to task count badge when total estimated minutes formatting is non-null.",
+      "Renders no rollup badge when formatted total is null."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 3000
+    },
+    "depends_on": [
+      "tp_cg_010"
+    ]
+  },
+  {
+    "id": "tp_test_004",
+    "phase": "tests",
+    "task_type": "test_add",
+    "module": "tests",
+    "pass_id": "20260831-092456-feature-extend-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+    "instruction": "Create apps/web/src/components/kanban-board/column/column-header.test.tsx using vitest and @testing-library/react following the vi.mock style of apps/web/src/components/list-view/task-row.test.tsx. Mock every hook and child component imported by the header. Test rollup calculation with multiple estimates (120 and 240 producing '6h'), single estimate (150 and two nulls producing '2.5h'), and zero estimates (all null producing no rollup badge). Assert the existing task-count badge renders in all test cases.",
+    "acceptance": [
+      "Test suite asserts rollup badge shows '6h' for multiple estimates and '2.5h' for single estimate with nulls.",
+      "Test suite asserts no rollup badge appears when all task estimates are null.",
+      "Test suite asserts task count badge always renders across all test scenarios."
+    ],
+    "budget": {
+      "maxInputTokens": 30000,
+      "maxOutputTokens": 4000
+    },
+    "depends_on": [
+      "tp_cg_018"
+    ]
+  }
+]

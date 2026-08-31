@@ -1,0 +1,49 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 49232,
+    "cached_content_token_count": 25315,
+    "candidates_token_count": 315,
+    "thoughts_token_count": 415,
+    "total_token_count": 49962,
+    "service_tier": null
+  },
+  "tool_call_count": 3,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"edited\": true,\n  \"summary\": \"Added optional and nullable estimatedMinutes field to Task type in apps/web/src/types/task/index.ts immediately after priority.\"\n}"
+}

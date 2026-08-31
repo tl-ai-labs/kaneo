@@ -1766,6 +1766,13 @@
 				"updateError": "Failed to update task start date",
 				"clear": "Clear start date"
 			},
+			"estimatedHours": {
+				"label": "Estimate",
+				"placeholder": "Hours, e.g. 2.5",
+				"clear": "Clear estimate",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
+			},
 			"labels": {
 				"searchPlaceholder": "Search labels...",
 				"empty": "No labels found",
@@ -1882,7 +1889,8 @@
 			"noTasks": "No tasks"
 		},
 		"kanban": {
-			"addTask": "Add task"
+			"addTask": "Add task",
+			"estimatedHoursRollup": "Total estimate"
 		},
 		"pr": {
 			"merged": "Merged",

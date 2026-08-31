@@ -1,0 +1,152 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_012",
+  "phase": "codegen",
+  "task_type": "new_file_add",
+  "module": "web-data",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T10:27:12.091Z",
+  "duration_ms": 79434,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.192275,
+  "tokens": {
+    "input": 85834,
+    "input_cached": 197830,
+    "output": 3761,
+    "output_reasoning": 2246
+  },
+  "tool_calls": {
+    "count": 11,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-due-date.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-due-date.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "find_file",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web",
+          "query": "*estimated*"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "list_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-status-priority.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-status-priority.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-description.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-description.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/package.json",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/package.json",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web typecheck",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm biome check apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts"
+    ],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1682,
+    "scanned": 1683,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_012.md",
+    "usage": "worker-usage-tp_cg_012.json"
+  }
+}

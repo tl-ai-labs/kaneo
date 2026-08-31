@@ -1,0 +1,114 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_test_002",
+  "phase": "tests",
+  "task_type": "test_add",
+  "module": "tests",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T10:39:02.061Z",
+  "duration_ms": 93111,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.126092,
+  "tokens": {
+    "input": 50985,
+    "input_cached": 69940,
+    "output": 4347,
+    "output_reasoning": 3202
+  },
+  "tool_calls": {
+    "count": 7,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "list_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/due-date-status.test.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/due-date-status.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/cn.test.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/cn.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/get-initials.test.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/get-initials.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.test.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/format-estimated-hours.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web test format-estimated-hours.test.ts --run",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "apps/web/src/lib/format-estimated-hours.test.ts"
+    ],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1684,
+    "scanned": 1685,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_test_002.md",
+    "usage": "worker-usage-tp_test_002.json"
+  }
+}

@@ -6,6 +6,10 @@ import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
+import {
+  formatEstimatedHours,
+  sumEstimatedMinutes,
+} from "@/lib/format-estimated-hours";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -25,6 +29,8 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+
+  const estimateLabel = formatEstimatedHours(sumEstimatedMinutes(column.tasks));
 
   const handleConfirmArchive = () => {
     if (!column.isFinal || !project) return;
@@ -62,6 +68,14 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
           {column.tasks.length}
         </span>
+        {estimateLabel && (
+          <span
+            className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
+            title={t("tasks:kanban.estimatedHoursRollup")}
+          >
+            {estimateLabel}
+          </span>
+        )}
       </div>
 
       <div className="flex items-center">

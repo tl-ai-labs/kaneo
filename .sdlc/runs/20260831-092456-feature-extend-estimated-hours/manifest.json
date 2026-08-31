@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "run_id": "20260831-092456-feature-extend-estimated-hours",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": "flash-agsdk-only",
+  "auth_mode": "estimated",
+  "model": "gemini-3.7-flash",
+  "adapter": "antigravity-worker",
+  "backend": "vertex-adc",
+  "gcp_project": "ai-studies-console",
+  "gcp_location": "global",
+  "base_commit": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "branch": "feature-extend-2/flash-agsdk",
+  "provenance": "vendor",
+  "totals": {
+    "cost_usd": 8.099524,
+    "latency_ms": 4115710,
+    "dispatches": 34,
+    "failed": 2,
+    "input_tokens": 3087215,
+    "input_tokens_cached": 9778790,
+    "output_tokens": 222431
+  },
+  "per_phase": {
+    "docs": {
+      "cost_usd": 0.018317,
+      "latency_ms": 6322,
+      "dispatches": 1,
+      "failed": 0,
+      "input_tokens": 10945,
+      "input_tokens_cached": 0,
+      "output_tokens": 211
+    },
+    "requirements_analysis": {
+      "cost_usd": 0.725855,
+      "latency_ms": 403549,
+      "dispatches": 2,
+      "failed": 1,
+      "input_tokens": 267264,
+      "input_tokens_cached": 1005213,
+      "output_tokens": 19353
+    },
+    "architecture_design": {
+      "cost_usd": 0.256344,
+      "latency_ms": 170372,
+      "dispatches": 1,
+      "failed": 0,
+      "input_tokens": 79151,
+      "input_tokens_cached": 160913,
+      "output_tokens": 12609
+    },
+    "plan_task_packets": {
+      "cost_usd": 0.435504,
+      "latency_ms": 590499,
+      "dispatches": 3,
+      "failed": 1,
+      "input_tokens": 104522,
+      "input_tokens_cached": 0,
+      "output_tokens": 30969
+    },
+    "codegen": {
+      "cost_usd": 3.475532,
+      "latency_ms": 1597148,
+      "dispatches": 18,
+      "failed": 0,
+      "input_tokens": 1408299,
+      "input_tokens_cached": 3690212,
+      "output_tokens": 89950
+    },
+    "tests": {
+      "cost_usd": 1.335163,
+      "latency_ms": 543384,
+      "dispatches": 4,
+      "failed": 0,
+      "input_tokens": 542187,
+      "input_tokens_cached": 1735551,
+      "output_tokens": 29061
+    },
+    "debug": {
+      "cost_usd": 0.50328,
+      "latency_ms": 286301,
+      "dispatches": 3,
+      "failed": 0,
+      "input_tokens": 186879,
+      "input_tokens_cached": 674904,
+      "output_tokens": 13525
+    },
+    "senior_code_review": {
+      "cost_usd": 0.752361,
+      "latency_ms": 370128,
+      "dispatches": 1,
+      "failed": 0,
+      "input_tokens": 211363,
+      "input_tokens_cached": 1842030,
+      "output_tokens": 17668
+    },
+    "security_review": {
+      "cost_usd": 0.597168,
+      "latency_ms": 148007,
+      "dispatches": 1,
+      "failed": 0,
+      "input_tokens": 276605,
+      "input_tokens_cached": 669967,
+      "output_tokens": 9085
+    }
+  },
+  "packets": {
+    "planned": 22,
+    "executed": 22,
+    "debug_added": 3,
+    "failed_dispatches": 2
+  },
+  "verification": {
+    "api_test_unit": "59 files / 377 tests passed",
+    "web_test": "39 files / 131 tests passed",
+    "api_typecheck": "pass",
+    "web_typecheck": "pass",
+    "biome_ci_changed_paths": "38 files, 0 errors",
+    "i18n_check": "exit 1, byte-identical to HEAD baseline (pre-existing ru-RU/uk-UA extras); no new failure introduced",
+    "integration_tests": "deliberately excluded; PostgreSQL was available via Docker but AC-9 does not require them and no sibling leg ran them"
+  },
+  "reviews": {
+    "senior": "APPROVE WITH NITS (0 blockers, 0 majors, 3 nits; 2 fixed)",
+    "security": "PASS (0 critical/high/medium/low, 1 informational)"
+  },
+  "files_changed": {
+    "modified": 28,
+    "new": 11,
+    "total": 39,
+    "modified_list": [
+      "apps/api/drizzle/meta/_journal.json",
+      "apps/api/src/database/schema.ts",
+      "apps/api/src/schemas.ts",
+      "apps/api/src/task/controllers/get-task.ts",
+      "apps/api/src/task/controllers/get-tasks.ts",
+      "apps/api/src/task/index.ts",
+      "apps/api/src/task/validate-task-fields.ts",
+      "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "apps/web/src/components/kanban-board/task-card.tsx",
+      "apps/web/src/components/task/task-properties-sidebar.tsx",
+      "apps/web/src/types/task/index.ts",
+      "i18n/de-DE.json",
+      "i18n/el-GR.json",
+      "i18n/en-US.json",
+      "i18n/es-ES.json",
+      "i18n/fr-FR.json",
+      "i18n/hi-IN.json",
+      "i18n/id-ID.json",
+      "i18n/it-IT.json",
+      "i18n/ko-KR.json",
+      "i18n/mk-MK.json",
+      "i18n/nl-NL.json",
+      "i18n/pt-BR.json",
+      "i18n/ru-RU.json",
+      "i18n/tr-TR.json",
+      "i18n/uk-UA.json",
+      "i18n/vi-VN.json",
+      "i18n/zh-CN.json"
+    ],
+    "new_list": [
+      "apps/api/drizzle/0043_odd_random.sql",
+      "apps/api/drizzle/meta/0043_snapshot.json",
+      "apps/api/src/task/controllers/update-task-estimated-minutes.ts",
+      "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "apps/web/src/components/kanban-board/task-card.test.tsx",
+      "apps/web/src/components/task/task-estimated-hours-popover.tsx",
+      "apps/web/src/fetchers/task/update-task-estimated-minutes.ts",
+      "apps/web/src/hooks/mutations/task/use-update-task-estimated-minutes.ts",
+      "apps/web/src/lib/format-estimated-hours.test.ts",
+      "apps/web/src/lib/format-estimated-hours.ts",
+      "tests/api/task/"
+    ]
+  },
+  "artifacts": {
+    "intent_brief.md": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/intent_brief.md",
+    "discovery.md": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/discovery.md",
+    "requirements.md": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/requirements.md",
+    "change_plan.md": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/change_plan.md",
+    "packets.json": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/packets.json",
+    "review.md": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/review.md",
+    "security_review.md": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/security_review.md",
+    "telemetry.jsonl": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/telemetry.jsonl",
+    "provenance.json": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/provenance.json",
+    "manifest.json": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/manifest.json",
+    "SUMMARY.md": ".sdlc/runs/20260831-092456-feature-extend-estimated-hours/SUMMARY.md"
+  },
+  "known_gaps": [
+    "FOUR files have no provenance record; /mmo:revert will not handle them. Manual steps required:",
+    "  rm apps/api/drizzle/0043_odd_random.sql                (new, tool-generated by db:generate)",
+    "  rm apps/api/drizzle/meta/0043_snapshot.json            (new, tool-generated by db:generate)",
+    "  git checkout -- apps/api/drizzle/meta/_journal.json    (TRACKED+modified; must be RESTORED, not deleted)",
+    "  rm tests/api/task/validate-task-fields.test.ts && rmdir tests/api/task  (new)",
+    "Cause: the three drizzle artifacts are written by `pnpm --filter @kaneo/api db:generate` inside packet tp_cg_002, and its migration tag (0043_odd_random) is randomly assigned, so no --before could be recorded for filenames not knowable in advance. The test file was an orchestrator omission from a --before loop.",
+    "Neither was back-filled: calling --before after the write records written content as pristine, converting a visible gap into a silent false record."
+  ],
+  "accounting_caveat": "Under flash-agsdk-only no phase routes to the orchestrator's own tier, so orchestration tokens are not billed to this run and are absent from these totals. Comparable to the flash-vertex-only leg; NOT comparable on this axis to legs with premium-tier phases.",
+  "provenance_coverage": {
+    "entries": 35,
+    "changed_files": 39,
+    "unrecorded": 4,
+    "method_note": "Count corrected 1 -> 4 by reconciling provenance.json against `git status --porcelain` as a set difference, not by trusting the run's own tally of --before calls."
+  },
+  "finalized": true,
+  "gate_4": "accepted",
+  "structural_finding": "Provenance cannot cover packets whose output filenames are not knowable at dispatch time (migrations, scaffolds, hashed/timestamped codegen). drizzle-kit's random migration tag is the instance here. Design gap in the provenance contract, not an operator error; recurs on every migration-bearing run.",
+  "six_limits_note": "Six configured controls, six distinct failure modes, one shape: they record and do not constrain. #6 (unbounded agent shell access) is qualitatively worst: the other five fail to stop things the system recorded, while #6 leaves no trace in the packet contract, telemetry event or structured result."
+}

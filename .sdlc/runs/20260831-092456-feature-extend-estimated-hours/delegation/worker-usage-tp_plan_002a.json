@@ -1,0 +1,29 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 45130,
+    "cached_content_token_count": 0,
+    "candidates_token_count": 3200,
+    "thoughts_token_count": 9726,
+    "total_token_count": 58056,
+    "service_tier": null
+  },
+  "tool_call_count": 1,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260831-092456-feature-extend-estimated-hours/packets-api.json"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260831-092456-feature-extend-estimated-hours/packets-api.json",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"written_path\": \".sdlc/runs/20260831-092456-feature-extend-estimated-hours/packets-api.json\",\n  \"packet_count\": 9,\n  \"packet_ids\": [\n    \"tp_cg_001\",\n    \"tp_cg_002\",\n    \"tp_cg_003\",\n    \"tp_cg_004\",\n    \"tp_cg_005\",\n    \"tp_cg_006\",\n    \"tp_cg_007\",\n    \"tp_cg_008\",\n    \"tp_test_001\"\n  ]\n}"
+}

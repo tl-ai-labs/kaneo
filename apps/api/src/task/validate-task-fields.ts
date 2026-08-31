@@ -1,7 +1,11 @@
 import { asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import * as v from "valibot";
 import db from "../database";
 import { columnTable } from "../database/schema";
+import { ESTIMATED_MINUTES_MAX } from "../schemas";
+
+export { ESTIMATED_MINUTES_MAX };
 
 export const VALID_PRIORITIES = [
   "no-priority",
@@ -12,6 +16,15 @@ export const VALID_PRIORITIES = [
 ] as const;
 
 export const VIRTUAL_STATUSES = ["planned", "archived"] as const;
+
+export const estimatedMinutesSchema = v.nullable(
+  v.pipe(
+    v.number(),
+    v.integer(),
+    v.minValue(0),
+    v.maxValue(ESTIMATED_MINUTES_MAX),
+  ),
+);
 
 export function assertValidPriority(priority: string): void {
   if (!(VALID_PRIORITIES as readonly string[]).includes(priority)) {

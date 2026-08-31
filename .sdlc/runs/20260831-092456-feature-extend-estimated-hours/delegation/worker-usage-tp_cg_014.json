@@ -1,0 +1,77 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 114488,
+    "cached_content_token_count": 78177,
+    "candidates_token_count": 1979,
+    "thoughts_token_count": 5256,
+    "total_token_count": 121723,
+    "service_tier": null
+  },
+  "tool_call_count": 6,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm i18n:check:fix",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm i18n:check",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/package.json",
+        "start_line": "0",
+        "end_line": "99"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/package.json",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/scripts/i18n/check.mjs",
+        "start_line": "0",
+        "end_line": "199"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/scripts/i18n/check.mjs",
+      "args_clipped": false
+    },
+    {
+      "name": "list_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/i18n"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/i18n",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/scripts/i18n/shared.mjs",
+        "start_line": "0",
+        "end_line": "99"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/scripts/i18n/shared.mjs",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"fix_command_succeeded\": true,\n  \"check_passes\": false,\n  \"locales_changed\": [\n    \"de-DE\",\n    \"el-GR\",\n    \"es-ES\",\n    \"fr-FR\",\n    \"hi-IN\",\n    \"id-ID\",\n    \"it-IT\",\n    \"ko-KR\",\n    \"mk-MK\",\n    \"nl-NL\",\n    \"pt-BR\",\n    \"ru-RU\",\n    \"tr-TR\",\n    \"uk-UA\",\n    \"vi-VN\",\n    \"zh-CN\"\n  ],\n  \"check_output\": \"> kaneo@2.19.1 i18n:check /home/sangeetha/projects/kaneo\\n> node ./scripts/i18n/check.mjs\\n\\nde-DE: OK\\nel-GR: OK\\nes-ES: OK\\nfr-FR: OK\\nhi-IN: OK\\nid-ID: OK\\nit-IT: OK\\nko-KR: OK\\nmk-MK: OK\\nnl-NL: OK\\npt-BR: OK\\nru-RU:\\n  Extra keys:\\n    - notifications:newCount_few\\n    - notifications:newCount_many\\n    - notifications:reminderLeadTime.days_few\\n    - notifications:reminderLeadTime.days_many\\n    - notifications:reminderLeadTime.hours_few\\n    - notifications:reminderLeadTime.hours_many\\n    - notifications:reminderLeadTime.minutes_few\\n    - notifications:reminderLeadTime.minutes_many\\n    - settings:tasksImportExport.importPartialError_few\\n    - settings:tasksImportExport.importPartialError_many\\n    - settings:tasksImportExport.importPartialError_one\\n    - settings:tasksImportExport.importPartialError_other\\n    - settings:tasksImportExport.importSuccess_few\\n    - settings:tasksImportExport.importSuccess_many\\n    - settings:tasksImportExport.importSuccess_one\\n    - settings:tasksImportExport.importSuccess_other\\n    - settings:workspaceRoles.permissionCount_few\\n    - settings:workspaceRoles.permissionCount_many\\n    - tasks:archive.success_few\\n    - tasks:archive.success_many\\n    - tasks:archive.success_one\\n    - tasks:archive.success_other\\n    - tasks:backlog.moveAllSuccess_few\\n    - tasks:backlog.moveAllSuccess_many\\n    - tasks:backlog.moveAllSuccess_one\\n    - tasks:backlog.moveAllSuccess_other\\n    - tasks:boardFilters.selectedCount_few\\n    - tasks:boardFilters.selectedCount_many\\n    - tasks:boardFilters.selectedCount_one\\n    - tasks:boardFilters.selectedCount_other\\n    - tasks:bulk.addLabelSuccess_few\\n    - tasks:bulk.addLabelSuccess_many\\n    - tasks:bulk.addLabelSuccess_one\\n    - tasks:bulk.addLabelSuccess_other\\n    - tasks:bulk.archiveSuccess_few\\n    - tasks:bulk.archiveSuccess_many\\n    - tasks:bulk.archiveSuccess_one\\n    - tasks:bulk.archiveSuccess_other\\n    - tasks:bulk.assignSuccess_few\\n    - tasks:bulk.assignSuccess_many\\n    - tasks:bulk.assignSuccess_one\\n    - tasks:bulk.assignSuccess_other\\n    - tasks:bulk.deleteConfirm_few\\n    - tasks:bulk.deleteConfirm_many\\n    - tasks:bulk.deleteConfirm_one\\n    - tasks:bulk.deleteConfirm_other\\n    - tasks:bulk.deleteSuccess_few\\n    - tasks:bulk.deleteSuccess_many\\n    - tasks:bulk.deleteSuccess_one\\n    - tasks:bulk.deleteSuccess_other\\n    - tasks:bulk.moveToBacklogSuccess_few\\n    - tasks:bulk.moveToBacklogSuccess_many\\n    - tasks:bulk.moveToBacklogSuccess_one\\n    - tasks:bulk.moveToBacklogSuccess_other\\n    - tasks:bulk.moveToBoardSuccess_few\\n    - tasks:bulk.moveToBoardSuccess_many\\n    - tasks:bulk.moveToBoardSuccess_one\\n    - tasks:bulk.moveToBoardSuccess_other\\n    - tasks:bulk.selectedCount_few\\n    - tasks:bulk.selectedCount_many\\n    - tasks:bulk.selectedCount_one\\n    - tasks:bulk.selectedCount_other\\n    - tasks:bulk.updateSuccess_few\\n    - tasks:bulk.updateSuccess_many\\n    - tasks:bulk.updateSuccess_one\\n    - tasks:bulk.updateSuccess_other\\n    - tasks:pr.count_few\\n    - tasks:pr.count_many\\n    - workspace:search.resultsFound_few\\n    - workspace:search.resultsFound_many\\ntr-TR: OK\\nuk-UA:\\n  Extra keys:\\n    - notifications:newCount_few\\n    - notifications:newCount_many\\n    - notifications:reminderLeadTime.days_few\\n    - notifications:reminderLeadTime.days_many\\n    - notifications:reminderLeadTime.hours_few\\n    - notifications:reminderLeadTime.hours_many\\n    - notifications:reminderLeadTime.minutes_few\\n    - notifications:reminderLeadTime.minutes_many\\n    - settings:workspaceRoles.permissionCount_few\\n    - settings:workspaceRoles.permissionCount_many\\n    - tasks:pr.count_few\\n    - tasks:pr.count_many\\n    - workspace:search.resultsFound_few\\n    - workspace:search.resultsFound_many\\nvi-VN: OK\\nzh-CN: OK\\n\u2009ELIFECYCLE\u2009 Command failed with exit code 1.\",\n  \"summary\": \"Ran pnpm i18n:check:fix, which successfully propagated missing keys from en-US into all 16 target locale files (de-DE, el-GR, es-ES, fr-FR, hi-IN, id-ID, it-IT, ko-KR, mk-MK, nl-NL, pt-BR, ru-RU, tr-TR, uk-UA, vi-VN, zh-CN). Subsequent pnpm i18n:check failed with exit code 1 due to extra pluralization keys in ru-RU and uk-UA. Per instructions, no manual repairs were made.\"\n}"
+}

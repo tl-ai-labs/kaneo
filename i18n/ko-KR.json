@@ -1764,6 +1764,13 @@
 					"rose": "로즈",
 					"crimson": "크림슨"
 				}
+			},
+			"estimatedHours": {
+				"clear": "Clear estimate",
+				"label": "Estimate",
+				"placeholder": "Hours, e.g. 2.5",
+				"updateError": "Failed to update task estimate",
+				"updateSuccess": "Task estimate updated successfully"
 			}
 		},
 		"backlog": {
@@ -1859,7 +1866,8 @@
 			"noTasks": "작업 없음"
 		},
 		"kanban": {
-			"addTask": "작업 추가"
+			"addTask": "작업 추가",
+			"estimatedHoursRollup": "Total estimate"
 		},
 		"pr": {
 			"merged": "병합됨",

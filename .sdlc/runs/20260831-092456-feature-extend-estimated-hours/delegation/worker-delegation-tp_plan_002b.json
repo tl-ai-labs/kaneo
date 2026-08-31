@@ -1,0 +1,55 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_plan_002b",
+  "phase": "plan_task_packets",
+  "task_type": "decomposition",
+  "module": "estimated-hours",
+  "model_id": "flash",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-08-31T10:09:28.353Z",
+  "duration_ms": 135129,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.251475,
+  "tokens": {
+    "input": 59392,
+    "input_cached": 0,
+    "output": 18043,
+    "output_reasoning": 13327
+  },
+  "tool_calls": {
+    "count": 1,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260831-092456-feature-extend-estimated-hours/packets-web.json"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260831-092456-feature-extend-estimated-hours/packets-web.json",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1677,
+    "scanned": 1677,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_plan_002b.md",
+    "usage": "worker-usage-tp_plan_002b.json"
+  }
+}

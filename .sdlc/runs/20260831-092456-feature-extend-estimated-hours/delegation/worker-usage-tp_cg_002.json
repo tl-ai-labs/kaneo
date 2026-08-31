@@ -1,0 +1,59 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 63616,
+    "cached_content_token_count": 21765,
+    "candidates_token_count": 354,
+    "thoughts_token_count": 1121,
+    "total_token_count": 65091,
+    "service_tier": null
+  },
+  "tool_call_count": 4,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/api db:generate",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/0043_odd_random.sql",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/0043_odd_random.sql",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/meta/_journal.json",
+        "start_line": "299",
+        "end_line": "1098"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/meta/_journal.json",
+      "args_clipped": false
+    },
+    {
+      "name": "find_file",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle",
+        "query": "0043*"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\"command_succeeded\":true,\"migration_tag\":\"0043_odd_random\",\"sql_text\":\"ALTER TABLE \\\"task\\\" ADD COLUMN \\\"estimated_minutes\\\" integer;\",\"extra_statements\":false,\"summary\":\"Generated migration 0043_odd_random with a single ALTER TABLE statement adding estimated_minutes column to the task table.\"}"
+}

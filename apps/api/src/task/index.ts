@@ -42,10 +42,14 @@ import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
+import updateTaskEstimatedMinutes from "./controllers/update-task-estimated-minutes";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
-import { VALID_PRIORITIES } from "./validate-task-fields";
+import {
+  estimatedMinutesSchema,
+  VALID_PRIORITIES,
+} from "./validate-task-fields";
 
 const task = new Hono<{
   Variables: {
@@ -545,6 +549,38 @@ const task = new Hono<{
       const currentUserId = c.get("userId");
 
       const task = await updateTaskPriority({ id, priority, currentUserId });
+
+      return c.json(task);
+    },
+  )
+  .put(
+    "/estimated-minutes/:id",
+    describeRoute({
+      operationId: "updateTaskEstimatedMinutes",
+      tags: ["Tasks"],
+      description: "Update only the estimated minutes of a task",
+      responses: {
+        200: {
+          description: "Task estimated minutes updated successfully",
+          content: {
+            "application/json": { schema: resolver(taskSchema) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ id: v.string() })),
+    validator("json", v.object({ estimatedMinutes: estimatedMinutesSchema })),
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { estimatedMinutes } = c.req.valid("json");
+
+      const task = await updateTaskEstimatedMinutes({
+        id,
+        estimatedMinutes,
+      });
 
       return c.json(task);
     },
