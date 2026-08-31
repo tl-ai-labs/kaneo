@@ -1,0 +1,21 @@
+{
+  "packet_id": "tp_review_001",
+  "model": "claude-opus-5",
+  "routed_by": "orchestrator",
+  "rule_index": 3,
+  "verdict": "approve",
+  "refinement_packets": [],
+  "checks": {
+    "1_dom_identical": "PASS - four nesting levels preserved in order; no div collapsed, added or reordered; blank line after the new element preserved (source-only).",
+    "2_classnames_byte_identical": "PASS - all five class strings match character for character including token order; shrink-0 not rewritten to flex-shrink-0.",
+    "3_getcolumnicon": "PASS - argument order (column.id, column.isFinal, column.icon) unchanged; import retained in kanban-view.tsx for the empty state; grep count 2 = import + one remaining call (pre-change it was 3).",
+    "4_prop_type_and_component_form": "PASS - indexed access ProjectWithTasks[\"columns\"][number]; type not interface; plain function, no React.FC/memo/forwardRef/explicit return type.",
+    "5_call_site": "PASS - bare single prop, column passed whole, key={column.id} stays on the outer wrapper.",
+    "6_no_fallbacks": "PASS - column.name and column.tasks.length rendered raw; no ?? 0, no optional chaining, no formatting; toLowerCase belongs to the empty state and stayed there.",
+    "7_test_quality": "PASS - tight cast not widened; @/lib/column unmocked so getColumnIcon runs for real (id in-progress + icon null resolves via DEFAULT_COLUMN_ICON_NAMES to CircleDot, rendering an SVG); no class-string or snapshot assertions; each assertion discriminates. Stated limitation: container.querySelector(\"svg\") proves an icon rendered but not which icon, so it alone would not catch an argument-order swap; that invariant is covered by source comparison.",
+    "8_repo_conventions": "PASS - type over interface, inferred prop type, no narrating comments, kebab-case co-located filename, named export, @/ alias imports.",
+    "9_scope": "PASS - exactly three source files (1 edited, 2 added); 2 insertions / 13 deletions arithmetic matches the extraction; list-view.tsx and task-row.tsx correctly left alone."
+  },
+  "expected_difference_confirmed": "The h3 one-lining is a Biome 80-column width effect, not a hand edit: at 22 spaces of indentation in kanban-view.tsx the element exceeded the limit and its child was wrapped; at 10 spaces in the new file it fits. JSX strips whitespace containing a newline, so both forms produce an identical single text child. The longer adjacent span staying wrapped at the shallower indent is the control that confirms a width-driven reformat.",
+  "reviewer_caveat": "The reviewer reported that its sandbox declined the vitest, typecheck and biome ci invocations, so its verdicts are from source comparison only. It explicitly did NOT report the test as green. The orchestrator ran those commands separately - see test_results in manifest.json."
+}

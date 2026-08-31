@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "run_id": "20260828-081120-refactor-lane-header",
+  "mode": "brownfield",
+  "intent": "refactor",
+  "policy": "opus-plus-sonnet-max",
+  "policy_version": 1,
+  "auth_mode": "vendor",
+  "provenance": "vendor",
+  "adapters": {
+    "opus": "claude-cli",
+    "sonnet": "claude-cli"
+  },
+  "git": {
+    "branch": "refactor/opus-sonnet",
+    "head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "commits": []
+  },
+  "run_started_at": "2026-08-28T08:23:12.003Z",
+  "run_ended_at": "2026-08-28T08:49:01.359Z",
+  "totals": {
+    "pipeline_cost_usd": 2.037228,
+    "precheck_smoke_cost_usd": 0.0677152,
+    "cost_incl_precheck_usd": 2.104943,
+    "opus_cost_usd": 1.808087,
+    "sonnet_cost_usd": 0.229141,
+    "events": 8,
+    "input_tokens": 129827,
+    "input_tokens_cached": 450241,
+    "output_tokens": 32799,
+    "summed_model_latency_ms": 817260,
+    "retries": 0,
+    "output_cap_doublings": 0
+  },
+  "per_phase": [
+    {
+      "phase": "requirements_analysis",
+      "model_id": "opus",
+      "rule_index": 0,
+      "packets": 1,
+      "input_tokens": 15909,
+      "input_tokens_cached": 10098,
+      "output_tokens": 5087,
+      "cost_usd": 0.294686,
+      "latency_ms": 59623
+    },
+    {
+      "phase": "change_plan",
+      "model_id": "opus",
+      "rule_index": 6,
+      "packets": 1,
+      "input_tokens": 13619,
+      "input_tokens_cached": 13203,
+      "output_tokens": 8144,
+      "cost_usd": 0.350378,
+      "latency_ms": 94882
+    },
+    {
+      "phase": "plan_task_packets",
+      "model_id": "opus",
+      "rule_index": 2,
+      "packets": 1,
+      "input_tokens": 12418,
+      "input_tokens_cached": 13203,
+      "output_tokens": 5717,
+      "cost_usd": 0.276842,
+      "latency_ms": 62723
+    },
+    {
+      "phase": "codegen",
+      "model_id": "sonnet",
+      "rule_index": 7,
+      "packets": 3,
+      "input_tokens": 47491,
+      "input_tokens_cached": 61329,
+      "output_tokens": 1851,
+      "cost_usd": 0.229141,
+      "latency_ms": 21856
+    },
+    {
+      "phase": "senior_code_review",
+      "model_id": "opus",
+      "rule_index": 3,
+      "packets": 1,
+      "input_tokens": 26575,
+      "input_tokens_cached": 288246,
+      "output_tokens": 8928,
+      "cost_usd": 0.63668,
+      "latency_ms": 121187
+    },
+    {
+      "phase": "security_review",
+      "model_id": "opus",
+      "rule_index": 4,
+      "packets": 1,
+      "input_tokens": 13815,
+      "input_tokens_cached": 64162,
+      "output_tokens": 3072,
+      "cost_usd": 0.249502,
+      "latency_ms": 456989
+    }
+  ],
+  "routing_bend": {
+    "applied": true,
+    "reason": "opus-plus-sonnet-max codegen rule (index 7) matches an explicit task_type allowlist containing react_component but NOT the brownfield primitives new_file_add / existing_file_edit.",
+    "form": "task_type=react_component, brownfield primitive carried in subtype",
+    "verified_from": "telemetry events, not packet construction",
+    "codegen_events_routed_to_opus": 0,
+    "codegen_events_routed_to_sonnet": 3,
+    "verdict": "CONFIRMED WORKING"
+  },
+  "artifacts": {
+    "requirements": ".sdlc/runs/20260828-081120-refactor-lane-header/requirements.md",
+    "change_plan": ".sdlc/runs/20260828-081120-refactor-lane-header/change_plan.md",
+    "packets": ".sdlc/runs/20260828-081120-refactor-lane-header/packets.json",
+    "review": ".sdlc/runs/20260828-081120-refactor-lane-header/review.json",
+    "security_review": ".sdlc/runs/20260828-081120-refactor-lane-header/security_review.md",
+    "telemetry": ".sdlc/runs/20260828-081120-refactor-lane-header/telemetry.jsonl",
+    "provenance": ".sdlc/runs/20260828-081120-refactor-lane-header/provenance.json",
+    "summary": ".sdlc/runs/20260828-081120-refactor-lane-header/SUMMARY.md"
+  },
+  "files_changed": [
+    {
+      "path": "apps/web/src/components/public-project/public-column-header.tsx",
+      "action": "created",
+      "packet": "tp_codegen_001"
+    },
+    {
+      "path": "apps/web/src/components/public-project/kanban-view.tsx",
+      "action": "edited",
+      "packet": "tp_codegen_002"
+    },
+    {
+      "path": "apps/web/src/components/public-project/public-column-header.test.tsx",
+      "action": "created",
+      "packet": "tp_codegen_003"
+    }
+  ],
+  "verification": {
+    "typecheck": {
+      "command": "pnpm --filter @kaneo/web typecheck",
+      "exit_code": 0
+    },
+    "test": {
+      "command": "pnpm --filter @kaneo/web test",
+      "exit_code": 0,
+      "files_passed": 37,
+      "tests_passed": 113,
+      "duration_s": 29.6
+    },
+    "lint": {
+      "command": "pnpm exec biome ci <3 changed paths>",
+      "exit_code": 0,
+      "files_checked": 3,
+      "fixes_applied": 0
+    },
+    "grep_invariants": {
+      "getColumnIcon_in_kanban_view": 2,
+      "p2_shrink0_in_kanban_view": 0,
+      "p2_shrink0_in_new_file": 1,
+      "call_site_literal": 1
+    }
+  },
+  "gates": {
+    "gate-1": "approved",
+    "gate-2": "approved",
+    "gate-3": "approved",
+    "gate-4": "accepted"
+  },
+  "review_verdicts": {
+    "senior_code_review": "approve",
+    "refinement_packets": 0,
+    "security_review": "pass"
+  },
+  "status": "closed",
+  "closed_at": "2026-08-28T08:52:32.855Z",
+  "series": {
+    "name": "PublicColumnHeader extraction - 4-run policy comparison",
+    "position": "run 4 of 4 (final)",
+    "runs": [
+      {
+        "run": 1,
+        "policy": "opus-plus-flash-v37",
+        "auth": "estimated",
+        "cost_usd": 0.9731,
+        "wall_clock": "~30m",
+        "branch": "refactor/opus-flash",
+        "commit": "97ea94ff"
+      },
+      {
+        "run": 2,
+        "policy": "flash-agsdk-only",
+        "auth": "estimated",
+        "cost_usd": 1.0323,
+        "wall_clock": "15.43h",
+        "branch": "refactor/flash-only",
+        "commit": "e46820ee"
+      },
+      {
+        "run": 3,
+        "policy": "opus-only-v5",
+        "auth": "vendor",
+        "cost_usd": 2.58435,
+        "wall_clock": "26m44s",
+        "branch": "refactor/opus-only",
+        "commit": "b7115878"
+      },
+      {
+        "run": 4,
+        "policy": "opus-plus-sonnet-max",
+        "auth": "vendor",
+        "cost_usd": 2.037228,
+        "wall_clock": "~32m",
+        "branch": "refactor/opus-sonnet",
+        "commit": null
+      }
+    ]
+  },
+  "headline_result": {
+    "claim": "Identical SOURCE OUTPUT across all four runs.",
+    "detail": "public-column-header.tsx and kanban-view.tsx are byte-identical across all four runs.",
+    "scope": "Across four policies, three adapters, and a 2.6x measured cost spread - on ONE SMALL, TIGHTLY-SPECIFIED REFACTOR.",
+    "scope_note": "The bounding clause is not hedging. It is what stops a reader generalising the result to work where the model's judgment actually has room to vary. The result is strong precisely because it is bounded.",
+    "verified_by": "coordinator diff against runs 1 and 3",
+    "cost_spread_ratio": 2.6
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "title": "Configured limits in this plugin are descriptive, not enforcing",
+      "severity": "high",
+      "framing": "ONE finding, three instances. Individually each reads as a quirk; together they are a pattern, and the pattern is the actionable form.",
+      "instances": [
+        {
+          "name": "write contract, layer 3 (PreToolUse hook)",
+          "detail": "plugin/scripts/write-contract-check.mjs deny() calls process.exit(1); PreToolUse blocks only on exit 2, and the script emits no hookSpecificOutput/permissionDecision JSON. The gate classifies correctly, logs the denial, and permits the write - on every adapter.",
+          "observed_in": "all four runs"
+        },
+        {
+          "name": "worker timeout (540s)",
+          "detail": "Did not fire after 15.1 hours.",
+          "observed_in": "run 2 (flash-agsdk-only)"
+        },
+        {
+          "name": "budget.maxOutputTokens",
+          "detail": "Advisory under the claude-cli adapter. change_plan 8144 against a 5000 ceiling; senior_code_review 8928 against 5000; plan_task_packets 5717 against 4000; security_review 3072 against 3000. All stop_reason end_turn, zero doublings recorded.",
+          "observed_in": "run 4 (this run), across three phases"
+        }
+      ],
+      "implication": "A named limit in this plugin should not be assumed to bind. Each of the three classifies or records correctly and then permits the thing it names."
+    },
+    {
+      "id": "F2",
+      "title": "Under the claude-cli adapter, a premium dispatch is a delegated agent, not a model call",
+      "severity": "high",
+      "evidence": [
+        "288,246 cached input tokens against 26,575 fresh on the senior_code_review event.",
+        "The reviewer described running 'git show HEAD:apps/web/src/components/public-project/kanban-view.tsx' and reading constants/column-icons.ts and test/setup.ts - files never placed in the packet.",
+        "It reported that its sandbox declined the vitest, typecheck and biome ci invocations, and refused to report the tests as green."
+      ],
+      "sourced_from": "token shape and the reviewer's own described tool calls - NOT inferred from cost",
+      "consequences": [
+        "Explains the cost shape: senior review at $0.636680 was the single most expensive phase, more than requirements and packet-planning combined, for reviewing a 22-line component.",
+        "Run 3's all-opus $2.58435 was eight delegated agent sessions, not eight model calls. Not an error in run 3's figure, but anyone reading it as eight model calls will mis-plan their budget by a wide margin.",
+        "Reframes the review-cost hypothesis: the 43% review share in run 3, and $0.886182 across both reviews here, is not premium-model pricing on a small diff - it is agent sessions doing their own repo exploration on a small diff. The lever is not 'route review by diff size' alone, but 'premium review under claude-cli re-reads the repo regardless of diff size'."
+      ]
+    },
+    {
+      "id": "F3",
+      "title": "Run 1's mechanical routing is unverified, not wrong",
+      "severity": "medium",
+      "detail": "Run 4 confirmed from telemetry what run 1 assumed: the task_type bend lands codegen packets on the mechanical tier. Run 1 applied the identical workaround against the identical rule structure and never checked. Its $0.033 Flash share is consistent with the bend having worked but does not prove it, because a fallthrough to default:opus would have surfaced as premium cost that run 1's character-heuristic estimates would have blurred anyway.",
+      "standard": "Verify routing from telemetry model_id, never from packet construction. The packet proves intent; only the event proves the routing."
+    }
+  ],
+  "proposals": [
+    {
+      "id": "P1",
+      "target": "orchestrator.md rule 6",
+      "title": "Condition the credential requirement on the adapter set the policy resolves to, not on auth_mode globally",
+      "current_behaviour": "Rule 6 asserts globally that vendor mode requires ANTHROPIC_API_KEY and instructs the orchestrator to abort without it.",
+      "evidence": "ANTHROPIC_API_KEY was NOT set for this run. The run is legitimately vendor-authoritative: both policy leaves resolve to the claude-cli adapter backed by Max-subscription OAuth, which reports real total_cost_usd per dispatch. builtin-anthropic is the adapter that needs the key, and this policy never constructs it. preflight_dispatch - which actually builds the adapters - returned ok:true with zero warnings.",
+      "proposal": "Require ANTHROPIC_API_KEY only when the resolved adapter set for the run contains builtin-anthropic. Otherwise defer to preflight_dispatch, which is the only check that constructs the adapters and therefore the only one that can tell.",
+      "status": "concrete, small, implementable - recorded as a proposal so it is not lost as a passing observation"
+    },
+    {
+      "id": "P2",
+      "target": "plugin/config/policies/opus-plus-sonnet-max.yaml",
+      "title": "Add the brownfield primitives to the codegen rule's task_type allowlist",
+      "proposal": "Add new_file_add and existing_file_edit to the codegen rule (index 7) task_type list, rather than bending task_type per-run.",
+      "status": "not applied in this run - deliberately, to keep the four-run comparison valid"
+    }
+  ],
+  "methodology_limitations": [
+    {
+      "id": "M1",
+      "title": "The class-string-assertion observation was preempted",
+      "attribution": "run instruction, not a neutral difference",
+      "detail": "The instruction told the orchestrator to surface class-string assertions if a phase proposed them, and in the same instruction forbade them in the packet. Those two directives cannot both be satisfied; the packet's constraint preempted the observation.",
+      "consequence": "Run 4 can neither corroborate nor contradict run 3. The n=1 observation from run 3 stays n=1."
+    },
+    {
+      "id": "M2",
+      "title": "Packet prescriptiveness increased across the series",
+      "detail": "Runs 3 and 4 received more prescriptive instructions than runs 1 and 2. Does not affect the byte-identity result, which is checkable against the brief regardless. Does mean the cost figures are not measuring identically-specified work.",
+      "illustration_both_directions": {
+        "requirements_analysis": {
+          "run4": 0.294686,
+          "run3": 0.23596,
+          "ratio": 1.25,
+          "likely_cause": "run 4's packet carried substantially more constraint text"
+        },
+        "change_plan": {
+          "run4": 0.350378,
+          "run3": 0.43582,
+          "ratio": 0.8,
+          "note": "cuts the other way despite the heavier packet - worth a line, not a conclusion"
+        }
+      }
+    },
+    {
+      "id": "M3",
+      "title": "Two acceptance criteria rewritten by hand",
+      "detail": "The requirements phase emitted AC-10 and AC-11 as literal grep invocations with nested quote escaping that would not run as printed. Rewritten in prose preserving the same requirement. An acceptance criterion that cannot execute as printed is worse than no criterion, because it reads as verification that never ran.",
+      "classification": "repair, not a scope change"
+    },
+    {
+      "id": "M4",
+      "title": "change_plan invariant cross-references misnumbered, fixed mechanically",
+      "detail": "INV-14 to INV-13 for the getColumnIcon grep; INV-9 to INV-4 for header-precedes-scroll-body. Cause: the change_plan packet was given a condensed prose digest of the invariants instead of the numbered list, so the model renumbered them itself.",
+      "recurrence": "A packet-construction defect that recurs on any run whose plan phase cites requirements by number. Cheap to prevent by passing the numbered list."
+    }
+  ],
+  "rollback": {
+    "command": "/mmo:revert 20260828-081120-refactor-lane-header",
+    "committed": false,
+    "git_head_unchanged": true,
+    "files_recoverable": 3
+  }
+}

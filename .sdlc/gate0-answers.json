@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "note": "Frozen Gate 0 answers, reused verbatim across the 4 runs of the PublicColumnHeader refactor so results stay comparable. Supply the brief with --brief=.sdlc/briefs/refactor-public-column-header.md",
+  "intent": "refactor",
+  "brief_path": ".sdlc/briefs/refactor-public-column-header.md",
+  "stack": "TypeScript/Node ESM pnpm monorepo (React + Vite web app)",
+  "test_command": "pnpm --filter @kaneo/web test",
+  "typecheck_command": "pnpm --filter @kaneo/web typecheck",
+  "lint_command": "pnpm exec biome ci",
+  "auth_mode": "estimated",
+  "policy": "opus-plus-flash-v37",
+  "code_dir": ".",
+  "allowlist": [
+    "apps/web/src/components/public-project/public-column-header.tsx",
+    "apps/web/src/components/public-project/kanban-view.tsx",
+    "apps/web/src/components/public-project/public-column-header.test.tsx"
+  ],
+  "off_limits": [
+    ".env",
+    ".env.*",
+    ".mcp.json",
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    ".sdlc/**",
+    ".git/**",
+    "apps/web/src/routeTree.gen.ts",
+    "i18n/schema.json",
+    "pnpm-lock.yaml",
+    "apps/api/drizzle/**",
+    ".gitignore",
+    ".claude/**",
+    ".cursor/rules/**",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".coderabbit.yaml",
+    "skills/**",
+    ".agents/skills/**",
+    "skills-lock.json",
+    "apps/web/src/components/kanban-board/**"
+  ],
+  "known_policy_gap": {
+    "summary": "opus-plus-flash-v37 codegen rule matches an explicit task_type list containing react_component but NOT the brownfield primitives new_file_add / existing_file_edit.",
+    "consequence": "Packets typed with the brownfield primitives fall through to `default: opus` and run mechanical codegen at premium rates. Failure is SILENT — the run succeeds and telemetry shows nothing wrong.",
+    "workaround": "Set task_type: react_component and carry the brownfield primitive in `subtype`.",
+    "must_be_identical_across_runs": true,
+    "reason": "Four runs of this task are compared on cost. A run that omits this workaround pays opus rates for the same 3 codegen packets and the comparison is invalid.",
+    "fix_properly": "Add new_file_add / existing_file_edit to the codegen rule task_type list in the policy YAML, rather than bending per-run."
+  },
+  "comparability_rules": [
+    "Apply known_policy_gap.workaround identically in every run (task_type: react_component, primitive in subtype).",
+    "Report the pipeline total EXCLUDING the pre-check smoke; runs 2-4 skip pre-check (cached), so folding it in only inflates run 1.",
+    "Revert the previous run before starting the next (/mmo:revert <run-id>) — otherwise the extraction already exists and there is nothing to do.",
+    "Retry the Vertex 429 with a 60s backoff rather than counting the failed dispatch as a packet; run 1 hit it on the first mechanical dispatch.",
+    "auth_mode=estimated means direct-tier (claude-cli) costs are ESTIMATES. Run 1 corrected three of them upward from subagent-reported token totals after the char heuristic undercounted per-turn context re-send. Any run that skips that correction reads artificially low on the opus share."
+  ],
+  "open_methodology_question": {
+    "issue": "Under auth_mode=estimated the premium tier runs in-session via claude-cli and its cost is inferred, not vendor-reported. That is the largest source of noise in a cost comparison.",
+    "option": "Running the whole set under --auth vendor would make every figure vendor-reported and remove the variable.",
+    "caveat": "Not a free switch: vendor dispatches every model through the MCP server, so it likely also forces a policy whose premium adapter is builtin-anthropic (e.g. opus-plus-flash) rather than claude-cli. That changes what is being compared and bills a real ANTHROPIC_API_KEY instead of the subscription.",
+    "decision": "UNRESOLVED - user call, not recorded as decided."
+  }
+}

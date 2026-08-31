@@ -1,0 +1,173 @@
+[
+  {
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "public-project",
+    "intent": "refactor",
+    "pass_id": "20260828-081120-refactor-lane-header",
+    "retry_count": 0,
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "id": "tp_codegen_001",
+    "subtype": "new_file_add",
+    "artifact_path": "apps/web/src/components/public-project/public-column-header.tsx",
+    "depends_on": [],
+    "instruction": "Create apps/web/src/components/public-project/public-column-header.tsx.\n\nImports: `import { getColumnIcon } from \"@/lib/column\";` and `import type { ProjectWithTasks } from \"@/types/project\";`.\n\nProp type, exactly: `type PublicColumnHeaderProps = { column: ProjectWithTasks[\"columns\"][number]; };`\n\nExport a named function: `export function PublicColumnHeader({ column }: PublicColumnHeaderProps)`.\n\nMarkup, nested in this exact order:\n- outer `<div className=\"p-2 shrink-0\">`\n- inside it `<div className=\"flex items-center justify-between\">`\n- inside that `<div className=\"flex items-center gap-2\">` containing, in order:\n  1. `{getColumnIcon(column.id, column.isFinal, column.icon)}`\n  2. `<h3 className=\"font-medium text-foreground\">{column.name}</h3>`\n  3. `<span className=\"text-sm text-muted-foreground\">{column.tasks.length}</span>`\n\nInvariants you must not break:\n- Every className string verbatim as quoted: no reordering of classes, no cn() merge, no Tailwind normalization or dedup.\n- Keep the `justify-between` div even though it wraps a single child. It is not redundant; do not collapse it.\n- getColumnIcon argument order is exactly (column.id, column.isFinal, column.icon).\n- Derive the prop via the indexed access above; never restate an ad-hoc column shape. Use `type`, not `interface`.\n- No React.FC, no React.memo, no forwardRef, no explicit return type annotation.\n- No `key` prop anywhere in this file.\n- Render `column.tasks.length` directly. No fallback such as `column.tasks?.length ?? 0`.\n- No comment that merely narrates the code (repo convention: comments explain constraints only).\n\nReturn the COMPLETE file content in the `content` field. Biome formats this repo: 2-space indent, double quotes, semicolons, trailing commas where multiline.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/public-project/kanban-view.tsx",
+        "reason": "Source of the header JSX being extracted - copy the classNames and structure verbatim from the p-2 shrink-0 block",
+        "content": "import { getColumnIcon } from \"@/lib/column\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\nimport { PublicTaskCard } from \"./task-card\";\n\ntype PublicKanbanViewProps = {\n  project: ProjectWithTasks;\n  onTaskClick: (task: Task) => void;\n};\n\nexport function PublicKanbanView({\n  project,\n  onTaskClick,\n}: PublicKanbanViewProps) {\n  const columns = project.columns ?? [];\n\n  return (\n    <div className=\"flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]\">\n      <div className=\"flex gap-3 p-3 h-full min-w-max\">\n        {columns.map((column) => {\n          return (\n            <div\n              key={column.id}\n              className=\"h-full flex-1 min-w-80 max-w-96 flex-shrink-0\"\n            >\n              <div className=\"flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50 transition-[background-color,box-shadow] duration-150 ease hover:bg-accent/20 hover:shadow-sm\">\n                <div className=\"p-2 shrink-0\">\n                  <div className=\"flex items-center justify-between\">\n                    <div className=\"flex items-center gap-2\">\n                      {getColumnIcon(column.id, column.isFinal, column.icon)}\n                      <h3 className=\"font-medium text-foreground\">\n                        {column.name}\n                      </h3>\n                      <span className=\"text-sm text-muted-foreground\">\n                        {column.tasks.length}\n                      </span>\n                    </div>\n                  </div>\n                </div>\n\n                <div className=\"p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]\">\n                  <div className=\"flex flex-col gap-1.5\">\n                    {column.tasks.map((task) => (\n                      <PublicTaskCard\n                        key={task.id}\n                        task={task}\n                        projectSlug={project.slug}\n                        isCompleted={column.isFinal}\n                        onTaskClick={onTaskClick}\n                      />\n                    ))}\n                  </div>\n\n                  {column.tasks.length === 0 && (\n                    <div className=\"text-center text-sm text-muted-foreground py-12 px-4\">\n                      <div className=\"w-8 h-8 rounded-full bg-muted flex items-center justify-center mx-auto mb-2\">\n                        {getColumnIcon(column.id, column.isFinal, column.icon)}\n                      </div>\n                      No tasks in {column.name.toLowerCase()}\n                    </div>\n                  )}\n                </div>\n              </div>\n            </div>\n          );\n        })}\n      </div>\n    </div>\n  );\n}\n"
+      },
+      {
+        "path": "apps/web/src/types/project/index.ts",
+        "reason": "ProjectWithTasks definition - the prop type is derived from columns[number]",
+        "content": "import type { client } from \"@kaneo/libs\";\nimport type { InferResponseType } from \"hono/client\";\nimport type Task from \"@/types/task\";\n\nexport type Project = Extract<\n  InferResponseType<(typeof client)[\"project\"][\":id\"][\"$get\"], 200>,\n  { id: string }\n>;\n\ntype TasksApiResponse = InferResponseType<\n  (typeof client)[\"task\"][\"tasks\"][\":projectId\"][\"$get\"],\n  200\n>;\n\ntype ProjectWithTasksRaw = TasksApiResponse[\"data\"];\n\nexport type ProjectWithTasks = Omit<\n  ProjectWithTasksRaw,\n  \"archivedTasks\" | \"columns\" | \"plannedTasks\"\n> & {\n  archivedTasks: Task[];\n  columns: Array<\n    Omit<ProjectWithTasksRaw[\"columns\"][number], \"tasks\"> & {\n      tasks: Task[];\n    }\n  >;\n  plannedTasks: Task[];\n};\n"
+      },
+      {
+        "path": "apps/web/src/lib/column.tsx",
+        "reason": "getColumnIcon signature and argument order",
+        "content": "import { CheckCircle2, Circle } from \"lucide-react\";\nimport columnIcons, {\n  DEFAULT_COLUMN_ICON_NAMES,\n} from \"@/constants/column-icons\";\n\nexport const getColumnIcon = (\n  columnId: string,\n  isFinal?: boolean,\n  iconName?: string | null,\n) => {\n  const resolvedIconName =\n    iconName ||\n    DEFAULT_COLUMN_ICON_NAMES[\n      columnId as keyof typeof DEFAULT_COLUMN_ICON_NAMES\n    ];\n  const Icon =\n    resolvedIconName &&\n    columnIcons[resolvedIconName as keyof typeof columnIcons];\n\n  if (Icon) {\n    return <Icon className=\"w-4 h-4 text-muted-foreground\" />;\n  }\n\n  return isFinal ? (\n    <CheckCircle2 className=\"w-4 h-4 text-muted-foreground\" />\n  ) : (\n    <Circle className=\"w-4 h-4 text-muted-foreground\" />\n  );\n};\n"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "File is created and is the only file changed",
+      "Prop type is `type PublicColumnHeaderProps = { column: ProjectWithTasks[\"columns\"][number] }` using indexed access, declared with `type` not `interface`",
+      "Component is exported as a named function `PublicColumnHeader`, with no React.FC, memo, forwardRef, or explicit return type",
+      "classNames appear verbatim: \"p-2 shrink-0\", \"flex items-center justify-between\", \"flex items-center gap-2\", \"font-medium text-foreground\", \"text-sm text-muted-foreground\"",
+      "The justify-between wrapper div is present and not collapsed",
+      "getColumnIcon is called as getColumnIcon(column.id, column.isFinal, column.icon) with that exact argument order",
+      "Task count renders as {column.tasks.length} with no optional chaining or ?? fallback",
+      "No key prop is introduced in this file"
+    ]
+  },
+  {
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "public-project",
+    "intent": "refactor",
+    "pass_id": "20260828-081120-refactor-lane-header",
+    "retry_count": 0,
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "id": "tp_codegen_002",
+    "subtype": "existing_file_edit",
+    "artifact_path": "apps/web/src/components/public-project/kanban-view.tsx",
+    "depends_on": [
+      "tp_codegen_001"
+    ],
+    "instruction": "Edit apps/web/src/components/public-project/kanban-view.tsx. Exactly two changes, nothing more.\n\n1. Add the import `import { PublicColumnHeader } from \"./public-column-header\";` alongside the existing imports.\n\n2. Replace the inline nine-line header block - from the line `<div className=\"p-2 shrink-0\">` through its matching `</div>` at the same 16-space indentation - with the single bare call `<PublicColumnHeader column={column} />` in exactly that position. Keep the blank line that separates the header from the scroll body below it.\n\nInvariants you must not break:\n- KEEP `import { getColumnIcon } from \"@/lib/column\";`. The empty state still calls it. After the edit, `grep -c getColumnIcon` on this file must return 2. Deleting this import is the single most likely failure of this packet.\n- `key={column.id}` stays on the outer wrapper div. Do NOT move it onto PublicColumnHeader.\n- Pass exactly `column={column}`. Do not spread the column, do not pass extra props, do not wrap the call in a fragment, div, or any other element.\n- Leave untouched: PublicKanbanViewProps, the `const columns = project.columns ?? []` guard, every existing className string (no reordering, no cn() merge, no normalization), the scroll body, the task list, and the empty state.\n- The header call must remain above the scroll body, in the same position the removed block occupied.\n\nReturn the COMPLETE resulting file content in the `content` field.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/public-project/kanban-view.tsx",
+        "reason": "The file to edit - full current contents",
+        "content": "import { getColumnIcon } from \"@/lib/column\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport type Task from \"@/types/task\";\nimport { PublicTaskCard } from \"./task-card\";\n\ntype PublicKanbanViewProps = {\n  project: ProjectWithTasks;\n  onTaskClick: (task: Task) => void;\n};\n\nexport function PublicKanbanView({\n  project,\n  onTaskClick,\n}: PublicKanbanViewProps) {\n  const columns = project.columns ?? [];\n\n  return (\n    <div className=\"flex-1 min-h-0 overflow-x-auto [-webkit-overflow-scrolling:touch]\">\n      <div className=\"flex gap-3 p-3 h-full min-w-max\">\n        {columns.map((column) => {\n          return (\n            <div\n              key={column.id}\n              className=\"h-full flex-1 min-w-80 max-w-96 flex-shrink-0\"\n            >\n              <div className=\"flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50 transition-[background-color,box-shadow] duration-150 ease hover:bg-accent/20 hover:shadow-sm\">\n                <div className=\"p-2 shrink-0\">\n                  <div className=\"flex items-center justify-between\">\n                    <div className=\"flex items-center gap-2\">\n                      {getColumnIcon(column.id, column.isFinal, column.icon)}\n                      <h3 className=\"font-medium text-foreground\">\n                        {column.name}\n                      </h3>\n                      <span className=\"text-sm text-muted-foreground\">\n                        {column.tasks.length}\n                      </span>\n                    </div>\n                  </div>\n                </div>\n\n                <div className=\"p-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 [-webkit-overflow-scrolling:touch]\">\n                  <div className=\"flex flex-col gap-1.5\">\n                    {column.tasks.map((task) => (\n                      <PublicTaskCard\n                        key={task.id}\n                        task={task}\n                        projectSlug={project.slug}\n                        isCompleted={column.isFinal}\n                        onTaskClick={onTaskClick}\n                      />\n                    ))}\n                  </div>\n\n                  {column.tasks.length === 0 && (\n                    <div className=\"text-center text-sm text-muted-foreground py-12 px-4\">\n                      <div className=\"w-8 h-8 rounded-full bg-muted flex items-center justify-center mx-auto mb-2\">\n                        {getColumnIcon(column.id, column.isFinal, column.icon)}\n                      </div>\n                      No tasks in {column.name.toLowerCase()}\n                    </div>\n                  )}\n                </div>\n              </div>\n            </div>\n          );\n        })}\n      </div>\n    </div>\n  );\n}\n"
+      },
+      {
+        "path": "apps/web/src/components/public-project/public-column-header.tsx",
+        "reason": "The component created by tp_codegen_001 that this file must import and call",
+        "content": "<created by tp_codegen_001; exports PublicColumnHeader taking a single required prop `column`>"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "kanban-view.tsx is the only file modified",
+      "import { PublicColumnHeader } from \"./public-column-header\"; is present",
+      "The nine-line inline header block is gone and replaced by exactly <PublicColumnHeader column={column} /> in that same position",
+      "The blank line separating the header from the scroll body is preserved",
+      "import { getColumnIcon } from \"@/lib/column\"; still present; grep -c getColumnIcon on this file returns 2",
+      "key={column.id} remains on the outer wrapper div and does not appear on PublicColumnHeader",
+      "Only column={column} is passed - no spread, no extra props, no wrapping element or fragment",
+      "PublicKanbanViewProps, the project.columns ?? [] guard, all existing classNames, the scroll body, task list, and empty state are byte-identical"
+    ]
+  },
+  {
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "public-project",
+    "intent": "refactor",
+    "pass_id": "20260828-081120-refactor-lane-header",
+    "retry_count": 0,
+    "budget": {
+      "maxInputTokens": 6000,
+      "maxOutputTokens": 3000
+    },
+    "id": "tp_codegen_003",
+    "subtype": "test_add",
+    "artifact_path": "apps/web/src/components/public-project/public-column-header.test.tsx",
+    "depends_on": [
+      "tp_codegen_001",
+      "tp_codegen_002"
+    ],
+    "instruction": "Create apps/web/src/components/public-project/public-column-header.test.tsx.\n\nImports, exactly: `{ cleanup, render, screen }` from \"@testing-library/react\"; `{ afterEach, describe, expect, it }` from \"vitest\"; `import type { ProjectWithTasks } from \"@/types/project\";`; `{ PublicColumnHeader } from \"./public-column-header\"`. Include `afterEach(() => { cleanup(); });`.\n\nFixture: one column object with exactly five fields - `id: \"in-progress\"`, a `name` string, `isFinal: false`, `icon: null`, and `tasks` as an array of two bare `{ id: \"...\" }` objects - cast with exactly `as ProjectWithTasks[\"columns\"][number]`.\n\nFORBIDDEN: `as unknown as` in any form. The tight cast is proven sufficient on this exact five-field partial fixture; reaching for the widening cast is a signal of divergence, not a fix. If the tight cast appears to fail, do not widen it - and do not add fields beyond the five either.\n\nOne describe, one it, one render. Three assertions from that single render:\n1. Icon: `container.querySelector(\"svg\")` -> `toBeVisible()`.\n2. Name: `screen.getByText(<the name>)` -> `toBeVisible()`.\n3. Count: `screen.getByText(\"2\")` -> `toBeVisible()`.\n\nAlso forbidden:\n- Mocking \"@/lib/column\" in any way (vi.mock, vi.spyOn, module stub). getColumnIcon must run for real - that is what makes assertion 1 meaningful.\n- `toHaveClass`, any className matcher, and any Tailwind class-string assertion.\n- Snapshots.\n\nReturn the COMPLETE file content in the `content` field.",
+    "inputs": [
+      {
+        "path": "apps/web/src/components/public-project/public-column-header.tsx",
+        "reason": "The component under test - created by tp_codegen_001",
+        "content": "<created by tp_codegen_001>"
+      },
+      {
+        "path": "apps/web/src/types/project/index.ts",
+        "reason": "ProjectWithTasks - source of the fixture cast type",
+        "content": "import type { client } from \"@kaneo/libs\";\nimport type { InferResponseType } from \"hono/client\";\nimport type Task from \"@/types/task\";\n\nexport type Project = Extract<\n  InferResponseType<(typeof client)[\"project\"][\":id\"][\"$get\"], 200>,\n  { id: string }\n>;\n\ntype TasksApiResponse = InferResponseType<\n  (typeof client)[\"task\"][\"tasks\"][\":projectId\"][\"$get\"],\n  200\n>;\n\ntype ProjectWithTasksRaw = TasksApiResponse[\"data\"];\n\nexport type ProjectWithTasks = Omit<\n  ProjectWithTasksRaw,\n  \"archivedTasks\" | \"columns\" | \"plannedTasks\"\n> & {\n  archivedTasks: Task[];\n  columns: Array<\n    Omit<ProjectWithTasksRaw[\"columns\"][number], \"tasks\"> & {\n      tasks: Task[];\n    }\n  >;\n  plannedTasks: Task[];\n};\n"
+      },
+      {
+        "path": "apps/web/src/lib/column.tsx",
+        "reason": "getColumnIcon runs unmocked and returns an <Icon className=\"w-4 h-4 ...\" /> lucide svg element for a known column id",
+        "content": "import { CheckCircle2, Circle } from \"lucide-react\";\nimport columnIcons, {\n  DEFAULT_COLUMN_ICON_NAMES,\n} from \"@/constants/column-icons\";\n\nexport const getColumnIcon = (\n  columnId: string,\n  isFinal?: boolean,\n  iconName?: string | null,\n) => {\n  const resolvedIconName =\n    iconName ||\n    DEFAULT_COLUMN_ICON_NAMES[\n      columnId as keyof typeof DEFAULT_COLUMN_ICON_NAMES\n    ];\n  const Icon =\n    resolvedIconName &&\n    columnIcons[resolvedIconName as keyof typeof columnIcons];\n\n  if (Icon) {\n    return <Icon className=\"w-4 h-4 text-muted-foreground\" />;\n  }\n\n  return isFinal ? (\n    <CheckCircle2 className=\"w-4 h-4 text-muted-foreground\" />\n  ) : (\n    <Circle className=\"w-4 h-4 text-muted-foreground\" />\n  );\n};\n"
+      },
+      {
+        "path": "apps/web/src/components/kanban-board/task-labels.test.tsx",
+        "reason": "Repo component-test convention to follow: cleanup in afterEach, render + screen queries with toBeVisible",
+        "content": "import { cleanup, render, screen } from \"@testing-library/react\";\nimport { afterEach, describe, expect, it } from \"vitest\";\nimport { TaskLabels } from \"./task-labels\";\n\nafterEach(() => {\n  cleanup();\n});\n\ndescribe(\"TaskLabels\", () => {\n  it(\"renders labels supplied by the task\", () => {\n    render(\n      <TaskLabels labels={[{ id: \"label-1\", name: \"Bug\", color: \"red\" }]} />,\n    );\n\n    expect(screen.getByText(\"Bug\")).toBeVisible();\n  });\n});\n"
+      }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "acceptance": [
+      "Test file is created and is the only file changed",
+      "Fixture is a five-field partial ({id,name,isFinal,icon,tasks}) with tasks as two bare {id} objects",
+      "Fixture uses exactly `as ProjectWithTasks[\"columns\"][number]`",
+      "The string `as unknown as` does not appear anywhere in the file",
+      "\"@/lib/column\" is not mocked, stubbed, or spied on",
+      "Exactly one render, with three toBeVisible assertions: container.querySelector(\"svg\"), the name via screen.getByText, and the count via screen.getByText",
+      "afterEach(() => { cleanup(); }) is present",
+      "No toHaveClass, no className matcher, no Tailwind class-string assertion, no snapshot",
+      "Test passes against the component from tp_codegen_001"
+    ]
+  }
+]

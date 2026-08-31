@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-28T08:12:30.212Z",
+  "steps": {
+    "discovery_smoke": {
+      "status": "pass",
+      "note": "Tier 1 completed cleanly"
+    },
+    "test_command_probe": {
+      "status": "skip",
+      "note": "No test command provided (unknown at discovery). Gate 0 will ask the user."
+    },
+    "dispatch_smoke": {
+      "status": "pass",
+      "tiers_tested": [
+        "sonnet (claude-cli, vendor)",
+        "opus (claude-cli, vendor) - verified run 3"
+      ],
+      "note": "smoke-sonnet returned OK via claude-sonnet-5, rule 9"
+    },
+    "write_contract_smoke": {
+      "status": "pass",
+      "path": "/home/sangeetha/projects/kaneo/.sdlc/pre-check/hello.txt",
+      "note": "Wrote a file under .sdlc/pre-check/; write-contract auto-allowlists paths under .sdlc/."
+    },
+    "rollback_smoke": {
+      "status": "pass",
+      "path": "/home/sangeetha/projects/kaneo/.sdlc/pre-check/hello.txt"
+    },
+    "report_finalized": {
+      "status": "pass",
+      "note": "Script-side steps recorded. Steps 1 (discovery) and 3 (dispatch) are the orchestrator's responsibility and get posted via --record."
+    }
+  },
+  "ok": true
+}

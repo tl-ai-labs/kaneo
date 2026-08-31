@@ -1,0 +1,27 @@
+[
+  {
+    "run_id": "20260828-081120-refactor-lane-header",
+    "intent": "refactor",
+    "policy": "opus-plus-sonnet-max",
+    "auth_mode": "vendor",
+    "files_touched": 3,
+    "tests": "113/113",
+    "new_failures": 0,
+    "cost_pipeline_usd": 2.037228,
+    "cost_precheck_usd": 0.0677152,
+    "wall_clock": "~32m",
+    "cost_by_model": {
+      "claude-opus-5": 1.808087,
+      "claude-sonnet-5": 0.229141
+    },
+    "all_vendor_reported": true,
+    "source_byte_identical_to_runs_1_2_3": true,
+    "task_type_bend_applied": true,
+    "task_type_bend_verified_from_telemetry": true,
+    "reviews": {
+      "senior": "approve",
+      "security": "pass"
+    },
+    "outcome": "accepted"
+  }
+]
