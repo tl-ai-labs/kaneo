@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "run_id": "20260831-042943-docs-board-features",
+  "mode": "brownfield",
+  "intent": "docs",
+  "policy": {
+    "name": "opus-plus-flash-v37",
+    "version": 1
+  },
+  "auth_mode": "estimated",
+  "provenance_note": "All direct-tier events are provenance:estimated (char/3.8 heuristic); mechanical-tier events carry vendor-reported tokens.",
+  "started_at": "2026-08-31T04:39:18.050Z",
+  "ended_at": "2026-08-31T04:57:04.487Z",
+  "totals": {
+    "cost_usd": 0.638539,
+    "premium_tier_usd": 0.61265,
+    "mechanical_tier_usd": 0.025889,
+    "mechanical_share_pct": 4.1,
+    "events": 9,
+    "packets_dispatched": 3
+  },
+  "precheck_totals": {
+    "cost_usd": 0.135067,
+    "events": 2,
+    "note": "Pre-check ran before this run; excluded from run totals."
+  },
+  "by_phase": [
+    {
+      "phase": "architecture_design",
+      "events": 1,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0.0,
+      "models": [
+        "none"
+      ],
+      "rules": [
+        -1
+      ]
+    },
+    {
+      "phase": "docs",
+      "events": 3,
+      "input_tokens": 2835,
+      "output_tokens": 2404,
+      "cost_usd": 0.025889,
+      "models": [
+        "gemini-3.7-flash"
+      ],
+      "rules": [
+        9
+      ]
+    },
+    {
+      "phase": "plan_task_packets",
+      "events": 1,
+      "input_tokens": 6000,
+      "output_tokens": 2200,
+      "cost_usd": 0.085,
+      "models": [
+        "claude-opus-5"
+      ],
+      "rules": [
+        2
+      ]
+    },
+    {
+      "phase": "requirements_analysis",
+      "events": 1,
+      "input_tokens": 15470,
+      "output_tokens": 2600,
+      "cost_usd": 0.14235,
+      "models": [
+        "claude-opus-5"
+      ],
+      "rules": [
+        0
+      ]
+    },
+    {
+      "phase": "security_review",
+      "events": 1,
+      "input_tokens": 28900,
+      "output_tokens": 1973,
+      "cost_usd": 0.193825,
+      "models": [
+        "claude-opus-5"
+      ],
+      "rules": [
+        4
+      ]
+    },
+    {
+      "phase": "senior_code_review",
+      "events": 2,
+      "input_tokens": 51000,
+      "output_tokens": 3114,
+      "cost_usd": 0.191475,
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet (Agent model override)"
+      ],
+      "rules": [
+        3
+      ]
+    }
+  ],
+  "superseded_events": [
+    "tp_senior_001"
+  ],
+  "files_changed": [
+    "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+    "apps/docs/core/functional/plan-and-execute-tasks.mdx"
+  ],
+  "phases_skipped": [
+    {
+      "phase": "architecture_design",
+      "reason": "intent matrix: docs row skips architecture; Gate 2 skipped with it"
+    }
+  ],
+  "tests": {
+    "ran": false,
+    "claim_1_no_test_could_run": "apps/docs has no package.json, so it is not a pnpm workspace package despite the apps/** glob. No turbo task (test, lint, typecheck) can target it. There is no test command that reaches the changed file.",
+    "claim_2_a_green_run_would_be_evidence_about_the_wrong_thing": "The repo's only runnable test target is `turbo test` -> tests/api (+ tests/api-integration). Those suites exercise the Hono API and cannot observe the content of a Mintlify .mdx file. A passing run would attest to untouched code, not to this diff. These are two DIFFERENT claims and both are load-bearing: the first says no test exists, the second says that even the tests that do exist would prove nothing here.",
+    "verification_performed_instead": [
+      "frontmatter byte-identical to HEAD",
+      "five-bullet block byte-identical to HEAD",
+      "closing sentence retained as section's last line",
+      "heading count/sequence unchanged",
+      "0 deletions vs HEAD, +4 lines",
+      "no braces/JSX in added lines (MDX-safe)",
+      "docs.json unmodified; page already registered at docs.json:61",
+      "no apps/web|apps/api source file in diff",
+      "every factual claim re-derived from board-toolbar.tsx and use-task-filters.ts by an independent opus reviewer"
+    ],
+    "baseline_data_quality_note": "baseline.json lists a package named @kaneo/docs. No such package.json exists on disk. Stale/incorrect discovery data. Deliberately NOT fixed by this run - left as a note for whoever hits it next, since silently correcting discovery output would hide a discovery bug."
+  },
+  "artifacts": {
+    "requirements.md": ".sdlc/runs/20260831-042943-docs-board-features/requirements.md",
+    "packets.json": ".sdlc/runs/20260831-042943-docs-board-features/packets.json",
+    "security_review.md": ".sdlc/runs/20260831-042943-docs-board-features/security_review.md",
+    "telemetry.jsonl": ".sdlc/runs/20260831-042943-docs-board-features/telemetry.jsonl",
+    "provenance.json": ".sdlc/runs/20260831-042943-docs-board-features/provenance.json",
+    "manifest.json": ".sdlc/runs/20260831-042943-docs-board-features/manifest.json",
+    "SUMMARY.md": ".sdlc/runs/20260831-042943-docs-board-features/SUMMARY.md"
+  },
+  "gates": [
+    {
+      "gate": "gate-0",
+      "response": "approved (pre-run)"
+    },
+    {
+      "gate": "gate-1",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-2",
+      "response": "skipped with architecture_design"
+    },
+    {
+      "gate": "mini-gate-diff-preview",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-3",
+      "response": "approved"
+    },
+    {
+      "gate": "mini-gate-diff-preview-2",
+      "response": "approved"
+    },
+    {
+      "gate": "gate-4",
+      "response": "accepted"
+    }
+  ],
+  "routing_observations": [
+    {
+      "id": "docs-phase-rule-index",
+      "claim": "docs-phase packets route to the mechanical tier via rule index 9, a phase-only match, NOT via the codegen rule's task_type allowlist.",
+      "evidence": "3/3 dispatches (tp_docs_001/002/003) fired rule_index 9, rule_reason 'Volume work' -> gemini-3.7-flash. Rule 7 carries the task_type allowlist (16 Nest/React codegen types, no doc types) but also requires phase=='codegen', so a phase=='docs' packet never reaches it.",
+      "status": "confirmed"
+    },
+    {
+      "id": "retry-escalation-is-debug-only",
+      "claim": "The retry_count {gte:2} escalation-to-opus clause is scoped to the debug phase; a docs packet never escalates regardless of retry count.",
+      "evidence": "tp_docs_003 dispatched at retry_count=2 and still fired rule_index 9 -> gemini-3.7-flash. Routing behaved as designed under retry stress; a non-event, recorded because it is evidence of correct behavior.",
+      "status": "confirmed"
+    },
+    {
+      "id": "senior-review-tier-earns-cost",
+      "claim": "One observation, NOT a benchmark: on identical inputs and an identical prompt, the cheaper reviewer returned PASS/0-blockers while the policy-specified reviewer (opus) returned needs_changes on a real falsifiable claim.",
+      "evidence": "tp_senior_001 (sonnet, policy deviation) PASSED the text 'showing the field, match operator, and selected values'. tp_senior_002 (opus, policy-correct) caught that the claim is false for 2 of 5 filter fields: board-toolbar.tsx:547-552 shows a count unless exactly one value is selected, and :638-640 shows a count unconditionally for Labels. Corrected by packet tp_docs_003. Without the re-run this docs page would have shipped misdescribing the UI.",
+      "status": "single observation; supports pinning rule 3 to opus; not generalizable from n=1"
+    }
+  ],
+  "deviations": [
+    {
+      "id": "senior-review-model-override",
+      "phase": "senior_code_review",
+      "severity": "process",
+      "what": "Orchestrator passed model:sonnet on the Agent call, overriding both policy rule 3 (use: opus) and the senior-reviewer agent definition's own model:opus.",
+      "authorized": false,
+      "detected_by": "orchestrator self-report before Gate 3",
+      "remediation": "Phase re-run on opus as tp_senior_002; that event supersedes tp_senior_001. The sonnet event is retained unmutated with cost_usd:null.",
+      "cost_impact": "tp_senior_001 is unpriceable: the policy pricing block has no sonnet rates, and inventing one is forbidden by the telemetry contract. Run total therefore EXCLUDES it and is complete only for policy-compliant work."
+    }
+  ],
+  "out_of_run_worktree_changes": [
+    {
+      "path": ".gitignore",
+      "origin": "Gate 0 setup (mtime 04:37:00.803, 47s before run.start)",
+      "in_provenance": false,
+      "note": "NOT restored by /mmo:revert. Adds .sdlc/**/*.db, .sdlc/local/, .hook-logs/, .claude/settings.local.json."
+    },
+    {
+      "path": "biome.json",
+      "origin": "Gate 0 setup (mtime 04:37:00.823)",
+      "in_provenance": false,
+      "note": "NOT restored by /mmo:revert. Adds one ignore entry '!**/.sdlc'; no lint rule changed."
+    }
+  ],
+  "status": "closed",
+  "outcome": "completed",
+  "standing_findings": [
+    {
+      "id": "revert-backup-holds-intermediate-state-on-multi-write-runs",
+      "severity": "latent defect in the revert path",
+      "scope": "NOT specific to this run - applies to any future run of this shape",
+      "shape_that_triggers_it": "A single file written more than once in one run (e.g. an initial packet plus one or more review-driven corrections), where the file is UNTRACKED in git.",
+      "what_happens": "write-provenance --before takes a backup per write. On the 2nd and later writes the 'pre-write' state is already the run's own intermediate output, so backups/ ends up holding the INTERMEDIATE content, not the pre-run original. The earliest record's sha_before still names the true original, but no artifact on disk contains it.",
+      "consequence": "For a TRACKED file this is harmless: git holds the original and is the authoritative restore source. For an UNTRACKED file there is no git copy and the backup is wrong, so /mmo:revert has NO correct restore source at all and would 'restore' the file to a half-corrected state while reporting success.",
+      "observed_here": "This run wrote apps/docs/core/functional/plan-and-execute-tasks.mdx twice (tp_docs_002 then tp_docs_003). backups/ holds sha256:831e57... (the intermediate, containing the since-corrected phrase 'selected values'), while the true original is sha256:0eb427... This run was safe ONLY because the file is tracked_in_git: true.",
+      "suggested_fix": "write-provenance --before should skip taking a backup when a record for that path already exists in this run (first-write-wins), or write backups to per-write filenames and have revert select the earliest.",
+      "status": "open - filed as a standing finding, not remediated by this run"
+    }
+  ]
+}

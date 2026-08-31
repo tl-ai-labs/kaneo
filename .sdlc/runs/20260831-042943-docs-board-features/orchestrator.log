@@ -1,0 +1,56 @@
+MMO: 2026-08-31T04:30:04.031Z INFO   policy.load policy_name=opus-plus-flash-v37 source=name version=1 model_count=3 rule_count=13
+MMO: 2026-08-31T04:30:04.045Z INFO   route.decide packet_id=smoke-premium phase=docs task_type=smoke module=precheck rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-31T04:30:04.048Z INFO   dispatch.start packet_id=smoke-premium model_id=flash-completion max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T04:30:07.931Z INFO   dispatch.end packet_id=smoke-premium model_id=flash-completion ok=true terminal_reason=success tokens_in=122 tokens_out=89 tokens_cached=0 cost_usd=0.000984 latency_ms=3882 attempts=1
+MMO: 2026-08-31T04:30:15.522Z INFO   route.decide packet_id=smoke-opus phase=requirements_analysis task_type=smoke module=precheck rule_index=0 rule_reason="Judgment-heavy, low volume" model_id=opus
+MMO: 2026-08-31T04:30:15.522Z INFO   dispatch.start packet_id=smoke-opus model_id=opus max_out=256 max_in=2000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T04:30:36.582Z INFO   dispatch.end packet_id=smoke-opus model_id=opus ok=true terminal_reason=success tokens_in=12864 tokens_out=11 tokens_cached=8144 cost_usd=0.134083 latency_ms=21059 attempts=1
+MMO: 2026-08-31T04:37:32.982Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-08-31T04:37:32.986Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-08-31T04:37:32.987Z INFO   preflight.model model_id=flash-completion adapter=mcp:model-dispatch ok=true
+MMO: 2026-08-31T04:37:32.987Z INFO   preflight.model model_id=flash-agsdk-worker ok=true classification=not_selected
+MMO: 2026-08-31T04:37:32.988Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global
+MMO: 2026-08-31T04:37:47.314Z INFO   run.start run_id=20260831-042943-docs-board-features mode=brownfield intent=docs policy=opus-plus-flash-v37 auth_mode=estimated code_dir=/home/sangeetha/projects/kaneo output_dir=.sdlc/runs/20260831-042943-docs-board-features
+MMO: 2026-08-31T04:39:03.978Z INFO   phase.start run_id=20260831-042943-docs-board-features phase=requirements_analysis form=intent-specific
+MMO: 2026-08-31T04:39:04.021Z INFO   phase.end run_id=20260831-042943-docs-board-features phase=requirements_analysis form=intent-specific
+MMO: 2026-08-31T04:39:19.756Z INFO   gate.open run_id=20260831-042943-docs-board-features gate=gate-1 title="Requirements Approval"
+MMO: 2026-08-31T04:40:07.211Z INFO   gate.resolved run_id=20260831-042943-docs-board-features gate=gate-1 response=approved
+MMO: 2026-08-31T04:40:07.267Z INFO   phase.skip run_id=20260831-042943-docs-board-features phase=architecture_design reason=docs-skips-architecture
+MMO: 2026-08-31T04:40:07.362Z INFO   phase.start run_id=20260831-042943-docs-board-features phase=plan_task_packets form=intent-specific
+MMO: 2026-08-31T04:41:14.703Z INFO   phase.end run_id=20260831-042943-docs-board-features phase=plan_task_packets form=intent-specific
+MMO: 2026-08-31T04:41:14.812Z INFO   phase.start run_id=20260831-042943-docs-board-features phase=execute_packets form=intent-specific
+MMO: 2026-08-31T04:41:46.712Z INFO   route.decide packet_id=tp_docs_001 phase=docs intent=docs task_type=doc_update module=docs rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-31T04:41:46.715Z INFO   dispatch.start packet_id=tp_docs_001 model_id=flash-completion max_out=3000 max_in=4000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T04:41:54.712Z INFO   dispatch.end packet_id=tp_docs_001 model_id=flash-completion ok=true terminal_reason=success tokens_in=1326 tokens_out=1017 tokens_cached=0 cost_usd=0.011142 latency_ms=7999 attempts=1
+MMO: 2026-08-31T04:42:50.578Z INFO   route.decide packet_id=tp_docs_002 phase=docs intent=docs task_type=doc_update module=docs rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-31T04:42:50.579Z INFO   dispatch.start packet_id=tp_docs_002 model_id=flash-completion max_out=3000 max_in=4000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T04:42:57.409Z INFO   dispatch.end packet_id=tp_docs_002 model_id=flash-completion ok=true terminal_reason=success tokens_in=781 tokens_out=876 tokens_cached=0 cost_usd=0.009056 latency_ms=6827 attempts=1
+MMO: 2026-08-31T04:43:28.849Z INFO   gate.open run_id=20260831-042943-docs-board-features gate=mini-gate-diff-preview title="Diff preview: plan-and-execute-tasks.mdx"
+MMO: 2026-08-31T04:44:17.862Z INFO   gate.resolved run_id=20260831-042943-docs-board-features gate=mini-gate-diff-preview response=approved
+MMO: 2026-08-31T04:44:38.685Z INFO   phase.end run_id=20260831-042943-docs-board-features phase=execute_packets form=intent-specific
+MMO: 2026-08-31T04:45:14.231Z INFO   phase.start run_id=20260831-042943-docs-board-features phase=senior_code_review form=intent-specific
+MMO: 2026-08-31T04:45:14.278Z INFO   delegate.subagent.start run_id=20260831-042943-docs-board-features phase=senior_code_review subagent=senior-reviewer
+MMO: 2026-08-31T04:45:52.095Z INFO   phase.start run_id=20260831-042943-docs-board-features phase=test_run form=intent-specific
+MMO: 2026-08-31T04:46:31.932Z INFO   phase.end run_id=20260831-042943-docs-board-features phase=test_run form=intent-specific
+MMO: 2026-08-31T04:46:58.039Z INFO   delegate.subagent.end run_id=20260831-042943-docs-board-features phase=senior_code_review subagent=senior-reviewer ok=true artifact_path=inline-report
+MMO: 2026-08-31T04:46:58.084Z INFO   phase.end run_id=20260831-042943-docs-board-features phase=senior_code_review form=intent-specific
+MMO: 2026-08-31T04:47:14.907Z INFO   phase.start run_id=20260831-042943-docs-board-features phase=security_review form=intent-specific
+MMO: 2026-08-31T04:47:14.960Z INFO   delegate.subagent.start run_id=20260831-042943-docs-board-features phase=security_review subagent=security-reviewer
+MMO: 2026-08-31T04:51:46.904Z INFO   delegate.subagent.end run_id=20260831-042943-docs-board-features phase=security_review subagent=security-reviewer ok=true artifact_path=.sdlc/runs/20260831-042943-docs-board-features/security_review.md
+MMO: 2026-08-31T04:51:46.959Z INFO   phase.end run_id=20260831-042943-docs-board-features phase=security_review form=intent-specific
+MMO: 2026-08-31T04:51:47.005Z INFO   gate.open run_id=20260831-042943-docs-board-features gate=gate-3 title="Security Review"
+MMO: 2026-08-31T04:53:04.502Z INFO   gate.resolved run_id=20260831-042943-docs-board-features gate=gate-3 response=approved
+MMO: 2026-08-31T04:53:04.549Z INFO   phase.start run_id=20260831-042943-docs-board-features phase=senior_code_review form=intent-specific
+MMO: 2026-08-31T04:53:04.647Z INFO   delegate.subagent.start run_id=20260831-042943-docs-board-features phase=senior_code_review subagent=senior-reviewer
+MMO: 2026-08-31T04:56:59.304Z INFO   route.decide packet_id=tp_docs_003 phase=docs intent=docs task_type=doc_update module=docs rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-08-31T04:56:59.306Z INFO   dispatch.start packet_id=tp_docs_003 model_id=flash-completion max_out=1500 max_in=3000 work_dir=/home/sangeetha/projects/kaneo
+MMO: 2026-08-31T04:57:04.487Z INFO   dispatch.end packet_id=tp_docs_003 model_id=flash-completion ok=true terminal_reason=success tokens_in=728 tokens_out=511 tokens_cached=0 cost_usd=0.005691 latency_ms=5181 attempts=1
+MMO: 2026-08-31T04:57:35.412Z INFO   delegate.subagent.end run_id=20260831-042943-docs-board-features phase=senior_code_review subagent=senior-reviewer ok=true artifact_path=inline-report
+MMO: 2026-08-31T04:57:35.469Z INFO   phase.end run_id=20260831-042943-docs-board-features phase=senior_code_review form=intent-specific
+MMO: 2026-08-31T04:57:35.517Z INFO   gate.open run_id=20260831-042943-docs-board-features gate=mini-gate-diff-preview-2 title="Diff preview: senior-review correction"
+MMO: 2026-08-31T04:58:27.254Z INFO   gate.resolved run_id=20260831-042943-docs-board-features gate=mini-gate-diff-preview-2 response=approved
+MMO: 2026-08-31T04:59:48.982Z INFO   phase.start run_id=20260831-042943-docs-board-features phase=generate_final_report form=default
+MMO: 2026-08-31T04:59:49.026Z INFO   phase.end run_id=20260831-042943-docs-board-features phase=generate_final_report form=default
+MMO: 2026-08-31T04:59:49.073Z INFO   gate.open run_id=20260831-042943-docs-board-features gate=gate-4 title="Final Acceptance"
+MMO: 2026-08-31T05:00:03.761Z INFO   run.end run_id=20260831-042943-docs-board-features outcome=completed total_cost_usd=0.638539
+MMO: 2026-08-31T05:01:23.653Z INFO   gate.resolved run_id=20260831-042943-docs-board-features gate=gate-4 response=approved

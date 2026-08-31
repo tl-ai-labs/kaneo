@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "plugin_version": "0.6.0",
+  "built_at": "2026-08-31T04:29:43Z",
+  "run_id": "20260831-042943-docs-board-features",
+  "mode": "first-time",
+  "intent_hint": "docs",
+  "git": {
+    "head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "branch": "docs/opus-flash",
+    "dirty": true,
+    "dirty_entries": [
+      ".claude/settings.local.json",
+      ".hook-logs/",
+      ".sdlc/"
+    ],
+    "dirty_kind": "untracked-only",
+    "gitignore_covers_sdlc": false,
+    "remotes": [
+      {
+        "name": "origin",
+        "url": "https://github.com/tl-ai-labs/kaneo.git"
+      }
+    ]
+  },
+  "topology": {
+    "top_level_dirs": [
+      ".agents",
+      ".claude",
+      ".cursor",
+      ".devcontainer",
+      ".github",
+      ".husky",
+      ".turbo",
+      ".vscode",
+      "apps",
+      "charts",
+      "deploy",
+      "i18n",
+      "packages",
+      "plans",
+      "scripts",
+      "sentry",
+      "skills",
+      "tests"
+    ],
+    "entry_points": [
+      "apps/api/src/index.ts",
+      "apps/web/src/main.tsx"
+    ]
+  },
+  "stacks": [
+    {
+      "manifest": "package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": [
+        "turborepo",
+        "pnpm-workspace"
+      ],
+      "notes": "Root workspace manifest. TypeScript 7.0.2, Node >=20.19.0, pnpm@10.32.1, ESM."
+    },
+    {
+      "manifest": "apps/api/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": [
+        "hono",
+        "hono-openapi"
+      ],
+      "notes": "API app. Drizzle/PostgreSQL, Better Auth, Valibot validation, WebSockets, optional Redis."
+    },
+    {
+      "manifest": "apps/web/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": [
+        "react",
+        "vite",
+        "react-i18next",
+        "react-use-websocket"
+      ],
+      "notes": "Web SPA. TanStack Router + Query."
+    },
+    {
+      "manifest": "apps/site/package.json",
+      "stack": "node-typescript",
+      "detected_frameworks": [
+        "next",
+        "react"
+      ],
+      "notes": "Public marketing/docs host."
+    },
+    {
+      "manifest": "apps/docs/package.json",
+      "stack": "mintlify-docs",
+      "detected_frameworks": [
+        "mintlify"
+      ],
+      "notes": "docs.json (Mintlify schema), 99 .mdx files. Canonical user-facing documentation surface."
+    }
+  ],
+  "test_command_proposed": "pnpm test",
+  "test_command_source": "package.json#scripts.test (turbo test); pnpm-workspace.yaml present",
+  "test_command_notes": "Docs-only change under apps/docs/ has no test coverage. Relevant proof for this run is Mintlify nav integrity (docs.json page list must match files on disk), not pnpm test.",
+  "per_package_test_commands": {
+    "@kaneo/api": "pnpm --filter @kaneo/api test",
+    "@kaneo/web": "pnpm --filter @kaneo/web test",
+    "@kaneo/libs": "pnpm --filter @kaneo/libs test",
+    "@kaneo/permissions": "pnpm --filter @kaneo/permissions test",
+    "integration": "pnpm test:integration"
+  },
+  "docs_present": [
+    {
+      "path": "README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "CLAUDE.md",
+      "kind": "claude-instructions"
+    },
+    {
+      "path": "AGENTS.md",
+      "kind": "agents-instructions"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "kind": "contributing"
+    },
+    {
+      "path": "SECURITY.md",
+      "kind": "security"
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "kind": "code-of-conduct"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "kind": "changelog"
+    },
+    {
+      "path": "ENVIRONMENT_SETUP.md",
+      "kind": "environment-setup"
+    },
+    {
+      "path": "LICENSE",
+      "kind": "license"
+    },
+    {
+      "path": "apps/docs/README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "apps/docs/docs.json",
+      "kind": "mintlify-config"
+    },
+    {
+      "path": "charts/kaneo/README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "packages/mcp/README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "packages/planka-import/README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "plans/README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "sentry/README.md",
+      "kind": "readme"
+    },
+    {
+      "path": "tests/api-integration/README.md",
+      "kind": "readme"
+    }
+  ],
+  "adr_dirs": [],
+  "ai_configs_detected": [
+    {
+      "path": "CLAUDE.md",
+      "type": "claude-instructions"
+    },
+    {
+      "path": "AGENTS.md",
+      "type": "agents-instructions"
+    },
+    {
+      "path": ".claude/settings.local.json",
+      "type": "claude-settings-local"
+    },
+    {
+      "path": ".claude/skills/",
+      "type": "claude-skills"
+    },
+    {
+      "path": ".agents/skills/",
+      "type": "agents-skills"
+    },
+    {
+      "path": "skills/",
+      "type": "skills-dir"
+    },
+    {
+      "path": ".cursor/rules/",
+      "type": "cursor"
+    }
+  ],
+  "cursor_rule_files": [
+    "backend-api.mdc",
+    "cursor-rules.mdc",
+    "database-schema.mdc",
+    "deployment-devops.mdc",
+    "development-conventions.mdc",
+    "frontend-web.mdc",
+    "project-overview.mdc"
+  ],
+  "mcp_json_present": false,
+  "repo_local_routing_policy": null,
+  "env_keys_by_file": {
+    ".env": [
+      "AUTH_SECRET",
+      "DATABASE_URL",
+      "KANEO_API_URL",
+      "KANEO_CLIENT_URL",
+      "POSTGRES_DB",
+      "POSTGRES_HOST",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_PORT",
+      "POSTGRES_USER"
+    ],
+    ".env.local": [
+      "POSTGRES_DB",
+      "POSTGRES_HOST",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_PORT",
+      "POSTGRES_USER"
+    ],
+    ".env.sample": [
+      "AUTH_SECRET",
+      "GITHUB_APP_ID",
+      "GITHUB_APP_NAME",
+      "GITHUB_CLIENT_ID",
+      "GITHUB_CLIENT_SECRET",
+      "GITHUB_OAUTH_CLIENT_ID",
+      "GITHUB_OAUTH_CLIENT_SECRET",
+      "GITHUB_PRIVATE_KEY",
+      "GITHUB_WEBHOOK_SECRET",
+      "KANEO_CLIENT_URL",
+      "POSTGRES_DB",
+      "POSTGRES_PASSWORD",
+      "POSTGRES_USER",
+      "SMTP_FROM",
+      "SMTP_HOST",
+      "SMTP_PASSWORD",
+      "SMTP_PORT",
+      "SMTP_REQUIRE_TLS",
+      "SMTP_SECURE",
+      "SMTP_USER"
+    ],
+    "apps/api/.env.test.example": [
+      "AUTH_SECRET",
+      "DATABASE_URL",
+      "DISABLE_GUEST_ACCESS",
+      "KANEO_API_URL",
+      "KANEO_CLIENT_URL",
+      "NODE_ENV"
+    ],
+    "apps/web/.env.development": [
+      "VITE_API_URL",
+      "VITE_CLIENT_URL"
+    ],
+    "apps/web/.env.production": [
+      "VITE_API_URL",
+      "VITE_CLIENT_URL",
+      "VITE_SENTRY_DSN",
+      "VITE_TURNSTILE_SITE_KEY"
+    ]
+  },
+  "env_keys_all": [
+    "AUTH_SECRET",
+    "DATABASE_URL",
+    "DISABLE_GUEST_ACCESS",
+    "GITHUB_APP_ID",
+    "GITHUB_APP_NAME",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GITHUB_OAUTH_CLIENT_ID",
+    "GITHUB_OAUTH_CLIENT_SECRET",
+    "GITHUB_PRIVATE_KEY",
+    "GITHUB_WEBHOOK_SECRET",
+    "KANEO_API_URL",
+    "KANEO_CLIENT_URL",
+    "NODE_ENV",
+    "POSTGRES_DB",
+    "POSTGRES_HOST",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_PORT",
+    "POSTGRES_USER",
+    "SMTP_FROM",
+    "SMTP_HOST",
+    "SMTP_PASSWORD",
+    "SMTP_PORT",
+    "SMTP_REQUIRE_TLS",
+    "SMTP_SECURE",
+    "SMTP_USER",
+    "VITE_API_URL",
+    "VITE_CLIENT_URL",
+    "VITE_SENTRY_DSN",
+    "VITE_TURNSTILE_SITE_KEY"
+  ],
+  "env_values_read": false,
+  "monorepo": {
+    "type": "pnpm-workspace + turborepo",
+    "workspace_globs": [
+      "packages/**",
+      "apps/**"
+    ],
+    "packages": [
+      {
+        "name": "@kaneo/api",
+        "root": "apps/api",
+        "manifest": "apps/api/package.json"
+      },
+      {
+        "name": "@kaneo/web",
+        "root": "apps/web",
+        "manifest": "apps/web/package.json"
+      },
+      {
+        "name": "@kaneo/site",
+        "root": "apps/site",
+        "manifest": "apps/site/package.json"
+      },
+      {
+        "name": "@kaneo/docs",
+        "root": "apps/docs",
+        "manifest": "apps/docs/package.json"
+      },
+      {
+        "name": "@kaneo/email",
+        "root": "packages/email",
+        "manifest": "packages/email/package.json"
+      },
+      {
+        "name": "@kaneo/libs",
+        "root": "packages/libs",
+        "manifest": "packages/libs/package.json"
+      },
+      {
+        "name": "@kaneo/mcp",
+        "root": "packages/mcp",
+        "manifest": "packages/mcp/package.json"
+      },
+      {
+        "name": "@kaneo/permissions",
+        "root": "packages/permissions",
+        "manifest": "packages/permissions/package.json"
+      },
+      {
+        "name": "@kaneo/planka-import",
+        "root": "packages/planka-import",
+        "manifest": "packages/planka-import/package.json"
+      },
+      {
+        "name": "@kaneo/typescript-config",
+        "root": "packages/typescript-config",
+        "manifest": "packages/typescript-config/package.json"
+      }
+    ]
+  },
+  "submodules": [],
+  "lfs": false,
+  "lfs_patterns": [],
+  "infra_hints": {
+    "dockerfile": true,
+    "dockerfiles": [
+      "Dockerfile.kaneo",
+      "apps/api/Dockerfile",
+      "apps/web/Dockerfile"
+    ],
+    "docker_compose": false,
+    "terraform": false,
+    "github_workflows": true,
+    "github_workflow_count": 13,
+    "gitlab_ci": false,
+    "helm_chart": "charts/kaneo",
+    "husky_hooks": true,
+    "commitlint": true
+  },
+  "regulated_repo_signals": [
+    {
+      "kind": "SECURITY.md",
+      "path": "SECURITY.md"
+    }
+  ],
+  "regulated_repo_warning_required": true,
+  "off_limits_proposed": [
+    ".git/**",
+    ".env",
+    ".env.local",
+    ".env.sample",
+    ".env.*",
+    "apps/api/.env.test.example",
+    "apps/web/.env.development",
+    "apps/web/.env.production",
+    ".claude/**",
+    ".agents/**",
+    "skills/**",
+    ".cursor/**",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    ".turbo/**",
+    "apps/docs/openapi.json",
+    "CHANGELOG.md",
+    "pnpm-lock.yaml",
+    ".hook-logs/**"
+  ],
+  "off_limits_rationale": {
+    "apps/docs/openapi.json": "Generated OpenAPI artifact, not hand-authored.",
+    "CHANGELOG.md": "Release-tooling generated (release-please style).",
+    "pnpm-lock.yaml": "Lockfile; no docs change should touch it."
+  },
+  "coexistence_notes": [
+    "Cursor rules detected at .cursor/rules (7 .mdc files) - untouched by default.",
+    "Claude Code project config detected (.claude/settings.local.json, .claude/skills/) - untouched by default.",
+    "Parallel agent skill trees at .agents/skills/ and skills/ mirror .claude/skills/ - untouched by default.",
+    "No .mcp.json in repo; no repo-local routing-policy.yaml.",
+    "No Aider, Continue, Roo, or Copilot instruction files detected.",
+    ".gitignore does not cover .sdlc/ - run artifacts are visible to git add -A.",
+    "Husky + commitlint active: conventional-commit subject required if a commit is requested."
+  ],
+  "tier2b_triggered": true,
+  "tier2b_reason": "Dominant stacks (Hono API, React+Vite SPA, Next.js site, Mintlify docs) have no matching pre-authored adapter; shipped adapters are generic.md, nest.md, python.md.",
+  "stack_profile_path": ".sdlc/baseline/stack-profile.md",
+  "docs_landscape": {
+    "canonical_user_docs": "apps/docs (Mintlify)",
+    "root_readme_role": "install/deploy oriented; no feature-reference sections",
+    "board_docs_anchor": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+    "feature_evidence": {
+      "filter_chips": {
+        "exists_in_code": true,
+        "code_anchors": [
+          "apps/web/src/components/board/board-toolbar.tsx",
+          "apps/web/src/hooks/use-task-filters.ts",
+          "apps/web/src/hooks/use-task-filters-with-labels-support.ts"
+        ],
+        "docs_anchors": [
+          "apps/docs/core/functional/plan-and-execute-tasks.mdx#5-use-filters-to-focus"
+        ],
+        "already_documented": true
+      },
+      "wip_limits": {
+        "exists_in_code": false,
+        "code_anchors": [],
+        "docs_anchors": [],
+        "already_documented": false,
+        "note": "No wipLimit, columnLimit, maxTasks, capacity, or overLimit identifiers anywhere in apps/ or packages/. No i18n keys. Feature appears not to exist. Implemented only on feature-extend-1/* branches, not merged."
+      },
+      "hours_rollup": {
+        "exists_in_code": false,
+        "partial": true,
+        "code_anchors": [
+          "apps/api/src/time-entry/",
+          "apps/api/src/database/schema.ts#timeEntryTable",
+          "apps/web/src/lib/format-duration.ts"
+        ],
+        "docs_anchors": [
+          "apps/docs/api-reference/endpoints/time-entries/"
+        ],
+        "already_documented": false,
+        "note": "Per-task time tracking exists (time_entry table with integer duration in seconds). No estimatedHours field and no board/column-level aggregation. 'Hours rollup' as described does not exist. Implemented only on feature-extend-2/* branches, not merged."
+      }
+    },
+    "sibling_feature_branches": {
+      "note": "All three features exist on sibling experiment branches; none are merged into main or reachable from HEAD (5d1fc910). The current branch docs/opus-flash does NOT contain them.",
+      "wip_limits": {
+        "branch_family": "feature-extend-1/*",
+        "example": "feature-extend-1/opus-flash",
+        "commit": "025fdb9f feat(board): add per-lane WIP limit with over-cap indicator",
+        "touches": [
+          "apps/api/src/column/controllers/create-column.ts",
+          "apps/api/src/column/controllers/update-column.ts",
+          "apps/api/src/column/index.ts"
+        ],
+        "in_head": false
+      },
+      "hours_rollup": {
+        "branch_family": "feature-extend-2/*",
+        "example": "feature-extend-2/opus-flash",
+        "commit": "33e24240 feat(task): add optional estimated hours with per-column rollup",
+        "touches": [
+          "apps/api/src/database/schema.ts",
+          "apps/api/src/schemas.ts",
+          "apps/api/src/mcp/tools.ts"
+        ],
+        "in_head": false
+      },
+      "filter_chips": {
+        "branch_family": "feature-extend-3/*",
+        "example": "feature-extend-3/opus-flash",
+        "commit": "1830d493 feat(board): persist board filter state in the URL",
+        "note": "Base filter chips already exist in HEAD and are documented; the branch adds URL persistence on top.",
+        "in_head": false
+      }
+    }
+  },
+  "prior_sdlc_state": {
+    "project_json_present": true,
+    "default_policy": "opus-plus-flash-v37",
+    "prior_runs": [
+      "20260820-123148-feature-extend-lane-wip-limit",
+      "20260824-124116-feature-extend-estimated-hours",
+      "20260826-103235-feature-extend-board-filter-chips",
+      "20260827-124738-refactor-lane-header"
+    ],
+    "note": "Prior run dirs contain only delegation caches on this branch. .sdlc/project.json already lists .sdlc/** in off_limits_default."
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "run_id": "20260831-042943-docs-board-features",
+  "intent": "docs",
+  "task_type_source": "intent_brief.md '## Task type' heading = doc_update (not inferred)",
+  "brief_corrections_applied": [
+    "PC-1 (credited correction to Gate-0 brief): brief said 'each active filter renders as a removable chip'; verified against onClear at board-toolbar.tsx:555/580/605/630/641 that a chip is one filter FIELD and clearing it drops all of that field's values. Packet forbids per-value phrasing.",
+    "PC-2 (credited correction to Gate-0 brief): brief said a Clear all filters action 'becomes available'; verified at board-toolbar.tsx:517-526 that it is a DropdownMenuItem inside the filter dropdown, not a toolbar button. Packet requires naming that location.",
+    "Q1 ruled EXCLUDE at Gate 1: localStorage per-project filter persistence is true but out of the frozen scope. Packet explicitly forbids mentioning it."
+  ],
+  "expected_routing": {
+    "rule_index": 9,
+    "rule_reason": "Volume work",
+    "model": "gemini-3.7-flash",
+    "note": "phase-only match on 'docs'; the codegen rule (index 7) task_type allowlist is not consulted because phase != codegen"
+  },
+  "packets": [
+    {
+      "id": "tp_docs_001",
+      "phase": "docs",
+      "task_type": "doc_update",
+      "module": "docs",
+      "pass_id": "20260831-042943-docs-board-features",
+      "intent": "docs",
+      "artifact_path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+      "instruction": "Rewrite section 5 of a Mintlify .mdx page to document active-filter chips. Output ONLY the replacement markdown, starting with the exact line '## 5. Use filters to focus'. No frontmatter, no other section, no code fence.\nKEEP verbatim: the '## 5.' heading; the line 'The board toolbar supports filtering by:'; the five bullets (Status, Priority, Assignee, Due date, Labels); the closing sentence 'Use filters aggressively during standups, planning, and triage.'\nADD between the bullets and the closing sentence:\n(a) each applied filter appears as a chip in the board toolbar showing field, match operator, and selected values;\n(b) a chip is one filter FIELD, not one value - its clear control removes that field's filter including every value chosen for it. Phrase so it cannot be read as one chip per value;\n(c) once any filter is active, a **Clear all filters** action appears at the bottom of the filter dropdown menu - state that location; it is not a standalone toolbar button.\nStyle: match the sample - sentence-case prose, '-' bullets, **bold** only for literal UI labels. Use no term absent from the inputs. Never mention WIP limits, hours, estimates, rollups, or filter persistence.",
+      "inputs": [
+        {
+          "path": "apps/docs/core/functional/plan-and-execute-tasks.mdx",
+          "content": "## 5. Use filters to focus\n\nThe board toolbar supports filtering by:\n\n- Status\n- Priority\n- Assignee\n- Due date\n- Labels\n\nUse filters aggressively during standups, planning, and triage.\n",
+          "reason": "The exact section 5 to rewrite; its list and closing line must survive verbatim."
+        },
+        {
+          "path": "apps/docs/core/functional/plan-and-execute-tasks.mdx#style",
+          "content": "## 1. Create tasks quickly\n\nIn a project:\n\n1. Open **Board** or **List** view.\n2. Click **Create task**.\n...\n## 6. Open full task page when needed\n\nFrom the task sheet, use **Open in full page** for deeper edits and focused context.",
+          "reason": "House style sample: numbered '## N.' headings, bold for literal UI labels."
+        },
+        {
+          "path": "apps/web/src/components/board/board-toolbar.tsx#L78-108",
+          "content": "type ActiveFilterChipProps = {\n  subject: string;\n  operator: string;\n  value: ReactNode;\n  onClear: () => void;\n};\n\nfunction ActiveFilterChip({\n  subject,\n  operator,\n  value,\n  onClear,\n}: ActiveFilterChipProps) {\n  return (\n    <div className=\"inline-flex h-7 items-center rounded-md border border-border bg-background text-xs shadow-xs\">\n      <span className=\"px-2 font-medium text-foreground\">{subject}</span>\n      <span className=\"h-full w-px bg-border\" />\n      <span className=\"px-2 text-foreground/80\">{operator}</span>\n      <span className=\"h-full w-px bg-border\" />\n      <span className=\"flex px-2 text-foreground\">{value}</span>\n      <span className=\"h-full w-px bg-border\" />\n      <button\n        className=\"inline-flex h-full w-7 items-center justify-center rounded-r-md text-foreground/70 hover:bg-accent/70 hover:text-foreground\"\n        onClick={onClear}\n        type=\"button\"\n      >\n        <X className=\"h-3.5 w-3.5\" />\n      </button>\n    </div>\n  );\n}",
+          "reason": "ActiveFilterChip: subject|operator|value|clear-button. Source of truth for claim (a)."
+        },
+        {
+          "path": "apps/web/src/components/board/board-toolbar.tsx#chip-usage",
+          "content": "              <ActiveFilterChip\n                subject={t(\"tasks:boardFilters.subjects.status\")}\n                operator={t(\"tasks:boardFilters.operators.isAnyOf\")}\n        ...\n                onClear={() => updateFilter(\"status\", null)}\n              />\n        ...\n            {filters.labels && filters.labels.length > 0 && (\n              <ActiveFilterChip\n                subject={t(\"tasks:boardFilters.subjects.labels\")}\n                operator={t(\"tasks:boardFilters.operators.includeAnyOf\")}\n                value={t(\"tasks:boardFilters.selectedCount\", {\n                  count: filters.labels.length,\n                })}\n                onClear={clearLabelFilters}\n              />\n            )}",
+          "reason": "One chip per filter field; onClear resets the whole field. Source of truth for claim (b)."
+        },
+        {
+          "path": "apps/web/src/components/board/board-toolbar.tsx#L517-526",
+          "content": "                {hasActiveFilters && (\n                  <>\n                    <DropdownMenuSeparator />\n                    <DropdownMenuItem\n                      onClick={clearFilters}\n                      className=\"h-8 rounded-md text-sm text-muted-foreground\"\n                    >\n                      {t(\"common:actions.clearAllFilters\")}\n                    </DropdownMenuItem>\n                  </>",
+          "reason": "Clear-all is a DropdownMenuItem gated on hasActiveFilters. Source of truth for claim (c)."
+        },
+        {
+          "path": "i18n/en-US.json#filters",
+          "content": "{\n \"common.actions.clearAllFilters\": \"Clear all filters\",\n \"tasks.boardFilters.subjects\": {\n  \"status\": \"Status\",\n  \"priority\": \"Priority\",\n  \"assignee\": \"Assignee\",\n  \"dueDate\": \"Due date\",\n  \"labels\": \"Labels\"\n },\n \"tasks.boardFilters.operators\": {\n  \"isAnyOf\": \"is any of\",\n  \"includeAnyOf\": \"include any of\"\n }\n}",
+          "reason": "Permitted UI vocabulary. No term outside this set may appear."
+        }
+      ],
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "section_markdown": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "section_markdown"
+        ]
+      },
+      "acceptance": [
+        "Output begins with the line '## 5. Use filters to focus'",
+        "Bullets Status, Priority, Assignee, Due date, Labels all present and unmodified",
+        "Closing sentence 'Use filters aggressively during standups, planning, and triage.' present",
+        "States each active filter shows as a chip in the board toolbar",
+        "States a chip's clear control removes that whole field's filter, not a single value",
+        "States Clear all filters appears in the filter dropdown once any filter is active",
+        "Contains no frontmatter, no other section heading, no code fence",
+        "Contains none of: WIP, work in progress, rollup, hours, estimate, persist"
+      ],
+      "budget": {
+        "maxInputTokens": 4000,
+        "maxOutputTokens": 3000
+      },
+      "retry_count": 0
+    }
+  ]
+}
