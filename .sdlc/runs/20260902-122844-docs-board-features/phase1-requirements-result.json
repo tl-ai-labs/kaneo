@@ -1,0 +1,70 @@
+{
+  "decision": {
+    "modelId": "gpt",
+    "reason": "Judgment-heavy, low volume",
+    "ruleIndex": 0
+  },
+  "result": {
+    "result": {
+      "content": "# Requirements: README Board Features\n\n## Scope\n\n### In scope\n\n1. Add a concise level-two (`##`) **Board features** section to the root `README.md`.\n2. Document filter chips only to the extent supported by the repository.\n3. Verify WIP limits and hours rollup before mentioning either as available product functionality.\n4. Keep the change limited to `README.md`.\n\n### Out of scope\n\n1. Changes to application code, APIs, database schema, tests, translations, or other documentation files.\n2. Implementing WIP limits, hours rollup, or filter chips.\n3. Inventing configuration, calculations, permissions, UI interactions, or availability claims for unverified features.\n4. Modifying README content unrelated to Board features.\n\n## Functional requirements\n\n- **FR-1:** The root `README.md` SHALL contain one concise level-two section titled `Board features`.\n- **FR-2:** The section SHALL describe board filter chips using only behavior evidenced in the codebase or existing product documentation.\n- **FR-3:** WIP limits SHALL be included only if discovery verifies that the product supports them and establishes a supportable, concise claim.\n- **FR-4:** Hours rollup SHALL be included only if discovery verifies that the product supports it and establishes a supportable, concise claim.\n- **FR-5:** If WIP limits or hours rollup remain unverified, the README SHALL omit claims that they are product features.\n- **FR-6:** The documentation change SHALL modify only `README.md`.\n\n## Non-functional requirements\n\n- **NFR-1:** Copy SHALL be concise, accurate, and consistent with the README’s existing tone and Markdown structure.\n- **NFR-2:** The change SHALL preserve valid Markdown rendering.\n- **NFR-3:** The change SHALL not disclose PII, credentials, internal implementation details, or private workspace data.\n- **NFR-4:** Claims SHALL be traceable to repository evidence; unsupported claims SHALL be explicitly treated as unresolved rather than inferred.\n\n## Unsupported-product-claim flags\n\n- **WIP limits:** Not located during discovery. Do not state that boards enforce, configure, warn about, or display WIP limits until verified.\n- **Hours rollup:** Not located during discovery. Do not state that boards aggregate, estimate, track, sum, or report hours until verified.\n- **Filter chips:** Evident in discovery, but exact supported filters and interactions must be confirmed before describing them.\n\n## PII inventory\n\n| Data element | Collected or introduced | Location | Handling requirement |\n| --- | --- | --- | --- |\n| Personal data | No | README change | Do not add personal data. |\n| Credentials or secrets | No | README change | Do not add tokens, keys, or connection strings. |\n| Workspace or project data | No | README change | Use only generic, non-identifying examples if examples are needed. |\n\n## Role matrix\n\n| Role | Responsibility | Permission or outcome |\n| --- | --- | --- |\n| README reader | Consume feature overview | Can understand verified Board capabilities. |\n| Documentation maintainer | Edit and validate README copy | May publish only evidence-supported claims. |\n| Product/engineering verifier | Resolve unverified feature evidence | Confirms whether WIP limits and hours rollup may be documented. |\n\n## Acceptance criteria\n\n1. `README.md` contains exactly one new or updated level-two heading named `Board features`, verifiable with `rg -n '^## Board features$' README.md`.\n2. The Board features section contains a concise, evidence-supported description of filter chips.\n3. Before publication, repository evidence for WIP limits is recorded or reviewed; if evidence is absent, `README.md` contains no claim that WIP limits are supported.\n4. Before publication, repository evidence for hours rollup is recorded or reviewed; if evidence is absent, `README.md` contains no claim that hours rollup is supported.\n5. The changed-file list contains only `README.md`, verifiable with `git diff --name-only`.\n6. The resulting `README.md` remains valid Markdown by visual rendering or the repository’s applicable documentation check, if one exists.\n7. The added section contains no PII, secrets, credentials, or private workspace data.\n\n## Open questions\n\n1. Does the current product implement WIP limits? If so, where is the authoritative user-visible behavior and configuration documented in code?\n2. Does the current product implement hours rollup? If so, what entities contribute, where is the result shown, and what wording is accurate?\n3. Which filter-chip dimensions and interactions are stable enough to describe in the README?\n4. Should the section be published with filter chips only if the two unverified features cannot be substantiated?"
+    },
+    "tokens": {
+      "input": 18029,
+      "input_cached": 0,
+      "output": 1121,
+      "output_reasoning": 70
+    },
+    "cost_usd": 0.04951,
+    "latency_ms": 30909,
+    "cache_hit": false,
+    "success": true,
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "ceiling_used": 5000,
+        "hit_output_cap": false,
+        "tokens": {
+          "input": 18029,
+          "input_cached": 0,
+          "output": 1121,
+          "output_reasoning": 70
+        },
+        "cost_usd": 0.04951,
+        "latency_ms": 30909,
+        "success": true
+      }
+    ],
+    "terminal_reason": "success"
+  },
+  "events": [
+    {
+      "ts": "2026-09-02T12:57:32.739Z",
+      "pass": "20260902-122844-docs-board-features",
+      "phase": "requirements_analysis",
+      "task_type": "requirements",
+      "task_id": "tp_requirements_001",
+      "module": "readme-board-features",
+      "model": "gpt-5.6-terra",
+      "provenance": "modeled",
+      "routed_by": "orchestrator",
+      "model_id": "gpt",
+      "routing": {
+        "policy_name": "gpt-seat-plus-flash",
+        "policy_version": 1,
+        "rule_index": 0,
+        "rule_reason": "Judgment-heavy, low volume"
+      },
+      "retry_count": 0,
+      "input_tokens": 18029,
+      "input_tokens_cached": 0,
+      "output_tokens": 1121,
+      "output_tokens_reasoning": 70,
+      "cost_usd": 0.04951,
+      "latency_ms": 30909,
+      "success": true,
+      "attempt_number": 1,
+      "ceiling_used": 5000
+    }
+  ],
+  "terminal_reason": "success"
+}

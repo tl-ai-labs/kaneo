@@ -1,0 +1,130 @@
+{
+  "decision": {
+    "modelId": "gpt",
+    "reason": "Needs full context to slice work cleanly",
+    "ruleIndex": 2
+  },
+  "result": {
+    "result": {
+      "packets": [
+        {
+          "id": "tp_docs_003",
+          "phase": "implement",
+          "task_type": "doc_addition",
+          "module": "readme-board-features",
+          "instruction": "Add a level-two “Board features” section to README.md. State only evidence-grounded support for filter chips: status, priority, assignee, due date, and labels. Do not claim WIP limits or hours rollup are available unless later inputs establish that evidence.",
+          "inputs": [
+            {
+              "path": ".sdlc/runs/20260902-122844-docs-board-features/requirements.md",
+              "content": "Add a level-two Board features section to README.md. Filter chips are supported for status, priority, assignee, due date, and labels. WIP limits and hours rollup are not found in current repository evidence, so do not invent availability claims.",
+              "reason": "Approved scope and feature-evidence constraints."
+            }
+          ],
+          "outputSchema": {
+            "type": "string"
+          },
+          "acceptance": [
+            "README.md contains a level-two Board features section.",
+            "The section identifies filter chips for status, priority, assignee, due date, and labels.",
+            "The copy makes no availability claim for WIP limits or hours rollup."
+          ],
+          "budget": {
+            "maxInputTokens": 1200,
+            "maxOutputTokens": 800
+          },
+          "retry_count": 0,
+          "pass_id": "20260902-122844-docs-board-features",
+          "intent": "docs",
+          "artifact_path": "README.md"
+        },
+        {
+          "id": "tp_docs_004",
+          "phase": "implement",
+          "task_type": "doc_addition",
+          "module": "readme-board-features",
+          "instruction": "Add .sdlc/ to .gitignore as approved, preserving existing ignore entries and formatting.",
+          "inputs": [
+            {
+              "path": ".sdlc/runs/20260902-122844-docs-board-features/requirements.md",
+              "content": "Also add .sdlc/ to .gitignore as approved.",
+              "reason": "Approved ignore-file change."
+            }
+          ],
+          "outputSchema": {
+            "type": "string"
+          },
+          "acceptance": [
+            ".gitignore includes a .sdlc/ entry.",
+            "Existing .gitignore entries remain intact."
+          ],
+          "budget": {
+            "maxInputTokens": 600,
+            "maxOutputTokens": 400
+          },
+          "retry_count": 0,
+          "pass_id": "20260902-122844-docs-board-features",
+          "intent": "docs",
+          "artifact_path": ".gitignore"
+        }
+      ]
+    },
+    "tokens": {
+      "input": 18727,
+      "input_cached": 0,
+      "output": 469,
+      "output_reasoning": 0
+    },
+    "cost_usd": 0.043082,
+    "latency_ms": 20816,
+    "cache_hit": false,
+    "success": true,
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "ceiling_used": 5000,
+        "hit_output_cap": false,
+        "tokens": {
+          "input": 18727,
+          "input_cached": 0,
+          "output": 469,
+          "output_reasoning": 0
+        },
+        "cost_usd": 0.043082,
+        "latency_ms": 20816,
+        "success": true
+      }
+    ],
+    "terminal_reason": "success"
+  },
+  "events": [
+    {
+      "ts": "2026-09-02T13:03:15.928Z",
+      "pass": "20260902-122844-docs-board-features",
+      "phase": "plan_task_packets",
+      "task_type": "plan",
+      "task_id": "tp_plan_002",
+      "module": "readme-board-features",
+      "model": "gpt-5.6-terra",
+      "provenance": "modeled",
+      "routed_by": "orchestrator",
+      "model_id": "gpt",
+      "routing": {
+        "policy_name": "gpt-seat-plus-flash",
+        "policy_version": 1,
+        "rule_index": 2,
+        "rule_reason": "Needs full context to slice work cleanly"
+      },
+      "retry_count": 1,
+      "input_tokens": 18727,
+      "input_tokens_cached": 0,
+      "output_tokens": 469,
+      "output_tokens_reasoning": 0,
+      "cost_usd": 0.043082,
+      "latency_ms": 20816,
+      "success": true,
+      "attempt_number": 1,
+      "ceiling_used": 5000
+    }
+  ],
+  "terminal_reason": "success"
+}

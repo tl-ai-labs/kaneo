@@ -1,0 +1,15 @@
+{
+  "id": "tp_plan_002",
+  "phase": "plan_task_packets",
+  "task_type": "plan",
+  "module": "readme-board-features",
+  "instruction": "Plan the smallest brownfield docs change as TaskPackets. Return an object with a packets array. Every packet must use intent docs, task_type doc_addition exactly as selected, artifact_path README.md or .gitignore, and the canonical fields. Plan one README packet and one .gitignore packet. Require evidence-grounded copy: filter chips are supported; WIP limits and hours rollup are unverified and must not be presented as available unless inputs establish them.",
+  "inputs": [{"path": ".sdlc/runs/20260902-122844-docs-board-features/requirements.md", "content": "Add a level-two Board features section to README.md. Filter chips are supported for status, priority, assignee, due date, and labels. WIP limits and hours rollup are not found in current repository evidence, so do not invent availability claims. Also add .sdlc/ to .gitignore as approved.", "reason": "Approved requirements and verified scope"}],
+  "outputSchema": {"type": "object", "properties": {"packets": {"type": "array", "items": {"type": "object", "properties": {"id": {"type": "string"}, "phase": {"type": "string"}, "task_type": {"type": "string"}, "module": {"type": "string"}, "instruction": {"type": "string"}, "inputs": {"type": "array", "items": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}, "reason": {"type": "string"}}, "required": ["path", "content", "reason"], "additionalProperties": false}}, "outputSchema": {"type": "object", "properties": {"type": {"type": "string"}}, "required": ["type"], "additionalProperties": false}, "acceptance": {"type": "array", "items": {"type": "string"}}, "budget": {"type": "object", "properties": {"maxInputTokens": {"type": "number"}, "maxOutputTokens": {"type": "number"}}, "required": ["maxInputTokens", "maxOutputTokens"], "additionalProperties": false}, "retry_count": {"type": "number"}, "pass_id": {"type": "string"}, "intent": {"type": "string"}, "artifact_path": {"type": "string"}}, "required": ["id", "phase", "task_type", "module", "instruction", "inputs", "outputSchema", "acceptance", "budget", "retry_count", "pass_id", "intent", "artifact_path"], "additionalProperties": false}}}, "required": ["packets"], "additionalProperties": false},
+  "acceptance": ["Exactly two file-scoped packets are returned", "Every packet has artifact_path and intent docs", "README packet uses doc_addition", "No unsupported behavior is invented"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 5000},
+  "retry_count": 1,
+  "pass_id": "20260902-122844-docs-board-features",
+  "intent": "docs",
+  "artifact_path": ".sdlc/runs/20260902-122844-docs-board-features/packets.json"
+}

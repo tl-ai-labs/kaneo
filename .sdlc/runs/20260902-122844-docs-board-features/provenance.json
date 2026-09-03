@@ -1,0 +1,8 @@
+{
+  "run_id": "20260902-122844-docs-board-features",
+  "intent": "docs",
+  "policy": "gpt-seat-plus-flash",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "files_touched": ["README.md", ".gitignore"],
+  "pre_existing_dirty_tree": true
+}

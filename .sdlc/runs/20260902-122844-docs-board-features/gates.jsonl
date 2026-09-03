@@ -1,0 +1,4 @@
+{"gate":0,"artifact":"intent_brief.md","decision":"approved","note":"README.md and .gitignore allowlisted; AI configs and unrelated dirty work remain off-limits."}
+{"gate":1,"artifact":"requirements.md","decision":"approved","note":"Requirements approved; unsupported WIP-limit and hours-rollup claims remain verification-gated."}
+{"gate":3,"artifact":"security_review.md","decision":"approved","note":"Docs changes introduce no security exposure; three high transitive advisories are pre-existing and out of scope."}
+{"gate":4,"artifact":"SUMMARY.md","decision":"approved","note":"User accepted the final documentation result."}

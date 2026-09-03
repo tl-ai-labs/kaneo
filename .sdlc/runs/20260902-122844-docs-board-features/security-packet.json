@@ -1,0 +1,15 @@
+{
+  "id": "tp_security_001",
+  "phase": "security_review",
+  "task_type": "security_review",
+  "module": "readme-board-features",
+  "instruction": "Perform the brownfield security review for a docs-only change. Review only the touched README.md and .gitignore content for PII, secrets, credential leakage, unsafe examples, and misleading security claims. Treat dependency audit findings as pre-existing unless caused by these edits. Do not pass checks lacking evidence; list them under Could not verify. Return a Markdown report in content with Findings, Could not verify, and pre-existing context.",
+  "inputs": [{"path": "README.md", "content": "Changed content: ## Board features; one bullet says filter chips narrow the board using active removable chips for status, priority, assignee, due date, and labels, with clear-all. No examples, PII, secrets, credentials, URLs, or security claims were added.", "reason": "Complete README content changed by this run"}, {"path": ".gitignore", "content": "Changed content: appended .sdlc/.", "reason": "Complete .gitignore content changed by this run"}, {"path": "dependency-audit.txt", "content": "pnpm audit --prod --audit-level high exited 1 with three high-severity transitive advisories: nanoid <3.3.18 via better-auth/vitest/vite/postcss; deepmerge-ts <8.0.0 via better-auth/prisma; mysql2 <3.22.0 via better-auth. This run changed no dependency manifests or lockfiles.", "reason": "Required production dependency audit output"}],
+  "outputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"], "additionalProperties": false},
+  "acceptance": ["Changed docs are reviewed for data or secret exposure", "Pre-existing advisories are not attributed to this run", "Unsupported checks are listed as unverifiable"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 5000},
+  "retry_count": 0,
+  "pass_id": "20260902-122844-docs-board-features",
+  "intent": "docs",
+  "artifact_path": ".sdlc/runs/20260902-122844-docs-board-features/security_review.md"
+}

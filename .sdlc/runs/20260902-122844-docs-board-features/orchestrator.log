@@ -1,0 +1,40 @@
+MMO: 2026-09-02T12:57:01.774Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T12:57:01.786Z INFO   route.decide packet_id=tp_requirements_001 phase=requirements_analysis intent=docs task_type=requirements module=readme-board-features rule_index=0 rule_reason="Judgment-heavy, low volume" model_id=gpt
+MMO: 2026-09-02T12:57:01.800Z INFO   dispatch.start packet_id=tp_requirements_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T12:57:32.726Z INFO   dispatch.end packet_id=tp_requirements_001 model_id=gpt ok=true terminal_reason=success tokens_in=18029 tokens_out=1121 tokens_cached=0 cost_usd=0.04951 latency_ms=30926 attempts=1
+MMO: 2026-09-02T13:01:20.250Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T13:01:20.262Z INFO   route.decide packet_id=tp_plan_001 phase=plan_task_packets intent=docs task_type=plan module=readme-board-features rule_index=2 rule_reason="Needs full context to slice work cleanly" model_id=gpt
+MMO: 2026-09-02T13:01:20.279Z INFO   dispatch.start packet_id=tp_plan_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T13:01:29.472Z ERROR  dispatch.error packet_id=tp_plan_001 model_id=gpt error_class=DispatchFailed message="{\n  \"type\": \"error\",\n  \"error\": {\n    \"type\": \"invalid_request_error\",\n    \"code\": \"invalid_json_schema\",\n    \"message\": \"Invalid schema for response_format 'codex_output_schema': In context=('properties', 'packets', 'items'), 'additionalProperties' is required to be supplied and to be false.\",\n    \"param\": \"text.format.schema\"\n  },\n  \"status\": 400\n}"
+MMO: 2026-09-02T13:02:55.051Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T13:02:55.067Z INFO   route.decide packet_id=tp_plan_002 phase=plan_task_packets intent=docs task_type=plan module=readme-board-features rule_index=2 rule_reason="Needs full context to slice work cleanly" model_id=gpt
+MMO: 2026-09-02T13:02:55.085Z INFO   dispatch.start packet_id=tp_plan_002 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T13:03:15.915Z INFO   dispatch.end packet_id=tp_plan_002 model_id=gpt ok=true terminal_reason=success tokens_in=18727 tokens_out=469 tokens_cached=0 cost_usd=0.043082 latency_ms=20831 attempts=1
+MMO: 2026-09-02T13:04:56.642Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T13:04:56.656Z INFO   route.decide packet_id=tp_docs_003 phase=docs intent=docs task_type=doc_addition module=readme-board-features rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-09-02T13:04:56.673Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-09-02T13:04:56.688Z INFO   dispatch.start packet_id=tp_docs_003 model_id=flash-completion max_out=3000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T13:04:58.578Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T13:04:58.590Z INFO   route.decide packet_id=tp_docs_004 phase=docs intent=docs task_type=doc_addition module=readme-board-features rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-09-02T13:04:58.605Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-09-02T13:04:58.621Z INFO   dispatch.start packet_id=tp_docs_004 model_id=flash-completion max_out=3000 max_in=1000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T13:05:05.753Z INFO   dispatch.end packet_id=tp_docs_004 model_id=flash-completion ok=true terminal_reason=success tokens_in=175 tokens_out=105 tokens_cached=0 cost_usd=0.001208 latency_ms=7132 attempts=1
+MMO: 2026-09-02T13:05:20.594Z ERROR  dispatch.error packet_id=tp_docs_003 model_id=flash-completion error_class=DispatchFailed message="{\"error\":{\"code\":429,\"message\":\"Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.\",\"status\":\"RESOURCE_EXHAUSTED\"}}"
+MMO: 2026-09-02T13:06:37.851Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T13:06:37.862Z INFO   route.decide packet_id=tp_docs_005 phase=docs intent=docs task_type=doc_addition module=readme-board-features rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-09-02T13:06:37.880Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-09-02T13:06:37.896Z INFO   dispatch.start packet_id=tp_docs_005 model_id=flash-completion max_out=3000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T13:06:47.793Z INFO   dispatch.end packet_id=tp_docs_005 model_id=flash-completion ok=true terminal_reason=success tokens_in=369 tokens_out=432 tokens_cached=0 cost_usd=0.004442 latency_ms=9898 attempts=1
+MMO: 2026-09-02T13:10:39.392Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T13:10:39.404Z INFO   route.decide packet_id=tp_review_001 phase=senior_code_review intent=docs task_type=review module=readme-board-features rule_index=3 rule_reason="Cross-file reasoning + judgment" model_id=gpt
+MMO: 2026-09-02T13:10:39.424Z INFO   dispatch.start packet_id=tp_review_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T13:10:56.515Z INFO   dispatch.end packet_id=tp_review_001 model_id=gpt ok=true terminal_reason=success tokens_in=18773 tokens_out=394 tokens_cached=0 cost_usd=0.042274 latency_ms=17090 attempts=1
+MMO: 2026-09-02T13:12:29.988Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T13:12:29.999Z INFO   route.decide packet_id=tp_docs_refine_001 phase=docs intent=docs task_type=docs_refinement module=readme-board-features rule_index=9 rule_reason="Volume work" model_id=flash-completion select_slot=gemini-flash select_chosen=flash-completion select_overridden=false
+MMO: 2026-09-02T13:12:30.017Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-09-02T13:12:30.033Z INFO   dispatch.start packet_id=tp_docs_refine_001 model_id=flash-completion max_out=3000 max_in=2000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T13:13:06.121Z INFO   dispatch.end packet_id=tp_docs_refine_001 model_id=flash-completion ok=true terminal_reason=success tokens_in=253 tokens_out=229 tokens_cached=0 cost_usd=0.002441 latency_ms=36088 attempts=1
+MMO: 2026-09-02T13:26:00.691Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-02T13:26:00.703Z INFO   route.decide packet_id=tp_security_001 phase=security_review intent=docs task_type=security_review module=readme-board-features rule_index=4 rule_reason="Risk-bearing, low volume" model_id=gpt
+MMO: 2026-09-02T13:26:00.720Z INFO   dispatch.start packet_id=tp_security_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-02T13:26:14.778Z INFO   dispatch.end packet_id=tp_security_001 model_id=gpt ok=true terminal_reason=success tokens_in=18138 tokens_out=256 tokens_cached=0 cost_usd=0.039348 latency_ms=14059 attempts=1

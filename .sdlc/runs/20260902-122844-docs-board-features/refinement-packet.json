@@ -1,0 +1,15 @@
+{
+  "id": "tp_docs_refine_001",
+  "phase": "docs",
+  "task_type": "docs_refinement",
+  "module": "readme-board-features",
+  "instruction": "Return the corrected complete Board features section in content. Remove the unsupported WIP limits and hours rollup availability statement. Retain the verified filter-chips bullet unchanged. Do not add commentary or modify any other content.",
+  "inputs": [{"path": "README.md", "content": "## Board features\n\n- **Filter chips**: Narrow down your board view with active, removable filter chips for status, priority, assignee, due date, and labels, plus quick clear-all functionality.\n- **WIP limits & hours rollup**: Not currently supported.", "reason": "Section requiring refinement"}],
+  "outputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"], "additionalProperties": false},
+  "acceptance": ["Retains the verified filter-chips bullet", "Contains no WIP limits or hours rollup claim", "Starts with ## Board features"],
+  "budget": {"maxInputTokens": 2000, "maxOutputTokens": 3000},
+  "retry_count": 0,
+  "pass_id": "20260902-122844-docs-board-features",
+  "intent": "docs",
+  "artifact_path": "README.md"
+}

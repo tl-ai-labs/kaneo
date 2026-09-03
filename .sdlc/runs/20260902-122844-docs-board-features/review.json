@@ -1,0 +1,7 @@
+{
+  "module": "readme-board-features",
+  "verdict": "approved_after_refinement",
+  "findings": [{"severity": "major", "file": "README.md", "issue": "The section makes an unsupported availability claim that WIP limits and hours rollup are not currently supported.", "fix": "Remove that bullet and retain verified filter-chip documentation."}],
+  "not_verifiable": [],
+  "refinement_packets": [{"task_type": "docs_refinement", "artifact": "Applied: unsupported WIP limits and hours rollup statement removed."}]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "tp_requirements_001",
+  "phase": "requirements_analysis",
+  "task_type": "requirements",
+  "module": "readme-board-features",
+  "instruction": "Produce a concise Markdown requirements document for this docs-only change. Include numbered in-scope and out-of-scope items, functional requirements (FR-*), non-functional requirements (NFR-*), a PII inventory table, a role matrix, numbered executable acceptance criteria, and open questions. Explicitly flag unsupported product claims rather than inventing behavior. Return the complete document in the content field.",
+  "inputs": [{"path": ".sdlc/runs/20260902-122844-docs-board-features/intent_brief.md", "content": "Add a concise level-two Board features section to root README.md covering WIP limits, hours rollup, and filter chips. Only README.md is in product scope. Filter chips are evident; WIP limits and hours rollup were not located during discovery and must be verified before publication. Task type is doc_addition.", "reason": "Approved intent brief summary"}],
+  "outputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"], "additionalProperties": false},
+  "acceptance": ["All required sections are present", "No unsupported feature behavior is asserted", "Scope remains limited to README.md"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 5000},
+  "retry_count": 0,
+  "pass_id": "20260902-122844-docs-board-features",
+  "intent": "docs",
+  "artifact_path": ".sdlc/runs/20260902-122844-docs-board-features/requirements.md"
+}

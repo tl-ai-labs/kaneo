@@ -1,0 +1,4 @@
+[
+  {"id":"tp_docs_003","phase":"docs","task_type":"doc_addition","module":"readme-board-features","artifact_path":"README.md"},
+  {"id":"tp_docs_004","phase":"docs","task_type":"doc_addition","module":"readme-board-features","artifact_path":".gitignore"}
+]

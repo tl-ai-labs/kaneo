@@ -1,0 +1,15 @@
+{
+  "id": "tp_docs_004",
+  "phase": "docs",
+  "task_type": "doc_addition",
+  "module": "readme-board-features",
+  "instruction": "Return the single ignore entry approved for the root .gitignore in content, with no commentary.",
+  "inputs": [{"path": ".gitignore", "content": "The current root .gitignore does not contain an entry for SDLC run artifacts.", "reason": "Approved Gate 0 metadata-hygiene change"}],
+  "outputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"], "additionalProperties": false},
+  "acceptance": ["Content is exactly .sdlc/"],
+  "budget": {"maxInputTokens": 1000, "maxOutputTokens": 3000},
+  "retry_count": 0,
+  "pass_id": "20260902-122844-docs-board-features",
+  "intent": "docs",
+  "artifact_path": ".gitignore"
+}

@@ -1,0 +1,25 @@
+{
+  "pass": "20260902-122844-docs-board-features",
+  "policy_name": "gpt-seat-plus-flash",
+  "started_at": "2026-09-02T12:57:32.739Z",
+  "ended_at": "2026-09-02T13:26:14.789Z",
+  "duration_sec": 1722,
+  "total_cost_usd": 0.183717,
+  "total_input_tokens": 75269,
+  "total_input_tokens_cached": 0,
+  "total_output_tokens": 3006,
+  "model_breakdown": {
+    "gpt-5.6-terra": {"calls": 5, "cost_usd": 0.175032, "input_tokens": 74076, "output_tokens": 2240},
+    "gemini-3.7-flash": {"calls": 4, "cost_usd": 0.008685, "input_tokens": 1193, "output_tokens": 766}
+  },
+  "phase_breakdown": {
+    "requirements_analysis": {"calls": 1, "cost_usd": 0.04951, "models": ["gpt-5.6-terra"], "input_tokens": 18029, "input_tokens_cached": 0, "output_tokens": 1121},
+    "plan_task_packets": {"calls": 2, "cost_usd": 0.0439, "models": ["gpt-5.6-terra"], "input_tokens": 19136, "input_tokens_cached": 0, "output_tokens": 469},
+    "docs": {"calls": 4, "cost_usd": 0.008685, "models": ["gemini-3.7-flash"], "input_tokens": 1193, "input_tokens_cached": 0, "output_tokens": 766},
+    "senior_code_review": {"calls": 1, "cost_usd": 0.042274, "models": ["gpt-5.6-terra"], "input_tokens": 18773, "input_tokens_cached": 0, "output_tokens": 394},
+    "security_review": {"calls": 1, "cost_usd": 0.039348, "models": ["gpt-5.6-terra"], "input_tokens": 18138, "input_tokens_cached": 0, "output_tokens": 256}
+  },
+  "module_breakdown": {"readme-board-features": {"calls": 9, "cost_usd": 0.183717}},
+  "task_type_breakdown": {"requirements": {"calls": 1, "cost_usd": 0.04951}, "plan": {"calls": 2, "cost_usd": 0.0439}, "doc_addition": {"calls": 3, "cost_usd": 0.006244}, "review": {"calls": 1, "cost_usd": 0.042274}, "docs_refinement": {"calls": 1, "cost_usd": 0.002441}, "security_review": {"calls": 1, "cost_usd": 0.039348}},
+  "artifacts": {"files": 2, "loc": 5, "tests": 5, "test_pass_rate": 1}
+}

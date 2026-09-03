@@ -1,0 +1,15 @@
+{
+  "id": "tp_docs_005",
+  "phase": "docs",
+  "task_type": "doc_addition",
+  "module": "readme-board-features",
+  "instruction": "Write only the Markdown section to insert between the existing Why Kaneo? section and Sponsors. Use the exact heading '## Board features'. Match the concise product-facing voice. Accurately describe filter chips for status, priority, assignee, due date, and labels. The requested WIP limits and hours rollup are not evidenced in this checkout; do not claim they exist. Briefly and transparently say they are not currently documented/supported only if needed to address the requested scope. Return the section in content.",
+  "inputs": [{"path": "README.md", "content": "The README introduces Kaneo as a simple, fast, self-hosted project-management platform. Its Why Kaneo? section ends with a link to product documentation, followed by the Sponsors heading. Bullets are concise and start with bold feature labels.", "reason": "Insertion context and established voice"}, {"path": "apps/web/src/components/board/board-toolbar.tsx", "content": "The board exposes active removable filter chips for status, priority, assignee, due date, and labels, plus clear-all behavior.", "reason": "Verified feature evidence"}],
+  "outputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"], "additionalProperties": false},
+  "acceptance": ["Starts with ## Board features", "Names all five verified filter dimensions", "Makes no claim that WIP limits or hours rollup are available", "Contains no secrets or private data"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 3000},
+  "retry_count": 1,
+  "pass_id": "20260902-122844-docs-board-features",
+  "intent": "docs",
+  "artifact_path": "README.md"
+}

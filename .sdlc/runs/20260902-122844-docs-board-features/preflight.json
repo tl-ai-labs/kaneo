@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "auth_mode": "vendor",
+  "policy": {
+    "name": "gpt-seat-plus-flash",
+    "version": 1
+  },
+  "models": [
+    {
+      "id": "gpt",
+      "model_name": "gpt-5.6-terra",
+      "adapter": "codex-cli",
+      "required": true,
+      "ok": true
+    },
+    {
+      "id": "flash-completion",
+      "model_name": "gemini-3.7-flash",
+      "adapter": "mcp:model-dispatch",
+      "required": true,
+      "ok": true
+    }
+  ],
+  "not_selected": [
+    "flash-agsdk-worker"
+  ],
+  "gemini": {
+    "backend": "vertex-adc",
+    "reason": "gcloud ADC file present",
+    "adc_file": "/home/sangeetha/.config/gcloud/application_default_credentials.json",
+    "project": "ai-studies-console",
+    "location": "global"
+  },
+  "halt_reason": null,
+  "warnings": []
+}
