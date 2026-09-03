@@ -1,0 +1,35 @@
+[
+  {
+    "run_id": "20260903-094517-feature-extend-column-wip-limit",
+    "date": "2026-09-03",
+    "mode": "brownfield",
+    "intent": "feature-extend",
+    "title": "Per-column WIP limit with over-cap indicator",
+    "policy": "opus-flash-sdk (per-run override; project default opus-plus-flash-v37)",
+    "auth_mode": "estimated",
+    "branch": "feature-extend-1/opus-flash-sdk",
+    "head_before": "5d1fc910",
+    "head_after": "5d1fc910",
+    "committed": false,
+    "files_changed": 18,
+    "insertions": 181,
+    "deletions": 9,
+    "tests": {
+      "api": "61 files / 392",
+      "web": "37 files / 123",
+      "baseline": "58/374, 36/112"
+    },
+    "cost_usd": 6.2786,
+    "dispatches": {
+      "opus": 6,
+      "flash-agsdk-worker": 24,
+      "fell_through_to_default": 0
+    },
+    "gate_4": "accepted",
+    "followups": [
+      "pnpm i18n:schema (schema.json stale by 8 keys)",
+      "column mutations publish no events - WIP limits are not realtime",
+      "pnpm audit --prod: 7 high / 4 moderate, pre-existing"
+    ]
+  }
+]

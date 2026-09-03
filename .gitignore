@@ -55,3 +55,9 @@ compose.override.yml
 # TanStack Router generated cache
 apps/web/.tanstack/
 .pi/
+
+# AI-SDLC plugin output. Text artifacts are tracked as an audit trail; the
+# Antigravity worker's save-state blobs are large binaries and are not.
+.sdlc/**/*.db
+.hook-logs/
+.claude/settings.local.json

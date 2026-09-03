@@ -1,0 +1,57 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 60902,
+    "cached_content_token_count": 32434,
+    "candidates_token_count": 462,
+    "thoughts_token_count": 1007,
+    "total_token_count": 62371,
+    "service_tier": null
+  },
+  "tool_call_count": 4,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm exec biome format --write apps/api/drizzle/meta/_journal.json apps/api/drizzle/meta/0043_snapshot.json",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm exec biome ci apps/api/drizzle/meta/_journal.json apps/api/drizzle/meta/0043_snapshot.json",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status --porcelain",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git diff apps/api/drizzle/meta/_journal.json",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"files_changed\": [\n    \"apps/api/drizzle/meta/_journal.json\",\n    \"apps/api/drizzle/meta/0043_snapshot.json\"\n  ],\n  \"biome_ci_output\": \"Checked 2 files in 14ms. No fixes applied.\",\n  \"summary\": \"Re-formatted apps/api/drizzle/meta/_journal.json and apps/api/drizzle/meta/0043_snapshot.json using biome format to normalize indentation to tabs.\"\n}"
+}

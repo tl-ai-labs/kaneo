@@ -1,0 +1,108 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_002",
+  "phase": "codegen",
+  "task_type": "migration",
+  "module": "api-database",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-03T10:32:05.392Z",
+  "duration_ms": 38298,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.077518,
+  "tokens": {
+    "input": 30071,
+    "input_cached": 73638,
+    "output": 2374,
+    "output_reasoning": 1757
+  },
+  "tool_calls": {
+    "count": 6,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api db:generate",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status --porcelain",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/0043_gifted_lizard.sql",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/0043_gifted_lizard.sql",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/meta/_journal.json",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/meta/_journal.json",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "ls -la apps/api/drizzle/meta/0043_snapshot.json",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "cat apps/api/drizzle/0043_gifted_lizard.sql",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "apps/api/drizzle/0043_gifted_lizard.sql",
+      "apps/api/drizzle/meta/0043_snapshot.json"
+    ],
+    "modified": [
+      "apps/api/drizzle/meta/_journal.json"
+    ],
+    "removed": [],
+    "unchanged": 1676,
+    "scanned": 1679,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_002.md",
+    "usage": "worker-usage-tp_cg_002.json"
+  }
+}

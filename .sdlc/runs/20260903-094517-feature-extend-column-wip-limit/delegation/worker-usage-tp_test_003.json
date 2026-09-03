@@ -1,0 +1,47 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 502672,
+    "cached_content_token_count": 342187,
+    "candidates_token_count": 2240,
+    "thoughts_token_count": 5477,
+    "total_token_count": 510389,
+    "service_tier": null
+  },
+  "tool_call_count": 3,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/tests/api/column/wip-limit-validation.test.ts"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/column/wip-limit-validation.test.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/api exec vitest run --config vitest.config.ts wip-limit-validation",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status --porcelain",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"files_changed\": [\n    \"tests/api/column/wip-limit-validation.test.ts\"\n  ],\n  \"tests_added\": 8,\n  \"test_run_output\": \"Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node18' }`\\n\\n RUN  v4.1.10 /home/sangeetha/projects/kaneo/apps/api\\n\\n Test Files  1 passed (1)\\n      Tests  8 passed (8)\\n   Start at  11:11:30\\n   Duration  867ms (transform 150ms, setup 0ms, import 704ms, tests 38ms, environment 0ms)\",\n  \"summary\": \"Created route-level Valibot validation tests in tests/api/column/wip-limit-validation.test.ts testing all eight status code assertions using Hono app.request() with properly hoisted vi.mock declarations.\"\n}"
+}

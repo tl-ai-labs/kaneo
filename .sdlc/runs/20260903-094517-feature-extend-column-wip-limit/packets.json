@@ -1,0 +1,333 @@
+[
+  {
+    "id": "tp_cg_001",
+    "phase": "codegen",
+    "task_type": "entity",
+    "module": "api-database",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/api/src/database/schema.ts",
+    "instruction": "Edit apps/api/src/database/schema.ts. In the `columnTable` pgTable definition, insert exactly one new line between the `isFinal:` line and the `createdAt:` line:\n\n    wipLimit: integer(\"wip_limit\"),\n\nNullable: no .notNull(), no .default(). `integer` is already imported (it backs `position`) so do NOT add an import. Do NOT touch the table's index tuple `index(\"column_projectId_idx\").on(table.projectId)`. Do NOT modify any other table in this file. Do NOT edit relations.ts. Change exactly one line in exactly one file. Spec: .sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md section 3.1.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 3.1 Drizzle column definition (lines 94-110) gives the exact three-line context block to match.", "reason": "authoritative spec fragment" },
+      { "path": "apps/api/src/database/schema.ts", "content": "columnTable is defined around line 342; isFinal is at ~line 358 and createdAt at ~line 360.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "apps/api/src/database/schema.ts contains the line `wipLimit: integer(\"wip_limit\"),` inside columnTable",
+      "The new field has no .notNull() and no .default()",
+      "No import statement was added or changed",
+      "No file other than apps/api/src/database/schema.ts was modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 2000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_002",
+    "phase": "codegen",
+    "task_type": "migration",
+    "module": "api-database",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/api/drizzle/meta/_journal.json",
+    "instruction": "Generate the Drizzle migration for the `wipLimit` column added to `columnTable`. Migrations are NEVER hand-written in this repo.\n\nRun exactly: `pnpm --filter @kaneo/api db:generate`\n\nThen INSPECT the emitted .sql file and report its full contents. It must contain exactly one statement: `ALTER TABLE \"column\" ADD COLUMN \"wip_limit\" integer;`\n\nIf the emitted SQL contains NOT NULL, DEFAULT, DROP, ALTER COLUMN, CREATE TABLE, or touches any table other than \"column\", STOP and report failure — do not fix it by hand and do not delete it.\n\nDrizzle chooses the filename suffix; do not invent or rename it. Migrations 0000-0042 are immutable: do not read, edit, rename or reorder them. Do not edit schema.ts. Spec: change_plan.md section 3.2.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 3.2 Migration (lines 112-135) defines the expected artifacts and the inspection gate.", "reason": "authoritative spec fragment" },
+      { "path": "apps/api/drizzle/meta/_journal.json", "content": "Last entry is idx 42, tag 0042_previous_the_executioner. The new entry must be idx 43.", "reason": "journal gains one appended entry" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "migration_sql": { "type": "string" }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "migration_sql", "summary"] },
+    "acceptance": [
+      "A new apps/api/drizzle/0043_*.sql exists and was produced by drizzle-kit, not hand-written",
+      "The .sql contains exactly one ALTER TABLE \"column\" ADD COLUMN \"wip_limit\" integer statement",
+      "The .sql contains no NOT NULL, DEFAULT, DROP, ALTER COLUMN or CREATE TABLE",
+      "apps/api/drizzle/meta/0043_snapshot.json was created and _journal.json gained one idx:43 entry",
+      "No migration 0000-0042 was modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_003",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "module": "api-column",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/api/src/column/controllers/create-column.ts",
+    "instruction": "Edit apps/api/src/column/controllers/create-column.ts. Two changes only:\n\n1. Add `wipLimit` to the destructured params and `wipLimit?: number;` to the inline param type.\n2. Add one line to the `.values({...})` object: `wipLimit: wipLimit ?? null,` placed after `isFinal: isFinal ?? false,`.\n\nCRITICAL TRAP: the neighbouring lines use `icon: icon || null` / `color: color || null`. Do NOT copy that idiom. Use `??`, NOT `||`. The distinction this controller must preserve is absent-vs-set, not empty-vs-non-empty.\n\nDo not change `toSlug` or its export (an existing test imports it). Do not change the reserved-slug 409, the duplicate-slug 409, the MAX(position) query, or the 500 fallback. Do not touch any other file. Spec: change_plan.md section 5.1.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 5.1 (lines 285-330) gives the exact signature block, the exact .values() block, and the `??` vs `||` trap.", "reason": "authoritative spec fragment" },
+      { "path": "apps/api/src/column/controllers/create-column.ts", "content": "createColumn destructures projectId,name,icon,color,isFinal; .values() is at ~line 69.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "createColumn accepts wipLimit?: number in its param type and destructuring",
+      "The .values() object contains `wipLimit: wipLimit ?? null` using ?? and not ||",
+      "toSlug is unchanged and still exported",
+      "No file other than apps/api/src/column/controllers/create-column.ts was modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 2500 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_004",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "module": "api-column",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/api/src/column/controllers/update-column.ts",
+    "instruction": "Edit apps/api/src/column/controllers/update-column.ts. Two changes only:\n\n1. Add `wipLimit?: number | null;` to the `data` param type, after `isFinal?: boolean;`.\n2. Add one line to the `.set({...})` object using the file's existing spread idiom verbatim: `...(data.wipLimit !== undefined && { wipLimit: data.wipLimit }),` placed after the isFinal spread.\n\n`!== undefined` is load-bearing: `null` is a legitimate value that must reach .set() (it clears the limit), while `undefined` must be absent from the object (leaves the stored value untouched). Do not use a truthiness check.\n\nDo not change the 404-if-missing guard or the 500 fallback. Do not add a publishEvent() call. Do not touch any other file. Spec: change_plan.md section 5.2.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 5.2 (lines 333-360) gives the exact data type block and the exact .set() block.", "reason": "authoritative spec fragment" },
+      { "path": "apps/api/src/column/controllers/update-column.ts", "content": "data type is at ~line 8; .set() is at ~line 25 with four existing spread lines.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "The data param type includes wipLimit?: number | null",
+      "The .set() object contains `...(data.wipLimit !== undefined && { wipLimit: data.wipLimit })`",
+      "No publishEvent call was added",
+      "No file other than apps/api/src/column/controllers/update-column.ts was modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 2500 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_005",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "module": "api-column",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/api/src/column/index.ts",
+    "instruction": "Edit apps/api/src/column/index.ts — the Hono route definitions. Three changes only:\n\n1. POST /:projectId json validator — add as the last property of the v.object:\n   `wipLimit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),`\n2. POST /:projectId handler — destructure `wipLimit` from c.req.valid(\"json\") and pass it in the createColumn({...}) call.\n3. PUT /:id json validator — add as the last property:\n   `wipLimit: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(1)))),`\n\nNo handler edit on PUT — it already forwards the whole validated object.\n\nDo NOT move, reorder, remove or alter any `workspaceAccess.*` or `requireWorkspacePermission(...)` line. Do NOT change any describeRoute block or its description strings. Do NOT touch the GET, the reorder PUT, or the DELETE routes. Spec: change_plan.md sections 4.1, 4.2, 4.4.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Sections 4.1 and 4.2 (lines 155-215) give the exact Valibot validator blocks and the exact handler destructure/pass-through. Section 4.4 lists the middleware lines that must stay byte-identical.", "reason": "authoritative spec fragment" },
+      { "path": "apps/api/src/column/index.ts", "content": "POST /:projectId validator at lines 56-64, handler at 67-78. PUT /:id validator at 132-140. Middleware lines at 65-66, 141-142.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "POST validator has wipLimit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)))",
+      "PUT validator has wipLimit: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(1))))",
+      "The POST handler destructures wipLimit and forwards it to createColumn",
+      "Every workspaceAccess and requireWorkspacePermission line is byte-identical to before",
+      "No describeRoute block changed",
+      "No file other than apps/api/src/column/index.ts was modified"
+    ],
+    "budget": { "maxInputTokens": 9000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_006",
+    "phase": "codegen",
+    "task_type": "frontend_config",
+    "module": "i18n",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "i18n/en-US.json",
+    "instruction": "Edit i18n/en-US.json ONLY. Add exactly 8 static keys.\n\nUnder settings.columnEditor, after the existing \"add\" key:\n  \"wipLimit\": \"WIP limit\",\n  \"wipLimitPlaceholder\": \"None\",\n  \"wipLimitTooltip\": \"Advisory limit on tasks in this column. Leave empty for no limit.\",\n  \"wipLimitAria\": \"WIP limit for {{name}}\",\n  \"toastWipLimitUpdated\": \"WIP limit updated\",\n  \"toastWipLimitCleared\": \"WIP limit cleared\"\n\nUnder tasks.kanban, after the existing \"addTask\" key:\n  \"wipLimitTitle\": \"WIP limit: {{taskCount}} of {{limit}}\",\n  \"wipLimitOverCap\": \"Over WIP limit: {{taskCount}} of {{limit}}\"\n\nPreserve the file's existing indentation (tabs) and key ordering. Change no existing key or value.\n\nSTRICTLY FORBIDDEN: do not touch i18n/schema.json, do not touch any other locale file (de-DE, es-ES, fr-FR, etc.), and do not run any pnpm i18n script. Spec: change_plan.md section 10.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 10 (lines 790-846) gives the exact JSON fragments and the 8-key inventory table.", "reason": "authoritative spec fragment" },
+      { "path": "i18n/en-US.json", "content": "settings.columnEditor.add is near line 903; tasks.kanban.addTask is near line 1885.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "keys_added": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" } }, "required": ["files_changed", "keys_added", "summary"] },
+    "acceptance": [
+      "All 6 settings.columnEditor.wipLimit* / toastWipLimit* keys exist with the exact English values given",
+      "Both tasks.kanban.wipLimitTitle and wipLimitOverCap exist with the exact English values given",
+      "i18n/en-US.json is valid JSON and no pre-existing key or value changed",
+      "i18n/schema.json was NOT modified and no non-English locale file was modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 2500 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_007",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "module": "web-data",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/web/src/fetchers/column/create-column.ts",
+    "instruction": "Widen two fetcher type literals so wipLimit reaches the typed @kaneo/libs client. Edit exactly these two files:\n\n1. apps/web/src/fetchers/column/create-column.ts — add `wipLimit?: number;` to the inline `data` param type.\n2. apps/web/src/fetchers/column/update-column.ts — add `wipLimit?: number | null;` to the inline `data` param type.\n\nBoth function bodies are unchanged: `json: data` already forwards everything.\n\nDo NOT edit apps/web/src/fetchers/column/get-columns.ts, delete-column.ts or reorder-columns.ts — get-columns' type is inferred and needs no change. Do not create a parallel request layer. Spec: change_plan.md sections 6.1 and 6.2.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Sections 6.1 and 6.2 (lines 390-420) give the exact widened signatures.", "reason": "authoritative spec fragment" },
+      { "path": "apps/web/src/fetchers/column/create-column.ts", "content": "data param type is a one-line inline object literal on line 5.", "reason": "file to edit" },
+      { "path": "apps/web/src/fetchers/column/update-column.ts", "content": "data param type is a multi-line inline object literal on lines 5-10.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "create-column.ts data type includes wipLimit?: number",
+      "update-column.ts data type includes wipLimit?: number | null",
+      "Both function bodies are unchanged",
+      "No file outside apps/web/src/fetchers/column/ was modified, and get-columns.ts was not modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 2000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_008",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "module": "web-data",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/web/src/hooks/mutations/column/use-create-column.ts",
+    "instruction": "Widen two TanStack mutation-hook type literals. Edit exactly these two files:\n\n1. apps/web/src/hooks/mutations/column/use-create-column.ts — add `wipLimit?: number;` to the mutationFn's `data` type.\n2. apps/web/src/hooks/mutations/column/use-update-column.ts — add `wipLimit?: number | null;` to the mutationFn's `data` type.\n\nCRITICAL: the `onSuccess` block in use-update-column.ts must be preserved VERBATIM. It already invalidates [\"columns\", projectId] and [\"tasks\", projectId] with refetchType: \"all\", which is exactly what this feature needs. Do not rewrite it, do not add keys to it, do not reorder it. The same applies to use-create-column.ts's blanket invalidateQueries.\n\nDo not edit use-delete-column.ts, use-reorder-columns.ts, or hooks/queries/column/use-get-columns.ts. Spec: change_plan.md sections 6.3 and 6.4.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Sections 6.3 and 6.4 (lines 422-470) give the exact widened mutationFn types and quote the onSuccess block that must survive byte-identical.", "reason": "authoritative spec fragment" },
+      { "path": "apps/web/src/hooks/mutations/column/use-update-column.ts", "content": "data type at lines 14-19; onSuccess at lines 21-32 — preserve exactly.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "use-create-column.ts mutationFn data type includes wipLimit?: number",
+      "use-update-column.ts mutationFn data type includes wipLimit?: number | null",
+      "The onSuccess block in use-update-column.ts is byte-identical to before the edit",
+      "No file outside apps/web/src/hooks/mutations/column/ was modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 2000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_009",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "web-board",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "instruction": "Add the over-cap indicator to apps/web/src/components/kanban-board/column/column-header.tsx.\n\nRead change_plan.md sections 7.2 and 7.3 and apply the derivation block and the JSX block VERBATIM — they are written as final code, not as a sketch.\n\nThree traps, all of which silently produce a broken component:\n1. Match on `slug`, NOT on `id`. The board object's `id` IS the slug; the useGetColumns row's `id` is a cuid. Matching those never succeeds.\n2. Use `>` not `>=`. taskCount === wipLimit is AT the cap, not over it.\n3. `?? null` must collapse loading, error and slug-miss into one no-limit branch. Do NOT destructure isLoading or isError and do NOT add a loading branch.\n\nReplace ONLY the existing count badge span (currently lines 62-64). Leave the icon span, name span, archive button, add button, both modals and handleConfirmArchive untouched. Add imports for useGetColumns, cn and TriangleAlert. Do not edit column/index.tsx. Spec: change_plan.md section 7.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 7.2 gives the exact derivation (useGetColumns call, find-by-slug, ?? null, strict >). Section 7.3 gives the exact replacement JSX for the badge and the three-state table. Section 7.4 covers accessibility (aria-hidden icon, sr-only span, no role, no aria-live). Section 7.5 restricts styling to existing Tailwind tokens.", "reason": "authoritative spec fragment" },
+      { "path": "apps/web/src/components/kanban-board/column/column-header.tsx", "content": "project comes from useProjectStore() already present at line 20. The count badge to replace is at lines 62-64. lucide-react is already imported for Archive and Plus.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "wipLimit is derived via columnsData?.find((entry) => entry.slug === column.slug)?.wipLimit ?? null",
+      "isOverCap uses strict > against column.tasks.length",
+      "When wipLimit is null the rendered badge is byte-identical to the previous bare-count span",
+      "The over-cap branch renders bg-destructive/10 text-destructive, an aria-hidden TriangleAlert, a title and an sr-only accessible name, all from static i18n keys",
+      "No isLoading or isError branch was added; no hard-coded colour was used",
+      "No file other than column-header.tsx was modified"
+    ],
+    "budget": { "maxInputTokens": 12000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_cg_010",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "web-settings",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/web/src/components/project/column-editor.tsx",
+    "instruction": "Add the WIP-limit input to apps/web/src/components/project/column-editor.tsx.\n\nRead change_plan.md sections 9.1 and 9.2 and apply the handler and the JSX block VERBATIM — they are final code.\n\n1. Add `handleUpdateWipLimit` next to the existing `handleToggleFinal`, same try/toast/catch shape.\n2. Insert the new input group inside the existing right-hand cluster `<div className=\"flex items-center gap-1.5 shrink-0\">`, immediately BEFORE the \"Done column\" group.\n\nTraps:\n- Do NOT await before touching the DOM. Capture and write input.value synchronously inside onBlur; call handleUpdateWipLimit WITHOUT await. Awaiting first makes e.currentTarget null.\n- The empty-string check must come before Number(), because Number(\"\") is 0.\n- Uncontrolled input: defaultValue, no useState, no key — matching the rename input.\n- Do NOT extend the \"add new column\" block at the bottom of the file. Creation takes no limit.\n\nAll copy via static i18n keys. Spec: change_plan.md section 9.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 9.1 gives handleUpdateWipLimit verbatim. Section 9.2 gives the exact JSX group to insert. Section 9.3 enumerates the semantics: canEdit gate, blur+Enter commit, empty->null, invalid->revert-without-sending, no-op->no request, and the await/DOM trap.", "reason": "authoritative spec fragment" },
+      { "path": "apps/web/src/components/project/column-editor.tsx", "content": "handleToggleFinal at lines 86-101. The right-hand cluster div is at line 299; the Done-column group starts at line 300. The add-new-column block is lines 346-428 and must not change.", "reason": "file to edit" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "summary": { "type": "string" }, "verified": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "handleUpdateWipLimit calls updateColumn({ id, projectId, data: { wipLimit } }) and toasts success/failure via static i18n keys",
+      "The numeric Input is uncontrolled (defaultValue), disabled when !canEdit, and commits on blur and on Enter",
+      "Empty input sends null; a non-integer or <1 value reverts the field and sends nothing; an unchanged value sends nothing",
+      "input.value is read and written synchronously before any async call",
+      "The add-new-column block is unchanged and takes no wipLimit",
+      "No file other than column-editor.tsx was modified"
+    ],
+    "budget": { "maxInputTokens": 14000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_test_001",
+    "phase": "tests",
+    "task_type": "test_unit",
+    "module": "api-column",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "tests/api/column/create-column-wip-limit.test.ts",
+    "instruction": "Create tests/api/column/create-column-wip-limit.test.ts — a new Vitest unit test for createColumn's wipLimit handling. No live database.\n\nCopy the mocking pattern from tests/api/label/delete-label.test.ts: top-level `const mockX = vi.fn()`, `vi.mock(\"../../../apps/api/src/database\", () => ({ default: { ... } }))`, hand-built chain objects, beforeEach(vi.clearAllMocks).\n\nchange_plan.md section 11.1 gives the makeSelectMock / makeInsertMock helpers verbatim. Note db.select is called TWICE by createColumn (duplicate-slug probe, then MAX(position) probe), so use mockReturnValueOnce twice.\n\nThree assertions:\n1. wipLimit: 5 -> insert .values receives wipLimit: 5\n2. wipLimit omitted -> .values receives wipLimit: null\n3. wipLimit: 1 -> .values receives 1, not null (regression guard for the || trap)\n\nRun `pnpm --filter @kaneo/api test` and confirm green before reporting success. Modify no existing test file.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 11.1 (lines 856-885) gives the chain-mock helpers and the three assertions with their AC mapping.", "reason": "authoritative spec fragment" },
+      { "path": "tests/api/label/delete-label.test.ts", "content": "Reference for vi.mock hoisting order and db chain mocking in this repo.", "reason": "pattern to copy" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "tests_added": { "type": "number" }, "test_run_output": { "type": "string" }, "summary": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "tests/api/column/create-column-wip-limit.test.ts exists and covers all three assertions",
+      "No live PostgreSQL connection is opened; db is mocked",
+      "pnpm --filter @kaneo/api test passes with a higher test count than the 374 baseline",
+      "No existing test file was modified"
+    ],
+    "budget": { "maxInputTokens": 12000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_test_002",
+    "phase": "tests",
+    "task_type": "test_unit",
+    "module": "api-column",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "tests/api/column/update-column-wip-limit.test.ts",
+    "instruction": "Create tests/api/column/update-column-wip-limit.test.ts — a new Vitest unit test for updateColumn's wipLimit handling. No live database.\n\nSame mocking pattern as tests/api/label/delete-label.test.ts. Mock db.query.columnTable.findFirst (returns an existing column) and db.update. change_plan.md section 11.2 gives makeUpdateMock verbatim.\n\nThree assertions:\n1. updateColumn(\"col-1\", { wipLimit: 5 }) -> .set receives { wipLimit: 5 }\n2. updateColumn(\"col-1\", { wipLimit: null }) -> .set receives { wipLimit: null }  (clear)\n3. updateColumn(\"col-1\", { name: \"Doing\" }) -> expect(\"wipLimit\" in setArg).toBe(false)  (omission leaves it untouched)\n\nAssertion 3 is the one that proves the `!== undefined` spread is correct; do not weaken it to a toBeUndefined check.\n\nRun `pnpm --filter @kaneo/api test` and confirm green. Modify no existing test file.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 11.2 (lines 887-905) gives makeUpdateMock and the three assertions.", "reason": "authoritative spec fragment" },
+      { "path": "tests/api/label/delete-label.test.ts", "content": "Reference for vi.mock hoisting order and db chain mocking in this repo.", "reason": "pattern to copy" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "tests_added": { "type": "number" }, "test_run_output": { "type": "string" }, "summary": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "tests/api/column/update-column-wip-limit.test.ts exists and covers set, clear, and omission",
+      "The omission test asserts the property is absent from the .set() argument, not merely undefined",
+      "pnpm --filter @kaneo/api test passes",
+      "No existing test file was modified"
+    ],
+    "budget": { "maxInputTokens": 12000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_test_003",
+    "phase": "tests",
+    "task_type": "test_integration",
+    "module": "api-column",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "tests/api/column/wip-limit-validation.test.ts",
+    "instruction": "Create tests/api/column/wip-limit-validation.test.ts — route-level Valibot validation tests using Hono's app.request(). No live database, no supertest, no server.\n\nchange_plan.md section 11.3 gives all four vi.mock blocks verbatim (workspace-access-middleware, require-workspace-permission, create-column, update-column) and they must be declared BEFORE the `import column from ...` line. delete-column, get-columns and reorder-columns need no mock because apps/api/src/database exports db as a lazy Proxy.\n\nEight assertions, status codes only, never response-body shape:\n1. POST { name, wipLimit: 5 } -> 200, createColumn called with wipLimit 5\n2. POST { name } -> 200, createColumn called with wipLimit undefined\n3-6. POST wipLimit 0 / -1 / 2.5 / \"5\" -> 400 each\n7. PUT { wipLimit: null } -> 200, updateColumn called with { wipLimit: null }\n8. PUT { wipLimit: 0 } -> 400\n\nPUT /reorder/:projectId is registered before PUT /:id, so requesting /col-1 routes correctly.\n\nRun `pnpm --filter @kaneo/api test` and confirm green.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 11.3 (lines 907-945) gives the four mock blocks, the request shape, and all eight assertions.", "reason": "authoritative spec fragment" },
+      { "path": "apps/api/src/column/index.ts", "content": "The Hono app exported as default; routes GET /:projectId, POST /:projectId, PUT /reorder/:projectId, PUT /:id, DELETE /:id in that order.", "reason": "system under test" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "tests_added": { "type": "number" }, "test_run_output": { "type": "string" }, "summary": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "All eight assertions are present and assert status codes rather than body shape",
+      "The four vi.mock blocks precede the column route import",
+      "No live PostgreSQL connection is opened",
+      "pnpm --filter @kaneo/api test passes",
+      "No existing test file was modified"
+    ],
+    "budget": { "maxInputTokens": 14000, "maxOutputTokens": 5000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_test_004",
+    "phase": "tests",
+    "task_type": "test_unit",
+    "module": "web-board",
+    "intent": "feature-extend",
+    "pass_id": "20260903-094517-feature-extend-column-wip-limit",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+    "instruction": "Create apps/web/src/components/kanban-board/column/column-header.test.tsx covering the over-cap indicator's render states.\n\nCopy the `const useGetColumns = vi.fn()` + vi.mock pattern and the `t: (key) => key` i18n stub from apps/web/src/components/task/task-status-popover.test.tsx, and the render/screen/afterEach(cleanup) shape from apps/web/src/components/kanban-board/task-labels.test.tsx.\n\nchange_plan.md section 11.4 lists the six extra vi.mock blocks needed (project store, use-update-task, use-workspace-permission, both modals, react-i18next) and the makeColumn(taskCount) fixture helper. Mocking the modals and the permission hook keeps the DOM to the header row, so no QueryClientProvider is needed.\n\nSeven cases, all seven required:\n1. wipLimit null, 3 tasks -> \"3\", no \"3/\", no over-cap key\n2. wipLimit 5, 3 tasks -> \"3/5\", no over-cap key\n3. wipLimit 5, 5 tasks -> \"5/5\", over-cap key ABSENT (strict boundary)\n4. wipLimit 5, 6 tasks -> \"6/5\", over-cap key PRESENT\n5. data undefined -> \"3\", no indicator\n6. slug mismatch -> \"3\", no indicator\n7. expect(useGetColumns).toHaveBeenCalledWith(\"project-1\")\n\nCases 3 and 5 are the ones a naive implementation fails; neither may be dropped. Run `pnpm --filter @kaneo/web test` and confirm green.",
+    "inputs": [
+      { "path": ".sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md", "content": "Section 11.4 (lines 947-985) gives the six vi.mock blocks, the makeColumn fixture, and the seven-case assertion table with AC mapping.", "reason": "authoritative spec fragment" },
+      { "path": "apps/web/src/components/task/task-status-popover.test.tsx", "content": "Reference for mocking useGetColumns and stubbing react-i18next in this repo.", "reason": "pattern to copy" }
+    ],
+    "outputSchema": { "type": "object", "properties": { "files_changed": { "type": "array", "items": { "type": "string" } }, "tests_added": { "type": "number" }, "test_run_output": { "type": "string" }, "summary": { "type": "string" } }, "required": ["files_changed", "summary"] },
+    "acceptance": [
+      "All seven cases are present, including the strict-boundary case (count === limit is NOT over cap) and the loading case",
+      "useGetColumns and react-i18next are mocked; no QueryClientProvider is required",
+      "pnpm --filter @kaneo/web test passes with a higher test count than the 112 baseline",
+      "No existing test file was modified"
+    ],
+    "budget": { "maxInputTokens": 14000, "maxOutputTokens": 5000 },
+    "retry_count": 0
+  }
+]

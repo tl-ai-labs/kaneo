@@ -1,0 +1,124 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_test_001r",
+  "phase": "tests",
+  "task_type": "test_unit",
+  "module": "api-column",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-03T11:26:46.157Z",
+  "duration_ms": 117346,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.17774,
+  "tokens": {
+    "input": 83021,
+    "input_cached": 75063,
+    "output": 4661,
+    "output_reasoning": 3214
+  },
+  "tool_calls": {
+    "count": 8,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/tests/api/column/create-column-wip-limit.test.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/column/create-column-wip-limit.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/column/controllers/create-column.ts",
+          "start_line": "69",
+          "end_line": "868"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/column/controllers/create-column.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/AGENTS.md",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/AGENTS.md",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/tests/api/column/create-column-wip-limit.test.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/column/create-column-wip-limit.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api exec vitest run --config vitest.config.ts create-column-wip-limit",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status --short",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/tests/api/column/create-column-wip-limit.test.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/column/create-column-wip-limit.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api exec vitest run --config vitest.config.ts create-column-wip-limit",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "tests/api/column/create-column-wip-limit.test.ts"
+    ],
+    "removed": [],
+    "unchanged": 1682,
+    "scanned": 1683,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_test_001r.md",
+    "usage": "worker-usage-tp_test_001r.json"
+  }
+}

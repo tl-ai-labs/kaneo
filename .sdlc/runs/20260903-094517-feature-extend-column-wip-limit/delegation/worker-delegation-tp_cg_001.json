@@ -1,0 +1,114 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_001",
+  "phase": "codegen",
+  "task_type": "entity",
+  "module": "api-database",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-03T10:30:30.620Z",
+  "duration_ms": 64287,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.117517,
+  "tokens": {
+    "input": 60950,
+    "input_cached": 61806,
+    "output": 1869,
+    "output_reasoning": 1022
+  },
+  "tool_calls": {
+    "count": 7,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md",
+          "start_line": "89",
+          "end_line": "119"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260903-094517-feature-extend-column-wip-limit/change_plan.md",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+          "start_line": "339",
+          "end_line": "374"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+          "start_line": "0",
+          "end_line": "29"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/database/schema.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git diff",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status --short",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api typecheck || pnpm --filter @kaneo/api check",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/api/src/database/schema.ts"
+    ],
+    "removed": [],
+    "unchanged": 1676,
+    "scanned": 1677,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_001.md",
+    "usage": "worker-usage-tp_cg_001.json"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_cg_002r",
+  "phase": "codegen",
+  "task_type": "migration",
+  "module": "api-database",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-03T10:35:30.490Z",
+  "duration_ms": 29847,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.060788,
+  "tokens": {
+    "input": 28468,
+    "input_cached": 32434,
+    "output": 1469,
+    "output_reasoning": 1007
+  },
+  "tool_calls": {
+    "count": 4,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm exec biome format --write apps/api/drizzle/meta/_journal.json apps/api/drizzle/meta/0043_snapshot.json",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm exec biome ci apps/api/drizzle/meta/_journal.json apps/api/drizzle/meta/0043_snapshot.json",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status --porcelain",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git diff apps/api/drizzle/meta/_journal.json",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/api/drizzle/meta/0043_snapshot.json",
+      "apps/api/drizzle/meta/_journal.json"
+    ],
+    "removed": [],
+    "unchanged": 1677,
+    "scanned": 1679,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_cg_002r.md",
+    "usage": "worker-usage-tp_cg_002r.json"
+  }
+}

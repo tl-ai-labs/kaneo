@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "plugin_version": "0.6.0",
+  "built_at": "2026-09-03T09:47:17Z",
+  "run_id": "20260903-094517-feature-extend-column-wip-limit",
+  "mode": "first-time",
+
+  "git": {
+    "head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "branch": "feature-extend-1/opus-flash-sdk",
+    "dirty": true,
+    "dirty_paths": [".claude/settings.local.json", ".hook-logs/", ".sdlc/"],
+    "dirty_note": "All dirty entries are untracked and plugin/tooling-generated. No tracked source file is modified.",
+    "remotes": [
+      { "name": "origin", "url": "https://github.com/tl-ai-labs/kaneo.git" }
+    ],
+    "gitignore_covers_sdlc": false
+  },
+
+  "topology": {
+    "top_level_dirs": [
+      ".agents", ".claude", ".cursor", ".devcontainer", ".github", ".husky",
+      ".vscode", "apps", "charts", "deploy", "i18n", "packages", "plans",
+      "scripts", "sentry", "skills", "tests"
+    ],
+    "entry_points": [
+      "apps/api/src/index.ts",
+      "apps/web/src/main.tsx",
+      "apps/site/app/page.tsx"
+    ],
+    "tracked_file_count": 1578
+  },
+
+  "stacks": [
+    {
+      "manifest": "package.json",
+      "stack": "node-typescript",
+      "role": "monorepo-root",
+      "detected_frameworks": ["turborepo", "pnpm-workspaces", "biome", "husky", "commitlint"]
+    },
+    {
+      "manifest": "apps/api/package.json",
+      "stack": "node-typescript",
+      "role": "api",
+      "detected_frameworks": ["hono", "hono-openapi", "better-auth", "drizzle-orm", "valibot", "vitest", "postgres-pg", "ioredis", "modelcontextprotocol-sdk", "sentry"]
+    },
+    {
+      "manifest": "apps/web/package.json",
+      "stack": "node-typescript-react",
+      "role": "web",
+      "detected_frameworks": ["react", "vite", "tanstack-router", "tanstack-query", "dnd-kit", "radix-ui", "tailwindcss", "i18next", "zustand", "vitest", "testing-library", "jsdom"]
+    },
+    {
+      "manifest": "apps/site/package.json",
+      "stack": "node-typescript-react",
+      "role": "marketing-site",
+      "detected_frameworks": ["next", "react", "tailwindcss", "radix-ui"]
+    },
+    {
+      "manifest": "packages/libs/package.json",
+      "stack": "node-typescript",
+      "role": "shared-typed-client",
+      "detected_frameworks": ["hono-client", "vitest"]
+    },
+    {
+      "manifest": "packages/permissions/package.json",
+      "stack": "node-typescript",
+      "role": "permissions-vocabulary",
+      "detected_frameworks": ["better-auth", "vitest"]
+    },
+    {
+      "manifest": "packages/mcp/package.json",
+      "stack": "node-typescript",
+      "role": "published-mcp-stdio",
+      "detected_frameworks": ["modelcontextprotocol-sdk", "vitest"]
+    },
+    {
+      "manifest": "packages/email/package.json",
+      "stack": "node-typescript-react",
+      "role": "email-templates",
+      "detected_frameworks": ["react-email", "nodemailer", "vitest"]
+    },
+    {
+      "manifest": "packages/planka-import/package.json",
+      "stack": "node-typescript",
+      "role": "import-cli",
+      "detected_frameworks": ["vitest"]
+    },
+    {
+      "manifest": "packages/typescript-config/package.json",
+      "stack": "node-typescript",
+      "role": "shared-tsconfig",
+      "detected_frameworks": []
+    }
+  ],
+
+  "test_command_proposed": "pnpm --filter @kaneo/api test && pnpm --filter @kaneo/web test",
+  "test_command_source": "apps/api/package.json#scripts.test (vitest, tests/api/**), apps/web/package.json#scripts.test (vitest, src/**/*.test.{ts,tsx}); scoped per user memory note that root `pnpm test` rebuilds every package via turbo",
+  "test_commands_available": {
+    "root_all": "pnpm test",
+    "api_unit": "pnpm --filter @kaneo/api test",
+    "api_integration": "pnpm --filter @kaneo/api test:integration",
+    "web_unit": "pnpm --filter @kaneo/web test",
+    "typecheck_api": "pnpm --filter @kaneo/api typecheck",
+    "typecheck_web": "pnpm --filter @kaneo/web typecheck",
+    "lint_readonly": "pnpm exec biome ci ."
+  },
+  "test_baseline_observed": {
+    "api_unit": { "command": "pnpm --filter @kaneo/api test", "exit_code": 0, "test_files": 58, "tests": 374, "duration_s": 7.95 },
+    "web_unit": { "command": "pnpm --filter @kaneo/web test", "exit_code": 0, "test_files": 36, "tests": 112, "duration_s": 25.97 },
+    "api_integration": { "command": "pnpm --filter @kaneo/api test:integration", "status": "not_run", "note": "Requires a live PostgreSQL instance; not executed during Tier 1 discovery." }
+  },
+
+  "docs_present": [
+    { "path": "README.md", "kind": "readme" },
+    { "path": "CLAUDE.md", "kind": "claude-instructions" },
+    { "path": "AGENTS.md", "kind": "agents-instructions" },
+    { "path": "CONTRIBUTING.md", "kind": "contributing" },
+    { "path": "SECURITY.md", "kind": "security-policy" },
+    { "path": "CODE_OF_CONDUCT.md", "kind": "code-of-conduct" },
+    { "path": "ENVIRONMENT_SETUP.md", "kind": "environment-setup" },
+    { "path": "CHANGELOG.md", "kind": "changelog" },
+    { "path": "apps/docs", "kind": "docs-site-content" },
+    { "path": "tests/api-integration/README.md", "kind": "test-docs" }
+  ],
+  "adr_dirs": [],
+
+  "ai_configs_detected": [
+    { "path": "CLAUDE.md", "type": "claude-instructions", "note": "Thin pointer that @-imports AGENTS.md; canonical project guidance." },
+    { "path": "AGENTS.md", "type": "agents-instructions", "note": "Authoritative agent operating guide: architecture, boundaries, conventions, verification policy." },
+    { "path": ".claude/settings.local.json", "type": "claude-settings-local", "note": "Untracked local Claude Code settings." },
+    { "path": ".claude/skills/verify/SKILL.md", "type": "claude-skill" },
+    { "path": ".cursor/rules/", "type": "cursor", "note": "7 .mdc rule files: project-overview, backend-api, frontend-web, database-schema, development-conventions, deployment-devops, cursor-rules." },
+    { "path": ".agents/skills/", "type": "agent-skills", "note": "13 skill bundles (design/animation/UI oriented)." },
+    { "path": "skills/", "type": "agent-skills-mirror", "note": "Top-level mirror of the same skill names; skills-lock.json present at root." },
+    { "path": "skills-lock.json", "type": "agent-skills-lockfile" },
+    { "path": ".coderabbit.yaml", "type": "ai-code-review", "note": "CodeRabbit auto-review enabled on PRs with auto_reply; path filters exclude apps/api/drizzle/**, charts/**, **/*.md, pnpm-lock.yaml." },
+    { "path": ".github/workflows/auto-merge.yml", "type": "ci-automation", "note": "Automated merge workflow — relevant because bot review + auto-merge can act on branches." },
+    { "path": ".devcontainer/devcontainer.json", "type": "devcontainer" }
+  ],
+  "ai_configs_absent": [
+    ".mcp.json", ".cursorrules", ".aider.conf.yml", ".continue/",
+    ".github/copilot-instructions.md", ".roo/", "CLAUDE.local.md",
+    "routing-policy.yaml", "gemini*.{yaml,json}"
+  ],
+
+  "env_keys_by_file": {
+    ".env": ["KANEO_CLIENT_URL", "KANEO_API_URL", "AUTH_SECRET", "DATABASE_URL", "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT"],
+    ".env.local": ["POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT"],
+    ".env.sample": ["KANEO_CLIENT_URL", "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "AUTH_SECRET", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_APP_ID", "GITHUB_WEBHOOK_SECRET", "GITHUB_PRIVATE_KEY", "GITHUB_APP_NAME", "SMTP_HOST", "SMTP_PORT", "SMTP_SECURE", "SMTP_USER", "SMTP_PASSWORD", "SMTP_FROM", "SMTP_REQUIRE_TLS"]
+  },
+  "env_keys_all": [
+    "AUTH_SECRET", "DATABASE_URL", "GITHUB_APP_ID", "GITHUB_APP_NAME", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET", "GITHUB_PRIVATE_KEY", "GITHUB_WEBHOOK_SECRET", "KANEO_API_URL", "KANEO_CLIENT_URL", "POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER", "SMTP_FROM", "SMTP_HOST", "SMTP_PASSWORD", "SMTP_PORT", "SMTP_REQUIRE_TLS", "SMTP_SECURE", "SMTP_USER"
+  ],
+  "env_keys_referenced_in_code": [
+    "AUTH_SECRET", "BILLING_FOUNDING_CUTOFF", "BILLING_REMINDER_MAX_PER_RUN", "BILLING_TRIAL_DAYS", "COOKIE_DOMAIN", "CORS_ORIGINS", "CREEM_API_KEY", "CREEM_TEST_MODE", "CREEM_WEBHOOK_SECRET", "CUSTOM_AUTH_PKCE", "CUSTOM_OAUTH_AUTHORIZATION_URL", "CUSTOM_OAUTH_AUTO_LOGIN", "CUSTOM_OAUTH_CLIENT_ID", "CUSTOM_OAUTH_CLIENT_SECRET", "CUSTOM_OAUTH_DISCOVERY_URL", "CUSTOM_OAUTH_LOGOUT_URL", "CUSTOM_OAUTH_RESPONSE_TYPE", "CUSTOM_OAUTH_SCOPES", "CUSTOM_OAUTH_TOKEN_URL", "CUSTOM_OAUTH_USER_INFO_URL", "DATABASE_URL", "DEMO_MODE", "DEVICE_AUTH_CLIENT_IDS", "DISABLE_EMAIL_OTP_SIGN_IN", "DISABLE_GUEST_ACCESS", "DISABLE_LOGIN_FORM", "DISABLE_PASSWORD_REGISTRATION", "DISABLE_REGISTRATION", "DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET", "GH_TOKEN", "GITHUB_APP_ID", "GITHUB_APP_NAME", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET", "GITHUB_PRIVATE_KEY", "GITHUB_PRIVATE_KEY_BASE64", "GITHUB_TOKEN", "GITHUB_WEBHOOK_SECRET", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "KANEO_API_KEY", "KANEO_API_URL", "KANEO_CLIENT_URL", "KANEO_CLOUD", "KANEO_INTERNAL_API_URL", "KANEO_MCP_CLIENT_ID", "NODE_ENV", "NOTIFICATION_SECRET_ENCRYPTION_KEY", "PLANKA_API_KEY", "PLANKA_PASSWORD", "POSTGRES_DB", "POSTGRES_HOST", "POSTGRES_PASSWORD", "POSTGRES_PORT", "POSTGRES_USER", "REDIS_CLUSTER_NODES", "REDIS_PASSWORD", "REDIS_SENTINELS", "REDIS_SENTINEL_MASTER_NAME", "REDIS_SENTINEL_PASSWORD", "REDIS_SENTINEL_TLS", "REDIS_URL", "S3_FORCE_PATH_STYLE", "S3_MAX_IMAGE_UPLOAD_BYTES", "S3_PRESIGN_TTL_SECONDS", "SENTRY_AUTH_TOKEN", "SENTRY_DSN", "SENTRY_ENVIRONMENT", "SENTRY_ORG", "SENTRY_PROFILES_SAMPLE_RATE", "SENTRY_PROJECT", "SENTRY_RELEASE", "SENTRY_TRACES_SAMPLE_RATE", "SMTP_FROM", "TRUSTED_PROXIES"
+  ],
+
+  "monorepo": {
+    "type": "pnpm-workspaces + turborepo",
+    "package_manager": "pnpm@10.32.1",
+    "node_engine": ">=20.19.0",
+    "workspace_globs": ["packages/**", "apps/**"],
+    "packages": [
+      { "name": "@kaneo/api", "root": "apps/api", "manifest": "apps/api/package.json", "test_command": "pnpm --filter @kaneo/api test" },
+      { "name": "@kaneo/web", "root": "apps/web", "manifest": "apps/web/package.json", "test_command": "pnpm --filter @kaneo/web test" },
+      { "name": "@kaneo/site", "root": "apps/site", "manifest": "apps/site/package.json", "test_command": null },
+      { "name": "@kaneo/libs", "root": "packages/libs", "manifest": "packages/libs/package.json", "test_command": "pnpm --filter @kaneo/libs test" },
+      { "name": "@kaneo/permissions", "root": "packages/permissions", "manifest": "packages/permissions/package.json", "test_command": "pnpm --filter @kaneo/permissions test" },
+      { "name": "@kaneo/mcp", "root": "packages/mcp", "manifest": "packages/mcp/package.json", "test_command": "pnpm --filter @kaneo/mcp test" },
+      { "name": "@kaneo/email", "root": "packages/email", "manifest": "packages/email/package.json", "test_command": "pnpm --filter @kaneo/email test" },
+      { "name": "@kaneo/planka-import", "root": "packages/planka-import", "manifest": "packages/planka-import/package.json", "test_command": "pnpm --filter @kaneo/planka-import test" },
+      { "name": "@kaneo/typescript-config", "root": "packages/typescript-config", "manifest": "packages/typescript-config/package.json", "test_command": null }
+    ],
+    "note": "apps/docs and tests/* are directories, not workspace packages. API tests live in tests/api/** but are executed by apps/api's vitest config."
+  },
+
+  "submodules": [],
+  "lfs": false,
+  "lfs_patterns": [],
+  "gitattributes_present": true,
+  "gitattributes_note": ".gitattributes only enforces LF for .husky/* — no LFS filters.",
+  "encrypted_secrets_detected": false,
+  "encrypted_secrets_note": "No SOPS, git-crypt, age, .gpg or ENC[...] markers found.",
+
+  "infra_hints": {
+    "dockerfile": true,
+    "dockerfile_paths": ["Dockerfile.kaneo"],
+    "docker_compose": true,
+    "docker_compose_paths": ["compose.yml", "compose.local.yml"],
+    "helm": true,
+    "helm_path": "charts/kaneo",
+    "deploy_dir": true,
+    "terraform": false,
+    "github_workflows": true,
+    "github_workflow_count": 13,
+    "gitlab_ci": false,
+    "circleci": false,
+    "jenkins": false,
+    "devcontainer": true,
+    "husky_hooks": true,
+    "commitlint": true
+  },
+
+  "database": {
+    "engine": "postgresql",
+    "orm": "drizzle-orm",
+    "schema_file": "apps/api/src/database/schema.ts",
+    "relations_file": "apps/api/src/database/relations.ts",
+    "migrations_dir": "apps/api/drizzle",
+    "latest_migration": "0042_previous_the_executioner.sql",
+    "generate_command": "pnpm --filter @kaneo/api db:generate",
+    "config": "apps/api/drizzle.config.ts"
+  },
+
+  "regulated_repo_signals": [
+    { "kind": "security-policy", "path": "SECURITY.md" }
+  ],
+  "regulated_repo_warning_required": false,
+  "regulated_note": "Only a conventional open-source SECURITY.md was found. No HIPAA/PCI/SOC2/GDPR/compliance directories and no CODEOWNERS. Not treated as a regulated repo, but the repo does handle real auth secrets and OAuth/SMTP/S3/Creem credentials via .env.",
+
+  "off_limits_proposed": [
+    ".git/**",
+    ".env",
+    ".env.local",
+    ".env.*",
+    ".claude/**",
+    "CLAUDE.md",
+    "CLAUDE.local.md",
+    "AGENTS.md",
+    ".cursor/**",
+    ".agents/**",
+    "skills/**",
+    "skills-lock.json",
+    ".coderabbit.yaml",
+    ".devcontainer/**",
+    ".github/workflows/**",
+    ".husky/**",
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    ".turbo/**",
+    "out/**",
+    "coverage/**",
+    "pnpm-lock.yaml",
+    "apps/web/src/routeTree.gen.ts",
+    "apps/web/.tanstack/**",
+    ".hook-logs/**",
+    ".sdlc/**"
+  ],
+  "off_limits_notes": {
+    "AGENTS.md/CLAUDE.md": "Read-only inputs. They are the canonical project guide and must be honored, not edited.",
+    ".github/workflows": "Auto-merge workflow present; editing CI from an automated run is high blast radius.",
+    "pnpm-lock.yaml": "Should only change as a side effect of an approved dependency change, never hand-edited.",
+    "apps/web/src/routeTree.gen.ts": "Generated by @tanstack/router-plugin."
+  },
+
+  "likely_in_scope_for_job": {
+    "job": "feature-extend: per-column WIP limit persisted on the column (schema + migration + API) with an over-cap indicator in the authenticated kanban board column header",
+    "paths": [
+      "apps/api/src/database/schema.ts",
+      "apps/api/src/database/relations.ts",
+      "apps/api/drizzle/ (generated migration — via db:generate, inspect SQL)",
+      "apps/api/src/column/index.ts",
+      "apps/api/src/column/controllers/create-column.ts",
+      "apps/api/src/column/controllers/update-column.ts",
+      "apps/api/src/column/controllers/get-columns.ts",
+      "apps/web/src/fetchers/column/*.ts",
+      "apps/web/src/hooks/mutations/column/use-update-column.ts",
+      "apps/web/src/hooks/queries/column/use-get-columns.ts",
+      "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "apps/web/src/components/kanban-board/column/index.tsx",
+      "apps/web/src/types/project.ts",
+      "i18n/en-US.json",
+      "tests/api/column/",
+      "apps/web/src/components/kanban-board/*.test.tsx"
+    ],
+    "explicitly_out_of_scope": [
+      "public read-only board surfaces",
+      "apps/site",
+      "packages/mcp",
+      "charts/kaneo",
+      "apps/docs"
+    ],
+    "note": "This is discovery's best guess for Gate 0 scoping only. Nothing here is approved; the allowlist is confirmed by the user at Gate 0."
+  },
+
+  "coexistence_notes": [
+    "Cursor rules detected at .cursor/rules/ (7 .mdc files covering backend-api, frontend-web, database-schema, development-conventions, deployment-devops). The plugin will never touch them, but if Cursor auto-lint-on-save is running, our changes may trigger it.",
+    "Repo-level agent instructions exist in AGENTS.md (canonical) and CLAUDE.md (@-imports AGENTS.md). These are authoritative for conventions and verification policy, and are read-only inputs to this run.",
+    "Two agent-skill trees are present: .agents/skills/ and a top-level skills/ mirror with skills-lock.json. Untouched by default.",
+    ".coderabbit.yaml enables automatic AI PR review with auto_reply. Any branch pushed during this run will attract bot review comments.",
+    ".github/workflows/auto-merge.yml exists. Confirm no automated merge can fire on a branch this run creates.",
+    "No .mcp.json in this repo, so no competing MCP servers are registered at project scope.",
+    "No repo-local routing-policy.yaml — the plugin will use the shipped/CLI-selected policy.",
+    "Your .gitignore does not cover .sdlc/. Run artifacts under .sdlc/ (packets, backups, telemetry) will be untracked but visible to `git add -A`. Gate 0 will offer to add .gitignore to this run's allowlist so the plugin can append the entry. .hook-logs/ and .claude/settings.local.json are also untracked and uncovered.",
+    "Working tree is dirty, but only with untracked tooling output (.sdlc/, .hook-logs/, .claude/settings.local.json). No tracked source file is modified, so the rollback anchor at 5d1fc910 is clean.",
+    "Current branch is feature-extend-1/opus-flash-sdk, not main. Rollback anchors and diffs should be taken against this branch's HEAD.",
+    "A real .env with live-looking AUTH_SECRET and Postgres credentials is present on disk. It is gitignored and off-limits; key names only were recorded, never values."
+  ],
+
+  "tier2b_adaptive_profile": {
+    "triggered": true,
+    "reason": "Primary stacks are Hono (API) and React+Vite+TanStack (web). Shipped adapters are generic.md, nest.md, python.md — none match.",
+    "profile_path": ".sdlc/baseline/stack-profile.md"
+  },
+
+  "scan_notes": [
+    "Tier 1 scan completed within budget; 1578 tracked files, no sampling fallback needed.",
+    "API and web unit suites were executed to establish a green baseline; both passed. Integration suite was not run (needs PostgreSQL)."
+  ]
+}

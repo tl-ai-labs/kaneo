@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "run_id": "20260903-094517-feature-extend-column-wip-limit",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "auth_mode": "estimated",
+  "policy": {
+    "name": "opus-flash-sdk",
+    "version": 1,
+    "path": ".sdlc/policies/opus-flash-sdk.yaml",
+    "hard_cost_cap_usd": 50
+  },
+  "started_at": "2026-09-03T09:45:53.828Z",
+  "ended_at": "2026-09-03T11:57:25.024Z",
+  "git": {
+    "head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "committed": false
+  },
+  "totals": {
+    "events": 30,
+    "failed_events": 1,
+    "input_tokens": 2141748,
+    "input_tokens_cached": 4115941,
+    "output_tokens": 140001,
+    "cost_usd": 6.2786
+  },
+  "by_model": {
+    "opus": {
+      "events": 6,
+      "input_tokens": 407875,
+      "input_tokens_cached": 275121,
+      "output_tokens": 50311,
+      "cost_usd": 2.294495
+    },
+    "flash-agsdk-worker": {
+      "events": 24,
+      "input_tokens": 1733873,
+      "input_tokens_cached": 3840820,
+      "output_tokens": 89690,
+      "cost_usd": 3.984143
+    }
+  },
+  "by_phase": {
+    "codegen": {
+      "events": 16,
+      "input_tokens": 1056337,
+      "input_tokens_cached": 2379970,
+      "output_tokens": 45257,
+      "cost_usd": 2.473785
+    },
+    "docs": {
+      "events": 1,
+      "input_tokens": 11077,
+      "input_tokens_cached": 0,
+      "output_tokens": 184,
+      "cost_usd": 0.018272
+    },
+    "requirements_analysis": {
+      "events": 1,
+      "input_tokens": 46000,
+      "input_tokens_cached": 30000,
+      "output_tokens": 5900,
+      "cost_usd": 0.2425
+    },
+    "change_plan": {
+      "events": 1,
+      "input_tokens": 104437,
+      "input_tokens_cached": 70000,
+      "output_tokens": 15500,
+      "cost_usd": 0.5947
+    },
+    "plan_task_packets": {
+      "events": 1,
+      "input_tokens": 78000,
+      "input_tokens_cached": 55000,
+      "output_tokens": 8500,
+      "cost_usd": 0.355
+    },
+    "tests": {
+      "events": 8,
+      "input_tokens": 680597,
+      "input_tokens_cached": 1470971,
+      "output_tokens": 44260,
+      "cost_usd": 1.639881
+    },
+    "senior_code_review": {
+      "events": 1,
+      "input_tokens": 93500,
+      "input_tokens_cached": 62000,
+      "output_tokens": 13700,
+      "cost_usd": 0.568
+    },
+    "security_review": {
+      "events": 1,
+      "input_tokens": 71800,
+      "input_tokens_cached": 48000,
+      "output_tokens": 6700,
+      "cost_usd": 0.3865
+    }
+  },
+  "by_task_type": {
+    "smoke": {
+      "events": 2,
+      "input_tokens": 25215,
+      "input_tokens_cached": 10121,
+      "output_tokens": 195,
+      "cost_usd": 0.166067
+    },
+    "delta_requirements": {
+      "events": 1,
+      "input_tokens": 46000,
+      "input_tokens_cached": 30000,
+      "output_tokens": 5900,
+      "cost_usd": 0.2425
+    },
+    "delta_design": {
+      "events": 1,
+      "input_tokens": 104437,
+      "input_tokens_cached": 70000,
+      "output_tokens": 15500,
+      "cost_usd": 0.5947
+    },
+    "decomposition": {
+      "events": 1,
+      "input_tokens": 78000,
+      "input_tokens_cached": 55000,
+      "output_tokens": 8500,
+      "cost_usd": 0.355
+    },
+    "entity": {
+      "events": 1,
+      "input_tokens": 60950,
+      "input_tokens_cached": 61806,
+      "output_tokens": 1869,
+      "cost_usd": 0.117517
+    },
+    "migration": {
+      "events": 2,
+      "input_tokens": 58539,
+      "input_tokens_cached": 106072,
+      "output_tokens": 3843,
+      "cost_usd": 0.138306
+    },
+    "service_method": {
+      "events": 2,
+      "input_tokens": 142647,
+      "input_tokens_cached": 246343,
+      "output_tokens": 4210,
+      "cost_usd": 0.288812
+    },
+    "controller_handler": {
+      "events": 2,
+      "input_tokens": 161464,
+      "input_tokens_cached": 285147,
+      "output_tokens": 5204,
+      "cost_usd": 0.331804
+    },
+    "frontend_config": {
+      "events": 2,
+      "input_tokens": 125085,
+      "input_tokens_cached": 368780,
+      "output_tokens": 5935,
+      "cost_usd": 0.296359
+    },
+    "api_client": {
+      "events": 1,
+      "input_tokens": 99040,
+      "input_tokens_cached": 227030,
+      "output_tokens": 3321,
+      "cost_usd": 0.212504
+    },
+    "frontend_util": {
+      "events": 1,
+      "input_tokens": 106867,
+      "input_tokens_cached": 315914,
+      "output_tokens": 3297,
+      "cost_usd": 0.237361
+    },
+    "react_component": {
+      "events": 4,
+      "input_tokens": 287607,
+      "input_tokens_cached": 758757,
+      "output_tokens": 17567,
+      "cost_usd": 0.703327
+    },
+    "test_unit": {
+      "events": 5,
+      "input_tokens": 399078,
+      "input_tokens_cached": 1021354,
+      "output_tokens": 30704,
+      "cost_usd": 1.028156
+    },
+    "test_integration": {
+      "events": 3,
+      "input_tokens": 281519,
+      "input_tokens_cached": 449617,
+      "output_tokens": 13556,
+      "cost_usd": 0.611725
+    },
+    "module_review": {
+      "events": 1,
+      "input_tokens": 93500,
+      "input_tokens_cached": 62000,
+      "output_tokens": 13700,
+      "cost_usd": 0.568
+    },
+    "threat_model": {
+      "events": 1,
+      "input_tokens": 71800,
+      "input_tokens_cached": 48000,
+      "output_tokens": 6700,
+      "cost_usd": 0.3865
+    }
+  },
+  "verification": {
+    "command": "pnpm --filter @kaneo/api test && pnpm --filter @kaneo/web test",
+    "baseline": {
+      "api_files": 58,
+      "api_tests": 374,
+      "web_files": 36,
+      "web_tests": 112
+    },
+    "final": {
+      "api_files": 61,
+      "api_tests": 392,
+      "web_files": 37,
+      "web_tests": 123
+    },
+    "typecheck": {
+      "api": "pass",
+      "web": "pass"
+    },
+    "lint": "pnpm exec biome ci <each changed file> — all pass (repo-wide biome ci . was already red at HEAD with 11 pre-existing errors)"
+  },
+  "artifacts": {
+    "requirements": "requirements.md",
+    "design": "change_plan.md",
+    "packets": "packets.json",
+    "senior_review": "review.md",
+    "security_review": "security_review.md",
+    "telemetry": "telemetry.jsonl",
+    "provenance": "provenance.json",
+    "summary": "SUMMARY.md",
+    "discovery": "discovery.md",
+    "stack_profile": "stack-profile.md",
+    "delegation_dir": "delegation/"
+  },
+  "gates": {
+    "gate_0": "approved (pre-run)",
+    "gate_1": "approved",
+    "gate_2": "approved",
+    "gate_3": "approved",
+    "gate_4": "accepted"
+  },
+  "known_issues": [
+    "tp_test_001 hit the 540s agent-worker timeout; artifact was correct but its token usage was never reported, so flash-agsdk-worker cost is UNDER-reported by roughly one codegen packet.",
+    "opus events are provenance=estimated (char/3.8 heuristic); flash-agsdk-worker events are vendor-reported. Not like-for-like.",
+    "Policy pricing block for gemini-3.7-flash carries a TODO(pricing) marker — absolute flash cost rests on unverified rates.",
+    "i18n/schema.json is stale; run `pnpm i18n:schema` before committing.",
+    "16 non-English locales lack the 10 new keys; i18next falls back to English."
+  ],
+  "status": "completed",
+  "finalized_at": "2026-09-03T12:04:25.681Z",
+  "committed": false,
+  "cost_provenance": {
+    "warning": "MIXED PROVENANCE — the by_model cost comparison is NOT like-for-like and must not be quoted as a clean SDK-vs-API result.",
+    "opus": "estimated (char/3.8 heuristic, orchestrator-side; auth_mode=estimated keeps direct-tier work in-session)",
+    "flash-agsdk-worker": "vendor (reported by the Antigravity SDK worker)",
+    "flash_total_understated_by": "tp_test_001 — killed at the 540s worker timeout before usage was reported; artifact was correct, spend is unrecorded",
+    "pricing_caveat": "policy pricing block for gemini-3.7-flash carries TODO(pricing); absolute flash cost rests on unverified rates",
+    "token_accounting": "in the SDK accounting input_tokens and input_tokens_cached are DISJOINT and ADDITIVE (verified against cost arithmetic), unlike the Anthropic subset convention"
+  },
+  "routing_result": {
+    "mechanical_dispatches": 24,
+    "on_flash_agsdk_worker": 24,
+    "fell_through_to_default_opus": 0,
+    "codegen_rule_index": 7,
+    "tests_rule_index": 8,
+    "escalation_rule_fired": false
+  },
+  "operational_findings": [
+    "A slow verification command inside the agent worker hard timeout converts a successful packet into a reported failure (tp_test_001: file written correctly, killed running the full 8s suite inside the 540s budget). Filtered single-file runs (~2s) fixed the remaining test packets.",
+    "SDK schema conformance degrades under a raw-wrapper case (tp_test_002 returned its JSON wrapped in `raw` with a stray prose prefix; artifact still correct)."
+  ],
+  "post_run_steps_for_user": [
+    "REQUIRED before committing: pnpm i18n:schema — i18n/schema.json is additionalProperties:false, generated from en-US.json, and stale by 10 keys. NOT run by this pass (Gate 4 was a plain accept). No CI job runs it, so the drift is silent.",
+    "Optional: pnpm i18n:check — reports the 16 non-English locales missing the new keys (OQ-3, accepted).",
+    "PROHIBITED: pnpm i18n:check:fix — it writes the 16 off-limits locale files."
+  ],
+  "revert_caveat": "provenance.json holds 24 records across 18 distinct paths; 6 files were touched in both the pre- and post-Gate-3 rounds. /mmo:revert MUST use the EARLIEST record per path to reach true pre-run state."
+}

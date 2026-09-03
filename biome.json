@@ -27,6 +27,7 @@
 			"!**/.claude",
 			"!**/.pi",
 			"!**/.pi-subagents",
+			"!**/.sdlc",
 			"!**/openapi.json"
 		]
 	},

@@ -100,6 +100,23 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     }
   };
 
+  const handleUpdateWipLimit = async (id: string, wipLimit: number | null) => {
+    try {
+      await updateColumn({ id, projectId, data: { wipLimit } });
+      toast.success(
+        wipLimit === null
+          ? t("settings:columnEditor.toastWipLimitCleared")
+          : t("settings:columnEditor.toastWipLimitUpdated"),
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastUpdateError"),
+      );
+    }
+  };
+
   const handleUpdateIcon = async (id: string, icon: string) => {
     try {
       await updateColumn({ id, projectId, data: { icon } });
@@ -297,6 +314,51 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
               }}
             />
             <div className="flex items-center gap-1.5 shrink-0">
+              <div
+                className="flex items-center gap-1.5"
+                title={t("settings:columnEditor.wipLimitTooltip")}
+              >
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {t("settings:columnEditor.wipLimit")}
+                </span>
+                <Input
+                  type="number"
+                  min={1}
+                  step={1}
+                  inputMode="numeric"
+                  defaultValue={col.wipLimit ?? ""}
+                  placeholder={t("settings:columnEditor.wipLimitPlaceholder")}
+                  aria-label={t("settings:columnEditor.wipLimitAria", {
+                    name: col.name,
+                  })}
+                  className="h-8 w-16 text-sm"
+                  disabled={!canEdit}
+                  onBlur={(e) => {
+                    const input = e.currentTarget;
+                    const current = col.wipLimit ?? null;
+                    const trimmed = input.value.trim();
+                    const next = trimmed === "" ? null : Number(trimmed);
+
+                    if (
+                      next !== null &&
+                      !(Number.isInteger(next) && next >= 1)
+                    ) {
+                      input.value = current === null ? "" : String(current);
+                      return;
+                    }
+
+                    if (next === current) return;
+
+                    handleUpdateWipLimit(col.id, next);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      e.currentTarget.blur();
+                    }
+                  }}
+                />
+              </div>
               <div
                 className="flex items-center gap-2"
                 title={t("settings:columnEditor.doneColumnTooltip")}

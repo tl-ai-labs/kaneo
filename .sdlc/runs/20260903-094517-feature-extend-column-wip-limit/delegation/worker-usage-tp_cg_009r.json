@@ -1,0 +1,57 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 61561,
+    "cached_content_token_count": 25294,
+    "candidates_token_count": 446,
+    "thoughts_token_count": 935,
+    "total_token_count": 62942,
+    "service_tier": null
+  },
+  "tool_call_count": 4,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm exec biome format --write apps/web/src/components/kanban-board/column/column-header.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm exec biome ci apps/web/src/components/kanban-board/column/column-header.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status --porcelain",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git diff apps/web/src/components/kanban-board/column/column-header.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"files_changed\": [\n    \"apps/web/src/components/kanban-board/column/column-header.tsx\"\n  ],\n  \"biome_ci_output\": \"Checked 1 file in 8ms. No fixes applied.\",\n  \"summary\": \"Formatted apps/web/src/components/kanban-board/column/column-header.tsx with Biome to resolve line width formatting issues while preserving all logic intact.\"\n}"
+}

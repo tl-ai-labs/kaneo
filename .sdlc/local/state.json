@@ -1,0 +1,12 @@
+{
+ "schema_version": 1,
+ "run_id": "20260831-092456-feature-extend-estimated-hours",
+ "mode": "brownfield",
+ "intent": "feature-extend",
+ "policy": "flash-agsdk-only",
+ "auth_mode": "estimated",
+ "state": "complete",
+ "phase_completed": "gate_4_accepted",
+ "updated_at": "2026-08-31T09:47:00Z",
+ "note": "tp_plan_001 attempted read of a different run's packets.json; dispatches halted pending operator ruling"
+}

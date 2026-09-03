@@ -1,0 +1,113 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 268237,
+    "cached_content_token_count": 203455,
+    "candidates_token_count": 3749,
+    "thoughts_token_count": 7475,
+    "total_token_count": 279461,
+    "service_tier": null
+  },
+  "tool_call_count": 10,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web exec vitest run column-header",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx",
+        "start_line": "64",
+        "end_line": "863"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web exec vitest run column-header",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web exec vitest run column-header",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"files_changed\": [\n    \"apps/web/src/components/kanban-board/column/column-header.test.tsx\"\n  ],\n  \"tests_added\": 4,\n  \"test_run_output\": \"RUN  v4.1.10 /home/sangeetha/projects/kaneo/apps/web\\n\\n Test Files  1 passed (1)\\n      Tests  11 passed (11)\\n   Start at  11:54:05\\n   Duration  1.55s (transform 154ms, setup 136ms, import 370ms, tests 251ms, environment 610ms)\",\n  \"summary\": \"Configured the useProjectStore mock with a beforeEach default, added the makeStoreProject fixture helper, and appended four new tests to verify unfiltered store task count vs filtered displayed task count WIP limit calculations, including filtered over-cap indicator handling and missing column fallback.\"\n}"
+}

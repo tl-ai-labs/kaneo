@@ -206,6 +206,9 @@
 						"title": {
 							"type": "string"
 						},
+						"description": {
+							"type": "string"
+						},
 						"troubleshooting": {
 							"type": "string"
 						},
@@ -217,14 +220,98 @@
 						},
 						"refreshPage": {
 							"type": "string"
+						},
+						"messages": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"cors": {
+									"type": "string"
+								},
+								"network": {
+									"type": "string"
+								},
+								"auth": {
+									"type": "string"
+								},
+								"server": {
+									"type": "string"
+								},
+								"unknown": {
+									"type": "string"
+								}
+							},
+							"required": ["cors", "network", "auth", "server", "unknown"]
+						},
+						"troubleshootingSteps": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"cors": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"checkApiRunning": {
+											"type": "string"
+										},
+										"checkApiUrl": {
+											"type": "string"
+										},
+										"verifyCorsOrigins": {
+											"type": "string"
+										},
+										"checkProtocol": {
+											"type": "string"
+										},
+										"checkAccessibility": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"checkApiRunning",
+										"checkApiUrl",
+										"verifyCorsOrigins",
+										"checkProtocol",
+										"checkAccessibility"
+									]
+								},
+								"network": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"checkConnection": {
+											"type": "string"
+										},
+										"verifyApiRunning": {
+											"type": "string"
+										},
+										"tryRefresh": {
+											"type": "string"
+										},
+										"checkFirewall": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"checkConnection",
+										"verifyApiRunning",
+										"tryRefresh",
+										"checkFirewall"
+									]
+								}
+							},
+							"required": ["cors", "network"]
 						}
 					},
 					"required": [
 						"title",
+						"description",
 						"troubleshooting",
 						"tryAgain",
 						"viewDeploymentGuide",
-						"refreshPage"
+						"refreshPage",
+						"messages",
+						"troubleshootingSteps"
 					]
 				},
 				"formats": {
@@ -1318,6 +1405,98 @@
 								}
 							},
 							"required": ["nameRequired", "nameShort", "invalidEmail"]
+						},
+						"avatar": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"hint": {
+									"type": "string"
+								},
+								"remove": {
+									"type": "string"
+								},
+								"updateSuccess": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								},
+								"removeSuccess": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								},
+								"edit": {
+									"type": "string"
+								},
+								"change": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"hint",
+								"remove",
+								"updateSuccess",
+								"updateError",
+								"removeSuccess",
+								"removeError",
+								"edit",
+								"change"
+							]
+						},
+						"deleteAccount": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"sectionTitle": {
+									"type": "string"
+								},
+								"sectionSubtitle": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"modalTitle": {
+									"type": "string"
+								},
+								"modalDescription": {
+									"type": "string"
+								},
+								"confirmLabel": {
+									"type": "string"
+								},
+								"confirm": {
+									"type": "string"
+								},
+								"success": {
+									"type": "string"
+								},
+								"error": {
+									"type": "string"
+								},
+								"sessionTooOld": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"sectionTitle",
+								"sectionSubtitle",
+								"title",
+								"description",
+								"modalTitle",
+								"modalDescription",
+								"confirmLabel",
+								"confirm",
+								"success",
+								"error",
+								"sessionTooOld"
+							]
 						}
 					},
 					"required": [
@@ -1333,7 +1512,9 @@
 						"emailPlaceholder",
 						"updateSuccess",
 						"updateError",
-						"validation"
+						"validation",
+						"avatar",
+						"deleteAccount"
 					]
 				},
 				"notificationsPage": {
@@ -3319,6 +3500,24 @@
 						},
 						"add": {
 							"type": "string"
+						},
+						"wipLimit": {
+							"type": "string"
+						},
+						"wipLimitPlaceholder": {
+							"type": "string"
+						},
+						"wipLimitTooltip": {
+							"type": "string"
+						},
+						"wipLimitAria": {
+							"type": "string"
+						},
+						"toastWipLimitUpdated": {
+							"type": "string"
+						},
+						"toastWipLimitCleared": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -3341,7 +3540,13 @@
 						"on",
 						"off",
 						"newColumnPlaceholder",
-						"add"
+						"add",
+						"wipLimit",
+						"wipLimitPlaceholder",
+						"wipLimitTooltip",
+						"wipLimitAria",
+						"toastWipLimitUpdated",
+						"toastWipLimitCleared"
 					]
 				},
 				"githubIntegration": {
@@ -3639,6 +3844,12 @@
 								"repoNotFound": {
 									"type": "string"
 								},
+								"redirected": {
+									"type": "string"
+								},
+								"notGiteaInstance": {
+									"type": "string"
+								},
 								"verifyError": {
 									"type": "string"
 								},
@@ -3689,6 +3900,8 @@
 								"verifyOk",
 								"verifyWarning",
 								"repoNotFound",
+								"redirected",
+								"notGiteaInstance",
 								"verifyError",
 								"tokenRequired",
 								"tokenRequiredVerify",
@@ -7247,9 +7460,27 @@
 					"properties": {
 						"addTask": {
 							"type": "string"
+						},
+						"wipLimitTitle": {
+							"type": "string"
+						},
+						"wipLimitOverCap": {
+							"type": "string"
+						},
+						"wipLimitFiltered": {
+							"type": "string"
+						},
+						"wipLimitOverCapFiltered": {
+							"type": "string"
 						}
 					},
-					"required": ["addTask"]
+					"required": [
+						"addTask",
+						"wipLimitTitle",
+						"wipLimitOverCap",
+						"wipLimitFiltered",
+						"wipLimitOverCapFiltered"
+					]
 				},
 				"pr": {
 					"type": "object",

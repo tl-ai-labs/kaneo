@@ -21,12 +21,14 @@ async function createColumn({
   icon,
   color,
   isFinal,
+  wipLimit,
 }: {
   projectId: string;
   name: string;
   icon?: string;
   color?: string;
   isFinal?: boolean;
+  wipLimit?: number;
 }) {
   const slug = toSlug(name);
 
@@ -74,6 +76,7 @@ async function createColumn({
       icon: icon || null,
       color: color || null,
       isFinal: isFinal ?? false,
+      wipLimit: wipLimit ?? null,
     })
     .returning();
 

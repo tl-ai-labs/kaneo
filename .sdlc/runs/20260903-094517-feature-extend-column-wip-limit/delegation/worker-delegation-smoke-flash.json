@@ -1,0 +1,46 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "smoke-flash",
+  "phase": "docs",
+  "task_type": "smoke",
+  "module": "precheck",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/tmp/claude-1000/-home-sangeetha-projects-kaneo/f572d05f-0463-4ab8-8180-4ad46c4233e5/scratchpad/smoke",
+  "started_at": "2026-09-03T09:45:55.531Z",
+  "duration_ms": 4897,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.018272,
+  "tokens": {
+    "input": 11077,
+    "input_cached": 0,
+    "output": 184,
+    "output_reasoning": 178
+  },
+  "tool_calls": {
+    "count": 0,
+    "truncated": false,
+    "sample": []
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 0,
+    "scanned": 0,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-smoke-flash.md",
+    "usage": "worker-usage-smoke-flash.json"
+  }
+}

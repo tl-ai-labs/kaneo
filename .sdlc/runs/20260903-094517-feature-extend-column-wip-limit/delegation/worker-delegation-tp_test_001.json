@@ -1,0 +1,48 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_test_001",
+  "phase": "tests",
+  "task_type": "test_unit",
+  "module": "api-column",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": null,
+    "sdk_version": null,
+    "vertex_project": null,
+    "vertex_location": null,
+    "thinking": null
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-03T10:55:26.621Z",
+  "duration_ms": 540893,
+  "success": false,
+  "error": "The agent worker exited 1. gemini_worker failed: TimeoutError:",
+  "cost_usd": 0,
+  "tokens": {
+    "input": 0,
+    "input_cached": 0,
+    "output": 0,
+    "output_reasoning": 0
+  },
+  "tool_calls": {
+    "count": 0,
+    "truncated": false,
+    "sample": []
+  },
+  "files": {
+    "added": [
+      "tests/api/column/create-column-wip-limit.test.ts"
+    ],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1679,
+    "scanned": 1680,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_test_001.md",
+    "usage": "worker-usage-tp_test_001.json"
+  }
+}

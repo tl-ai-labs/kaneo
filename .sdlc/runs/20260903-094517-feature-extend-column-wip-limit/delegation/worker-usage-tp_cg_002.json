@@ -1,0 +1,77 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 103709,
+    "cached_content_token_count": 73638,
+    "candidates_token_count": 617,
+    "thoughts_token_count": 1757,
+    "total_token_count": 106083,
+    "service_tier": null
+  },
+  "tool_call_count": 6,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/api db:generate",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status --porcelain",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/0043_gifted_lizard.sql",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/0043_gifted_lizard.sql",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/meta/_journal.json",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/drizzle/meta/_journal.json",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "ls -la apps/api/drizzle/meta/0043_snapshot.json",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "cat apps/api/drizzle/0043_gifted_lizard.sql",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"files_changed\": [\n    \"apps/api/drizzle/0043_gifted_lizard.sql\",\n    \"apps/api/drizzle/meta/0043_snapshot.json\",\n    \"apps/api/drizzle/meta/_journal.json\"\n  ],\n  \"migration_sql\": \"ALTER TABLE \\\"column\\\" ADD COLUMN \\\"wip_limit\\\" integer;\\n\",\n  \"summary\": \"Successfully generated migration 0043_gifted_lizard.sql using drizzle-kit generate for the wipLimit column added to columnTable. Emitted SQL contains exactly one ALTER TABLE statement adding wip_limit as an integer column to table \\\"column\\\". Snapshot meta/0043_snapshot.json was created and _journal.json was updated with entry idx 43.\",\n  \"verified\": \"true\"\n}"
+}
