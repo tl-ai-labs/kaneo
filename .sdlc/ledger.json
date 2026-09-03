@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "runs": [{
+    "run_id": "20260902-122844-docs-board-features",
+    "intent": "docs",
+    "started_at": "2026-09-02T12:57:32.739Z",
+    "completed_at": "2026-09-02T13:26:14.789Z",
+    "outcome": "accepted",
+    "files_touched": 2,
+    "spend_usd": 0.183717,
+    "branch": "test/codex-plugin",
+    "plugin_version": "0.1.0",
+    "report": ".sdlc/runs/20260902-122844-docs-board-features/SUMMARY.md"
+  }, {
+    "run_id": "20260903-040956-refactor-lane-header",
+    "intent": "refactor",
+    "started_at": "2026-09-03T04:13:41.873Z",
+    "completed_at": "2026-09-03T04:29:00.000Z",
+    "outcome": "accepted",
+    "files_touched": 0,
+    "spend_usd": 0.134588,
+    "branch": "test/codex-brownfield",
+    "plugin_version": "0.1.0",
+    "report": ".sdlc/runs/20260903-040956-refactor-lane-header/SUMMARY.md"
+  }]
+}

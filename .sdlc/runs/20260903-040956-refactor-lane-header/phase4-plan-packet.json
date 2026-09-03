@@ -1,0 +1,20 @@
+{
+  "id": "tp_plan_001",
+  "phase": "plan_task_packets",
+  "task_type": "refactor_plan",
+  "module": "kanban-column-header",
+  "instruction": "Plan the approved refactor as file-sized brownfield TaskPackets. Inspect the supplied complete source. If Column already delegates all header responsibilities to ColumnHeader, return an empty packets array and a precise no-op rationale. Otherwise emit only refactor_extract or patch_apply packets with intent refactor and artifact_path limited to the confirmed allowlist. Do not invent changes or rename Column terminology.",
+  "inputs": [
+    {"path": ".sdlc/runs/20260903-040956-refactor-lane-header/requirements.md", "content": "Approved requirements: Column must own only container/dropzone state and composition; ColumnHeader must own all header rendering, permissions, dialogs, archive mutation/store/toast. If already true, no source change is required.", "reason": "Gate 1 approved requirements"},
+    {"path": ".sdlc/runs/20260903-040956-refactor-lane-header/change_plan.md", "content": "Inspect both files together. Execute a no-op if extraction is complete; otherwise apply the smallest extraction and preserve all listed UI, permission, state, side-effect, accessibility, and drag/drop invariants.", "reason": "Gate 2 approved delta plan"},
+    {"path": "apps/web/src/components/kanban-board/column/index.tsx", "content": "import { useState } from \"react\";\nimport type { ProjectWithTasks } from \"@/types/project\";\nimport { ColumnDropzone } from \"./column-dropzone\";\nimport { ColumnHeader } from \"./column-header\";\n\ntype ColumnProps = { column: ProjectWithTasks[\"columns\"][number]; disableDragDrop?: boolean; };\n\nfunction Column({ column, disableDragDrop = false }: ColumnProps) {\n  const [isDropzoneOver, setIsDropzoneOver] = useState(false);\n  return (\n    <div className={`group relative flex h-full min-h-0 w-full flex-col rounded-xl border transition-colors duration-150 ${isDropzoneOver ? \"border-ring/40 bg-accent/60 shadow-md ring-2 ring-ring/30\" : \"border-border/70 bg-muted/40 shadow-xs/5 hover:border-border/90 dark:bg-card/90\"}`}>\n      <div className=\"shrink-0 border-b border-border/60 px-3 py-2\"><ColumnHeader column={column} /></div>\n      <div className=\"min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 py-1 [-webkit-overflow-scrolling:touch]\"><ColumnDropzone column={column} disableDragDrop={disableDragDrop} onIsOverChange={setIsDropzoneOver} /></div>\n    </div>\n  );\n}\nexport default Column;", "reason": "Complete current Column source"},
+    {"path": "apps/web/src/components/kanban-board/column/column-header.tsx", "content": "ColumnHeader imports produce, Archive, Plus, React state, i18n, CreateTaskModal, useUpdateTask, useWorkspacePermission, getColumnIcon, toast, project store, ProjectWithTasks, and ArchiveTasksModal. It receives column; owns project/store/update hooks and create/update permission checks; owns archive/task modal state; handleConfirmArchive updates each final-column task to archived, clears tasks in produced project, updates store, emits translated toast, and closes modal. Its JSX renders icon, name, task count, permission-gated archive/add buttons with translated titles, CreateTaskModal, and ArchiveTasksModal.", "reason": "Complete responsibility inventory from current ColumnHeader source"}
+  ],
+  "outputSchema": {"type":"object","properties":{"packets":{"type":"array","items":{"type":"object"}},"rationale":{"type":"string"}},"required":["packets","rationale"],"additionalProperties":false},
+  "acceptance": ["Empty packets when extraction is complete", "Any packet is restricted to allowlisted paths", "No terminology rename or behavior change is planned"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 5000},
+  "retry_count": 0,
+  "pass_id": "20260903-040956-refactor-lane-header",
+  "intent": "refactor",
+  "artifact_path": ".sdlc/runs/20260903-040956-refactor-lane-header/packets.json"
+}

@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "git_head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "baseline": ".sdlc/baseline/current.json",
+  "ledger": ".sdlc/ledger.json",
+  "last_run": "20260903-040956-refactor-lane-header"
+}

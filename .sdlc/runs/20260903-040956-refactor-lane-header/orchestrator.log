@@ -1,0 +1,16 @@
+MMO: 2026-09-03T04:13:10.576Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-03T04:13:10.592Z INFO   route.decide packet_id=tp_requirements_001 phase=requirements_analysis intent=refactor task_type=requirements module=kanban-column-header rule_index=0 rule_reason="Judgment-heavy, low volume" model_id=gpt
+MMO: 2026-09-03T04:13:10.615Z INFO   dispatch.start packet_id=tp_requirements_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-03T04:13:41.856Z INFO   dispatch.end packet_id=tp_requirements_001 model_id=gpt ok=true terminal_reason=success tokens_in=17824 tokens_out=1199 tokens_cached=0 cost_usd=0.050036 latency_ms=31240 attempts=1
+MMO: 2026-09-03T04:17:29.606Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-03T04:17:29.629Z INFO   route.decide packet_id=tp_architecture_001 phase=architecture_design intent=refactor task_type=design module=kanban-column-header rule_index=1 rule_reason="Foundational, decision-bearing" model_id=gpt
+MMO: 2026-09-03T04:17:29.658Z INFO   dispatch.start packet_id=tp_architecture_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-03T04:17:50.380Z INFO   dispatch.end packet_id=tp_architecture_001 model_id=gpt ok=true terminal_reason=success tokens_in=19200 tokens_out=609 tokens_cached=0 cost_usd=0.045708 latency_ms=20722 attempts=1
+MMO: 2026-09-03T04:19:42.572Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-03T04:19:42.585Z INFO   route.decide packet_id=tp_plan_001 phase=plan_task_packets intent=refactor task_type=refactor_plan module=kanban-column-header rule_index=2 rule_reason="Needs full context to slice work cleanly" model_id=gpt
+MMO: 2026-09-03T04:19:42.692Z INFO   dispatch.start packet_id=tp_plan_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-03T04:19:51.399Z ERROR  dispatch.error packet_id=tp_plan_001 model_id=gpt error_class=DispatchFailed message="{\n  \"type\": \"error\",\n  \"error\": {\n    \"type\": \"invalid_request_error\",\n    \"code\": \"invalid_json_schema\",\n    \"message\": \"Invalid schema for response_format 'codex_output_schema': In context=('properties', 'packets', 'items'), 'additionalProperties' is required to be supplied and to be false.\",\n    \"param\": \"text.format.schema\"\n  },\n  \"status\": 400\n}"
+MMO: 2026-09-03T04:20:27.467Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-03T04:20:27.478Z INFO   route.decide packet_id=tp_plan_002 phase=plan_task_packets intent=refactor task_type=refactor_plan module=kanban-column-header rule_index=2 rule_reason="Needs full context to slice work cleanly" model_id=gpt
+MMO: 2026-09-03T04:20:27.499Z INFO   dispatch.start packet_id=tp_plan_002 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-03T04:20:38.490Z INFO   dispatch.end packet_id=tp_plan_002 model_id=gpt ok=true terminal_reason=success tokens_in=17851 tokens_out=97 tokens_cached=0 cost_usd=0.036866 latency_ms=10991 attempts=1

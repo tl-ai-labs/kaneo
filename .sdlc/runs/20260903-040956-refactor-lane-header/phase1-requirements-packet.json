@@ -1,0 +1,31 @@
+{
+  "id": "tp_requirements_001",
+  "phase": "requirements_analysis",
+  "task_type": "requirements",
+  "module": "kanban-column-header",
+  "instruction": "Produce a concise Markdown requirements document for this behavior-preserving React refactor. Include numbered In scope and Out of scope sections, functional requirements (FR-*), non-functional requirements (NFR-*), a PII inventory table, a role matrix, numbered executable acceptance criteria, and open questions. Reconcile the user's Lane/LaneHeader wording with the repository's Column/ColumnHeader terminology. Evidence says the extraction may already be complete; require a no-op outcome if no header responsibility remains in Column. Return the complete document in the content field.",
+  "inputs": [
+    {
+      "path": ".sdlc/runs/20260903-040956-refactor-lane-header/intent_brief.md",
+      "content": "Refactor the current board lane component by extracting its header while preserving behavior. The repository uses Column and ColumnHeader, not Lane and LaneHeader. ColumnHeader is already a separate component; make no source change if inspection confirms no header responsibility remains in Column. Scope is column/index.tsx, column-header.tsx, and an optional focused column-header.test.tsx. Preserve UI, translations, permissions, create/archive dialogs, toast, project-store updates, and drag/drop behavior. Do not rename Column terminology or touch unrelated files.",
+      "reason": "Approved Gate 0 intent brief and scope"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/index.tsx",
+      "content": "Column owns isDropzoneOver state, renders the lane container, a border/padding wrapper containing <ColumnHeader column={column} />, and ColumnDropzone. No header action/modal/permission state is present.",
+      "reason": "Current component responsibility summary from discovery"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "content": "ColumnHeader owns icon/name/task-count rendering, permission checks, create-task and archive modal state, archive mutation/project-store update, translation-backed labels and toast, and both modal renderings.",
+      "reason": "Current extracted header responsibility summary from discovery"
+    }
+  ],
+  "outputSchema": {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"], "additionalProperties": false},
+  "acceptance": ["All required requirements sections are present", "Behavior preservation is explicit", "A no-op is required when extraction is already complete", "Scope remains limited to the approved files"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 5000},
+  "retry_count": 0,
+  "pass_id": "20260903-040956-refactor-lane-header",
+  "intent": "refactor",
+  "artifact_path": ".sdlc/runs/20260903-040956-refactor-lane-header/requirements.md"
+}

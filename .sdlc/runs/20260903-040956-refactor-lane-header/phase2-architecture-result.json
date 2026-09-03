@@ -1,0 +1,70 @@
+{
+  "decision": {
+    "modelId": "gpt",
+    "reason": "Foundational, decision-bearing",
+    "ruleIndex": 1
+  },
+  "result": {
+    "result": {
+      "content": "# Change Plan — Kanban Column Header Refactor\n\n## Files added\n\nNone. The extraction reuses the existing `column-header.tsx` module when it already contains the header responsibility.\n\n## Files edited\n\n- `column/index.tsx` — `patch_apply`: inspect the existing composition; make no change when it already renders `ColumnHeader` and retains the column container and dropzone state. Otherwise, perform only the minimal header-composition extraction.\n- `column-header.tsx` — `patch_apply`: make no change when the module already owns all current header responsibility. Otherwise, move only header-local rendering and callbacks from `column/index.tsx`, preserving props and behavior exactly.\n- `column-header.test.tsx` — `patch_apply`, optional: add or adjust a focused component test only if an existing focused test location is already available within the allowlist.\n\n## Files removed\n\nNone.\n\n## Testing surface — preserved invariants\n\nThe focused test coverage and full existing suite must preserve these invariants:\n\n- `Column` remains responsible for its container markup, sortable/dropzone wiring, and all drag-and-drop state.\n- `ColumnHeader` receives and renders the same header data, controls, callbacks, and dialog triggers as before.\n- Existing visual styling, terminology, translations, permissions and capability checks remain unchanged.\n- Archive behavior and all header actions produce the same state transitions and side effects.\n- No API, request shape, response shape, or server behavior changes.\n- Extracting the header adds no new wrapper that alters layout, accessibility semantics, focus behavior, or event propagation.\n\n## Cross-cutting sequencing\n\n1. Inspect `column/index.tsx` and `column-header.tsx` together to confirm whether extraction is already complete.\n2. If `Column` already composes `ColumnHeader` while retaining container and dropzone ownership, execute a no-op.\n3. Only when header responsibility remains embedded in `column/index.tsx`, apply the smallest extraction into `column-header.tsx`.\n4. Run the focused test when present or added, then the affected web-package validation appropriate to the changed files."
+    },
+    "tokens": {
+      "input": 19200,
+      "input_cached": 0,
+      "output": 609,
+      "output_reasoning": 141
+    },
+    "cost_usd": 0.045708,
+    "latency_ms": 20693,
+    "cache_hit": false,
+    "success": true,
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "ceiling_used": 5000,
+        "hit_output_cap": false,
+        "tokens": {
+          "input": 19200,
+          "input_cached": 0,
+          "output": 609,
+          "output_reasoning": 141
+        },
+        "cost_usd": 0.045708,
+        "latency_ms": 20693,
+        "success": true
+      }
+    ],
+    "terminal_reason": "success"
+  },
+  "events": [
+    {
+      "ts": "2026-09-03T04:17:50.393Z",
+      "pass": "20260903-040956-refactor-lane-header",
+      "phase": "architecture_design",
+      "task_type": "design",
+      "task_id": "tp_architecture_001",
+      "module": "kanban-column-header",
+      "model": "gpt-5.6-terra",
+      "provenance": "modeled",
+      "routed_by": "orchestrator",
+      "model_id": "gpt",
+      "routing": {
+        "policy_name": "gpt-seat-plus-flash",
+        "policy_version": 1,
+        "rule_index": 1,
+        "rule_reason": "Foundational, decision-bearing"
+      },
+      "retry_count": 0,
+      "input_tokens": 19200,
+      "input_tokens_cached": 0,
+      "output_tokens": 609,
+      "output_tokens_reasoning": 141,
+      "cost_usd": 0.045708,
+      "latency_ms": 20693,
+      "success": true,
+      "attempt_number": 1,
+      "ceiling_used": 5000
+    }
+  ],
+  "terminal_reason": "success"
+}

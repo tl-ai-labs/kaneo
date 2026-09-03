@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "plugin_version": "0.1.0",
+  "built_at": "2026-09-03T04:09:56Z",
+  "run_id": "20260903-040956-refactor-lane-header",
+  "git": {
+    "head": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "branch": "test/codex-brownfield",
+    "dirty": false,
+    "remotes": [{"name": "origin", "url": "https://github.com/tl-ai-labs/kaneo.git"}]
+  },
+  "topology": {
+    "top_level_dirs": ["apps", "charts", "deploy", "i18n", "packages", "plans", "scripts", "sentry", "skills", "tests"],
+    "entry_points": ["apps/api/src/index.ts", "apps/web/src/main.tsx"]
+  },
+  "stacks": [{"manifest": "package.json", "stack": "node-typescript", "detected_frameworks": ["react", "hono", "vite", "turbo"]}],
+  "test_command_proposed": "pnpm --filter @kaneo/web test",
+  "test_command_source": "apps/web/package.json#scripts.test",
+  "docs_present": [{"path": "README.md", "kind": "readme"}, {"path": "AGENTS.md", "kind": "agent-instructions"}, {"path": "CLAUDE.md", "kind": "agent-instructions"}, {"path": "CONTRIBUTING.md", "kind": "contributing"}, {"path": "SECURITY.md", "kind": "security"}],
+  "ai_configs_detected": [{"path": "AGENTS.md", "type": "agent-instructions"}, {"path": "CLAUDE.md", "type": "claude-instructions"}, {"path": ".agents/skills/", "type": "agent-skills"}, {"path": ".claude/", "type": "claude"}, {"path": ".codex/", "type": "codex"}, {"path": ".cursor/rules/", "type": "cursor"}],
+  "env_keys_by_file": {},
+  "env_keys_all": [],
+  "env_keys_referenced_in_code": [],
+  "monorepo": {"type": "pnpm-workspace/turborepo", "packages": [{"name": "@kaneo/api", "root": "apps/api", "manifest": "apps/api/package.json", "test_command": "pnpm --filter @kaneo/api test"}, {"name": "@kaneo/web", "root": "apps/web", "manifest": "apps/web/package.json", "test_command": "pnpm --filter @kaneo/web test"}, {"name": "@kaneo/site", "root": "apps/site", "manifest": "apps/site/package.json"}]},
+  "submodules": [],
+  "lfs": false,
+  "lfs_patterns": [],
+  "infra_hints": {"dockerfile": true, "docker_compose": true, "terraform": false, "github_workflows": true, "gitlab_ci": false},
+  "regulated_repo_signals": [{"kind": "security-policy", "path": "SECURITY.md"}],
+  "regulated_repo_warning_required": true,
+  "gitignore_covers_sdlc": false,
+  "off_limits_proposed": ["AGENTS.md", "CLAUDE.md", ".agents/**", ".claude/**", ".codex/**", ".cursor/**", ".env", ".env.*", "apps/api/.env.*", "apps/web/.env.*", "node_modules/**", "dist/**", "build/**", ".next/**", ".git/**"],
+  "coexistence_notes": ["Cursor rules detected — untouched by default.", ".sdlc/ is not covered by the repository .gitignore."]
+}

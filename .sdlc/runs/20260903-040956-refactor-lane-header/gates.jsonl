@@ -1,0 +1,5 @@
+{"gate":0,"artifact":"discovery.md","decision":"approved","note":"Human approved stack, policy, refactor intent, strict scope, and recommended no-op interpretation."}
+{"gate":1,"artifact":"requirements.md","decision":"approved","note":"Human approved requirements including mandatory no-op when extraction is already complete."}
+{"gate":2,"artifact":"change_plan.md","decision":"approved","note":"Human approved the delta change plan and preserved invariants."}
+{"gate":3,"artifact":"security_review.md","decision":"approved","note":"Human approved the security review of the empty source diff."}
+{"gate":4,"artifact":"SUMMARY.md","decision":"approved","note":"Human accepted the final no-op run and its verification limitations."}
