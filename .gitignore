@@ -55,3 +55,9 @@ compose.override.yml
 # TanStack Router generated cache
 apps/web/.tanstack/
 .pi/
+# SDLC run artifacts
+.hook-logs/
+# Antigravity SDK worker session stores: binary SQLite, ~1MB each.
+# The human-readable run artifacts under .sdlc/ are tracked; these are not.
+.sdlc/**/_gemini_worker_save/
+.sdlc/local/

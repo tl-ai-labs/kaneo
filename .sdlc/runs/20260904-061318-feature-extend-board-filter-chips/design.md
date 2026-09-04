@@ -1,0 +1,962 @@
+# Design — Board filters in URL search params
+
+Run: `20260904-061318-feature-extend-board-filter-chips` · Intent: `feature-extend` · Mode: brownfield
+Inputs: `requirements.md` (approved Gate 1), `intent_brief.md`, `.sdlc/baseline/stack-profile.md`.
+
+Gate-1 settled decisions are treated as facts throughout: **comma-joined encoding**, **batching in
+`board-toolbar.tsx`**, **clean cutover (no localStorage read)**, **`replace: true` on every filter
+navigation**, **no schema library**.
+
+---
+
+## 1. Module map
+
+| File | Change | Why |
+| --- | --- | --- |
+| `apps/web/src/lib/board-filter-search-params.ts` | **New.** The single codec: raw-param reader, decoder, encoder, key constants. | Route and hook must agree by construction (FR-3). Testable without a router. |
+| `apps/web/src/lib/board-filter-search-params.test.ts` | **New.** Pure unit tests for the codec, including the comma invariant. | Tolerance rules (FR-8) are cheapest to prove here. |
+| `apps/web/src/routes/.../project/$projectId/board.tsx` | Extend `BoardSearchParams` + `validateSearch` with the five filter keys; rewrite `handleCloseTaskSheet` to a spread updater. | FR-1, FR-6. |
+| `apps/web/src/hooks/use-task-filters-with-labels-support.ts` | Delete both localStorage effects and `useState`; derive `filters` from `useSearch({ strict: false })`; every mutator navigates. `filterTasks` / `filteredProject` copied verbatim. | FR-4, FR-5, NFR-6. |
+| `apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx` | **Rewrite** (never delete). Same two behaviours, re-expressed against search params. | R4. |
+| `apps/web/src/components/board/board-toolbar.tsx` | Replace the two `for`-loop `updateLabelFilter` sites with single batched `updateFilter("labels", next)` calls. Nothing else changes. | R1 — the single most likely silent regression. |
+| `apps/web/src/components/board/board-toolbar.test.tsx` | **New.** Colour-group toggle regression test asserting on the real navigate payload. | R1. |
+| `apps/web/src/components/kanban-board/task-card.tsx` | `search: {}` → spread updater clearing only `taskId`. No `replace` added. | FR-6. |
+| `apps/web/src/components/kanban-board/task-card.test.tsx` | **New.** Proves the toggle-off click preserves filter params. | R2. |
+| `apps/web/src/components/list-view/task-row.tsx` | `search: {}` → spread updater clearing only `taskId`. No `replace` added. | FR-6. |
+| `apps/web/src/components/list-view/task-row.test.tsx` | Extend the existing file with the same proof. Keep the existing test intact. | R2. |
+| `.gitignore` | Add `.sdlc/` and `.hook-logs/`. | FR-9. |
+
+**Blast radius is closed.** `KanbanBoard` (`@/components/kanban-board`) and `ListView`
+(`@/components/list-view`) are imported by exactly one file — `board.tsx`. Therefore `task-card.tsx`
+and `task-row.tsx` render only under the board route, and changing their navigation shape cannot
+reach backlog, gantt, or the public board. `task-card-context-menu-content.tsx` is shared with
+`subtask-row.tsx` / `backlog-task-row.tsx` — **it is not touched.**
+
+**Not touched, restated:** `use-task-filters.ts` (read-only source of `BoardFilters` and
+`DUE_DATE_FILTER_VALUES`; keeps its own localStorage behaviour), `public-project/**`,
+`backlog.tsx`, `gantt.tsx`, `backlog-list-view/**`, `i18n/**`, `package.json`, `routeTree.gen.ts`.
+
+No new i18n keys. No new dependency. `zod` is present in `apps/web/package.json` for form
+resolvers — **it must not be used for route search validation**; the repo precedent is hand-rolled
+`typeof` guards.
+
+---
+
+## 2. The codec contract — `apps/web/src/lib/board-filter-search-params.ts`
+
+### 2.1 Exports
+
+```ts
+import type { BoardFilters } from "@/hooks/use-task-filters";
+
+export const BOARD_FILTER_SEARCH_KEYS: ReadonlyArray<keyof BoardFilters>;
+export type BoardFilterSearchKey = keyof BoardFilters;
+
+/** The five keys as they appear in the URL. All optional, all comma-joined strings. */
+export type BoardFilterSearchParams = {
+  status?: string;
+  priority?: string;
+  assignee?: string;
+  dueDate?: string;
+  labels?: string;
+};
+
+export const EMPTY_BOARD_FILTERS: BoardFilters;
+
+/** Raw pass-through reader used by `validateSearch`. No normalisation. */
+export function readRawFilterParam(
+  search: Record<string, unknown>,
+  key: BoardFilterSearchKey,
+): string | undefined;
+
+/** One param -> one filter value. Applies all tolerance rules. */
+export function decodeFilterValue(raw: unknown): string[] | null;
+
+/** Whole search object -> complete `BoardFilters` (all-null default). */
+export function decodeBoardFilters(search: Record<string, unknown>): BoardFilters;
+
+/** One filter value -> one param. Empty/absent yields `undefined`. */
+export function encodeFilterValue(values: string[] | null | undefined): string | undefined;
+
+/** Whole `BoardFilters` -> all five params, each `string | undefined`. */
+export function encodeBoardFilters(
+  filters: BoardFilters,
+): Record<BoardFilterSearchKey, string | undefined>;
+```
+
+`BoardFilters` is imported **type-only** from `@/hooks/use-task-filters` (that file is read-only;
+a type-only import is legal and adds no runtime edge).
+
+### 2.2 Implementation
+
+```ts
+import type { BoardFilters } from "@/hooks/use-task-filters";
+
+export type BoardFilterSearchKey = keyof BoardFilters;
+
+export const BOARD_FILTER_SEARCH_KEYS: ReadonlyArray<BoardFilterSearchKey> = [
+  "status",
+  "priority",
+  "assignee",
+  "dueDate",
+  "labels",
+];
+
+export type BoardFilterSearchParams = {
+  status?: string;
+  priority?: string;
+  assignee?: string;
+  dueDate?: string;
+  labels?: string;
+};
+
+export const EMPTY_BOARD_FILTERS: BoardFilters = {
+  status: null,
+  priority: null,
+  assignee: null,
+  dueDate: null,
+  labels: null,
+};
+
+export function readRawFilterParam(
+  search: Record<string, unknown>,
+  key: BoardFilterSearchKey,
+): string | undefined {
+  const value = search[key];
+  return typeof value === "string" ? value : undefined;
+}
+
+export function decodeFilterValue(raw: unknown): string[] | null {
+  if (typeof raw !== "string") return null;
+
+  const seen = new Set<string>();
+  for (const segment of raw.split(",")) {
+    const trimmed = segment.trim();
+    if (trimmed.length === 0) continue;
+    seen.add(trimmed);
+  }
+
+  return seen.size > 0 ? [...seen] : null;
+}
+
+export function decodeBoardFilters(search: Record<string, unknown>): BoardFilters {
+  return {
+    status: decodeFilterValue(search.status),
+    priority: decodeFilterValue(search.priority),
+    assignee: decodeFilterValue(search.assignee),
+    dueDate: decodeFilterValue(search.dueDate),
+    labels: decodeFilterValue(search.labels),
+  };
+}
+
+export function encodeFilterValue(
+  values: string[] | null | undefined,
+): string | undefined {
+  if (!Array.isArray(values)) return undefined;
+
+  const seen = new Set<string>();
+  for (const value of values) {
+    if (typeof value !== "string") continue;
+    const trimmed = value.trim();
+    // A legal filter value is a slug or a UUID and can never contain a comma.
+    // Dropping such a value keeps the emitted URL unambiguous.
+    if (trimmed.length === 0 || trimmed.includes(",")) continue;
+    seen.add(trimmed);
+  }
+
+  return seen.size > 0 ? [...seen].join(",") : undefined;
+}
+
+export function encodeBoardFilters(
+  filters: BoardFilters,
+): Record<BoardFilterSearchKey, string | undefined> {
+  return {
+    status: encodeFilterValue(filters.status),
+    priority: encodeFilterValue(filters.priority),
+    assignee: encodeFilterValue(filters.assignee),
+    dueDate: encodeFilterValue(filters.dueDate),
+    labels: encodeFilterValue(filters.labels),
+  };
+}
+```
+
+`Set` gives insertion-ordered dedupe in one pass — no separate `filter`/`indexOf` step.
+
+### 2.3 Decode tolerance rules (numbered, each individually testable)
+
+1. **Non-string → ignore.** `undefined`, `null`, numbers, arrays, objects, booleans all yield
+   `null`. There is no array branch: TanStack can produce an array for a repeated key, and an array
+   is deliberately *not* accepted, because comma-joined is the only supported encoding.
+2. **Empty string → ignore.** `""` splits to `[""]`, the segment trims to empty, is dropped, and
+   the result `[]` becomes `null`.
+3. **Trim each segment.** `" a , b "` → `["a", "b"]`.
+4. **Drop empty segments.** `"a,,b"` → `["a", "b"]`. `",,,"` → `null`.
+5. **Drop duplicates**, keeping first-occurrence order. `"a,b,a"` → `["a", "b"]`.
+6. **A segment that is empty after trim is dropped.** `"a, ,b"` → `["a", "b"]`.
+7. **Result `[]` → `null`.** The hook and `filterTasks` treat `null` and `[]` identically today, but
+   `null` is what `DEFAULT_FILTERS` uses and what `hasActiveFilters` expects, so the codec never
+   returns an empty array.
+8. **Never throws.** No `JSON.parse`, no regex, no indexing that can fault. Absurdly long values
+   pass through as one long segment and simply match nothing.
+
+### 2.4 The comma invariant (load-bearing, named test required)
+
+> **Invariant.** No legal value of `status`, `priority`, `assignee`, `dueDate` or `labels` contains a
+> comma. They are column IDs (UUIDs), priority slugs (`urgent|high|medium|low`), user IDs (UUIDs),
+> due-date slugs (`dueThisWeek|dueNextWeek|noDueDate`) and label IDs (UUIDs).
+>
+> **Consequence.** A value that nevertheless carries a comma splits into segments that match no task
+> attribute. The board therefore renders as if that filter matched nothing *for that value* — it
+> never invents a filter entry with different meaning, and it never throws. On the encode side such
+> a value is dropped entirely rather than emitted, so we never produce a URL we cannot read back.
+
+Required named tests in `board-filter-search-params.test.ts`:
+
+- `"a value containing a comma splits into segments that match nothing rather than inventing a filter"`
+- `"encodeFilterValue drops a value containing a comma rather than emitting an ambiguous parameter"`
+
+---
+
+## 3. `validateSearch` design — `board.tsx`
+
+```tsx
+import {
+  type BoardFilterSearchParams,
+  readRawFilterParam,
+} from "@/lib/board-filter-search-params";
+
+type BoardSearchParams = BoardFilterSearchParams & {
+  taskId?: string;
+};
+
+export const Route = createFileRoute(
+  "/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board",
+)({
+  component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
+    taskId: typeof search.taskId === "string" ? search.taskId : undefined,
+    status: readRawFilterParam(search, "status"),
+    priority: readRawFilterParam(search, "priority"),
+    assignee: readRawFilterParam(search, "assignee"),
+    dueDate: readRawFilterParam(search, "dueDate"),
+    labels: readRawFilterParam(search, "labels"),
+  }),
+});
+```
+
+**`validateSearch` performs no normalisation.** It is a raw string pass-through. If it trimmed or
+deduped, TanStack would rewrite the user's URL on load — a visible, unrequested side effect.
+Normalisation happens exactly once, at decode time inside the hook.
+
+**"No filter params" produces no injected keys.** With none of the five present in the URL, every
+`readRawFilterParam` returns `undefined`. TanStack Router omits `undefined` search values during
+stringification, so the resulting URL is byte-identical to the input — no redirect, no `?status=`,
+no visual change (FR-7, acceptance criterion 2).
+
+`taskId` stays first and unchanged.
+
+---
+
+## 4. Hook redesign — `use-task-filters-with-labels-support.ts`
+
+### 4.1 Public API — byte-identical
+
+Returns exactly `{ filters, setFilters, updateFilter, updateLabelFilter, filteredProject,
+hasActiveFilters, clearFilters }`, with the same types. `updateLabelFilter(labelId: string): void`
+**remains exported with an unchanged signature** even though the toolbar's two loop sites stop
+calling it.
+
+### 4.2 Router access
+
+Use **`useSearch({ strict: false })` and `useNavigate()`**, both imported at module top level from
+`@tanstack/react-router`.
+
+- **Not `Route.useSearch()`** — the hook lives in `@/hooks` and `board.tsx` imports the hook.
+  Importing the route back into the hook is a circular import and hard-couples a generic hook to one
+  route file.
+- **`strict: false`** is required because the hook has no `from` route id. It returns the merged
+  search shape; cast to `Record<string, unknown>` for the codec.
+- Both are plain named module exports, so the existing
+  `vi.mock("@tanstack/react-router", () => ({ ... }))` precedent from `task-row.test.tsx` covers
+  them with no router provider in tests.
+
+```ts
+const search = useSearch({ strict: false }) as Record<string, unknown>;
+```
+
+If `tsc` rejects that cast, widen it to `as unknown as Record<string, unknown>`. Do not add a
+router provider to unit tests.
+
+### 4.3 Deriving `filters` — memoised on primitives (NFR-6)
+
+Do **not** memo on the `search` object: its identity changes on every router state update, and the
+resulting fresh `BoardFilters` identity would churn `filterTasks` → `filteredProject` on every
+render. Memo on the five raw strings, which are primitives:
+
+```ts
+const rawStatus = readRawFilterParam(search, "status");
+const rawPriority = readRawFilterParam(search, "priority");
+const rawAssignee = readRawFilterParam(search, "assignee");
+const rawDueDate = readRawFilterParam(search, "dueDate");
+const rawLabels = readRawFilterParam(search, "labels");
+
+const filters = useMemo(
+  () =>
+    decodeBoardFilters({
+      status: rawStatus,
+      priority: rawPriority,
+      assignee: rawAssignee,
+      dueDate: rawDueDate,
+      labels: rawLabels,
+    }),
+  [rawStatus, rawPriority, rawAssignee, rawDueDate, rawLabels],
+);
+```
+
+Every dependency is `string | undefined`. This satisfies Biome's `useExhaustiveDependencies` with no
+suppression comment, and `filters` keeps a stable identity across unrelated re-renders.
+
+### 4.4 Mutators
+
+All four navigate with `to: "."`, a **functional** `search` updater, and `replace: true`.
+`setFilters` is the single primitive; the other three delegate to it.
+
+```ts
+const setFilters = useCallback(
+  (update: SetStateAction<BoardFilters>) => {
+    navigate({
+      to: ".",
+      search: (prev: Record<string, unknown>) => {
+        const current = decodeBoardFilters(prev);
+        const next = typeof update === "function" ? update(current) : update;
+        return { ...prev, ...encodeBoardFilters(next) };
+      },
+      replace: true,
+    });
+  },
+  [navigate],
+);
+
+const clearFilters = useCallback(() => {
+  setFilters(EMPTY_BOARD_FILTERS);
+}, [setFilters]);
+
+const updateFilter = useCallback(
+  (key: keyof BoardFilters, value: BoardFilters[keyof BoardFilters]) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  },
+  [setFilters],
+);
+
+const updateLabelFilter = useCallback(
+  (labelId: string) => {
+    setFilters((prev) => {
+      const currentLabels = prev.labels || [];
+      const isSelected = currentLabels.includes(labelId);
+
+      let newLabels: string[] | null;
+      if (isSelected) {
+        newLabels = currentLabels.filter((id) => id !== labelId);
+        if (newLabels.length === 0) newLabels = null;
+      } else {
+        newLabels = [...currentLabels, labelId];
+      }
+
+      return { ...prev, labels: newLabels };
+    });
+  },
+  [setFilters],
+);
+```
+
+`SetStateAction` is imported type-only from `react`:
+`import { type SetStateAction, useCallback, useMemo } from "react";`
+
+Notes the codegen must respect:
+
+- **`setFilters` accepts both a value and an updater.** It is part of the exported API surface and
+  its consumers may pass either form. The `typeof update === "function"` branch is mandatory.
+- **Spreading `encodeBoardFilters(next)` over `prev` is what clears emptied keys.** Every one of the
+  five keys is always present in the encode result; an empty filter yields `undefined`, and TanStack
+  omits `undefined` values from the URL. So `?status=` can never be produced (FR-7).
+- **`taskId` and every unrelated search key survive**, because `prev` is spread first.
+- **`replace: true` on all four mutators.** No history entry per chip click.
+- **Decoding `prev` inside the updater does *not* fix the loop hazard.** N synchronous `navigate()`
+  calls in one tick each resolve `prev` from the same committed router location; last write wins.
+  The fix lives in `board-toolbar.tsx` (§6). Do not weaken §6 on the strength of this shape.
+- If `tsc` rejects the `prev: Record<string, unknown>` annotation, drop the annotation and let it
+  infer: `search: (prev) => ({ ...prev, ...encodeBoardFilters(next) })`. Do not add an `any`.
+
+### 4.5 `projectId` parameter
+
+The parameter is **kept** — removing it would churn every call site and the hook's arity. It is no
+longer used (there is no storage key). Rename it to `_projectId` so TypeScript's
+`noUnusedParameters: true` (set in `tsconfig.app.json`) does not error. The leading underscore is
+the sanctioned escape hatch; the positional signature is unchanged.
+
+```ts
+export function useTaskFiltersWithLabelsSupport(
+  project: ProjectWithTasks | null | undefined,
+  _projectId?: string,
+  textQuery?: string,
+) {
+```
+
+### 4.6 Deletions
+
+Delete, with nothing left behind:
+
+- `const storageKey = projectId ? \`kaneo:board-filters:${projectId}\` : null;`
+- `const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);`
+- the read `useEffect` (current L52–67)
+- the write `useEffect` (current L69–72)
+- the local `normalizeFilters`, `DEFAULT_FILTERS` and `FILTER_KEYS` — superseded by the codec's
+  `decodeBoardFilters` / `EMPTY_BOARD_FILTERS`. Leaving them would trip `noUnusedLocals`.
+- the `useEffect` and `useState` imports from `react`.
+
+**No `kaneo:board-filters:` string may remain anywhere in this file.** Clean cutover (FR-5).
+
+### 4.7 Hard constraint — `filterTasks` is copied verbatim
+
+`filterTasks` (current L74–186), `filteredProject` (L188–199) and the `hasActiveFilters` expression
+(L201–203) are transferred **character-for-character**, including the `useCallback` dependency array
+`[filters, project?.slug, textQuery, weekStartsOn]`, the `useUserPreferencesStore` selector, the
+`date-fns` imports, and the two existing comments. **Zero behaviour change.** AND across filter
+types, OR within a type, empty columns preserved. Any diff inside these three blocks other than
+whitespace produced by Biome formatting is a defect.
+
+---
+
+## 5. The three `search: {}` fixes
+
+All three clear **only** `taskId` and preserve every other search key.
+
+### 5.1 `board.tsx` (current L96–102)
+
+```tsx
+const handleCloseTaskSheet = useCallback(() => {
+  navigate({
+    to: ".",
+    search: (prev) => ({ ...prev, taskId: undefined }),
+    replace: true,
+  });
+}, [navigate]);
+```
+
+`replace: true` is retained — it is the existing behaviour at this site.
+
+### 5.2 `task-card.tsx` (current L144–157, inside `handleTaskCardClick`)
+
+```tsx
+const currentParams = new URLSearchParams(window.location.search);
+const currentTaskId = currentParams.get("taskId");
+
+if (currentTaskId === task.id) {
+  navigate({
+    to: ".",
+    search: (prev: Record<string, unknown>) => ({ ...prev, taskId: undefined }),
+  });
+} else {
+  navigate({
+    to: ".",
+    search: (prev: Record<string, unknown>) => ({ ...prev, taskId: task.id }),
+  });
+}
+```
+
+### 5.3 `task-row.tsx` (current L143–156, inside `handleClick`)
+
+Identical replacement to §5.2, same two branches.
+
+**Both `task-card.tsx` and `task-row.tsx` keep their current history behaviour — do not add
+`replace`.** Only the shape of `search` changes.
+
+**Both branches change,** not just the clear branch: `search: { taskId: task.id }` would otherwise
+wipe the filters when *opening* a task sheet, which is the same bug in the other direction.
+
+If `tsc` rejects the `prev: Record<string, unknown>` annotation at these two sites (they navigate
+relatively from a non-route-specific component), drop the annotation and let it infer:
+`search: (prev) => ({ ...prev, taskId: undefined })`. Do not introduce `any` and do not add a
+`from:` option.
+
+---
+
+## 6. `board-toolbar.tsx` — the two batched replacements
+
+Only these two functions change. Every other line of the file, including `updateLabelFilter` in
+`BoardToolbarProps`, is untouched.
+
+### 6.1 `toggleLabelGroup` (replaces current L233–247)
+
+```tsx
+const toggleLabelGroup = (label: { name: string; color: string }) => {
+  const matching = workspaceLabels.filter(
+    (l) => l.name === label.name && l.color === label.color,
+  );
+  const current = filters.labels ?? [];
+  const anySelected = matching.some((l) => current.includes(l.id));
+
+  const matchingIds = new Set(matching.map((l) => l.id));
+  const next = anySelected
+    ? current.filter((id) => !matchingIds.has(id))
+    : [
+        ...current,
+        ...matching.filter((l) => !current.includes(l.id)).map((l) => l.id),
+      ];
+
+  updateFilter("labels", next.length > 0 ? next : null);
+};
+```
+
+Semantics proof against the original loop:
+
+- `anySelected === true` → the loop called `updateLabelFilter` for exactly the matching labels that
+  were already included, each of which removes that id. Net effect: remove every matching id from
+  `current`. The `filter(!matchingIds.has(id))` form is identical, and preserves the relative order
+  of the surviving ids.
+- `anySelected === false` → no matching label is in `current`, so the loop called
+  `updateLabelFilter` for every matching label, each appending in `matching` order. The spread form
+  appends the same ids in the same order. The redundant `!current.includes(l.id)` guard is kept so
+  the expression is correct even if a caller ever passes overlapping data.
+- Empty result → `null`, matching `updateLabelFilter`'s own `if (newLabels.length === 0)
+  newLabels = null;`.
+
+### 6.2 `clearLabelFilters` (replaces current L249–252)
+
+```tsx
+const clearLabelFilters = () => {
+  if (!filters.labels || filters.labels.length === 0) return;
+  updateFilter("labels", null);
+};
+```
+
+The original looped every selected label id through `updateLabelFilter`, each removing one, ending
+at `null`. One call reaches the same terminal state. The early return is retained so the no-op click
+on "All labels" still produces no navigation — preserving today's behaviour and avoiding a pointless
+history/replace churn.
+
+### 6.3 What must NOT change
+
+- `updateLabelFilter` stays in `BoardToolbarProps` and stays destructured in the component
+  signature. It is still passed by `board.tsx`. **Do not remove it** — Biome will not flag an unused
+  destructured prop, and removing it would break the hook's documented public API contract. If
+  Biome's `noUnusedVariables` does flag it, keep the prop in the type and the destructure and add
+  `// biome-ignore lint/correctness/noUnusedVariables: part of the hook's public API contract`.
+- `isLabelGroupSelected`, all four other `toggle*Filter` helpers, every chip, every `onClear`, and
+  all JSX are unchanged.
+
+---
+
+## 7. Test plan
+
+### 7.1 `src/lib/board-filter-search-params.test.ts` (new)
+
+Pure functions, no React, no router, no mocks.
+
+`decodeFilterValue`:
+- `undefined` / `null` / `42` / `["a"]` / `{}` / `true` → `null` (rule 1)
+- `""` and `"   "` → `null` (rules 2, 6)
+- `"to-do"` → `["to-do"]`
+- `"to-do,in-progress"` → `["to-do", "in-progress"]`
+- `" a , b "` → `["a", "b"]` (rule 3)
+- `"a,,b"` → `["a", "b"]` (rule 4)
+- `",,,"` → `null` (rules 4, 7)
+- `"a,b,a"` → `["a", "b"]` (rule 5)
+- `"x".repeat(50000)` → a one-element array, does not throw (rule 8)
+- **named:** `"a value containing a comma splits into segments that match nothing rather than inventing a filter"` — assert `decodeFilterValue("uuid-with,comma")` equals `["uuid-with", "comma"]` and that neither segment equals the original string; document in the test body that both segments therefore fail every `includes` check in `filterTasks`.
+
+`decodeBoardFilters`:
+- `{}` → deep-equals `EMPTY_BOARD_FILTERS`
+- `{ taskId: "t1" }` → `EMPTY_BOARD_FILTERS` (unrelated keys ignored)
+- a full five-key object round-trips
+- `{ status: ["a", "b"] }` (array form) → `status: null` — arrays are deliberately unsupported
+
+`encodeFilterValue`:
+- `null` / `undefined` / `[]` → `undefined`
+- `["a"]` → `"a"`; `["a", "b"]` → `"a,b"`
+- `["a", "a", " a "]` → `"a"` (dedupe after trim)
+- `["", "  "]` → `undefined`
+- **named:** `"encodeFilterValue drops a value containing a comma rather than emitting an ambiguous parameter"` — `encodeFilterValue(["ok", "bad,value"])` → `"ok"`; `encodeFilterValue(["bad,value"])` → `undefined`
+
+`encodeBoardFilters`:
+- `EMPTY_BOARD_FILTERS` → all five keys present and every value `undefined` (this is what lets a spread clear a key)
+- round-trip: `decodeBoardFilters(encodeBoardFilters(f))` deep-equals `f` for a fully-populated `f`
+
+`readRawFilterParam`:
+- returns the raw, un-normalised string (`" a , b "` comes back verbatim) — proving `validateSearch` does not rewrite the URL
+
+### 7.2 `src/hooks/use-task-filters-with-labels-support.test.tsx` (rewrite)
+
+**Both existing behaviours are preserved**, re-expressed against search params:
+
+1. `"restores label filters from search params and matches tasks from project data"` — the same
+   project fixture as today (task-1 carries `label-bug`, task-2 carries none). Instead of seeding
+   `localStorage`, the mocked `useSearch` returns `{ labels: "label-bug" }`. Assert
+   `result.current.filters.labels` equals `["label-bug"]`, `filteredProject.columns[0].tasks` has
+   length 1, and `tasks[0].id === "task-1"`. Drop the `localStorage.clear()` `beforeEach`/`afterEach`
+   and the `waitFor` (the value is now available on first render, not after an effect).
+2. `it.each(["#123", "proj-123", "proj-"])("matches a task by its issue identifier when searching for %s")`
+   — **the entire fixture and assertion are carried over verbatim.** Only the mocked search becomes
+   `{}`. This block must not otherwise change.
+
+New cases in the same file:
+
+3. `"renders unfiltered and injects no search keys when there are no filter params"` — mocked search
+   `{}`. Assert `hasActiveFilters === false`, `filters` deep-equals the all-null default, both
+   tasks visible, and `navigate` was never called (no redirect, no injection — FR-7).
+4. `"empty columns are preserved when a filter matches nothing"` — search `{ labels: "nope" }`;
+   assert `filteredProject.columns` still has length 1 and `columns[0].tasks` has length 0.
+5. `"filters keep a stable identity across re-renders"` (NFR-6) — `rerender()` with unchanged search;
+   assert `result.current.filters` is reference-`toBe` the previous value and `filteredProject` is
+   reference-`toBe` the previous value.
+6. `"updateFilter navigates with replace and clears the key when the value is empty"` — with a
+   stateful navigate mock (§7.6), call `updateFilter("status", ["to-do"])` then
+   `updateFilter("status", null)`; assert the held search ends with `status: undefined` and every
+   `navigate` call carried `replace: true`.
+7. `"mutating a filter preserves taskId"` — initial search `{ taskId: "task-9" }`; call
+   `updateFilter("priority", ["high"])`; assert the resulting search still has `taskId: "task-9"`.
+8. `"setFilters accepts both a value and an updater function"` — call
+   `setFilters({ ...EMPTY_BOARD_FILTERS, status: ["a"] })`, then
+   `setFilters((prev) => ({ ...prev, priority: ["high"] }))`; assert the held search is
+   `{ status: "a", priority: "high" }` and the updater received the decoded previous filters.
+9. `"hostile search params degrade to unfiltered without throwing"` — mocked search
+   `{ status: 42, labels: ["arr"], priority: "", dueDate: ",,," }`; assert no throw,
+   `hasActiveFilters === false`, all tasks visible.
+
+Mock shape at the top of the file:
+
+```tsx
+const { navigateSpy, searchRef } = vi.hoisted(() => ({
+  navigateSpy: vi.fn(),
+  searchRef: { current: {} as Record<string, unknown> },
+}));
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => navigateSpy,
+  useSearch: () => searchRef.current,
+}));
+```
+
+`useUserPreferencesStore` must be mocked (the hook reads `weekStartsOn` via a selector):
+
+```tsx
+vi.mock("@/store/user-preferences", () => ({
+  useUserPreferencesStore: (selector: (s: { weekStartsOn: number }) => unknown) =>
+    selector({ weekStartsOn: 1 }),
+}));
+```
+
+### 7.3 `src/components/board/board-toolbar.test.tsx` (new) — the R1 regression test
+
+**Required assertion target: the resulting search params produced by the real hook, never a mock of
+`updateFilter`.** A mock-based assertion (`expect(updateFilter).toHaveBeenCalledWith("labels",
+[...])`) would pass against the buggy loop implementation as well, because the loop calls a
+*different* function; and even a spy on `updateLabelFilter` call count would pass while the URL ends
+up with one label. Only an end-state assertion on search params catches this.
+
+**Mechanism — stateful navigate mock.** The mock holds a search object and applies the functional
+updater to it, then triggers a re-render so the toolbar sees the new `filters`:
+
+```tsx
+const { navigateSpy, searchRef } = vi.hoisted(() => ({
+  navigateSpy: vi.fn(),
+  searchRef: { current: {} as Record<string, unknown> },
+}));
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => navigateSpy,
+  useSearch: () => searchRef.current,
+}));
+```
+
+In `beforeEach`:
+
+```tsx
+searchRef.current = {};
+navigateSpy.mockImplementation((opts: { search: unknown }) => {
+  if (typeof opts.search === "function") {
+    searchRef.current = (opts.search as (p: Record<string, unknown>) => Record<string, unknown>)(
+      searchRef.current,
+    );
+  }
+  bumpHarness();
+});
+```
+
+`bumpHarness` is set by the harness component, which is what makes the applied search visible to the
+next render:
+
+```tsx
+let bumpHarness = () => {};
+
+function Harness({ workspaceLabels }: { workspaceLabels: WorkspaceLabel[] }) {
+  const [, setTick] = useState(0);
+  bumpHarness = () => setTick((n) => n + 1);
+  const { filters, updateFilter, updateLabelFilter, hasActiveFilters, clearFilters } =
+    useTaskFiltersWithLabelsSupport(project, "project-1");
+
+  return (
+    <BoardToolbar
+      project={project}
+      filters={filters}
+      updateFilter={updateFilter}
+      updateLabelFilter={updateLabelFilter}
+      clearFilters={clearFilters}
+      hasActiveFilters={hasActiveFilters}
+      workspaceLabels={workspaceLabels}
+      viewMode="board"
+      setViewMode={() => {}}
+      sort={{ field: "position", direction: "asc" }}
+      onSortChange={() => {}}
+    />
+  );
+}
+```
+
+**Menu mock — makes the label items directly clickable in jsdom.** The dropdown/submenu primitives
+do not open reliably under jsdom, and opening them is not what this test is about. Render them
+eagerly:
+
+```tsx
+vi.mock("@/components/ui/menu", () => {
+  const Passthrough = ({ children }: { children?: ReactNode }) => <div>{children}</div>;
+  return {
+    DropdownMenu: Passthrough,
+    DropdownMenuContent: Passthrough,
+    DropdownMenuGroup: Passthrough,
+    DropdownMenuLabel: Passthrough,
+    DropdownMenuSeparator: () => null,
+    DropdownMenuSub: Passthrough,
+    DropdownMenuSubContent: Passthrough,
+    DropdownMenuSubTrigger: Passthrough,
+    DropdownMenuTrigger: Passthrough,
+    DropdownMenuItem: ({
+      children,
+      onClick,
+      disabled,
+    }: {
+      children?: ReactNode;
+      onClick?: () => void;
+      disabled?: boolean;
+    }) => (
+      <button type="button" onClick={onClick} disabled={disabled}>
+        {children}
+      </button>
+    ),
+  };
+});
+```
+
+Also mock `@/components/common/sort-control` to `() => null`, `react-i18next` to an identity `t`,
+and `@/store/user-preferences` as in §7.2.
+
+Tests:
+
+1. **`"toggling a colour group in one tick selects every label in the group"`** — three workspace
+   labels share `{ name: "Bug", color: "red" }` with ids `l1`, `l2`, `l3`; a fourth is unrelated.
+   Click the "Bug" item once inside `act`. Assert `searchRef.current.labels` is `"l1,l2,l3"` (order
+   preserved) **and** that `decodeFilterValue(searchRef.current.labels)` has length 3. Assert
+   `navigateSpy` was called exactly once. This is the test that fails against N sequential
+   `updateLabelFilter` calls.
+2. `"toggling a selected colour group removes every label in the group"` — seed
+   `searchRef.current = { labels: "l1,l2,l3,other" }`, click "Bug", assert
+   `searchRef.current.labels === "other"`.
+3. `"clearing labels removes the key entirely"` — seed `{ labels: "l1,l2" }`, click the
+   "All labels" item, assert `searchRef.current.labels` is `undefined` (not `""`).
+4. `"clearing labels when none are selected does not navigate"` — seed `{}`, click "All labels",
+   assert `navigateSpy` not called.
+5. `"a label toggle preserves taskId and other filters"` — seed
+   `{ taskId: "task-9", status: "to-do" }`, click "Bug", assert `searchRef.current.taskId ===
+   "task-9"` and `searchRef.current.status === "to-do"`.
+
+### 7.4 `src/components/kanban-board/task-card.test.tsx` (new)
+
+Mock set, following the `task-row.test.tsx` precedent exactly: `@tanstack/react-router` (hoisted
+`navigateSpy`), `@dnd-kit/sortable` (`useSortable` → `{ attributes: {}, listeners: {}, setNodeRef:
+vi.fn(), transform: null, transition: undefined, isDragging: false }`), `@/store/project`,
+`@/store/bulk-selection`, `@/store/user-preferences`, `@/hooks/queries/workspace/use-active-workspace`,
+`@/hooks/queries/workspace-users/use-get-active-workspace-users`,
+`@/hooks/mutations/task/use-delete-task`,
+`./task-card-context-menu/task-card-context-menu-content` → `() => null`, `react-i18next`.
+
+Tests:
+
+1. **`"closing the task sheet clears only taskId and preserves filter params"`** —
+   `window.history.replaceState({}, "", "/board?taskId=task-1&status=to-do&labels=l1")` so the
+   `currentTaskId === task.id` branch runs; click the card; take `navigateSpy.mock.calls[0][0]`;
+   assert `to === "."`, `typeof search === "function"`, `replace === undefined` (history behaviour
+   at this site is unchanged), and
+   `search({ taskId: "task-1", status: "to-do", labels: "l1" })` deep-equals
+   `{ taskId: undefined, status: "to-do", labels: "l1" }`.
+2. `"opening a task sheet preserves filter params"` — no `taskId` in the URL; click; assert
+   `search({ status: "to-do" })` deep-equals `{ status: "to-do", taskId: "task-1" }`.
+
+### 7.5 `src/components/list-view/task-row.test.tsx` (extend)
+
+Keep the existing test `"renders labels and pull requests from the task payload without per-row
+requests"` and every existing mock. Change only the router mock to the hoisted `navigateSpy` form,
+and append the same two tests as §7.4, driven by clicking the row. `afterEach` must reset the URL
+with `window.history.replaceState({}, "", "/")` alongside the existing `cleanup()`.
+
+### 7.6 Shared stateful-navigate helper
+
+Do **not** extract it into a shared file — `src/**/*.test.{ts,tsx}` is the only include glob and a
+non-test helper under `src/` would ship in the bundle. Duplicate the ~10-line `vi.hoisted` block in
+`use-task-filters-with-labels-support.test.tsx` and `board-toolbar.test.tsx`.
+
+---
+
+## 8. ADRs
+
+### ADR-1 — Comma-joined encoding
+
+**Context.** Five multi-select filters must round-trip through a URL. TanStack Router supports
+repeated keys (`?labels=a&labels=b`), which arrive as arrays.
+**Decision.** One key per filter, values comma-joined: `?status=to-do,in-progress`.
+**Consequences.** URLs stay short and human-readable, which is the whole point of a shareable
+filtered board. The parser is a `split`, not an array/string union. The cost is a hard assumption
+that no legal value contains a comma — true for UUIDs and slugs — which §2.4 makes an explicit,
+named, tested invariant with a defined degradation (matches nothing) rather than an undefined one.
+Arrays are deliberately rejected by `decodeFilterValue`, so a hand-crafted repeated-key URL degrades
+to unfiltered instead of half-working.
+
+### ADR-2 — A separate codec module
+
+**Context.** `validateSearch` in the route and the decode in the hook must agree, or a URL that
+validates will filter differently than it reads.
+**Decision.** `apps/web/src/lib/board-filter-search-params.ts` owns every parse and serialise rule.
+The route imports `readRawFilterParam`; the hook imports `decodeBoardFilters` and
+`encodeBoardFilters`.
+**Consequences.** The tolerance rules are unit-testable with no router and no React — the cheapest
+place to prove FR-8 exhaustively. One extra file. `@/lib` already holds this kind of pure helper
+(`sort-tasks.ts`, `column.ts`, `get-initials.ts`), so placement matches the repo.
+
+### ADR-3 — Batch in the toolbar, not the hook
+
+**Context.** `toggleLabelGroup` and `clearLabelFilters` call `updateLabelFilter` inside a `for` loop.
+With `useState` and a functional updater this is correct. With the URL as the source of truth, N
+synchronous `navigate()` calls in one tick each resolve against the same committed search — last
+write wins, so a three-label colour group would apply one label.
+**Decision.** Compute the full next array at both call sites and make one `updateFilter("labels",
+next)` call each. The hook is not changed to coalesce.
+**Consequences.** ~15 lines changed in one file, and the batching is visible to the reader at the
+place that needs it. `updateLabelFilter` keeps its exported signature, so the hook's public API and
+`BoardToolbarProps` stay byte-identical and no other consumer moves. Coalescing inside the hook was
+rejected: it would add a ref/microtask queue that silently changes the timing of every mutator to
+fix two call sites. The trade-off is that a *future* loop over `updateLabelFilter` would reintroduce
+the bug — the §7.3 regression test is the guard.
+
+### ADR-4 — `replace: true` on every filter navigation
+
+**Context.** Chip clicks are high-frequency. Each one navigates.
+**Decision.** All four hook mutators pass `replace: true`. `task-card` / `task-row` keep their
+existing (push) behaviour for task-sheet open/close.
+**Consequences.** The back button leaves the board rather than unwinding a filter selection one chip
+at a time — the behaviour users expect from a filter bar. Filter state is still fully shareable and
+still restores on reload. A user cannot undo a filter change with the back button; the chip's own
+`X` is the affordance.
+
+### ADR-5 — Clean cutover from localStorage
+
+**Context.** `kaneo:board-filters:${projectId}` holds saved filters for existing users.
+**Decision.** Delete both effects. Never read the key. No one-time migration.
+**Consequences.** Users lose their saved board filters once, on first load after this ships —
+accepted at Gate 1. In exchange there is exactly one source of truth from day one, with no
+precedence question between a stored value and a pasted URL (which is where migration code always
+goes wrong: a shared link would be overwritten by the recipient's stored filters). The stale
+localStorage entries are harmless orphans. `use-task-filters.ts` keeps its own localStorage
+behaviour and is untouched.
+
+### ADR-6 — No schema library
+
+**Context.** `apps/web` has `zod` as a dependency (react-hook-form resolvers), and the API uses
+Valibot.
+**Decision.** Hand-rolled `typeof` guards in `validateSearch` and in the codec. No zod, no valibot,
+no new dependency.
+**Consequences.** Matches the established precedent in `backlog.tsx`, `gantt.tsx` and `auth/*` —
+there is no search schema library anywhere in the web app today, and introducing one here would
+create a two-idiom repo for a five-key parser. The guards are ~40 lines and fully covered by §7.1.
+`zod` is not imported into any route file.
+
+---
+
+## 9. Sequencing
+
+Packets must execute in this order; each depends on the previous.
+
+1. **`.gitignore`** — independent, run first so subsequent run artifacts are ignored.
+2. **`src/lib/board-filter-search-params.ts`** + its test — no dependencies. Everything else imports
+   it.
+3. **`board.tsx` `validateSearch`** — must land before the hook, so `useSearch({ strict: false })`
+   actually surfaces the five keys at runtime.
+4. **`use-task-filters-with-labels-support.ts`** + its rewritten test.
+5. **`board-toolbar.tsx`** batching + `board-toolbar.test.tsx` — depends on the hook's new
+   navigation behaviour being in place for the end-state assertion to mean anything.
+6. **`board.tsx` `handleCloseTaskSheet`**, **`task-card.tsx`**, **`task-row.tsx`** + their tests —
+   independent of each other, all depend on step 3. Step 6 may be merged into step 3's packet for
+   `board.tsx` since both edits are in one file.
+
+`filterTasks` is verbatim-copied in step 4; do not reorder step 4 before step 2.
+
+---
+
+## 10. Verification commands
+
+Per file, run from the repo root. **No `--` before the path** — `pnpm --filter @kaneo/web test -- <path>`
+silently runs the whole suite.
+
+```bash
+pnpm --filter @kaneo/web test src/lib/board-filter-search-params.test.ts
+pnpm --filter @kaneo/web test src/hooks/use-task-filters-with-labels-support.test.tsx
+pnpm --filter @kaneo/web test src/components/board/board-toolbar.test.tsx
+pnpm --filter @kaneo/web test src/components/kanban-board/task-card.test.tsx
+pnpm --filter @kaneo/web test src/components/list-view/task-row.test.tsx
+```
+
+Full gates, once all packets have landed:
+
+```bash
+pnpm --filter @kaneo/web test
+pnpm --filter @kaneo/web typecheck
+pnpm exec biome ci \
+  apps/web/src/lib/board-filter-search-params.ts \
+  apps/web/src/lib/board-filter-search-params.test.ts \
+  apps/web/src/hooks/use-task-filters-with-labels-support.ts \
+  apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx \
+  apps/web/src/components/board/board-toolbar.tsx \
+  apps/web/src/components/board/board-toolbar.test.tsx \
+  apps/web/src/components/kanban-board/task-card.tsx \
+  apps/web/src/components/kanban-board/task-card.test.tsx \
+  apps/web/src/components/list-view/task-row.tsx \
+  apps/web/src/components/list-view/task-row.test.tsx \
+  'apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx'
+```
+
+`typecheck` is a mandatory separate gate: vitest does not typecheck and `vite build` runs no `tsc`.
+It runs both `tsconfig.app.json` and `tsconfig.node.json`.
+
+**Never run `pnpm lint` or any package `lint` script** — they are `biome check --write .` and rewrite
+unrelated files. **Never run root `pnpm test`** — it rebuilds every package.
+
+---
+
+## 11. `.gitignore` addition
+
+Append to the end of the file, after the existing `.pi/` line:
+
+```gitignore
+# SDLC run artifacts
+.sdlc/
+.hook-logs/
+```
+
+**Corrected at Gate 2.** An earlier draft of this section claimed
+`.sdlc/policies/opus-flash-sdk.yaml` was already staged in git. That was false — it came from a
+session-start git snapshot that was already stale when this run began. Re-verified at the repo root
+immediately after Gate 2: `git status --porcelain` returns exactly three untracked entries
+(`.claude/settings.local.json`, `.hook-logs/`, `.sdlc/`), `git diff --cached --name-only` is empty,
+and `.sdlc/policies/` does not exist on disk. **Nothing in this run is staged.**
+
+The `.gitignore` edit is therefore a plain append with no untracking consequences. Retained as a
+general caution only: do not run `git rm --cached`. Re-check `git status` at the start of the write
+phase rather than trusting any recorded snapshot, including this one.

@@ -17,11 +17,15 @@ import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-
 import { useBoardSort } from "@/hooks/use-board-sort";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
+import {
+  type BoardFilterSearchParams,
+  readRawFilterParam,
+} from "@/lib/board-filter-search-params";
 import { sortTasks } from "@/lib/sort-tasks";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
-type BoardSearchParams = {
+type BoardSearchParams = BoardFilterSearchParams & {
   taskId?: string;
 };
 
@@ -31,6 +35,11 @@ export const Route = createFileRoute(
   component: RouteComponent,
   validateSearch: (search: Record<string, unknown>): BoardSearchParams => ({
     taskId: typeof search.taskId === "string" ? search.taskId : undefined,
+    status: readRawFilterParam(search, "status"),
+    priority: readRawFilterParam(search, "priority"),
+    assignee: readRawFilterParam(search, "assignee"),
+    dueDate: readRawFilterParam(search, "dueDate"),
+    labels: readRawFilterParam(search, "labels"),
   }),
 });
 
@@ -96,7 +105,10 @@ function RouteComponent() {
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
       to: ".",
-      search: {},
+      search: (prev: Record<string, unknown>) => ({
+        ...prev,
+        taskId: undefined,
+      }),
       replace: true,
     });
   }, [navigate]);

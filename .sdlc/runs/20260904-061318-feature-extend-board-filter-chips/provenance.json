@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "run_id": "20260904-061318-feature-extend-board-filter-chips",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/requirements.md",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:f64cc7707c176133718dfbd7b076d6ff24b8b0b7cd91071070cc18d2e03ae7a9",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "direct-requirements",
+      "written_at": "2026-09-04T06:25:11.510Z"
+    },
+    {
+      "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md",
+      "existed_before": true,
+      "sha_before": "sha256:1f9eb11cb670dd0d8a21b0b98fbcb57ecbb47008c00b094809db7a9409ddcc68",
+      "sha_after": "sha256:1f9eb11cb670dd0d8a21b0b98fbcb57ecbb47008c00b094809db7a9409ddcc68",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/backups/.sdlc__runs__20260904-061318-feature-extend-board-filter-chips__design.md",
+      "packet_id": "direct-architecture",
+      "written_at": "2026-09-04T06:35:06.043Z"
+    },
+    {
+      "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/packets.json",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:4f5e72864c7762fd1f1fb52b3d5e055284c9fd61e492d05f9d0cbea1d4eee857",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "direct-planning",
+      "written_at": "2026-09-04T06:44:05.652Z"
+    },
+    {
+      "path": ".gitignore",
+      "existed_before": true,
+      "sha_before": "sha256:b00f180864f57c9830bf0c7bbba54c7ca76a6d27b7f3d09c4b207944d43875b5",
+      "sha_after": "sha256:74f301ba38c6c6bbac14e5a587942ece8cdd733094c7e28155758a36f74067f3",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_001_gitignore",
+      "written_at": "2026-09-04T06:45:51.492Z"
+    },
+    {
+      "path": "apps/web/src/lib/board-filter-search-params.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:ecc0cb1f7e45663ab9771d55d0aa9c3d1b752c080132d9180f292306113d7980",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_002_codec",
+      "written_at": "2026-09-04T06:47:14.757Z"
+    },
+    {
+      "path": "apps/web/src/lib/board-filter-search-params.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:f5664d36ac780f6c4d03d07572e1b533476f43826081ffff8c7f51db3a9b7daf",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_003_codec_test",
+      "written_at": "2026-09-04T06:49:50.586Z"
+    },
+    {
+      "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:8422b157f2a4d1c28a0b2d2ebc61167c528a0723ce957db23963ad609f452411",
+      "sha_after": "sha256:254337a80ab38f2c776223b9a491ade6e2731a328d6a9fa9617cfef71ddcaebe",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_004_board_route",
+      "written_at": "2026-09-04T06:53:24.021Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+      "existed_before": true,
+      "sha_before": "sha256:68006baec18174fa61e96237e0c49f05e02972cc740c2c623eeb1b551b91bdbb",
+      "sha_after": "sha256:19cb8071af1e1eae9ca46bd73683af1e522fbc7eee06a7ff1d3c3696fa6c3b0d",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_005_hook",
+      "written_at": "2026-09-04T06:55:11.902Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:eb005cd71ff66234b5eaad6852db5e77a4eecfbfbf711dc735eb75e0905f596e",
+      "sha_after": "sha256:7271f65a66cb7dbcd5c51981791f40ac153275d15be3463eacdf5fac5b2ddd65",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_006_hook_test",
+      "written_at": "2026-09-04T06:58:24.705Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-toolbar.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:f33f4c13becbc6257961a5a34cb32838f6eacd5adbf96f4e31686b815fecb716",
+      "sha_after": "sha256:db4bf009944e4a658e85df64fb261b97b012366fee7220ad7289876abedd5abe",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_007_toolbar",
+      "written_at": "2026-09-04T07:02:30.080Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-toolbar.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:4b8cefc655dacb7b4c509f08624b815ba52cc0781b8e06a7919043888374d403",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_008_toolbar_test",
+      "written_at": "2026-09-04T07:08:33.555Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/task-card.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:9000f13988a3307836602f28aa698593e505478b392319264a4c61763d7f5603",
+      "sha_after": "sha256:1ef0b8e2243810b69d599def63ab59142de7825695a2331f76cd527c0ce87bac",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_009_task_card",
+      "written_at": "2026-09-04T07:16:54.303Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/task-row.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:b3f9386b2d83ccf5bb2dddf45ca2dd8ad2eaba376546e134f079d72718047329",
+      "sha_after": "sha256:effda45f8485da12b048f76b4bbcad7c90548b1b7aed381827e4d4f15f564a21",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_010_task_row",
+      "written_at": "2026-09-04T07:19:28.325Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/task-card.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:ed17d82ee576007f258bee0be74c15743db42132bd8ba9e3ef163e0348831823",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_011_task_card_test",
+      "written_at": "2026-09-04T07:23:51.232Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/task-row.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:56fb82fbb8e706db3a9f070c69e56c1eb571ee589601cfd77c1f556bca128fab",
+      "sha_after": "sha256:0438889cea597ad845cdecceaef4028092a88e4ea9e58f72fdf6963741a0a1aa",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_012_task_row_test",
+      "written_at": "2026-09-04T07:27:22.387Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-toolbar.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:db4bf009944e4a658e85df64fb261b97b012366fee7220ad7289876abedd5abe",
+      "sha_after": "sha256:39954479ac25e3c2808c3452f469ac800507ec9190f5e76cb1bb3d26618872d8",
+      "tracked_in_git": true,
+      "backup_path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/backups/apps__web__src__components__board__board-toolbar.tsx",
+      "packet_id": "tp_014_nit_unused_prop",
+      "written_at": "2026-09-04T07:42:02.942Z"
+    },
+    {
+      "path": "apps/web/src/components/board/board-toolbar.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:788107a01d2aa17720524173f30894102756ebe2fa7d5154ad0544397b269347",
+      "sha_after": "sha256:3efbf89abdb28346ef465ede714ec309a27810bef08242151582986b6f999e25",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/backups/apps__web__src__components__board__board-toolbar.test.tsx",
+      "packet_id": "tp_015_clearfilters_test",
+      "written_at": "2026-09-04T07:45:18.578Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/index.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:10a3a07a87bde71b6db845287a72ad48a47af9b01bc17dbe8f16afb7067517a2",
+      "sha_after": "sha256:8d37b4e12d803cac201ba2c61646a3d57917a2f8e661288a8a6cf1accf0c2ecc",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_016_kanban_keynav",
+      "written_at": "2026-09-04T08:42:03.485Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/index.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:c696e3f5e9b7a06b8217f6702500c0b18937104ea96d1a3b946e781bae4fbe04",
+      "sha_after": "sha256:1c1ee70d3d93115d7d74a977eba032d0a7bcd3c89abf4bf244233a257e8f40eb",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_017_listview_keynav",
+      "written_at": "2026-09-04T08:42:03.524Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/index.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:e77e8f9283cf9725b6418ff633cf19cfc9ba1e9051bd0e878fd8457e3d6d5871",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "opus-b1-tests",
+      "written_at": "2026-09-04T08:44:06.985Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/index.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:945d38edf861b5ba134d52c09129bd0d49a0be6238071ef99c07e423f5c3d9ad",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "opus-b1-tests",
+      "written_at": "2026-09-04T08:44:07.030Z"
+    },
+    {
+      "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/final_report.md",
+      "existed_before": true,
+      "sha_before": "sha256:701642b26a95ae168bbdb2881c181be326d021f99bb4abf6bb4879fb62540a4b",
+      "sha_after": "sha256:701642b26a95ae168bbdb2881c181be326d021f99bb4abf6bb4879fb62540a4b",
+      "tracked_in_git": false,
+      "backup_path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/backups/.sdlc__runs__20260904-061318-feature-extend-board-filter-chips__final_report.md",
+      "packet_id": "direct-report",
+      "written_at": "2026-09-04T08:48:20.693Z"
+    }
+  ]
+}

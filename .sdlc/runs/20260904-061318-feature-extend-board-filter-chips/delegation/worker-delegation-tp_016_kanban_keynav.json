@@ -1,0 +1,46 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_016_kanban_keynav",
+  "phase": "codegen",
+  "task_type": "react_component",
+  "module": "board-filters",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": null,
+    "sdk_version": null,
+    "vertex_project": null,
+    "vertex_location": null,
+    "thinking": null
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-04T08:37:28.295Z",
+  "duration_ms": 1662,
+  "success": false,
+  "error": "The agent worker exited 1. gemini_worker failed: AntigravityConnectionError: Agent execution terminated due to error. (\"request failed (code 403): Permission denied: Consumer 'projects/ai-studies-console' has been suspended.\")",
+  "cost_usd": 0,
+  "tokens": {
+    "input": 0,
+    "input_cached": 0,
+    "output": 0,
+    "output_reasoning": 0
+  },
+  "tool_calls": {
+    "count": 0,
+    "truncated": false,
+    "sample": []
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1681,
+    "scanned": 1681,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_016_kanban_keynav.md",
+    "usage": "worker-usage-tp_016_kanban_keynav.json"
+  }
+}

@@ -1,7 +1,11 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type Task from "@/types/task";
 import TaskRow from "./task-row";
+
+const { navigateSpy } = vi.hoisted(() => ({
+  navigateSpy: vi.fn(),
+}));
 
 const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
 const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
@@ -9,10 +13,11 @@ const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  window.history.replaceState({}, "", "/");
 });
 
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigateSpy,
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
@@ -107,5 +112,53 @@ describe("TaskRow", () => {
     expect(screen.getByText("#42")).toBeVisible();
     expect(useExternalLinks).not.toHaveBeenCalled();
     expect(useGetLabelsByTask).not.toHaveBeenCalled();
+  });
+
+  it("opening a task sheet preserves filter params", () => {
+    window.history.replaceState({}, "", "/board?status=to-do&labels=l1,l2");
+
+    render(<TaskRow task={task} projectSlug="kan" />);
+    fireEvent.click(screen.getByText("Row from payload"));
+
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    const navArg = navigateSpy.mock.calls[0][0];
+    expect(navArg.to).toBe(".");
+    expect(typeof navArg.search).toBe("function");
+    expect(navArg.replace).toBeUndefined();
+
+    const resolved = navArg.search({ status: "to-do", labels: "l1,l2" });
+    expect(resolved).toEqual({
+      status: "to-do",
+      labels: "l1,l2",
+      taskId: "task-1",
+    });
+  });
+
+  it("closing the task sheet clears only taskId and preserves filter params", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/board?taskId=task-1&status=to-do&labels=l1,l2",
+    );
+
+    render(<TaskRow task={task} projectSlug="kan" />);
+    fireEvent.click(screen.getByText("Row from payload"));
+
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    const navArg = navigateSpy.mock.calls[0][0];
+    expect(navArg.to).toBe(".");
+    expect(typeof navArg.search).toBe("function");
+    expect(navArg.replace).toBeUndefined();
+
+    const resolved = navArg.search({
+      taskId: "task-1",
+      status: "to-do",
+      labels: "l1,l2",
+    });
+    expect(resolved).toEqual({
+      taskId: undefined,
+      status: "to-do",
+      labels: "l1,l2",
+    });
   });
 });

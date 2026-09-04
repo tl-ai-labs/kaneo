@@ -1,0 +1,113 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 240368,
+    "cached_content_token_count": 176459,
+    "candidates_token_count": 1321,
+    "thoughts_token_count": 1019,
+    "total_token_count": 242708,
+    "service_tier": null
+  },
+  "tool_call_count": 10,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+        "start_line": "119",
+        "end_line": "159"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+        "start_line": "79",
+        "end_line": "119"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+        "start_line": "39",
+        "end_line": "79"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/board/board-toolbar.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web typecheck",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm exec biome ci apps/web/src/components/board/board-toolbar.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web test src/components/board/board-toolbar.test.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git diff",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git diff apps/web/src/components/board/board-toolbar.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web typecheck && pnpm exec biome ci apps/web/src/components/board/board-toolbar.tsx && pnpm --filter @kaneo/web test src/components/board/board-toolbar.test.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"path\": \"apps/web/src/components/board/board-toolbar.tsx\",\n  \"line_deleted\": true,\n  \"typecheck_passed\": true,\n  \"biome_clean\": true,\n  \"tests_pass\": true\n}"
+}

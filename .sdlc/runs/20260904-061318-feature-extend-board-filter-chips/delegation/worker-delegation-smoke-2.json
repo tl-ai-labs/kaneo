@@ -1,0 +1,46 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "smoke-2",
+  "phase": "docs",
+  "task_type": "smoke",
+  "module": "smoke",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": null,
+    "sdk_version": null,
+    "vertex_project": null,
+    "vertex_location": null,
+    "thinking": null
+  },
+  "workdir": "/tmp/claude-1000/-home-sangeetha-projects-kaneo/13c1f998-7b7e-41f2-8fd0-3c0455b3fe91/scratchpad",
+  "started_at": "2026-09-04T06:14:16.033Z",
+  "duration_ms": 770,
+  "success": false,
+  "error": "The agent worker exited 1. gemini_worker failed: FileNotFoundError: [Errno 2] No such file or directory: '.sdlc/runs/20260904-061318-feature-extend-board-filter-chips/delegation/worker-task-smoke-2.md'",
+  "cost_usd": 0,
+  "tokens": {
+    "input": 0,
+    "input_cached": 0,
+    "output": 0,
+    "output_reasoning": 0
+  },
+  "tool_calls": {
+    "count": 0,
+    "truncated": false,
+    "sample": []
+  },
+  "files": {
+    "added": [],
+    "modified": [],
+    "removed": [],
+    "unchanged": 0,
+    "scanned": 0,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-smoke-2.md",
+    "usage": "worker-usage-smoke-2.json"
+  }
+}

@@ -64,14 +64,26 @@ function KanbanBoard({ project, disableDragDrop = false }: KanbanBoardProps) {
         focusNext();
         const state = useBulkSelectionStore.getState();
         if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+          navigate({
+            to: ".",
+            search: (prev: Record<string, unknown>) => ({
+              ...prev,
+              taskId: state.focusedTaskId,
+            }),
+          });
         }
       },
       k: () => {
         focusPrevious();
         const state = useBulkSelectionStore.getState();
         if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
+          navigate({
+            to: ".",
+            search: (prev: Record<string, unknown>) => ({
+              ...prev,
+              taskId: state.focusedTaskId,
+            }),
+          });
         }
       },
       Enter: () => {

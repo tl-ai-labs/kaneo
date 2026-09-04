@@ -146,12 +146,18 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     if (currentTaskId === task.id) {
       navigate({
         to: ".",
-        search: {},
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          taskId: undefined,
+        }),
       });
     } else {
       navigate({
         to: ".",
-        search: { taskId: task.id },
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          taskId: task.id,
+        }),
       });
     }
   };

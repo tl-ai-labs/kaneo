@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "run_id": "20260904-061318-feature-extend-board-filter-chips",
+      "date": "2026-09-04",
+      "intent": "feature-extend",
+      "policy": "opus-plus-flash-v37",
+      "mechanical_leaf": "flash-agsdk-worker",
+      "auth_mode": "estimated",
+      "outcome": "completed",
+      "files_touched": 16,
+      "tests": "156/156",
+      "test_files": 41,
+      "cost_usd": 8.5378,
+      "cost_flash_vendor": 5.76,
+      "cost_opus_modelled": 2.7778,
+      "commits": 0,
+      "git_head": "5d1fc910",
+      "known_defects": [
+        "backlog-list-view/index.tsx:97,104 identical j/k filter-wipe, out of scope",
+        "spread caveat covers 8 navigation sites; Object.assign would create a prototype-pollution sink"
+      ],
+      "blocked_event": "403 CONSUMER_SUSPENDED on aiplatform.googleapis.com at tp_016; tail completed on Opus per user option (C)"
+    }
+  ]
+}

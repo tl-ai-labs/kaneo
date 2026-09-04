@@ -1,0 +1,329 @@
+[
+  {
+    "id": "tp_001_gitignore",
+    "phase": "codegen",
+    "task_type": "frontend_config",
+    "module": "repo",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": ".gitignore",
+    "instruction": "Append two ignore entries to the END of /home/sangeetha/projects/kaneo/.gitignore, after the existing '.pi/' line, exactly as specified in section 11 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md:\n\n# SDLC run artifacts\n.sdlc/\n.hook-logs/\n\nAppend only. Do NOT reorder, reformat, deduplicate or otherwise modify any existing line. Do NOT run any git command — in particular do NOT run 'git rm --cached'. Nothing in this repo is staged; this is a plain append.",
+    "inputs": [{ "path": ".gitignore", "reason": "append target" }],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "appended": { "type": "boolean" } },
+      "required": ["path", "appended"]
+    },
+    "acceptance": [
+      ".gitignore ends with a '# SDLC run artifacts' comment followed by '.sdlc/' and '.hook-logs/'",
+      "every pre-existing line of .gitignore is byte-identical to before",
+      "no git command was run"
+    ],
+    "budget": { "maxInputTokens": 4000, "maxOutputTokens": 1000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_002_codec",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/lib/board-filter-search-params.ts",
+    "instruction": "Create apps/web/src/lib/board-filter-search-params.ts EXACTLY as specified in sections 2.1 and 2.2 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md. The design writes out the full implementation — transcribe it, do not redesign it.\n\nHard rules: import BoardFilters as a TYPE-ONLY import from '@/hooks/use-task-filters' (that file is read-only, do not edit it). No zod, no valibot, no new dependency. Implement all 8 numbered tolerance rules in section 2.3 and the comma invariant in section 2.4 on BOTH the decode and encode sides — encodeFilterValue must DROP a value containing a comma rather than emit it. Arrays are deliberately rejected by the decoder; do not add an array branch. Never throw.\n\nVerify with: pnpm --filter @kaneo/web typecheck",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "sections 2.1-2.4 contain the full implementation" },
+      { "path": "apps/web/src/hooks/use-task-filters.ts", "reason": "READ ONLY - source of the BoardFilters type" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "exports": { "type": "array", "items": { "type": "string" } } },
+      "required": ["path", "exports"]
+    },
+    "acceptance": [
+      "exports BOARD_FILTER_SEARCH_KEYS, BoardFilterSearchKey, BoardFilterSearchParams, readRawFilterParam, decodeFilterValue, decodeBoardFilters, encodeFilterValue, encodeBoardFilters, EMPTY_BOARD_FILTERS per design section 2.1",
+      "BoardFilters is imported with 'import type' from @/hooks/use-task-filters",
+      "decoder returns null (never []) for empty results; duplicates dropped keeping first-occurrence order",
+      "encodeFilterValue returns undefined for null/empty and drops comma-carrying values",
+      "no zod, no valibot, no new import outside @/hooks/use-task-filters",
+      "pnpm --filter @kaneo/web typecheck passes"
+    ],
+    "budget": { "maxInputTokens": 30000, "maxOutputTokens": 6000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_003_codec_test",
+    "phase": "tests",
+    "task_type": "unit_test",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/lib/board-filter-search-params.test.ts",
+    "instruction": "Create apps/web/src/lib/board-filter-search-params.test.ts per section 7.1 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md.\n\nCover every one of the 8 numbered tolerance rules in design section 2.3 as its own case, plus the two REQUIRED named tests from section 2.4:\n  - 'a value containing a comma splits into segments that match nothing rather than inventing a filter'\n  - 'encodeFilterValue drops a value containing a comma rather than emitting an ambiguous parameter'\nAlso cover: round-trip encode->decode for all five keys, absent params produce all-null filters with NO injected keys, and hostile input (arrays, objects, numbers, booleans, null, very long strings) never throws.\n\nVitest, no router, no jsdom dependency needed. Verify with exactly:\npnpm --filter @kaneo/web test src/lib/board-filter-search-params.test.ts\n(NO '--' before the path — it would silently run the entire suite.)",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "sections 2.3, 2.4, 7.1" },
+      { "path": "apps/web/src/lib/board-filter-search-params.ts", "reason": "unit under test" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "test_count": { "type": "number" }, "passed": { "type": "boolean" } },
+      "required": ["path", "test_count", "passed"]
+    },
+    "acceptance": [
+      "both named comma-invariant tests from design section 2.4 exist with those exact names",
+      "all 8 tolerance rules from design section 2.3 have a dedicated case",
+      "hostile-input cases assert no throw",
+      "pnpm --filter @kaneo/web test src/lib/board-filter-search-params.test.ts passes"
+    ],
+    "budget": { "maxInputTokens": 30000, "maxOutputTokens": 8000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_004_board_route",
+    "phase": "codegen",
+    "task_type": "react_page",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx",
+    "instruction": "Make TWO edits to the board route file, per sections 3 and 5.1 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md. Design section 9 merges them into one packet because both are in this file.\n\n1. Extend BoardSearchParams and validateSearch with the five filter keys (status, priority, assignee, dueDate, labels), preserving taskId exactly as it is today. Use the hand-rolled readRawFilterParam helper from '@/lib/board-filter-search-params'. Absent params must produce NO injected keys — do not default to empty strings.\n2. Rewrite handleCloseTaskSheet (currently lines 96-102) to a functional spread updater that clears ONLY taskId and preserves every other search key. Keep replace: true — that is existing behaviour at this site.\n\nDo NOT introduce zod or valibot. Do NOT change anything else in the file. Verify with: pnpm --filter @kaneo/web typecheck",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "sections 3 and 5.1 give exact code" },
+      { "path": "apps/web/src/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/board.tsx", "reason": "edit target" },
+      { "path": "apps/web/src/lib/board-filter-search-params.ts", "reason": "readRawFilterParam + BoardFilterSearchParams" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "edits": { "type": "array", "items": { "type": "string" } } },
+      "required": ["path", "edits"]
+    },
+    "acceptance": [
+      "validateSearch returns taskId plus the five filter keys, each string | undefined",
+      "absent filter params yield undefined, never an empty string or injected key",
+      "handleCloseTaskSheet uses search: (prev) => ({ ...prev, taskId: undefined }) with replace: true",
+      "no zod/valibot import added",
+      "pnpm --filter @kaneo/web typecheck passes"
+    ],
+    "budget": { "maxInputTokens": 40000, "maxOutputTokens": 6000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_005_hook",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts",
+    "instruction": "Rewrite the state layer of apps/web/src/hooks/use-task-filters-with-labels-support.ts per section 4 (4.1-4.7) of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md.\n\nDelete BOTH localStorage effects, the storageKey line and the useState. Derive filters from useSearch({ strict: false }) via decodeBoardFilters. Memoise on the FIVE EXTRACTED RAW STRINGS, not on the search object — memoising on the object churns filteredProject every render and trips Biome's useExhaustiveDependencies. Every mutator navigates with to: '.', a functional search updater, and replace: true. setFilters is the single primitive and must accept both a value and an updater function; updateFilter, updateLabelFilter and clearFilters delegate to it.\n\nHARD CONSTRAINTS: the returned object must stay byte-identical in shape — { filters, setFilters, updateFilter, updateLabelFilter, filteredProject, hasActiveFilters, clearFilters }. updateLabelFilter STAYS exported with an unchanged signature. filterTasks and filteredProject are COPIED VERBATIM — AND across filter types, OR within a type, empty columns preserved. Zero behaviour change there. Rename the projectId param to _projectId (tsconfig sets noUnusedParameters).\n\nDo NOT read localStorage at all — this is a clean cutover. Verify with: pnpm --filter @kaneo/web typecheck",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "section 4 gives exact code" },
+      { "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts", "reason": "edit target" },
+      { "path": "apps/web/src/lib/board-filter-search-params.ts", "reason": "codec" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "returned_keys": { "type": "array", "items": { "type": "string" } } },
+      "required": ["path", "returned_keys"]
+    },
+    "acceptance": [
+      "no reference to localStorage or 'kaneo:board-filters' remains in the file",
+      "returns exactly filters, setFilters, updateFilter, updateLabelFilter, filteredProject, hasActiveFilters, clearFilters",
+      "filters is memoised on the five raw strings, not on the search object",
+      "every mutator navigates with replace: true and a functional search updater",
+      "filterTasks body is unchanged from the original (AND across types, OR within a type, all columns preserved)",
+      "pnpm --filter @kaneo/web typecheck passes"
+    ],
+    "budget": { "maxInputTokens": 45000, "maxOutputTokens": 10000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_006_hook_test",
+    "phase": "tests",
+    "task_type": "unit_test",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+    "instruction": "REWRITE apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx per section 7.2 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md. Never delete coverage.\n\nThe two existing behaviours MUST be preserved, re-expressed against search params instead of localStorage:\n  1. label filtering matches tasks from project data (was: seeded localStorage {labels:['label-bug']} -> now: search param labels='label-bug')\n  2. the it.each identifier search for '#123', 'proj-123', 'proj-' — keep this test as-is; it does not involve filters.\nAdd: no filter params => hasActiveFilters is false and all tasks visible; a mutator navigates with replace:true and the correctly comma-joined value; malformed params degrade to unfiltered without throwing.\n\nMock @tanstack/react-router with the vi.mock precedent used in apps/web/src/components/list-view/task-row.test.tsx — mock useSearch and useNavigate as plain named exports. Do NOT add a router provider.\n\nVerify with exactly:\npnpm --filter @kaneo/web test src/hooks/use-task-filters-with-labels-support.test.tsx\n(NO '--' before the path.)",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "section 7.2 and 7.6" },
+      { "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx", "reason": "existing test to rewrite, not delete" },
+      { "path": "apps/web/src/components/list-view/task-row.test.tsx", "reason": "vi.mock('@tanstack/react-router') precedent" },
+      { "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts", "reason": "unit under test" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "test_count": { "type": "number" }, "passed": { "type": "boolean" } },
+      "required": ["path", "test_count", "passed"]
+    },
+    "acceptance": [
+      "the label-matching behaviour and the it.each identifier-search behaviour both still exist",
+      "no localStorage seeding remains",
+      "a no-params case asserts hasActiveFilters === false and all tasks visible",
+      "a malformed-params case asserts no throw and unfiltered output",
+      "pnpm --filter @kaneo/web test src/hooks/use-task-filters-with-labels-support.test.tsx passes"
+    ],
+    "budget": { "maxInputTokens": 45000, "maxOutputTokens": 12000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_007_toolbar",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/components/board/board-toolbar.tsx",
+    "instruction": "Replace EXACTLY TWO functions in apps/web/src/components/board/board-toolbar.tsx with the batched versions written out in sections 6.1 and 6.2 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md: toggleLabelGroup (currently lines 233-247) and clearLabelFilters (currently lines 249-252). Each must compute the full next label array and make ONE updateFilter('labels', next) call. Semantics must be preserved precisely: if any label in the colour group is selected, remove all of that group; otherwise add all of that group.\n\nREAD THIS BEFORE YOU SIMPLIFY ANYTHING. The hook's setFilters uses a FUNCTIONAL navigate search updater that decodes prev. That shape LOOKS like it would make N synchronous updateLabelFilter calls compose correctly. IT DOES NOT — each synchronous navigate() call resolves against the same committed router location, so the last write wins and a colour-group toggle would apply only ONE label. The batching in this file is the actual fix. Do NOT remove it, do NOT revert either function to a for-loop, do NOT conclude it is redundant.\n\nNothing else in this 676-line file changes. updateLabelFilter STAYS in BoardToolbarProps and stays imported/destructured even though these two sites no longer call it (see design section 6.3). Verify with: pnpm --filter @kaneo/web typecheck",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "sections 6.1, 6.2, 6.3 give exact code and the do-not-simplify warning" },
+      { "path": "apps/web/src/components/board/board-toolbar.tsx", "reason": "edit target" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "functions_replaced": { "type": "array", "items": { "type": "string" } } },
+      "required": ["path", "functions_replaced"]
+    },
+    "acceptance": [
+      "toggleLabelGroup contains no for-loop and makes exactly one updateFilter('labels', ...) call",
+      "clearLabelFilters makes exactly one updateFilter('labels', null) call",
+      "group toggle semantics preserved: any-selected => remove whole group, none-selected => add whole group",
+      "updateLabelFilter remains declared in BoardToolbarProps and destructured",
+      "no other line of the file changed",
+      "pnpm --filter @kaneo/web typecheck passes"
+    ],
+    "budget": { "maxInputTokens": 45000, "maxOutputTokens": 6000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_008_toolbar_test",
+    "phase": "tests",
+    "task_type": "component_test",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/components/board/board-toolbar.test.tsx",
+    "instruction": "Create apps/web/src/components/board/board-toolbar.test.tsx — the R1 regression test — per section 7.3 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md, which spells out the mechanism in full.\n\nCore test: a colour-group toggle that selects N>1 labels in ONE tick must end with ALL N present in the resulting search params. Use the vi.hoisted stateful navigate mock that applies the functional updater to a held search object, plus the bumpHarness re-render, a harness wiring the REAL hook to the REAL BoardToolbar, and a passthrough mock of '@/components/ui/menu' (jsdom does not open Radix submenus reliably and opening them is not what this test is about).\n\nFORBIDDEN: the assertion must be on the resulting search params — searchRef.current.labels === 'l1,l2,l3'. It must NEVER be expect(updateFilter).toHaveBeenCalledWith(...) or any other spy assertion. A spy assertion PASSES against the buggy for-loop implementation and would ship the regression. Any artifact whose R1 assertion is a spy will be rejected.\n\nAlso cover clearLabelFilters removing all labels in one tick. Verify with exactly:\npnpm --filter @kaneo/web test src/components/board/board-toolbar.test.tsx\n(NO '--' before the path.)",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "section 7.3 gives the full mechanism, 7.6 the shared helper" },
+      { "path": "apps/web/src/components/board/board-toolbar.tsx", "reason": "component under test" },
+      { "path": "apps/web/src/hooks/use-task-filters-with-labels-support.ts", "reason": "real hook wired into the harness" },
+      { "path": "apps/web/src/components/list-view/task-row.test.tsx", "reason": "vi.mock precedent for this repo" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "test_count": { "type": "number" }, "passed": { "type": "boolean" }, "r1_assertion": { "type": "string" } },
+      "required": ["path", "test_count", "passed", "r1_assertion"]
+    },
+    "acceptance": [
+      "a colour-group toggle selecting N>1 labels in one tick results in ALL N present in the search params",
+      "the R1 assertion reads the resulting search params, NOT a spy on updateFilter — no toHaveBeenCalledWith stands in for it",
+      "a clear-labels case removes all labels in one tick",
+      "the real useTaskFiltersWithLabelsSupport hook and the real BoardToolbar are used, not stubs",
+      "pnpm --filter @kaneo/web test src/components/board/board-toolbar.test.tsx passes"
+    ],
+    "budget": { "maxInputTokens": 50000, "maxOutputTokens": 14000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_009_task_card",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/components/kanban-board/task-card.tsx",
+    "instruction": "In apps/web/src/components/kanban-board/task-card.tsx, replace BOTH navigate branches inside handleTaskCardClick (currently lines 144-157) per section 5.2 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md.\n\nBOTH branches change, not just the clear branch. The close branch 'search: {}' and the OPEN branch 'search: { taskId: task.id }' each wipe every other search key. The open branch is the more commonly hit path — clicking a card is ordinary use. Both become functional spread updaters that preserve every other key and set or clear only taskId.\n\nDo NOT add replace: true here — this site has no replace today and its history behaviour must not change. Only the shape of search changes. Nothing else in the file changes. Verify with: pnpm --filter @kaneo/web typecheck",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "section 5.2 gives exact code" },
+      { "path": "apps/web/src/components/kanban-board/task-card.tsx", "reason": "edit target" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "branches_changed": { "type": "number" } },
+      "required": ["path", "branches_changed"]
+    },
+    "acceptance": [
+      "both branches of handleTaskCardClick use a functional spread updater",
+      "the open branch sets taskId while preserving all other keys",
+      "the close branch clears only taskId while preserving all other keys",
+      "no replace option was added at this site",
+      "pnpm --filter @kaneo/web typecheck passes"
+    ],
+    "budget": { "maxInputTokens": 30000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_010_task_row",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/components/list-view/task-row.tsx",
+    "instruction": "In apps/web/src/components/list-view/task-row.tsx, replace BOTH navigate branches inside handleClick (currently lines 143-156) per section 5.3 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md. The replacement is identical in shape to task-card.tsx section 5.2.\n\nBOTH branches change: the close branch 'search: {}' AND the open branch 'search: { taskId: task.id }'. Each currently wipes every other search key. Both become functional spread updaters preserving every other key.\n\nDo NOT add replace: true — this site has no replace today and its history behaviour must not change. Nothing else in the file changes. Verify with: pnpm --filter @kaneo/web typecheck",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "section 5.3 gives exact code" },
+      { "path": "apps/web/src/components/list-view/task-row.tsx", "reason": "edit target" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "branches_changed": { "type": "number" } },
+      "required": ["path", "branches_changed"]
+    },
+    "acceptance": [
+      "both branches of handleClick use a functional spread updater",
+      "the open branch sets taskId while preserving all other keys",
+      "the close branch clears only taskId while preserving all other keys",
+      "no replace option was added at this site",
+      "pnpm --filter @kaneo/web typecheck passes"
+    ],
+    "budget": { "maxInputTokens": 30000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_011_task_card_test",
+    "phase": "tests",
+    "task_type": "component_test",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/components/kanban-board/task-card.test.tsx",
+    "instruction": "Create apps/web/src/components/kanban-board/task-card.test.tsx per section 7.4 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md. This file does not exist today; use apps/web/src/components/list-view/task-row.test.tsx as the mocking template — it mocks @tanstack/react-router, the query/mutation hooks, the stores, react-i18next and the context menu.\n\nTWO SEPARATE ASSERTIONS, not one combined 'navigation preserves filters' test:\n  1. OPEN a task while filters are active -> the navigate payload sets taskId AND still carries every filter param.\n  2. CLOSE a task (click the already-open card) while filters are active -> the navigate payload clears taskId AND still carries every filter param.\nThe close branch is reached when window.location.search already contains taskId equal to the card's task id, so set that up explicitly.\n\nAssert on the resolved search object produced by the functional updater, not on the raw function reference. Verify with exactly:\npnpm --filter @kaneo/web test src/components/kanban-board/task-card.test.tsx\n(NO '--' before the path.)",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "section 7.4" },
+      { "path": "apps/web/src/components/kanban-board/task-card.tsx", "reason": "component under test" },
+      { "path": "apps/web/src/components/list-view/task-row.test.tsx", "reason": "mocking template for this repo" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "test_count": { "type": "number" }, "passed": { "type": "boolean" } },
+      "required": ["path", "test_count", "passed"]
+    },
+    "acceptance": [
+      "open-with-filters-active and close-with-filters-active are two separate assertions",
+      "both assert filter params survive in the resolved search object",
+      "the functional updater is invoked and its result inspected, not just the function reference",
+      "pnpm --filter @kaneo/web test src/components/kanban-board/task-card.test.tsx passes"
+    ],
+    "budget": { "maxInputTokens": 45000, "maxOutputTokens": 12000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_012_task_row_test",
+    "phase": "tests",
+    "task_type": "component_test",
+    "module": "board-filters",
+    "pass_id": "20260904-061318-feature-extend-board-filter-chips",
+    "artifact_path": "apps/web/src/components/list-view/task-row.test.tsx",
+    "instruction": "EXTEND the existing apps/web/src/components/list-view/task-row.test.tsx per section 7.5 of .sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md. Keep the existing test intact — it currently passes and must continue to.\n\nThe existing file mocks @tanstack/react-router as { useNavigate: () => vi.fn() }, which discards the navigate spy. Change that to a hoisted shared spy so the navigate payload can be inspected, without altering what the existing test asserts.\n\nAdd TWO SEPARATE assertions, not one combined test:\n  1. OPEN a task while filters are active -> navigate payload sets taskId AND preserves every filter param.\n  2. CLOSE a task (row whose taskId is already in window.location.search) -> navigate payload clears taskId AND preserves every filter param.\n\nAssert on the resolved search object produced by the functional updater. Verify with exactly:\npnpm --filter @kaneo/web test src/components/list-view/task-row.test.tsx\n(NO '--' before the path.)",
+    "inputs": [
+      { "path": ".sdlc/runs/20260904-061318-feature-extend-board-filter-chips/design.md", "reason": "section 7.5" },
+      { "path": "apps/web/src/components/list-view/task-row.test.tsx", "reason": "extend, do not replace" },
+      { "path": "apps/web/src/components/list-view/task-row.tsx", "reason": "component under test" }
+    ],
+    "outputSchema": {
+      "type": "object",
+      "properties": { "path": { "type": "string" }, "test_count": { "type": "number" }, "passed": { "type": "boolean" } },
+      "required": ["path", "test_count", "passed"]
+    },
+    "acceptance": [
+      "the pre-existing test still exists and still passes",
+      "open-with-filters-active and close-with-filters-active are two separate assertions",
+      "the router mock exposes a shared navigate spy",
+      "pnpm --filter @kaneo/web test src/components/list-view/task-row.test.tsx passes"
+    ],
+    "budget": { "maxInputTokens": 45000, "maxOutputTokens": 12000 },
+    "retry_count": 0
+  }
+]

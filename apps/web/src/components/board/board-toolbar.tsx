@@ -134,7 +134,6 @@ export default function BoardToolbar({
   project,
   filters,
   updateFilter,
-  updateLabelFilter,
   clearFilters,
   hasActiveFilters,
   users,
@@ -234,21 +233,23 @@ export default function BoardToolbar({
     const matching = workspaceLabels.filter(
       (l) => l.name === label.name && l.color === label.color,
     );
-    const anySelected = matching.some((l) => filters.labels?.includes(l.id));
+    const current = filters.labels ?? [];
+    const anySelected = matching.some((l) => current.includes(l.id));
 
-    for (const l of matching) {
-      if (
-        (anySelected && filters.labels?.includes(l.id)) ||
-        (!anySelected && !filters.labels?.includes(l.id))
-      ) {
-        updateLabelFilter(l.id);
-      }
-    }
+    const matchingIds = new Set(matching.map((l) => l.id));
+    const next = anySelected
+      ? current.filter((id) => !matchingIds.has(id))
+      : [
+          ...current,
+          ...matching.filter((l) => !current.includes(l.id)).map((l) => l.id),
+        ];
+
+    updateFilter("labels", next.length > 0 ? next : null);
   };
 
   const clearLabelFilters = () => {
     if (!filters.labels || filters.labels.length === 0) return;
-    for (const labelId of filters.labels) updateLabelFilter(labelId);
+    updateFilter("labels", null);
   };
 
   return (

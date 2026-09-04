@@ -1,75 +1,89 @@
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { addWeeks, endOfWeek, isWithinInterval, startOfWeek } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { type SetStateAction, useCallback, useMemo } from "react";
+import {
+  decodeBoardFilters,
+  EMPTY_BOARD_FILTERS,
+  encodeBoardFilters,
+  readRawFilterParam,
+} from "@/lib/board-filter-search-params";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { type BoardFilters, DUE_DATE_FILTER_VALUES } from "./use-task-filters";
 
-const DEFAULT_FILTERS: BoardFilters = {
-  status: null,
-  priority: null,
-  assignee: null,
-  dueDate: null,
-  labels: null,
-};
-
-const FILTER_KEYS: Array<keyof BoardFilters> = [
-  "status",
-  "priority",
-  "assignee",
-  "dueDate",
-  "labels",
-];
-
-function normalizeFilters(raw: unknown): BoardFilters {
-  if (!raw || typeof raw !== "object") {
-    return DEFAULT_FILTERS;
-  }
-
-  const candidate = raw as Partial<Record<keyof BoardFilters, unknown>>;
-  const normalized = { ...DEFAULT_FILTERS };
-
-  for (const key of FILTER_KEYS) {
-    const value = candidate[key];
-    if (Array.isArray(value)) {
-      const values = value.filter((v): v is string => typeof v === "string");
-      normalized[key] = values.length > 0 ? values : null;
-    }
-  }
-
-  return normalized;
-}
-
 export function useTaskFiltersWithLabelsSupport(
   project: ProjectWithTasks | null | undefined,
-  projectId?: string,
+  _projectId?: string,
   textQuery?: string,
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
-  const storageKey = projectId ? `kaneo:board-filters:${projectId}` : null;
-  const [filters, setFilters] = useState<BoardFilters>(DEFAULT_FILTERS);
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as Record<string, unknown>;
 
-  useEffect(() => {
-    if (!storageKey || typeof window === "undefined") return;
+  const rawStatus = readRawFilterParam(search, "status");
+  const rawPriority = readRawFilterParam(search, "priority");
+  const rawAssignee = readRawFilterParam(search, "assignee");
+  const rawDueDate = readRawFilterParam(search, "dueDate");
+  const rawLabels = readRawFilterParam(search, "labels");
 
-    try {
-      const stored = window.localStorage.getItem(storageKey);
-      if (!stored) {
-        setFilters(DEFAULT_FILTERS);
-        return;
-      }
+  const filters = useMemo(
+    () =>
+      decodeBoardFilters({
+        status: rawStatus,
+        priority: rawPriority,
+        assignee: rawAssignee,
+        dueDate: rawDueDate,
+        labels: rawLabels,
+      }),
+    [rawStatus, rawPriority, rawAssignee, rawDueDate, rawLabels],
+  );
 
-      const parsed = JSON.parse(stored) as unknown;
-      setFilters(normalizeFilters(parsed));
-    } catch {
-      setFilters(DEFAULT_FILTERS);
-    }
-  }, [storageKey]);
+  const setFilters = useCallback(
+    (update: SetStateAction<BoardFilters>) => {
+      navigate({
+        to: ".",
+        search: (prev: Record<string, unknown>) => {
+          const current = decodeBoardFilters(prev);
+          const next = typeof update === "function" ? update(current) : update;
+          return { ...prev, ...encodeBoardFilters(next) };
+        },
+        replace: true,
+      });
+    },
+    [navigate],
+  );
 
-  useEffect(() => {
-    if (!storageKey || typeof window === "undefined") return;
-    window.localStorage.setItem(storageKey, JSON.stringify(filters));
-  }, [filters, storageKey]);
+  const clearFilters = useCallback(() => {
+    setFilters(EMPTY_BOARD_FILTERS);
+  }, [setFilters]);
+
+  const updateFilter = useCallback(
+    (key: keyof BoardFilters, value: BoardFilters[keyof BoardFilters]) => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    },
+    [setFilters],
+  );
+
+  const updateLabelFilter = useCallback(
+    (labelId: string) => {
+      setFilters((prev) => {
+        const currentLabels = prev.labels || [];
+        const isSelected = currentLabels.includes(labelId);
+
+        let newLabels: string[] | null;
+        if (isSelected) {
+          newLabels = currentLabels.filter((id) => id !== labelId);
+          if (newLabels.length === 0) newLabels = null;
+        } else {
+          newLabels = [...currentLabels, labelId];
+        }
+
+        return { ...prev, labels: newLabels };
+      });
+    },
+    [setFilters],
+  );
 
   const filterTasks = useCallback(
     (tasks: Task[]): Task[] => {
@@ -201,34 +215,6 @@ export function useTaskFiltersWithLabelsSupport(
   const hasActiveFilters = Object.values(filters).some((filter) =>
     Array.isArray(filter) ? filter.length > 0 : filter !== null,
   );
-
-  const clearFilters = () => {
-    setFilters(DEFAULT_FILTERS);
-  };
-
-  const updateFilter = (
-    key: keyof BoardFilters,
-    value: BoardFilters[keyof BoardFilters],
-  ) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const updateLabelFilter = (labelId: string) => {
-    setFilters((prev) => {
-      const currentLabels = prev.labels || [];
-      const isSelected = currentLabels.includes(labelId);
-
-      let newLabels: string[] | null;
-      if (isSelected) {
-        newLabels = currentLabels.filter((id) => id !== labelId);
-        if (newLabels.length === 0) newLabels = null;
-      } else {
-        newLabels = [...currentLabels, labelId];
-      }
-
-      return { ...prev, labels: newLabels };
-    });
-  };
 
   return {
     filters,
