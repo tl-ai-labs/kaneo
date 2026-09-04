@@ -1,0 +1,24 @@
+{
+  "pass": "20260903-084152-refactor-lane-header",
+  "policy_name": "gpt-seat-plus-flash",
+  "started_at": "2026-09-03T08:49:10.279Z",
+  "ended_at": "2026-09-03T09:03:00.000Z",
+  "duration_sec": 830,
+  "total_cost_usd": 0.164428,
+  "total_input_tokens": 62217,
+  "total_input_tokens_cached": 35328,
+  "total_output_tokens": 2744,
+  "model_breakdown": {
+    "gpt-5.6-terra": {"calls": 3, "successful_calls": 3, "failed_calls": 0, "cost_usd": 0.164428, "input_tokens": 62217, "input_tokens_cached": 35328, "output_tokens": 2744, "provenance": "modeled"}
+  },
+  "phase_breakdown": {
+    "requirements_analysis": {"calls": 1, "cost_usd": 0.078004, "models": ["gpt-5.6-terra"], "input_tokens": 24237, "input_tokens_cached": 35328, "output_tokens": 1872},
+    "architecture_design": {"calls": 1, "cost_usd": 0.049034, "models": ["gpt-5.6-terra"], "input_tokens": 19627, "input_tokens_cached": 0, "output_tokens": 815},
+    "plan_task_packets": {"calls": 1, "cost_usd": 0.03739, "models": ["gpt-5.6-terra"], "input_tokens": 18353, "input_tokens_cached": 0, "output_tokens": 57}
+  },
+  "module_breakdown": {"kanban-column-header": {"calls": 3, "cost_usd": 0.164428}},
+  "task_type_breakdown": {"requirements": {"calls": 1, "cost_usd": 0.078004}, "design": {"calls": 1, "cost_usd": 0.049034}, "refactor_plan": {"calls": 1, "cost_usd": 0.03739}},
+  "artifacts": {"files": 0, "loc": 0, "tests_run": 0, "test_status": "timeout_no_results"},
+  "outcome": "accepted",
+  "implementation": "no-op"
+}

@@ -1,0 +1,8 @@
+{
+  "modules": [],
+  "verdict": "approved",
+  "findings": [],
+  "not_verifiable": [],
+  "refinement_packets": [],
+  "note": "No source files were touched and no implementation packets were executed, so there are no changed modules to review."
+}

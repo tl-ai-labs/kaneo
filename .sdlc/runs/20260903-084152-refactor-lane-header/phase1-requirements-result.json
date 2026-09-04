@@ -1,0 +1,70 @@
+{
+  "decision": {
+    "modelId": "gpt",
+    "reason": "Judgment-heavy, low volume",
+    "ruleIndex": 0
+  },
+  "result": {
+    "result": {
+      "markdown": "# Requirements — Kanban Column Header Refactor\n\n## 1. In scope\n\n1. Verify that `Column` delegates all header rendering and header behavior to `ColumnHeader`.\n2. Retain `Column` ownership of dropzone-over state, container classes, and `ColumnDropzone` composition.\n3. Retain `ColumnHeader` ownership of header UI, controls, modal state, archive behavior, store updates, translated copy, toast feedback, and related modals.\n4. Make changes only to `apps/web/src/components/kanban-board/column/index.tsx`, `column-header.tsx`, and, if needed, `column-header.test.tsx`.\n5. Apply the approved no-op rule: if this separation already exists, make no implementation changes.\n\n## 2. Out of scope\n\n1. API, database, realtime, event, WebSocket, MCP, or integration changes.\n2. Translation-key or user-facing copy changes.\n3. Styling, layout, accessibility, permission-model, drag-and-drop, or broader cleanup changes.\n4. Renaming Column concepts to Lane or changing unrelated Kanban components.\n\n## Functional requirements\n\n- **FR-1:** `Column` shall compose `ColumnHeader` using the current column input while preserving its existing wrapper and dropzone composition.\n- **FR-2:** `ColumnHeader` shall render the current column icon, name, and task count exactly as before.\n- **FR-3:** `ColumnHeader` shall preserve permission-gated visibility and availability of create-task and archive controls.\n- **FR-4:** `ColumnHeader` shall preserve create-task and archive modal state and rendering, including `CreateTaskModal` and `ArchiveTasksModal`.\n- **FR-5:** Archiving shall preserve its current mutation, project-store update, translated toast feedback, and resulting visible state.\n- **FR-6:** The refactor shall preserve current drag/drop behavior and the column dropzone's visual state.\n- **FR-7:** When the existing ownership split satisfies FR-1 through FR-6, the implementation shall be a no-op.\n\n## Non-functional requirements\n\n- **NFR-1:** Preserve existing DOM structure, layout, styling classes, accessible names, keyboard behavior, and focus behavior.\n- **NFR-2:** Preserve existing permission enforcement and avoid introducing client-side authorization changes.\n- **NFR-3:** Do not add network calls, state stores, dependencies, translation keys, or runtime work.\n- **NFR-4:** Keep the change limited to the approved file allowlist; unrelated working-tree changes must remain untouched.\n\n## PII inventory\n\n| Data element | Source | Processing in this refactor | Storage/transmission change |\n| --- | --- | --- | --- |\n| Column name | Existing column data | Existing display only | None |\n| Task count | Existing column/task data | Existing display only | None |\n| User permission state | Existing client permission context | Existing control gating only | None |\n| User-generated task/archive inputs | Existing modal flows | Existing handling only | None |\n\n## Role matrix\n\n| Actor | View header | Create task control | Archive control | Expected result |\n| --- | --- | --- | --- | --- |\n| User with the existing create-task permission | Yes | Available | Per existing archive permission | Existing behavior unchanged |\n| User with the existing archive permission | Yes | Per existing create permission | Available | Existing behavior unchanged |\n| User without a required permission | Yes, as currently allowed | Hidden or disabled as currently implemented | Hidden or disabled as currently implemented | No capability expansion |\n\n## Acceptance criteria\n\n1. Render an existing board and verify that each column still displays the same icon, name, task count, header controls, container layout, and dropzone.\n2. Inspect `index.tsx` and verify that it owns only column container/dropzone concerns and composes `ColumnHeader` for the header.\n3. Inspect `column-header.tsx` and verify that it owns all header rendering, permission-gated controls, modal state, archive mutation flow, store update, translated labels/toast, and the two existing modals.\n4. With each relevant permission combination, verify that create-task and archive controls have the same visibility and behavior as before.\n5. Open, cancel, and complete both create-task and archive flows; verify existing modal behavior, mutation outcome, store update, and toast feedback remain unchanged.\n6. Keyboard-navigate the header controls and verify existing accessible names, focus behavior, and modal interaction are unchanged.\n7. Drag over and out of a column, then drop a task; verify the current dropzone-over visual state and drop behavior are unchanged.\n8. Verify no API, schema, migration, permission, translation, styling, realtime, or unrelated files changed.\n9. If the supplied current-responsibility summaries are confirmed in source, verify the implementation diff contains no source changes.\n\n## Open questions\n\n1. None. The approved Gate 0 scope defines the extraction as already complete when the stated ownership split is present; that condition requires a no-op."
+    },
+    "tokens": {
+      "input": 24237,
+      "input_cached": 35328,
+      "output": 1872,
+      "output_reasoning": 536
+    },
+    "cost_usd": 0.078004,
+    "latency_ms": 49385,
+    "cache_hit": true,
+    "success": true,
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "ceiling_used": 5000,
+        "hit_output_cap": false,
+        "tokens": {
+          "input": 24237,
+          "input_cached": 35328,
+          "output": 1872,
+          "output_reasoning": 536
+        },
+        "cost_usd": 0.078004,
+        "latency_ms": 49385,
+        "success": true
+      }
+    ],
+    "terminal_reason": "success"
+  },
+  "events": [
+    {
+      "ts": "2026-09-03T08:49:10.279Z",
+      "pass": "20260903-084152-refactor-lane-header",
+      "phase": "requirements_analysis",
+      "task_type": "requirements",
+      "task_id": "tp_requirements_001",
+      "module": "kanban-column-header",
+      "model": "gpt-5.6-terra",
+      "provenance": "modeled",
+      "routed_by": "orchestrator",
+      "model_id": "gpt",
+      "routing": {
+        "policy_name": "gpt-seat-plus-flash",
+        "policy_version": 1,
+        "rule_index": 0,
+        "rule_reason": "Judgment-heavy, low volume"
+      },
+      "retry_count": 0,
+      "input_tokens": 24237,
+      "input_tokens_cached": 35328,
+      "output_tokens": 1872,
+      "output_tokens_reasoning": 536,
+      "cost_usd": 0.078004,
+      "latency_ms": 49385,
+      "success": true,
+      "attempt_number": 1,
+      "ceiling_used": 5000
+    }
+  ],
+  "terminal_reason": "success"
+}

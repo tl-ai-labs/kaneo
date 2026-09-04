@@ -1,0 +1,20 @@
+{
+  "id": "tp_plan_001",
+  "phase": "plan_task_packets",
+  "task_type": "refactor_plan",
+  "module": "kanban-column-header",
+  "instruction": "Plan file-sized implementation packets for the approved refactor. Return an empty packets array when the extraction is already complete. Do not manufacture changes, rename Column terminology, or target paths outside the allowlist.",
+  "inputs": [
+    {"path": ".sdlc/runs/20260903-084152-refactor-lane-header/requirements.md", "content": "Approved FR-7 mandates a no-op when Column only composes ColumnHeader and retains container/dropzone ownership.", "reason": "Approved no-op requirement"},
+    {"path": ".sdlc/runs/20260903-084152-refactor-lane-header/change_plan.md", "content": "Inspect current ownership first. If extraction exists, stop with a no-op. Otherwise only surgical edits to index.tsx and column-header.tsx are permitted, with an optional focused test.", "reason": "Approved Gate 2 plan"},
+    {"path": "apps/web/src/components/kanban-board/column/index.tsx", "content": "Column imports and renders ColumnHeader. It owns only isDropzoneOver state, outer layout classes, the header wrapper, and ColumnDropzone composition.", "reason": "Complete current Column responsibility inventory"},
+    {"path": "apps/web/src/components/kanban-board/column/column-header.tsx", "content": "ColumnHeader owns icon/name/count rendering; permission-gated archive/add controls; create/archive modal state and rendering; archive task mutations, project-store update, translated toast, and dialog callbacks.", "reason": "Complete current ColumnHeader responsibility inventory"}
+  ],
+  "outputSchema": {"type": "object", "properties": {"packets": {"type": "array", "items": {"type": "object", "properties": {"id": {"type": "string"}, "phase": {"type": "string"}, "task_type": {"type": "string"}, "artifact_path": {"type": "string"}, "instruction": {"type": "string"}}, "required": ["id", "phase", "task_type", "artifact_path", "instruction"], "additionalProperties": false}}, "rationale": {"type": "string"}}, "required": ["packets", "rationale"], "additionalProperties": false},
+  "acceptance": ["Empty packets when extraction is complete", "Any packet is restricted to allowlisted paths", "No behavior or terminology change is planned"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 5000},
+  "retry_count": 0,
+  "pass_id": "20260903-084152-refactor-lane-header",
+  "intent": "refactor",
+  "artifact_path": ".sdlc/runs/20260903-084152-refactor-lane-header/packets.json"
+}

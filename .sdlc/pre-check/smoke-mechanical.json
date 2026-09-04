@@ -1,0 +1,15 @@
+{
+  "id": "smoke-mechanical",
+  "phase": "codegen",
+  "task_type": "react_component",
+  "module": "smoke",
+  "instruction": "Return the literal string OK in the result field.",
+  "inputs": [],
+  "outputSchema": {"type": "object", "properties": {"result": {"type": "string"}}, "required": ["result"], "additionalProperties": false},
+  "acceptance": ["result is OK"],
+  "budget": {"maxInputTokens": 200, "maxOutputTokens": 160},
+  "retry_count": 0,
+  "pass_id": "pre-check",
+  "intent": "refactor",
+  "artifact_path": ".sdlc/pre-check/smoke-mechanical-result.json"
+}

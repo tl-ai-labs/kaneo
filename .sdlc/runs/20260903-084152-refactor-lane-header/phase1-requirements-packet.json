@@ -1,0 +1,31 @@
+{
+  "id": "tp_requirements_001",
+  "phase": "requirements_analysis",
+  "task_type": "requirements",
+  "module": "kanban-column-header",
+  "instruction": "Produce concise brownfield refactor requirements as Markdown. Include numbered In scope and Out of scope sections, FR-* functional requirements, NFR-* non-functional requirements, a PII inventory table, a role matrix, numbered executable acceptance criteria, and open questions. Preserve the approved no-op rule when the requested extraction already exists.",
+  "inputs": [
+    {
+      "path": ".sdlc/runs/20260903-084152-refactor-lane-header/intent_brief.md",
+      "content": "The user's Lane/LaneHeader request maps to Kaneo's Column/ColumnHeader. Goal: ensure header rendering and behavior are extracted from Column while preserving behavior exactly. In scope: column/index.tsx, column-header.tsx, optional column-header.test.tsx. Preserve layout, accessibility, permissions, modals, archive behavior, store updates, translations, toast, and drag/drop. Retain Column terminology. If Column already only composes ColumnHeader and ColumnHeader owns the header responsibilities, implementation must be a no-op. No API, database, realtime, translation, styling, permission, or broader cleanup changes.",
+      "reason": "Approved Gate 0 intent and scope"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/index.tsx",
+      "content": "Column currently owns isDropzoneOver state, container classes, a wrapper around <ColumnHeader column={column} />, and <ColumnDropzone> composition.",
+      "reason": "Current responsibility summary from discovery"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "content": "ColumnHeader currently owns icon/name/task count rendering, permission-gated create/archive controls, modal state, archive mutations, project-store update, translated labels/toast, CreateTaskModal, and ArchiveTasksModal.",
+      "reason": "Current responsibility summary from discovery"
+    }
+  ],
+  "outputSchema": {"type": "object", "properties": {"markdown": {"type": "string"}}, "required": ["markdown"], "additionalProperties": false},
+  "acceptance": ["Requirements preserve behavior", "Requirements constrain scope", "Requirements mandate no-op if extraction is complete"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 5000},
+  "retry_count": 0,
+  "pass_id": "20260903-084152-refactor-lane-header",
+  "intent": "refactor",
+  "artifact_path": ".sdlc/runs/20260903-084152-refactor-lane-header/requirements.md"
+}

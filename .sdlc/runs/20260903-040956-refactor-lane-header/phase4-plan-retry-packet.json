@@ -1,0 +1,19 @@
+{
+  "id": "tp_plan_002",
+  "phase": "plan_task_packets",
+  "task_type": "refactor_plan",
+  "module": "kanban-column-header",
+  "instruction": "Retry after response-schema validation rejected the prior packet. Plan the approved refactor from the supplied evidence. Column already delegates all header responsibilities to ColumnHeader, so return an empty packets array and a precise no-op rationale. Do not invent changes or rename Column terminology.",
+  "inputs": [
+    {"path": ".sdlc/runs/20260903-040956-refactor-lane-header/requirements.md", "content": "Approved requirement FR-7 mandates no source modification when Column has no header responsibility beyond composing ColumnHeader.", "reason": "Approved no-op criterion"},
+    {"path": "apps/web/src/components/kanban-board/column/index.tsx", "content": "Column owns only dropzone-over state, container styling, a wrapper rendering <ColumnHeader column={column} />, and ColumnDropzone composition.", "reason": "Current complete responsibility summary"},
+    {"path": "apps/web/src/components/kanban-board/column/column-header.tsx", "content": "ColumnHeader owns icon/name/count UI, permissions, create/archive buttons, modal state and rendering, archive mutations/store update, translations, and toast.", "reason": "Current complete responsibility summary"}
+  ],
+  "outputSchema": {"type":"object","properties":{"packets":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"phase":{"type":"string"},"task_type":{"type":"string"},"artifact_path":{"type":"string"},"instruction":{"type":"string"}},"required":["id","phase","task_type","artifact_path","instruction"],"additionalProperties":false}},"rationale":{"type":"string"}},"required":["packets","rationale"],"additionalProperties":false},
+  "acceptance": ["Return an empty packet list when extraction is complete", "Explain the no-op using current component responsibilities"],
+  "budget": {"maxInputTokens": 4000, "maxOutputTokens": 5000},
+  "retry_count": 1,
+  "pass_id": "20260903-040956-refactor-lane-header",
+  "intent": "refactor",
+  "artifact_path": ".sdlc/runs/20260903-040956-refactor-lane-header/packets.json"
+}

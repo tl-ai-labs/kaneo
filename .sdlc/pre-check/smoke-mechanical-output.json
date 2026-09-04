@@ -1,0 +1,78 @@
+{
+  "decision": {
+    "modelId": "flash-completion",
+    "reason": "Schema-driven boilerplate",
+    "ruleIndex": 7,
+    "selection": {
+      "slot": "gemini-flash",
+      "chosen": "flash-completion",
+      "overridden": false
+    }
+  },
+  "result": {
+    "result": {
+      "result": "OK"
+    },
+    "tokens": {
+      "input": 123,
+      "input_cached": 0,
+      "output": 99
+    },
+    "cost_usd": 0.001076,
+    "latency_ms": 9107,
+    "cache_hit": false,
+    "success": true,
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "ceiling_used": 160,
+        "stop_reason": "STOP",
+        "hit_output_cap": false,
+        "tokens": {
+          "input": 123,
+          "input_cached": 0,
+          "output": 99
+        },
+        "cost_usd": 0.001076,
+        "latency_ms": 9107,
+        "success": true
+      }
+    ],
+    "terminal_reason": "success"
+  },
+  "events": [
+    {
+      "ts": "2026-09-03T08:44:13.257Z",
+      "pass": "pre-check",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "task_id": "smoke-mechanical",
+      "module": "smoke",
+      "model": "gemini-3.7-flash",
+      "provenance": "vendor",
+      "routed_by": "orchestrator",
+      "model_id": "flash-completion",
+      "routing": {
+        "policy_name": "gpt-seat-plus-flash",
+        "policy_version": 1,
+        "rule_index": 7,
+        "rule_reason": "Schema-driven boilerplate",
+        "select": {
+          "slot": "gemini-flash",
+          "chosen": "flash-completion",
+          "overridden": false
+        }
+      },
+      "retry_count": 0,
+      "input_tokens": 123,
+      "input_tokens_cached": 0,
+      "output_tokens": 99,
+      "cost_usd": 0.001076,
+      "latency_ms": 9107,
+      "success": true,
+      "attempt_number": 1,
+      "ceiling_used": 160
+    }
+  ],
+  "terminal_reason": "success"
+}

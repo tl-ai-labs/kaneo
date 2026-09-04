@@ -1,0 +1,4 @@
+{
+  "packets": [],
+  "rationale": "The extraction is already complete: Column composes ColumnHeader while retaining container and dropzone ownership, and ColumnHeader owns all header-specific behavior. Approved FR-7 therefore requires a no-op."
+}

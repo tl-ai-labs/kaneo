@@ -1,0 +1,4 @@
+{
+  "packets": [],
+  "rationale": "No-op: Column only manages dropzone-over state, container styling, composition of <ColumnHeader column={column} />, and ColumnDropzone. ColumnHeader already owns every header concern: icon, name, count, permissions, actions, modal state and rendering, archive mutation and store update, translations, and toast. The approved extraction is complete; no source modification or terminology change is warranted."
+}

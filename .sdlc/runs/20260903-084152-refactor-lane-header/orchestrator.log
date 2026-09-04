@@ -1,0 +1,12 @@
+MMO: 2026-09-03T08:48:20.810Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-03T08:48:20.830Z INFO   route.decide packet_id=tp_requirements_001 phase=requirements_analysis intent=refactor task_type=requirements module=kanban-column-header rule_index=0 rule_reason="Judgment-heavy, low volume" model_id=gpt
+MMO: 2026-09-03T08:48:20.848Z INFO   dispatch.start packet_id=tp_requirements_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-03T08:49:10.249Z INFO   dispatch.end packet_id=tp_requirements_001 model_id=gpt ok=true terminal_reason=success tokens_in=24237 tokens_out=1872 tokens_cached=35328 cost_usd=0.078004 latency_ms=49401 attempts=1
+MMO: 2026-09-03T08:52:12.694Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-03T08:52:12.713Z INFO   route.decide packet_id=tp_architecture_001 phase=architecture_design intent=refactor task_type=design module=kanban-column-header rule_index=1 rule_reason="Foundational, decision-bearing" model_id=gpt
+MMO: 2026-09-03T08:52:12.730Z INFO   dispatch.start packet_id=tp_architecture_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-03T08:52:38.641Z INFO   dispatch.end packet_id=tp_architecture_001 model_id=gpt ok=true terminal_reason=success tokens_in=19627 tokens_out=815 tokens_cached=0 cost_usd=0.049034 latency_ms=25911 attempts=1
+MMO: 2026-09-03T08:54:34.526Z INFO   policy.load policy_name=gpt-seat-plus-flash source=name version=1 model_count=3 rule_count=13
+MMO: 2026-09-03T08:54:34.544Z INFO   route.decide packet_id=tp_plan_001 phase=plan_task_packets intent=refactor task_type=refactor_plan module=kanban-column-header rule_index=2 rule_reason="Needs full context to slice work cleanly" model_id=gpt
+MMO: 2026-09-03T08:54:34.571Z INFO   dispatch.start packet_id=tp_plan_001 model_id=gpt max_out=5000 max_in=4000 work_dir="/mnt/c/Users/SangeethaS/Desktop/TL ai labs/kaneo"
+MMO: 2026-09-03T08:54:47.045Z INFO   dispatch.end packet_id=tp_plan_001 model_id=gpt ok=true terminal_reason=success tokens_in=18353 tokens_out=57 tokens_cached=0 cost_usd=0.03739 latency_ms=12474 attempts=1
