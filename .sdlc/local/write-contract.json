@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "active": false,
+  "mode": "brownfield",
+  "run_id": "20260903-125223-feature-extend-task-estimated-hours",
+  "strict": true,
+  "allowlist": [
+    "apps/api/src/database/schema.ts",
+    "apps/api/drizzle/**",
+    "apps/api/src/task/**",
+    "apps/api/src/schemas.ts",
+    "apps/web/src/types/task/**",
+    "apps/web/src/fetchers/task/**",
+    "apps/web/src/hooks/mutations/task/**",
+    "apps/web/src/components/task/**",
+    "apps/web/src/components/kanban-board/task-card.tsx",
+    "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "i18n/en-US.json",
+    "tests/api/task/**",
+    "apps/web/src/**/*.test.tsx",
+    "apps/web/src/**/*.test.ts",
+    "apps/web/src/lib/estimate.ts",
+    "apps/web/src/components/shared/modals/create-task-modal.tsx",
+    "apps/api/src/mcp/tools.ts"
+  ],
+  "off_limits": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".claude/**",
+    ".cursor/**",
+    ".agents/**",
+    "skills/**",
+    "skills-lock.json",
+    ".coderabbit.yaml",
+    ".github/**",
+    ".devcontainer/**",
+    ".gitignore",
+    "biome.json",
+    ".husky/**",
+    ".env",
+    ".env.*",
+    "packages/mcp/**",
+    "apps/api/src/task/controllers/export-tasks.ts",
+    "apps/web/src/components/public-project/**",
+    "apps/site/**",
+    "apps/docs/**",
+    "charts/**",
+    "i18n/de-DE.json",
+    "i18n/el-GR.json",
+    "i18n/es-ES.json",
+    "i18n/fr-FR.json",
+    "i18n/hi-IN.json",
+    "i18n/id-ID.json",
+    "i18n/it-IT.json",
+    "i18n/ko-KR.json",
+    "i18n/mk-MK.json",
+    "i18n/nl-NL.json",
+    "i18n/pt-BR.json",
+    "i18n/ru-RU.json",
+    "i18n/tr-TR.json",
+    "i18n/uk-UA.json",
+    "i18n/vi-VN.json",
+    "i18n/zh-CN.json",
+    "apps/api/src/mcp/!(tools.ts)"
+  ],
+  "contract_amendments": [
+    {
+      "at": "gate_1",
+      "added": [
+        "apps/web/src/lib/estimate.ts"
+      ],
+      "reason": "R-2: strict contract blocked the pure minutes<->hours utility from living in lib/; user approved widening by exactly this file."
+    },
+    {
+      "at": "gate_3_b1",
+      "added": [
+        "apps/web/src/components/shared/modals/create-task-modal.tsx"
+      ],
+      "reason": "B1: Task.estimatedMinutes required surfaced a construction site outside the allowlist. User approved widening by exactly this file; one line in the existing normalizeTask() helper. Required-field guarantee retained."
+    },
+    {
+      "at": "gate_3_security",
+      "added": [
+        "apps/api/src/mcp/tools.ts"
+      ],
+      "reason": "Security review found this change makes the EXISTING MCP update_task tool silently NULL estimatedMinutes on every edit (read-merge-full-PUT builder omits it; update-task writes ?? null). Distinct from the 'no MCP exposure' non-goal: preventing data loss, not adding capability. User approved widening by exactly this file."
+    }
+  ]
+}

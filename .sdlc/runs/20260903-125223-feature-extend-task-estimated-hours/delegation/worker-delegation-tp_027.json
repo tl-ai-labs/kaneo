@@ -1,0 +1,140 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_027",
+  "phase": "tests",
+  "task_type": "test_unit",
+  "module": "api-mcp",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-04T05:53:40.988Z",
+  "duration_ms": 87815,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.197688,
+  "tokens": {
+    "input": 79241,
+    "input_cached": 187769,
+    "output": 5629,
+    "output_reasoning": 4038
+  },
+  "tool_calls": {
+    "count": 10,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/mcp/tools.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/mcp/tools.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/tests/api/column/to-slug.test.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/column/to-slug.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "find_file",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/tests",
+          "query": "*"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests",
+        "args_clipped": false
+      },
+      {
+        "name": "find_file",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/tests",
+          "query": "*task*"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests",
+        "args_clipped": false
+      },
+      {
+        "name": "list_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/tests/api/task"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/task",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/tests/api/task/estimate-schema.test.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/task/estimate-schema.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/tests/api/task/mcp-update-task-body.test.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/task/mcp-update-task-body.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api test tests/api/task/mcp-update-task-body.test.ts",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git status",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/api test tests/api/task/mcp-update-task-body.test.ts",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "tests/api/task/mcp-update-task-body.test.ts"
+    ],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1686,
+    "scanned": 1687,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_027.md",
+    "usage": "worker-usage-tp_027.json"
+  }
+}

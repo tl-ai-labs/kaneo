@@ -45,6 +45,7 @@ import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
+import { estimatedMinutesFieldSchema } from "./estimate-schema";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
 const task = new Hono<{
@@ -195,6 +196,7 @@ const task = new Hono<{
         startDate: v.optional(v.string()),
         dueDate: v.optional(v.string()),
         priority: v.picklist(VALID_PRIORITIES),
+        estimatedMinutes: estimatedMinutesFieldSchema,
         status: v.string(),
         userId: v.optional(v.string()),
       }),
@@ -210,6 +212,7 @@ const task = new Hono<{
         startDate,
         dueDate,
         priority,
+        estimatedMinutes,
         status,
         userId,
       } = c.req.valid("json");
@@ -234,6 +237,7 @@ const task = new Hono<{
         startDate: parsedStartDate,
         dueDate: parsedDueDate,
         priority,
+        estimatedMinutes,
         status,
       });
 
@@ -338,6 +342,7 @@ const task = new Hono<{
         startDate: v.optional(v.string()),
         dueDate: v.optional(v.string()),
         priority: v.picklist(VALID_PRIORITIES),
+        estimatedMinutes: estimatedMinutesFieldSchema,
         status: v.string(),
         projectId: v.string(),
         position: v.number(),
@@ -356,6 +361,7 @@ const task = new Hono<{
         startDate,
         dueDate,
         priority,
+        estimatedMinutes,
         status,
         projectId,
         position,
@@ -387,6 +393,7 @@ const task = new Hono<{
         position,
         userId,
         currentUserId,
+        estimatedMinutes,
       );
 
       return c.json(task);

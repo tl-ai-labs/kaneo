@@ -1,0 +1,126 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_019",
+  "phase": "tests",
+  "task_type": "test_unit",
+  "module": "web-ui",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-04T04:40:52.668Z",
+  "duration_ms": 110865,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.32706,
+  "tokens": {
+    "input": 128958,
+    "input_cached": 426478,
+    "output": 7739,
+    "output_reasoning": 5144
+  },
+  "tool_calls": {
+    "count": 8,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md",
+          "start_line": "799",
+          "end_line": "1598"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/estimate.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/estimate.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/due-date-status.test.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/due-date-status.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/estimate.test.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/estimate.test.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web test -- src/lib/estimate.test.ts",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/.gemini/antigravity/brain/cfdb608e463d90f2be1a6f5283fbb95a/.system_generated/tasks/task-12.log",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/.gemini/antigravity/brain/cfdb608e463d90f2be1a6f5283fbb95a/.system_generated/tasks/task-12.log",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/.gemini/antigravity/brain/cfdb608e463d90f2be1a6f5283fbb95a/.system_generated/tasks/task-12.log",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/.gemini/antigravity/brain/cfdb608e463d90f2be1a6f5283fbb95a/.system_generated/tasks/task-12.log",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "apps/web/src/lib/estimate.test.ts"
+    ],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1683,
+    "scanned": 1684,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_019.md",
+    "usage": "worker-usage-tp_019.json"
+  }
+}

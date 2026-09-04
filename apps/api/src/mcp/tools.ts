@@ -112,10 +112,10 @@ function formatOptionalIso(value: unknown): string | undefined {
   return undefined;
 }
 
-function buildFullTaskUpdateBody(
+export function buildFullTaskUpdateBody(
   existing: Record<string, unknown>,
   patch: Record<string, unknown>,
-): Record<string, string | number | undefined> {
+): Record<string, string | number | null | undefined> {
   const positionRaw = patch.position ?? existing.position;
   const position =
     typeof positionRaw === "number"
@@ -173,8 +173,12 @@ function buildFullTaskUpdateBody(
   const dueDate = formatOptionalIso(
     patch.dueDate !== undefined ? patch.dueDate : existing.dueDate,
   );
+  const estimatedMinutes =
+    patch.estimatedMinutes !== undefined
+      ? (patch.estimatedMinutes as number | null)
+      : (existing.estimatedMinutes as number | null | undefined);
 
-  const body: Record<string, string | number | undefined> = {
+  const body: Record<string, string | number | null | undefined> = {
     title,
     description,
     status,
@@ -185,6 +189,7 @@ function buildFullTaskUpdateBody(
   if (startDate !== undefined) body.startDate = startDate;
   if (dueDate !== undefined) body.dueDate = dueDate;
   if (userId !== undefined) body.userId = userId;
+  if (estimatedMinutes !== undefined) body.estimatedMinutes = estimatedMinutes;
   return body;
 }
 

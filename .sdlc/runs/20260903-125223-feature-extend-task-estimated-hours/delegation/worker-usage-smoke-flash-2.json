@@ -1,0 +1,20 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 11080,
+    "cached_content_token_count": 0,
+    "candidates_token_count": 6,
+    "thoughts_token_count": 126,
+    "total_token_count": 11212,
+    "service_tier": null
+  },
+  "tool_call_count": 0,
+  "tool_calls_truncated": false,
+  "tool_calls": [],
+  "text": "{\"result\": \"OK\"}"
+}

@@ -6,6 +6,7 @@ import {
   Calendar,
   CalendarClock,
   CalendarX,
+  Clock,
   GitMerge,
   GitPullRequest,
 } from "lucide-react";
@@ -34,6 +35,7 @@ import {
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
+import { formatEstimateMinutes } from "@/lib/estimate";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -130,6 +132,8 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
       (member) => member.userId === task.userId,
     );
   }, [workspaceUsers, task.userId]);
+
+  const estimateLabel = formatEstimateMinutes(task.estimatedMinutes);
 
   function handleTaskCardClick(
     e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>,
@@ -277,6 +281,16 @@ function TaskCard({ task, disableDragDrop = false }: TaskCardProps) {
                       "no-due-date") && <Calendar className="w-3 h-3" />}
                   <span>{format(new Date(task.dueDate), "MMM d")}</span>
                 </div>
+              )}
+
+              {estimateLabel && (
+                <span
+                  title={t("tasks:properties.estimate")}
+                  className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground"
+                >
+                  <Clock className="h-3 w-3" />
+                  <span>{estimateLabel}</span>
+                </span>
               )}
 
               {pullRequests.length === 1 && (

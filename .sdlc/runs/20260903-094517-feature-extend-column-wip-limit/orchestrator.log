@@ -1,0 +1,4 @@
+MMO: 2026-09-03T12:50:01.615Z INFO   api.gemini.backend backend=vertex-adc reason="gcloud ADC file present" adc_file_present=true
+MMO: 2026-09-03T12:50:01.619Z INFO   preflight.model model_id=opus adapter=claude-cli ok=true
+MMO: 2026-09-03T12:50:01.619Z INFO   preflight.model model_id=flash-agsdk-worker adapter=antigravity-worker ok=true
+MMO: 2026-09-03T12:50:01.620Z INFO   preflight.result ok=true warnings_n=0 backend=vertex-adc project=ai-studies-console location=global

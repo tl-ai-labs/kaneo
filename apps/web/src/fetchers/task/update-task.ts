@@ -22,6 +22,7 @@ async function updateTask(taskId: string, task: Task) {
       startDate: task.startDate?.toString(),
       dueDate: task.dueDate?.toString(),
       position: task.position ?? 0,
+      estimatedMinutes: task.estimatedMinutes ?? null,
       projectId: task.projectId,
     },
   });

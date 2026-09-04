@@ -1,0 +1,112 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 267010,
+    "cached_content_token_count": 187769,
+    "candidates_token_count": 1591,
+    "thoughts_token_count": 4038,
+    "total_token_count": 272639,
+    "service_tier": null
+  },
+  "tool_call_count": 10,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/api/src/mcp/tools.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/api/src/mcp/tools.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/tests/api/column/to-slug.test.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/column/to-slug.test.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "find_file",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/tests",
+        "query": "*"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/tests",
+      "args_clipped": false
+    },
+    {
+      "name": "find_file",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/tests",
+        "query": "*task*"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/tests",
+      "args_clipped": false
+    },
+    {
+      "name": "list_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/tests/api/task"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/task",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/tests/api/task/estimate-schema.test.ts",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/task/estimate-schema.test.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/tests/api/task/mcp-update-task-body.test.ts"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/tests/api/task/mcp-update-task-body.test.ts",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/api test tests/api/task/mcp-update-task-body.test.ts",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/api test tests/api/task/mcp-update-task-body.test.ts",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    }
+  ],
+  "text": "{\n  \"artifact_path\": \"tests/api/task/mcp-update-task-body.test.ts\",\n  \"tests_passed\": 5,\n  \"command_output_tail\": \"Test Files  1 passed (1)\\n      Tests  5 passed (5)\\n   Start at  05:55:02\\n   Duration  412ms (transform 98ms, setup 0ms, import 193ms, tests 7ms, environment 0ms)\"\n}"
+}

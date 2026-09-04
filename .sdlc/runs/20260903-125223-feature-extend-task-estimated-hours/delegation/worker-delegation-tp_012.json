@@ -1,0 +1,105 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_012",
+  "phase": "codegen",
+  "task_type": "frontend_util",
+  "module": "web-ui",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-04T04:32:13.427Z",
+  "duration_ms": 58966,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.157896,
+  "tokens": {
+    "input": 61616,
+    "input_cached": 123641,
+    "output": 5214,
+    "output_reasoning": 4158
+  },
+  "tool_calls": {
+    "count": 6,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/.sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "list_directory",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/due-date-status.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/due-date-status.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/estimate.ts"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/estimate.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/estimate.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/lib/estimate.ts",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [
+      "apps/web/src/lib/estimate.ts"
+    ],
+    "modified": [],
+    "removed": [],
+    "unchanged": 1680,
+    "scanned": 1681,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_012.md",
+    "usage": "worker-usage-tp_012.json"
+  }
+}

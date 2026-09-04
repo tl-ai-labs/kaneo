@@ -6,6 +6,7 @@ import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
+import { formatEstimateMinutes, sumEstimateMinutes } from "@/lib/estimate";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -22,6 +23,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();
   const canTask = canUpdateTasks();
   const canCreate = canCreateTasks();
+  const estimateTotal = formatEstimateMinutes(sumEstimateMinutes(column.tasks));
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -62,6 +64,14 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
           {column.tasks.length}
         </span>
+        {estimateTotal && (
+          <span
+            title={t("tasks:kanban.estimateTotal")}
+            className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
+          >
+            {estimateTotal}
+          </span>
+        )}
       </div>
 
       <div className="flex items-center">

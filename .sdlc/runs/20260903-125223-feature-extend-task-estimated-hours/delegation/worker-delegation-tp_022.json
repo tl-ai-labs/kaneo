@@ -1,0 +1,167 @@
+{
+  "schema": "delegation-record/1",
+  "task_id": "tp_022",
+  "phase": "tests",
+  "task_type": "test_fixture_update",
+  "module": "web-ui",
+  "model_id": "flash-agsdk-worker",
+  "model_name": "gemini-3.7-flash",
+  "cable": {
+    "sdk": "google-antigravity",
+    "sdk_version": "0.1.12",
+    "vertex_project": "ai-studies-console",
+    "vertex_location": "global",
+    "thinking": "NONE"
+  },
+  "workdir": "/home/sangeetha/projects/kaneo",
+  "started_at": "2026-09-04T04:42:45.524Z",
+  "duration_ms": 106130,
+  "success": true,
+  "error": null,
+  "cost_usd": 0.220808,
+  "tokens": {
+    "input": 92990,
+    "input_cached": 260453,
+    "output": 4695,
+    "output_reasoning": 2794
+  },
+  "tool_calls": {
+    "count": 13,
+    "truncated": false,
+    "sample": [
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-status-popover.test.tsx",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-status-popover.test.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.test.tsx",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.test.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "find_file",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo",
+          "query": "*change_plan*"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "grep -rn \": Task = {\\|: Task\\[\\] = \\[\" apps/web/src",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "find_file",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src",
+          "query": "*task*"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src",
+        "args_clipped": false
+      },
+      {
+        "name": "find_file",
+        "args": {
+          "directory_path": "/home/sangeetha/projects/kaneo/apps/web/src/types",
+          "query": "*"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types",
+        "args_clipped": false
+      },
+      {
+        "name": "view_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+          "start_line": "0",
+          "end_line": "799"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/types/task/index.ts",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-status-popover.test.tsx"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-status-popover.test.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.test.tsx"
+        },
+        "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/list-view/task-row.test.tsx",
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "git diff",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "grep -rn \": Task = {\\|: Task\\[\\] = \\[\" apps/web/src",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "run_command",
+        "args": {
+          "command_line": "pnpm --filter @kaneo/web test -- src/components/task/task-status-popover.test.tsx src/components/list-view/task-row.test.tsx",
+          "working_dir": "/home/sangeetha/projects/kaneo"
+        },
+        "canonical_path": null,
+        "args_clipped": false
+      },
+      {
+        "name": "edit_file",
+        "args": {
+          "file_path": "/home/sangeetha/.gemini/antigravity/brain/963abecb5c4008a85688ffd59d5ac82e/test_fixture_update.md"
+        },
+        "canonical_path": "/home/sangeetha/.gemini/antigravity/brain/963abecb5c4008a85688ffd59d5ac82e/test_fixture_update.md",
+        "args_clipped": false
+      }
+    ]
+  },
+  "files": {
+    "added": [],
+    "modified": [
+      "apps/web/src/components/list-view/task-row.test.tsx",
+      "apps/web/src/components/task/task-status-popover.test.tsx"
+    ],
+    "removed": [],
+    "unchanged": 1682,
+    "scanned": 1684,
+    "truncated": false,
+    "unreadable": []
+  },
+  "artifacts": {
+    "brief": "worker-task-tp_022.md",
+    "usage": "worker-usage-tp_022.json"
+  }
+}

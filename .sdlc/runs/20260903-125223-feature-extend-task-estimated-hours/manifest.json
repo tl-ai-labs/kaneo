@@ -1,0 +1,725 @@
+{
+  "schema_version": 1,
+  "run_id": "20260903-125223-feature-extend-task-estimated-hours",
+  "mode": "brownfield",
+  "intent": "feature-extend",
+  "policy": {
+    "name": "opus-flash-sdk",
+    "version": 1,
+    "path": ".sdlc/policies/opus-flash-sdk.yaml"
+  },
+  "auth_mode": "estimated",
+  "mechanical_tier": {
+    "model_id": "flash-agsdk-worker",
+    "model": "gemini-3.7-flash",
+    "adapter": "antigravity-worker",
+    "backend": "vertex-adc",
+    "project": "ai-studies-console",
+    "location": "global",
+    "note": "Policy has no completion/API door; the select: block was removed so it cannot fall back to the API path."
+  },
+  "outcome": "accepted_at_gate_4",
+  "git": {
+    "head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+    "commits": [],
+    "committed": false,
+    "pushed": false,
+    "pr_opened": false
+  },
+  "totals": {
+    "cost_usd_run": 7.653452,
+    "cost_usd_precheck": 0.179411,
+    "cost_usd_grand_total": 7.832864,
+    "telemetry_events": 32,
+    "packets_dispatched": 30,
+    "packets_failed": 0,
+    "packets_misrouted_to_default_rule": 0,
+    "retries": 0,
+    "escalations": 0
+  },
+  "by_model": {
+    "opus": {
+      "calls": 3,
+      "cost_usd": 1.0404,
+      "input": 142000,
+      "cached": 74000,
+      "output": 26135
+    },
+    "flash-agsdk-worker": {
+      "calls": 27,
+      "cost_usd": 6.613052,
+      "input": 2891419,
+      "cached": 6956894,
+      "output": 136932
+    }
+  },
+  "by_phase": {
+    "requirements_analysis": {
+      "calls": 1,
+      "cost_usd": 0.1745
+    },
+    "change_plan": {
+      "calls": 1,
+      "cost_usd": 0.6119
+    },
+    "plan_task_packets": {
+      "calls": 1,
+      "cost_usd": 0.254
+    },
+    "codegen": {
+      "calls": 18,
+      "cost_usd": 3.493929
+    },
+    "tests": {
+      "calls": 6,
+      "cost_usd": 2.186238
+    },
+    "debug": {
+      "calls": 3,
+      "cost_usd": 0.932885
+    }
+  },
+  "packets": [
+    {
+      "packet_id": "tp_req_001",
+      "phase": "requirements_analysis",
+      "task_type": "delta_requirements",
+      "model_id": "opus",
+      "model": "claude-opus-5",
+      "rule_index": 0,
+      "rule_reason": "Judgment-heavy, low volume",
+      "input_tokens": 24000,
+      "input_tokens_cached": 14000,
+      "output_tokens": 4700,
+      "cost_usd": 0.1745,
+      "provenance": "estimated",
+      "success": true,
+      "latency_ms": null
+    },
+    {
+      "packet_id": "tp_plan_001",
+      "phase": "change_plan",
+      "task_type": "delta_design",
+      "model_id": "opus",
+      "model": "claude-opus-5",
+      "rule_index": 6,
+      "rule_reason": "Judgment: delta design for feature-extend / refactor / deps",
+      "input_tokens": 88000,
+      "input_tokens_cached": 42000,
+      "output_tokens": 14035,
+      "cost_usd": 0.6119,
+      "provenance": "estimated",
+      "success": true,
+      "latency_ms": null
+    },
+    {
+      "packet_id": "tp_plan_packets",
+      "phase": "plan_task_packets",
+      "task_type": "decomposition",
+      "model_id": "opus",
+      "model": "claude-opus-5",
+      "rule_index": 2,
+      "rule_reason": "Needs full context to slice work cleanly",
+      "input_tokens": 30000,
+      "input_tokens_cached": 18000,
+      "output_tokens": 7400,
+      "cost_usd": 0.254,
+      "provenance": "estimated",
+      "success": true,
+      "latency_ms": null
+    },
+    {
+      "packet_id": "tp_001",
+      "phase": "codegen",
+      "task_type": "entity",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 45929,
+      "input_tokens_cached": 127047,
+      "output_tokens": 1579,
+      "cost_usd": 0.102162,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 35944
+    },
+    {
+      "packet_id": "tp_002",
+      "phase": "codegen",
+      "task_type": "migration",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 112623,
+      "input_tokens_cached": 583229,
+      "output_tokens": 4332,
+      "cost_usd": 0.295407,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 148014
+    },
+    {
+      "packet_id": "tp_003",
+      "phase": "codegen",
+      "task_type": "dto",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 43100,
+      "input_tokens_cached": 126953,
+      "output_tokens": 1761,
+      "cost_usd": 0.099542,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 101289
+    },
+    {
+      "packet_id": "tp_004",
+      "phase": "codegen",
+      "task_type": "service_method",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 37634,
+      "input_tokens_cached": 85015,
+      "output_tokens": 3212,
+      "cost_usd": 0.098111,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 66291
+    },
+    {
+      "packet_id": "tp_006",
+      "phase": "codegen",
+      "task_type": "service_method",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 28759,
+      "input_tokens_cached": 96155,
+      "output_tokens": 1872,
+      "cost_usd": 0.07441,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 29546
+    },
+    {
+      "packet_id": "tp_007",
+      "phase": "codegen",
+      "task_type": "service_method",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 50502,
+      "input_tokens_cached": 65432,
+      "output_tokens": 1482,
+      "cost_usd": 0.098906,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 21970
+    },
+    {
+      "packet_id": "tp_008",
+      "phase": "codegen",
+      "task_type": "dto",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 35811,
+      "input_tokens_cached": 88992,
+      "output_tokens": 1542,
+      "cost_usd": 0.080943,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 23168
+    },
+    {
+      "packet_id": "tp_013",
+      "phase": "codegen",
+      "task_type": "frontend_config",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 195578,
+      "input_tokens_cached": 550280,
+      "output_tokens": 8541,
+      "cost_usd": 0.452778,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 155244
+    },
+    {
+      "packet_id": "tp_005",
+      "phase": "codegen",
+      "task_type": "service_method",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 97368,
+      "input_tokens_cached": 84988,
+      "output_tokens": 3161,
+      "cost_usd": 0.187249,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 44103
+    },
+    {
+      "packet_id": "tp_010",
+      "phase": "codegen",
+      "task_type": "dto",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 68606,
+      "input_tokens_cached": 46159,
+      "output_tokens": 1246,
+      "cost_usd": 0.121047,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 25180
+    },
+    {
+      "packet_id": "tp_009",
+      "phase": "codegen",
+      "task_type": "controller_handler",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 107765,
+      "input_tokens_cached": 278768,
+      "output_tokens": 5191,
+      "cost_usd": 0.250182,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 77311
+    },
+    {
+      "packet_id": "tp_012",
+      "phase": "codegen",
+      "task_type": "frontend_util",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 61616,
+      "input_tokens_cached": 123641,
+      "output_tokens": 5214,
+      "cost_usd": 0.157896,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 58966
+    },
+    {
+      "packet_id": "tp_011",
+      "phase": "codegen",
+      "task_type": "api_client",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 82328,
+      "input_tokens_cached": 64914,
+      "output_tokens": 1902,
+      "cost_usd": 0.150347,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 32441
+    },
+    {
+      "packet_id": "tp_014",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 67749,
+      "input_tokens_cached": 208667,
+      "output_tokens": 4990,
+      "cost_usd": 0.177834,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 68539
+    },
+    {
+      "packet_id": "tp_016",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 129107,
+      "input_tokens_cached": 264649,
+      "output_tokens": 5151,
+      "cost_usd": 0.279717,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 65744
+    },
+    {
+      "packet_id": "tp_017",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 82276,
+      "input_tokens_cached": 139678,
+      "output_tokens": 4178,
+      "cost_usd": 0.181968,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 44272
+    },
+    {
+      "packet_id": "tp_015",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 247900,
+      "input_tokens_cached": 377489,
+      "output_tokens": 9982,
+      "cost_usd": 0.518311,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 103736
+    },
+    {
+      "packet_id": "tp_018",
+      "phase": "tests",
+      "task_type": "test_unit",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 8,
+      "rule_reason": "Scaffold-heavy, pattern-based",
+      "input_tokens": 128694,
+      "input_tokens_cached": 121033,
+      "output_tokens": 3908,
+      "cost_usd": 0.246368,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 46376
+    },
+    {
+      "packet_id": "tp_019",
+      "phase": "tests",
+      "task_type": "test_unit",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 8,
+      "rule_reason": "Scaffold-heavy, pattern-based",
+      "input_tokens": 128958,
+      "input_tokens_cached": 426478,
+      "output_tokens": 7739,
+      "cost_usd": 0.32706,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 110865
+    },
+    {
+      "packet_id": "tp_022",
+      "phase": "tests",
+      "task_type": "test_fixture_update",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 8,
+      "rule_reason": "Scaffold-heavy, pattern-based",
+      "input_tokens": 92990,
+      "input_tokens_cached": 260453,
+      "output_tokens": 4695,
+      "cost_usd": 0.220808,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 106130
+    },
+    {
+      "packet_id": "tp_020",
+      "phase": "tests",
+      "task_type": "test_component",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 8,
+      "rule_reason": "Scaffold-heavy, pattern-based",
+      "input_tokens": 197977,
+      "input_tokens_cached": 713952,
+      "output_tokens": 9194,
+      "cost_usd": 0.486804,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 142700
+    },
+    {
+      "packet_id": "tp_021",
+      "phase": "tests",
+      "task_type": "test_component",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 8,
+      "rule_reason": "Scaffold-heavy, pattern-based",
+      "input_tokens": 329913,
+      "input_tokens_cached": 717223,
+      "output_tokens": 11673,
+      "cost_usd": 0.70751,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 214816
+    },
+    {
+      "packet_id": "tp_023",
+      "phase": "debug",
+      "task_type": "typecheck_fix",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 11,
+      "rule_reason": "Most debugs have clear cause",
+      "input_tokens": 192456,
+      "input_tokens_cached": 652788,
+      "output_tokens": 8140,
+      "cost_usd": 0.459862,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 203202
+    },
+    {
+      "packet_id": "tp_024",
+      "phase": "debug",
+      "task_type": "typecheck_fix",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 11,
+      "rule_reason": "Most debugs have clear cause",
+      "input_tokens": 116308,
+      "input_tokens_cached": 337385,
+      "output_tokens": 7899,
+      "cost_usd": 0.296161,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 123694
+    },
+    {
+      "packet_id": "tp_025",
+      "phase": "codegen",
+      "task_type": "react_component",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 7,
+      "rule_reason": "Schema-driven boilerplate",
+      "input_tokens": 74313,
+      "input_tokens_cached": 111615,
+      "output_tokens": 4323,
+      "cost_usd": 0.167119,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 71576
+    },
+    {
+      "packet_id": "tp_026",
+      "phase": "debug",
+      "task_type": "bug_fix_apply",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 11,
+      "rule_reason": "Most debugs have clear cause",
+      "input_tokens": 55918,
+      "input_tokens_cached": 116142,
+      "output_tokens": 8396,
+      "cost_usd": 0.176862,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 71200
+    },
+    {
+      "packet_id": "tp_027",
+      "phase": "tests",
+      "task_type": "test_unit",
+      "model_id": "flash-agsdk-worker",
+      "model": "gemini-3.7-flash",
+      "rule_index": 8,
+      "rule_reason": "Scaffold-heavy, pattern-based",
+      "input_tokens": 79241,
+      "input_tokens_cached": 187769,
+      "output_tokens": 5629,
+      "cost_usd": 0.197688,
+      "provenance": "vendor",
+      "success": true,
+      "latency_ms": 87815
+    }
+  ],
+  "verification": {
+    "api_tests": {
+      "baseline": "374 / 58 files",
+      "final": "390 / 60 files",
+      "result": "PASS"
+    },
+    "web_tests": {
+      "baseline": "112 / 36 files",
+      "final": "132 / 39 files",
+      "result": "PASS"
+    },
+    "api_typecheck": {
+      "baseline": "clean",
+      "final": "exit 0",
+      "result": "PASS"
+    },
+    "web_typecheck": {
+      "baseline": "clean",
+      "final": "exit 0",
+      "result": "PASS"
+    },
+    "biome_ci_changed_source": {
+      "final": "exit 0",
+      "result": "PASS"
+    },
+    "files_changed": 32,
+    "scope_check": "CLEAN — all 32 paths inside the write contract, zero off-limits violations",
+    "commands_used": [
+      "pnpm --filter @kaneo/api test",
+      "pnpm --filter @kaneo/web test",
+      "pnpm --filter @kaneo/api typecheck",
+      "pnpm --filter @kaneo/web typecheck",
+      "pnpm exec biome ci apps/api/src apps/web/src i18n/en-US.json tests/api"
+    ]
+  },
+  "cost_comparison_caveats": {
+    "headline_ratio_is_not_measurable": "The SDK worker's INPUT AMPLIFICATION is well evidenced (input_cached 6.96M vs input 2.89M, from per-turn conversation re-send plus a ~11.5k-token identity preamble). The TIER RATIO is NOT measurable from this telemetry. Neither this run's nor the sibling run's headline ratio should be quoted as an SDK-vs-API or SDK-vs-Opus result.",
+    "reasons": [
+      "Asymmetric measurement: under auth_mode=estimated the 3 opus phases are a char/3.8 ESTIMATE priced from the policy pricing block; the 27 flash packets carry VENDOR-REPORTED tokens.",
+      "LARGEST UNDERSTATEMENT: senior-reviewer and security-reviewer each ran full Opus sessions and emitted NO cost event, so they are absent from the $1.0404 opus figure entirely. Only architect is captured (as the change_plan event).",
+      "Orchestrator overhead is unbilled to any packet: verification runs, git inspection, scope checks, provenance bookkeeping and gate relays appear in no telemetry event. Real premium-tier spend exceeds $1.0404.",
+      "Gemini 3.7 Flash rates are UNCONFIRMED: the policy carries TODO(pricing) with input 1.50 / input_cached 0.15 / output 9.00. Every flash figure scales linearly with those numbers."
+    ]
+  },
+  "findings": [
+    {
+      "id": 1,
+      "severity": "high",
+      "title": "The plan enumerated one full-PUT caller; there were two",
+      "detail": "FR-D2 was written to prevent a whole-task round-trip silently clearing the field, and it DID prevent it for the web fetcher. But apps/api/src/mcp/tools.ts buildFullTaskUpdateBody is a SECOND read-merge-full-PUT caller and was not enumerated, so every MCP-driven task edit would have written NULL over the estimate. Found by security review; missed by both the design and the senior review.",
+      "lesson": "A design that mandates round-tripping a field through a full-document endpoint owes a COMPLETE INVENTORY of that endpoint's callers. The lesson is the enumeration gap, not the missing line.",
+      "scope_note": "Distinct from the brief's non-goal. 'No MCP tool exposure' meant do not add a NEW MCP capability. This was an EXISTING tool destroying user data. Declining a feature is not declining to prevent data loss.",
+      "status": "FIXED (tp_026) + regression test (tp_027, 5 cases incl. null-vs-undefined)"
+    },
+    {
+      "id": 2,
+      "severity": "medium",
+      "title": "The repo's pre-commit hook does not typecheck",
+      "detail": ".husky/pre-commit is `set -e; pnpm exec biome ci .; pnpm run build`. pnpm run build is turbo build, and apps/web's build is `vite build` — no tsc. vitest does not typecheck either. A package that does not compile therefore passes the hook.",
+      "evidence": "Demonstrated concretely in this run: 385 API + 132 web tests were green at a moment when apps/web had 7 typecheck errors.",
+      "status": "PRE-EXISTING, out of scope, not fixed. Worth a maintainer's attention."
+    },
+    {
+      "id": 3,
+      "severity": "medium",
+      "title": "CORRECTION TO THE ORCHESTRATION INSTRUCTION: `pnpm --filter <pkg> test -- <path>` silently runs the entire suite",
+      "detail": "The run instruction mandated verifying packets with `pnpm --filter <pkg> test -- <path>`. The `--` is consumed before vitest ever sees the path, so the filter is dropped and the FULL suite runs. Verified directly: with `--` -> 39 files / 132 tests; without `--` -> 1 file / 10 tests.",
+      "correction": "Correct form is `pnpm --filter <pkg> test <path>` with NO double-dash. (`pnpm --filter <pkg> exec vitest run --config vitest.config.ts <path>` also works.)",
+      "why_it_matters": "This is the same trap that killed a packet on the sibling branch — reproduced inside the very instruction written to prevent it. Workers tp_019/tp_020/tp_021 did NOT disobey; they ran the command given and it ran everything. No packet was lost here only because these suites are ~30s. Confirmed fixed: tp_027 used the no-double-dash form and correctly reported 1 file / 5 tests.",
+      "status": "RECORDED AS AN INSTRUCTION CORRECTION, not a worker fault."
+    },
+    {
+      "id": 4,
+      "severity": "low",
+      "title": "Unformatted reference code in a design doc propagates into the codebase",
+      "detail": "change_plan.md section 2.5 carried a reference implementation that was itself unformatted. Codegen copied it verbatim — correct worker behaviour — and apps/web/src/lib/estimate.ts consequently failed biome ci on formatting.",
+      "lesson": "Run the formatter over reference snippets embedded in design documents.",
+      "status": "FIXED via targeted `biome format --write` on exactly the 5 affected paths; never the repo-wide lint script (which is `biome check --write` and rewrites unrelated files)."
+    },
+    {
+      "id": 5,
+      "severity": "medium",
+      "title": ".sdlc/ is not gitignored, and .gitignore is off-limits, so the pre-commit hook fails",
+      "detail": "`pnpm exec biome ci .` currently exits 1 SOLELY because it lints run bookkeeping under .sdlc/. .husky/pre-commit runs exactly that command, so committing .sdlc/ artifacts on this branch will fail the hook until .sdlc/ is gitignored or the hook is scoped.",
+      "status": "NOT FIXED — .gitignore, biome.json and .husky/** were all declined for the allowlist at Gate 0. Requires a user decision."
+    }
+  ],
+  "write_contract": {
+    "frozen_at": "gate_0",
+    "strict": true,
+    "enforcement": "PreToolUse hook + packet artifact_path validator",
+    "stop_and_report_rule_fired": 2,
+    "stop_and_report_honoured": true,
+    "task_estimatedMinutes_kept_required": true,
+    "never_widened_to_optional": true,
+    "amendments": [
+      {
+        "n": 1,
+        "at": "gate_1",
+        "file": "apps/web/src/lib/estimate.ts",
+        "reason": "Nothing under apps/web/src/lib/ was writable, so the pure minutes<->hours utility had nowhere correct to live. Surfaced as requirements R-2 BEFORE any code was written."
+      },
+      {
+        "n": 2,
+        "at": "gate_3_b1",
+        "file": "apps/web/src/components/shared/modals/create-task-modal.tsx",
+        "reason": "Making Task.estimatedMinutes required surfaced a construction site outside the allowlist (normalizeTask helper). Halted and reported rather than widening the type to optional."
+      },
+      {
+        "n": 3,
+        "at": "gate_3_security",
+        "file": "apps/api/src/mcp/tools.ts",
+        "reason": "Security review found the change made the EXISTING MCP update_task tool silently NULL the estimate on every edit. Blanket apps/api/src/mcp/** off-limits was narrowed to apps/api/src/mcp/!(tools.ts); packages/mcp/** remains fully off-limits."
+      }
+    ]
+  },
+  "gates": [
+    {
+      "gate": 0,
+      "title": "Discovery Confirmation",
+      "response": "approved (pre-run)"
+    },
+    {
+      "gate": 1,
+      "title": "Requirements Approval",
+      "response": "approved",
+      "decisions": "column name estimated_minutes; hide rollup badge at 0; display '1.5h'; contract amended by lib/estimate.ts"
+    },
+    {
+      "gate": 2,
+      "title": "Architecture Approval",
+      "response": "approved",
+      "decisions": "all 21 units; Task.estimatedMinutes stays REQUIRED; stop-and-report rule affirmed"
+    },
+    {
+      "gate": 3,
+      "title": "Security Review",
+      "response": "approved",
+      "decisions": "fix the MCP finding; contract amended by mcp/tools.ts"
+    },
+    {
+      "gate": 4,
+      "title": "Final Acceptance",
+      "response": "accept",
+      "decisions": "finalize manifest only; no commit, no push, no PR, no post-run steps"
+    }
+  ],
+  "artifacts": {
+    "requirements": "requirements.md",
+    "design": "change_plan.md",
+    "packets": "packets.json",
+    "senior_review": "review.md",
+    "security_review": "security_review.md",
+    "provenance": "provenance.json",
+    "telemetry": "telemetry.jsonl",
+    "manifest": "manifest.json",
+    "summary": null,
+    "summary_note": "SUMMARY.md could NOT be written by the orchestrator: the harness forbids subagents from writing report/summary .md files. The run's SUMMARY OF RECORD is therefore the final report content delivered as the orchestrator's Gate 4 message, not a file in this directory."
+  },
+  "finalized_at": "2026-09-04T06:02:50.860Z"
+}

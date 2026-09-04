@@ -1,0 +1,116 @@
+{
+  "model": "gemini-3.7-flash",
+  "thinking": "NONE",
+  "sdk": "google-antigravity",
+  "sdk_version": "0.1.12",
+  "vertex_project": "ai-studies-console",
+  "vertex_location": "global",
+  "usage": {
+    "prompt_token_count": 185928,
+    "cached_content_token_count": 111615,
+    "candidates_token_count": 2314,
+    "thoughts_token_count": 2009,
+    "total_token_count": 190251,
+    "service_tier": null
+  },
+  "tool_call_count": 10,
+  "tool_calls_truncated": false,
+  "tool_calls": [
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimate-popover.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimate-popover.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "search_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo",
+        "query": "task-estimate-hours",
+        "num_results": "0"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo",
+      "args_clipped": false
+    },
+    {
+      "name": "find_file",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps/web",
+        "query": "*estimate*"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web",
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimate-popover.test.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimate-popover.test.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "edit_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimate-popover.tsx"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimate-popover.tsx",
+      "args_clipped": false
+    },
+    {
+      "name": "search_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/apps",
+        "query": "task-estimate-hours",
+        "num_results": "0"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps",
+      "args_clipped": false
+    },
+    {
+      "name": "search_directory",
+      "args": {
+        "directory_path": "/home/sangeetha/projects/kaneo/packages",
+        "query": "task-estimate-hours",
+        "num_results": "0"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/packages",
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "pnpm --filter @kaneo/web test src/components/task/task-estimate-popover.test.tsx",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "run_command",
+      "args": {
+        "command_line": "git status",
+        "working_dir": "/home/sangeetha/projects/kaneo"
+      },
+      "canonical_path": null,
+      "args_clipped": false
+    },
+    {
+      "name": "view_file",
+      "args": {
+        "file_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimate-popover.tsx",
+        "start_line": "0",
+        "end_line": "799"
+      },
+      "canonical_path": "/home/sangeetha/projects/kaneo/apps/web/src/components/task/task-estimate-popover.tsx",
+      "args_clipped": false
+    }
+  ],
+  "text": "{\"artifact_path\":\"apps/web/src/components/task/task-estimate-popover.tsx\",\"tests_passed\":5,\"literal_removed\":true}"
+}

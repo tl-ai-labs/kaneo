@@ -1,0 +1,40 @@
+[
+  {
+    "run_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "date": "2026-09-03",
+    "mode": "brownfield",
+    "intent": "feature-extend",
+    "title": "Task estimated minutes with per-column rollup",
+    "policy": "opus-flash-sdk (per-run override; project default opus-plus-flash-v37)",
+    "auth_mode": "estimated",
+    "branch": "feature-extend-2/opus-flash-sdk",
+    "head_before": "5d1fc910",
+    "head_after": "5d1fc910",
+    "committed": false,
+    "files_changed": 32,
+    "tests": {
+      "api": "60 files / 390",
+      "web": "39 files / 132",
+      "baseline": "58/374, 36/112",
+      "typecheck": "clean both packages"
+    },
+    "cost_usd": 7.8329,
+    "dispatches": {
+      "opus": 3,
+      "flash-agsdk-worker": 27,
+      "fell_through_to_default": 0,
+      "retries": 0,
+      "escalations": 0
+    },
+    "contract_amendments": 3,
+    "gate_4": "accepted",
+    "findings": [
+      "MCP update_task was a second read-merge-full-PUT caller and would have NULLed the new field on every edit; fixed. Enumeration gap, not design gap.",
+      ".husky/pre-commit runs `biome ci . && pnpm run build` which does NOT typecheck; a non-compiling commit passes it (pre-existing).",
+      "`pnpm --filter <pkg> test -- <path>` silently runs the whole suite; the `--` is consumed. Use no `--`.",
+      "Unformatted reference code in a design doc propagates verbatim into codegen output.",
+      ".sdlc/ is not gitignored and biome lints it, so `biome ci .` exits 1 and the pre-commit hook blocks committing run artifacts."
+    ],
+    "cost_caveat": "Premium tier materially understated: senior-reviewer and security-reviewer emitted no cost events at all; orchestrator overhead unbilled; opus estimated vs flash vendor-reported; Gemini 3.7 rates still TODO(pricing). Input amplification is evidenced; the tier ratio is not."
+  }
+]

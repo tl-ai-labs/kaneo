@@ -1732,7 +1732,8 @@
 			"copyTaskBranch": "Copy task branch",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"estimate": "Estimate"
 		},
 		"move": {
 			"title": "Move task",
@@ -1765,6 +1766,15 @@
 				"updateSuccess": "Task start date updated successfully",
 				"updateError": "Failed to update task start date",
 				"clear": "Clear start date"
+			},
+			"estimate": {
+				"label": "Estimated hours",
+				"placeholder": "e.g. 1.5",
+				"save": "Save",
+				"clear": "Clear estimate",
+				"invalid": "Enter hours as a positive number, for example 1.5",
+				"updateSuccess": "Task estimate updated successfully",
+				"updateError": "Failed to update task estimate"
 			},
 			"labels": {
 				"searchPlaceholder": "Search labels...",
@@ -1882,7 +1892,8 @@
 			"noTasks": "No tasks"
 		},
 		"kanban": {
-			"addTask": "Add task"
+			"addTask": "Add task",
+			"estimateTotal": "Total estimate"
 		},
 		"pr": {
 			"merged": "Merged",

@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "run_id": "20260903-125223-feature-extend-task-estimated-hours",
+  "intent": "feature-extend",
+  "git_head_before": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "git_head_after": "5d1fc9104337786c3ef295ec0dc31656df371d8d",
+  "commits": [],
+  "files_touched": [
+    {
+      "path": "apps/api/src/database/schema.ts",
+      "existed_before": true,
+      "sha_before": "sha256:54a934956aef8af8ec867205724021e2d016f9b0c1ba2ae74c3d4fac30fc91b4",
+      "sha_after": "sha256:91672c3ddcdaf36d254e3e41446736c6263b269dc82a9cdcd14ec56beb482669",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_001",
+      "written_at": "2026-09-04T04:17:51.751Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/_journal.json",
+      "existed_before": true,
+      "sha_before": "sha256:6242f9840ae540dbbc16878b7911f5837c9a79987d4d8fc26b98d43b1b239d71",
+      "sha_after": "sha256:414c0c88e6bde75c314b60791eda257011b3ef0aeeb33568191b7d353ddf0c7a",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_002",
+      "written_at": "2026-09-04T04:20:47.648Z"
+    },
+    {
+      "path": "apps/api/src/task/estimate-schema.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:77fd9a6fe1e053da1b4d9358e2e31cda7282feae3aaf135af5b66276a503001f",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "batchA",
+      "written_at": "2026-09-04T04:28:59.909Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/create-task.ts",
+      "existed_before": true,
+      "sha_before": "sha256:98c3a4aa840d01b01c23f55a6f04cd55087cf516f00ae6585313a70c892796a5",
+      "sha_after": "sha256:b61d0a22d748cfffaf376185b5b4d73cd8326e5c0834d527d6c3765f7045d085",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchA",
+      "written_at": "2026-09-04T04:28:59.949Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/get-tasks.ts",
+      "existed_before": true,
+      "sha_before": "sha256:41b8a1714187c8ccd2ab62ca0d317aad1d230ea663100abeb3715272ed691d96",
+      "sha_after": "sha256:045d6ca232ed2b80b86a80eaed93d052576e019a51f74a2338f877f613353e61",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchA",
+      "written_at": "2026-09-04T04:28:59.988Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/get-task.ts",
+      "existed_before": true,
+      "sha_before": "sha256:ef959c553ca92fff9b07f8880a9c87fe820664aed056727704b178dba87a4e8c",
+      "sha_after": "sha256:0844e10d208d8685c906ca756864ba5f52f74cefcd5d78320593bddded96ca9c",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchA",
+      "written_at": "2026-09-04T04:29:00.035Z"
+    },
+    {
+      "path": "apps/api/src/schemas.ts",
+      "existed_before": true,
+      "sha_before": "sha256:821d7af952e3330a4e4eb115eef4a1f8f8bbf6eb82916ce11c748259daebfe3b",
+      "sha_after": "sha256:fa010b2e3ebfd80579e1a36a5669bcaac1fd6372ca547cb44702ad6e018e186d",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchA",
+      "written_at": "2026-09-04T04:29:00.083Z"
+    },
+    {
+      "path": "i18n/en-US.json",
+      "existed_before": true,
+      "sha_before": "sha256:cdf16d5924db4dfe140bf8ec73dce566b1fe80669a1fa4587fcbd4517757a092",
+      "sha_after": "sha256:cbe13758a4e611bab59e75403f9196c74d75fe734e5112f817d559cf25386bbf",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchA",
+      "written_at": "2026-09-04T04:29:00.126Z"
+    },
+    {
+      "path": "apps/api/drizzle/0043_public_malice.sql",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:c711a2dc7adde1324dd2cdaf3e4dee0deaeeabb0026f9b305470c2fd06ee07fa",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_002",
+      "written_at": "2026-09-04T04:21:30.894Z"
+    },
+    {
+      "path": "apps/api/drizzle/meta/0043_snapshot.json",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:672b9f717b14cc811b296db608d36c4336fc0dd213725bc095bf04278a766e99",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_002",
+      "written_at": "2026-09-04T04:21:30.895Z"
+    },
+    {
+      "path": "apps/api/src/task/controllers/update-task.ts",
+      "existed_before": true,
+      "sha_before": "sha256:f394675f00701635ba40bd2ff3d72cb0591aa5da748d0e817ea6519a93db7829",
+      "sha_after": "sha256:257fee16e82aaf2be813403f7c775c9d6e018b57b5babf2d53fd56382ec22a24",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchB",
+      "written_at": "2026-09-04T04:30:35.369Z"
+    },
+    {
+      "path": "apps/web/src/types/task/index.ts",
+      "existed_before": true,
+      "sha_before": "sha256:c4b143c1838f2d6d66e021f7daea80ff3dc9c7d5cf8929dafb171259e9519148",
+      "sha_after": "sha256:1e450cbcfb44d23284fa993dea6884b5b7f7d8c781d5c200511bd561377929ce",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchB",
+      "written_at": "2026-09-04T04:30:35.466Z"
+    },
+    {
+      "path": "apps/api/src/task/index.ts",
+      "existed_before": true,
+      "sha_before": "sha256:2c6328b48f17c498949ad1883769c527917b99d469ef3a2143a73166f7e18ff9",
+      "sha_after": "sha256:1c36700074e6a65846605d43f13eb5b1023656f8c5a862d917422abcc72f4ef3",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchC",
+      "written_at": "2026-09-04T04:33:29.346Z"
+    },
+    {
+      "path": "apps/web/src/lib/estimate.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:1bbdb2e6568fbdd2a1c0d76a256b87db2b328f636e05ef9b4df1c4c7117d3b87",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "batchC",
+      "written_at": "2026-09-04T05:07:47.782Z"
+    },
+    {
+      "path": "apps/web/src/fetchers/task/update-task.ts",
+      "existed_before": true,
+      "sha_before": "sha256:8c6fada0c5541132c72abba331362ac5e680df9a3b20ad4d8f1b483ada4fd8d3",
+      "sha_after": "sha256:4f903f1454815c8ac876308e161c6091b0a951e06781cdf5cfd5afbfee122bd1",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchD",
+      "written_at": "2026-09-04T04:37:31.265Z"
+    },
+    {
+      "path": "apps/web/src/components/task/task-estimate-popover.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:b80f3d5a3ca371b67bb877c31d0cb9bd9dd9c5262897c79158952d1a6254201b",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "batchD",
+      "written_at": "2026-09-04T05:28:37.688Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/task-card.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:9000f13988a3307836602f28aa698593e505478b392319264a4c61763d7f5603",
+      "sha_after": "sha256:fcc2f7bf063b0c38f046d540b10c7cdfd48b35065d9a1951a608ea63c174f379",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchD",
+      "written_at": "2026-09-04T04:37:31.432Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:c7eb59de90cc57961067be7ec101b4b9305c25e31ee3e7bc65c26b69c46c9f58",
+      "sha_after": "sha256:4096db58ed146ac779823cc41dfda955c12f60fef8c282db94a23a1bdb479bdf",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchD",
+      "written_at": "2026-09-04T04:37:31.516Z"
+    },
+    {
+      "path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:69f2d59d1a598f79f8324987a4d67fab7c6ef580674cff34d106ce78d41a74bf",
+      "sha_after": "sha256:23fa025de367ef68d14845c12a67c6a177070dbbe1398a79fd5becbd79d54b6a",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_015",
+      "written_at": "2026-09-04T04:39:35.099Z"
+    },
+    {
+      "path": "tests/api/task/estimate-schema.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:353f77944940eb5f22d476dcbfe5e2b148dd5615f86f87f75272346e850dbee1",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "batchE",
+      "written_at": "2026-09-04T05:07:47.785Z"
+    },
+    {
+      "path": "apps/web/src/lib/estimate.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:ee726e85d81069565119a6f92ddcf0a8dc35127f499999c011dc6ef1018c54d7",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "batchE",
+      "written_at": "2026-09-04T04:44:56.140Z"
+    },
+    {
+      "path": "apps/web/src/components/task/task-status-popover.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:e7591c879f51a9dd751d5ee3ca1ff831d6f0c55cf296deeb111d6b09928ddb79",
+      "sha_after": "sha256:96ac41512fcaa85b24732a2313160eda324eea6ad4dd28237d7f6e40275b8dd8",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchE",
+      "written_at": "2026-09-04T04:44:56.180Z"
+    },
+    {
+      "path": "apps/web/src/components/list-view/task-row.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:56fb82fbb8e706db3a9f070c69e56c1eb571ee589601cfd77c1f556bca128fab",
+      "sha_after": "sha256:9f3ebf51e9958e8ef191b56b07b3e0d1a563adc1762f4ec62c4dcf5674001d4c",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "batchE",
+      "written_at": "2026-09-04T04:44:56.221Z"
+    },
+    {
+      "path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:cb5781c3d6cb03b238600b681bc10d5a59eee1eabe037df1db6ad6e43272e866",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "batchF",
+      "written_at": "2026-09-04T05:07:47.785Z"
+    },
+    {
+      "path": "apps/web/src/components/task/task-estimate-popover.test.tsx",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:53fa913cdd5014c13c7302ab4c98da4122998c032120385945beabda7c87ef79",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "batchF",
+      "written_at": "2026-09-04T05:07:47.785Z"
+    },
+    {
+      "path": "apps/web/src/components/shared/modals/create-task-modal.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:e847966a0067bfa9ef9179fe748f0c4b49bc881231f98d2ba3c60b3f04a812a4",
+      "sha_after": "sha256:5e7965c10518f7445443d8eeb04302fbad4412b345e20889b5c5ab1779410873",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "fixB1",
+      "written_at": "2026-09-04T05:28:37.439Z"
+    },
+    {
+      "path": "apps/web/src/components/task/task-relations.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:0bb6dfa4ac77067410c3185b77ff1b55cc3f4476fb736dffb67666a794848159",
+      "sha_after": "sha256:f28dd02f3615f4e3da40cc2f956c359ee40e91afd55691c309cc1ff9bb3b077c",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "fixB1",
+      "written_at": "2026-09-04T05:28:37.510Z"
+    },
+    {
+      "path": "apps/web/src/components/task/task-subtasks.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:e78df9c8f452d95aba5e22a0ffac5591f86cb9d421d33a9386a932e878325316",
+      "sha_after": "sha256:ea6aaa6904fc25b4fa8701c35c160514f74e0db1babe93ce50260905ae8ede3f",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "fixB1",
+      "written_at": "2026-09-04T05:28:37.563Z"
+    },
+    {
+      "path": "apps/web/src/hooks/mutations/label/sync-task-labels-cache.test.ts",
+      "existed_before": true,
+      "sha_before": "sha256:1749c226ef04f55ea6338793430bc2c8a336bf9a64bbe67a8d8a7cc42506a966",
+      "sha_after": "sha256:6a702ebe9b4260d67612c610b2cd1c6e7a17c6bb4276d1d1fa4d3a0ebd2b5c7b",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "fixB1",
+      "written_at": "2026-09-04T05:28:37.612Z"
+    },
+    {
+      "path": "apps/web/src/hooks/use-task-filters-with-labels-support.test.tsx",
+      "existed_before": true,
+      "sha_before": "sha256:eb005cd71ff66234b5eaad6852db5e77a4eecfbfbf711dc735eb75e0905f596e",
+      "sha_after": "sha256:52c65a90672adacea03ac3bd6ec638ec634f233563917672b2017a5ef4acd339",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "fixB1",
+      "written_at": "2026-09-04T05:28:37.657Z"
+    },
+    {
+      "path": "apps/api/src/mcp/tools.ts",
+      "existed_before": true,
+      "sha_before": "sha256:5282d5a9ad9b89123532a21832ae94e02cc27662b4566003533ece0385985534",
+      "sha_after": "sha256:d1fb47b1113d9377280d14cf044a6e9730c62b0d9080a3e7fffa3a4e4d4cf795",
+      "tracked_in_git": true,
+      "backup_path": null,
+      "packet_id": "tp_026",
+      "written_at": "2026-09-04T05:57:08.115Z"
+    },
+    {
+      "path": "tests/api/task/mcp-update-task-body.test.ts",
+      "existed_before": false,
+      "sha_before": null,
+      "sha_after": "sha256:7ce0b36fb264cbed793e4815250beee09e54a86bf17d6beb236c250e1ca0a798",
+      "tracked_in_git": false,
+      "backup_path": null,
+      "packet_id": "tp_027",
+      "written_at": "2026-09-04T05:57:08.171Z"
+    }
+  ]
+}

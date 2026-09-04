@@ -18,6 +18,7 @@ async function updateTask(
   position: number,
   userId?: string,
   currentUserId?: string,
+  estimatedMinutes?: number | null,
 ) {
   const [existingTask] = await db
     .select({
@@ -64,6 +65,7 @@ async function updateTask(
       priority,
       position,
       userId: userId || null,
+      estimatedMinutes: estimatedMinutes ?? null,
     })
     .where(eq(taskTable.id, id))
     .returning();

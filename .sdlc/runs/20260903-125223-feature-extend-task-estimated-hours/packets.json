@@ -1,0 +1,436 @@
+[
+  {
+    "id": "tp_001",
+    "phase": "codegen",
+    "task_type": "entity",
+    "module": "db",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/database/schema.ts",
+    "instruction": "Edit apps/api/src/database/schema.ts ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.1 and apply exactly that change: add a nullable integer column `estimatedMinutes: integer(\"estimated_minutes\")` to `taskTable`, placed exactly where 4.1 says. Do not add a default, do not add NOT NULL, do not add an index, do not touch any other table or file. `integer` is already imported. Do not run any tests or build.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "taskTable contains estimatedMinutes: integer(\"estimated_minutes\") with no default and no notNull",
+      "No other table in schema.ts is modified",
+      "No index added for the new column"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_002",
+    "phase": "codegen",
+    "task_type": "migration",
+    "module": "db",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/drizzle/0043_task_estimated_minutes.sql",
+    "instruction": "Generate the Drizzle migration for the new task.estimated_minutes column. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 6 first and follow it exactly. Run: pnpm --filter @kaneo/api db:generate (non-interactive; it must not prompt because the change is purely additive). Then print the generated SQL file. The generated statement must be exactly one ALTER TABLE \"task\" ADD COLUMN \"estimated_minutes\" integer; with no NOT NULL, no DEFAULT, no backfill. Then run `git status --short apps/api/drizzle` and confirm migrations 0000 through 0042 show NO diff. If any pre-existing migration was modified, revert it and report failure. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "sql": { "type": "string" }, "untouched_prior_migrations": { "type": "boolean" } }, "required": ["artifact_path", "sql", "untouched_prior_migrations"] },
+    "acceptance": [
+      "Exactly one new .sql migration file is created, numbered 0043",
+      "Its content is a single additive ALTER TABLE ... ADD COLUMN \"estimated_minutes\" integer statement",
+      "Migrations 0000-0042 show no git diff",
+      "drizzle/meta/_journal.json gains exactly one entry"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 2000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_003",
+    "phase": "codegen",
+    "task_type": "dto",
+    "module": "api-task",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/estimate-schema.ts",
+    "instruction": "Create the NEW file apps/api/src/task/estimate-schema.ts. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md sections 4.3 and 5 and implement exactly what they specify. This module must import ONLY from 'valibot' — it must NOT import the database, any schema table, or anything from ../database, because a unit test imports it in a process with no database. Export the bounds constants and the Valibot estimate schema described in 4.3. Do not modify any other file. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "File imports only from valibot",
+      "No import of ../database or any drizzle table",
+      "Exports the estimate Valibot schema and min/max bound constants per change_plan 4.3",
+      "Schema accepts integers 1..2147483647 and rejects 0, negatives, non-integers, and 2147483648"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_004",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "module": "api-task",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/create-task.ts",
+    "instruction": "Edit apps/api/src/task/controllers/create-task.ts ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.4 and apply exactly that change: createTask takes an OBJECT parameter, so add `estimatedMinutes?: number | null` to both the destructured params and the inline type, and insert `estimatedMinutes: estimatedMinutes ?? null` in the .values({...}) object. Do not reorder existing properties. Do not touch any other file. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "estimatedMinutes?: number | null added to the object param type",
+      "values() inserts estimatedMinutes: estimatedMinutes ?? null",
+      "No existing property reordered or renamed"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_005",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "module": "api-task",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/update-task.ts",
+    "instruction": "Edit apps/api/src/task/controllers/update-task.ts ONLY. This is the highest-risk edit in the change. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.5 and follow it EXACTLY. updateTask has a POSITIONAL 11-parameter signature. Append `estimatedMinutes?: number | null` as the 12th and LAST parameter, after currentUserId. Do NOT reorder, rename, or retype any existing parameter. In the .set({...}) object add `estimatedMinutes: estimatedMinutes ?? null` immediately after `userId: userId || null,`. Do not change the call site in task/index.ts — a separate packet does that. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" }, "new_signature": { "type": "string" } }, "required": ["artifact_path", "summary", "new_signature"] },
+    "acceptance": [
+      "estimatedMinutes?: number | null is the 12th and last parameter, after currentUserId",
+      "All 11 pre-existing parameters keep their exact order, names and types",
+      "set() includes estimatedMinutes: estimatedMinutes ?? null after the userId entry",
+      "No other file modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_006",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "module": "api-task",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/get-tasks.ts",
+    "instruction": "Edit apps/api/src/task/controllers/get-tasks.ts ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.6 and apply exactly that change: add `estimatedMinutes: taskTable.estimatedMinutes,` to the `taskSelection` object (an explicit column whitelist), positioned as 4.6 specifies. The three `...task` spreads later in the file then propagate it automatically — do not modify them. Do not touch any other file. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "taskSelection includes estimatedMinutes: taskTable.estimatedMinutes",
+      "The ...task spread sites are unmodified",
+      "No other file modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_007",
+    "phase": "codegen",
+    "task_type": "service_method",
+    "module": "api-task",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/controllers/get-task.ts",
+    "instruction": "Edit apps/api/src/task/controllers/get-task.ts ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.7 and apply exactly that change: this file has its own SEPARATE inline column whitelist inside db.select({...}); add `estimatedMinutes: taskTable.estimatedMinutes,` to it, positioned as 4.7 specifies. Do not touch any other file. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "The inline select whitelist includes estimatedMinutes: taskTable.estimatedMinutes",
+      "No other file modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_008",
+    "phase": "codegen",
+    "task_type": "dto",
+    "module": "api-task",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/schemas.ts",
+    "instruction": "Edit apps/api/src/schemas.ts ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.8 and apply exactly that change: add `estimatedMinutes: v.nullable(v.number()),` to `taskSchema` (the object at line 25 used by resolver() for OpenAPI responses), positioned as 4.8 specifies. Do not modify activitySchema or any other exported schema. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "taskSchema includes estimatedMinutes: v.nullable(v.number())",
+      "No other exported schema modified"
+    ],
+    "budget": { "maxInputTokens": 8000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_009",
+    "phase": "codegen",
+    "task_type": "controller_handler",
+    "module": "api-task",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/api/src/task/index.ts",
+    "instruction": "Edit apps/api/src/task/index.ts ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md sections 4.9 and 5 and apply exactly those changes: (a) import the estimate schema from ./estimate-schema; (b) add the estimatedMinutes member to the POST /:projectId json validator and destructure it, passing it into the createTask({...}) object call; (c) add the same member to the PUT /:id json validator and destructure it, passing it as the 12th and LAST positional argument to updateTask(...), after currentUserId. Keep handlers thin — validation stays in the Valibot schema. Do not add a new route. Do not touch any other file. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "POST and PUT json validators both accept the estimate per change_plan section 5",
+      "createTask receives estimatedMinutes as an object property",
+      "updateTask receives estimatedMinutes as the 12th positional argument, after currentUserId",
+      "No new route added and no other route's validator changed"
+    ],
+    "budget": { "maxInputTokens": 10000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_010",
+    "phase": "codegen",
+    "task_type": "dto",
+    "module": "web-data",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/types/task/index.ts",
+    "instruction": "Edit apps/web/src/types/task/index.ts ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.10 and apply exactly that change: add `estimatedMinutes: number | null;` to the `Task` type as a REQUIRED property (deliberately not optional, so the compiler enumerates every construction site), positioned as 4.10 specifies. Do not make it optional. Do not touch TaskLabel or TaskExternalLink. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "Task has estimatedMinutes: number | null as a required (non-optional) property",
+      "No other type modified"
+    ],
+    "budget": { "maxInputTokens": 6000, "maxOutputTokens": 2000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_011",
+    "phase": "codegen",
+    "task_type": "api_client",
+    "module": "web-data",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/fetchers/task/update-task.ts",
+    "instruction": "Edit apps/web/src/fetchers/task/update-task.ts ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.11 and apply exactly that change: add `estimatedMinutes: task.estimatedMinutes ?? null,` to the json body of the PUT. This is required because every drag-reorder, archive and inline edit round-trips the whole task through this one fetcher, so omitting the field would silently clear the estimate. Keep using the typed @kaneo/libs client. Do not touch any other file. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "The PUT json body includes estimatedMinutes: task.estimatedMinutes ?? null",
+      "The typed client from @kaneo/libs is still used",
+      "No other file modified"
+    ],
+    "budget": { "maxInputTokens": 6000, "maxOutputTokens": 2000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_012",
+    "phase": "codegen",
+    "task_type": "frontend_util",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/lib/estimate.ts",
+    "instruction": "Create the NEW file apps/web/src/lib/estimate.ts. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 2 in full (2.2 the normative formatting formula, 2.3 the rollup rule, 2.5 the exact module contract and reference implementation) and write EXACTLY that module, including the JSDoc comments. Export formatEstimateMinutes, parseEstimateHours, estimateMinutesToHoursInput, sumEstimateMinutes and the two bound constants. The formatter is (m/60).toFixed(2) then .replace(/0+$/,\"\") then .replace(/\\.$/,\"\") then append \"h\" — two separate replaces, do not collapse into one regex. sumEstimateMinutes sums RAW INTEGER MINUTES and never formats. Do NOT import or reuse lib/format-duration.ts: it is dead code, takes seconds, and is off-limits. Do not create any other file under lib/. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "Exports formatEstimateMinutes, parseEstimateHours, estimateMinutesToHoursInput, sumEstimateMinutes, MIN_ESTIMATE_MINUTES, MAX_ESTIMATE_MINUTES",
+      "Formatter uses toFixed(2) then two separate trailing-zero / trailing-dot replaces",
+      "format(90)=='1.5h', format(120)=='2h', format(100)=='1.67h', format(6000)=='100h', format(0)==null",
+      "sumEstimateMinutes returns an integer minute total and treats null/undefined as 0, never NaN",
+      "No import of lib/format-duration.ts and no other file created under apps/web/src/lib/"
+    ],
+    "budget": { "maxInputTokens": 10000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_013",
+    "phase": "codegen",
+    "task_type": "frontend_config",
+    "module": "i18n",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "i18n/en-US.json",
+    "instruction": "Edit i18n/en-US.json ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 7 and add exactly the 9 keys it lists, at exactly the three locations it names: tasks.properties.estimate; the new tasks.popover.estimate object with its 7 keys; and tasks.kanban.estimateTotal. THE FILE IS TAB-INDENTED — match the surrounding indentation exactly and keep the JSON valid (mind the commas the section calls out). Do not reformat the file, do not reorder keys, do not touch any other locale file — the other 17 locales are off-limits and fall back to English. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "keys_added": { "type": "array", "items": { "type": "string" } } }, "required": ["artifact_path", "keys_added"] },
+    "acceptance": [
+      "All 9 keys from change_plan section 7 exist with the exact English strings given",
+      "File remains valid JSON and stays TAB-indented",
+      "No key reordered or reformatted elsewhere in the file",
+      "No other locale file modified"
+    ],
+    "budget": { "maxInputTokens": 10000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_014",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-estimate-popover.tsx",
+    "instruction": "Create the NEW file apps/web/src/components/task/task-estimate-popover.tsx. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.14 and implement exactly that component. Follow the existing task-start-date-popover.tsx pattern: useUpdateTask() for a whole-task PUT, useWorkspacePermission() with `const canEdit = canUpdateTasks()` and an early `if (!canEdit) return <>{children}</>;` BEFORE rendering the Popover, toast.success/toast.error, and static i18n keys only. Use the hours input and clear action described in 4.14, and the <Input nativeInput /> prop so the input renders a real <input> element. Convert with parseEstimateHours / estimateMinutesToHoursInput from @/lib/estimate — never send hours to the API. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "Early-returns plain children when canUpdateTasks() is false, before any Popover renders",
+      "Uses useUpdateTask() and submits estimatedMinutes in minutes, never hours",
+      "Uses parseEstimateHours and estimateMinutesToHoursInput from @/lib/estimate",
+      "Clear action submits estimatedMinutes: null",
+      "All user-facing copy uses static tasks:popover.estimate.* i18n keys",
+      "Input is rendered with the nativeInput prop"
+    ],
+    "budget": { "maxInputTokens": 12000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_015",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-properties-sidebar.tsx",
+    "instruction": "Edit apps/web/src/components/task/task-properties-sidebar.tsx ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.15 and apply exactly that change. CRITICAL: there are THREE mount sites, not one — the compact layout, the mobile non-compact layout, and the desktop non-compact layout (near the existing TaskStartDatePopover / TaskDueDatePopover triggers at roughly lines 266, 457 and 650). Add the TaskEstimatePopover trigger at ALL THREE, each inside the same {task && (...)} guard and matching its siblings' Button styling; the desktop one also takes the extra w-full class its siblings have, per 4.15. Import TaskEstimatePopover from ./task-estimate-popover and formatEstimateMinutes from @/lib/estimate. Use the tasks:properties.estimate key for the empty state. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "mount_sites": { "type": "number" }, "summary": { "type": "string" } }, "required": ["artifact_path", "mount_sites", "summary"] },
+    "acceptance": [
+      "TaskEstimatePopover is mounted at all THREE sites (compact, mobile, desktop)",
+      "Each trigger matches the sibling start/due-date Button styling; the desktop one keeps w-full",
+      "Displays formatEstimateMinutes(task.estimatedMinutes) when set, else the tasks:properties.estimate label",
+      "No other component modified"
+    ],
+    "budget": { "maxInputTokens": 14000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_016",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/task-card.tsx",
+    "instruction": "Edit apps/web/src/components/kanban-board/task-card.tsx ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 4.16 and apply exactly that change: render an estimate badge in the existing metadata row (beside priority / due date), styled to match its neighbours. Render it ONLY when formatEstimateMinutes(task.estimatedMinutes) is non-null, so that when the estimate is null the card's DOM is unchanged from today. Import formatEstimateMinutes from @/lib/estimate. Do not add a user-preference toggle. Do not modify task-labels.tsx or any other kanban file. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "Badge renders only when the formatted estimate is non-null",
+      "With a null estimate the rendered output is unchanged from before",
+      "Styling matches the adjacent priority/due-date badges",
+      "No other kanban file modified and no preference toggle added"
+    ],
+    "budget": { "maxInputTokens": 12000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_017",
+    "phase": "codegen",
+    "task_type": "react_component",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.tsx",
+    "instruction": "Edit apps/web/src/components/kanban-board/column/column-header.tsx ONLY. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md sections 2.3 and 4.17 and apply exactly that change: compute the rollup with sumEstimateMinutes(column.tasks) from @/lib/estimate — summing RAW INTEGER MINUTES — then call formatEstimateMinutes ONCE on the total. Never sum already-formatted per-task hour strings. Render the badge next to the existing column.tasks.length badge, and ONLY when the total is greater than 0. column.tasks is ALREADY the filtered set, so add no query, no prop, no store read, no useEffect. Use tasks:kanban.estimateTotal as the badge title. Do not run tests.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["artifact_path", "summary"] },
+    "acceptance": [
+      "Uses sumEstimateMinutes over column.tasks and formats the total exactly once",
+      "Badge renders only when the total is > 0",
+      "Null estimates contribute 0 and the total is never null or NaN",
+      "No new query, prop, store read or useEffect introduced",
+      "Badge title uses the tasks:kanban.estimateTotal key"
+    ],
+    "budget": { "maxInputTokens": 10000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_018",
+    "phase": "tests",
+    "task_type": "test_unit",
+    "module": "api-task",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "tests/api/task/estimate-schema.test.ts",
+    "instruction": "Create the NEW test file tests/api/task/estimate-schema.test.ts (the tests/api/task/ directory does not exist yet — create it). Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 8.1 and write exactly those cases. Import the schema from the source under apps/api/src/task/estimate-schema.ts and exercise it with valibot's safeParse. Cover the boundaries: accept 1 and 2147483647 and null; reject 0, -5, 1.5, 2147483648. Follow the pure-function unit-test style of tests/api/column/to-slug.test.ts — no database, no HTTP, no mocks of the db. VERIFY WITH EXACTLY THIS COMMAND AND NOTHING BROADER: pnpm --filter @kaneo/api test -- tests/api/task/estimate-schema.test.ts . Do NOT run the full API suite.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "tests_passed": { "type": "number" }, "command_output_tail": { "type": "string" } }, "required": ["artifact_path", "tests_passed"] },
+    "acceptance": [
+      "File exists at tests/api/task/estimate-schema.test.ts",
+      "Covers accept 1, 2147483647, null and reject 0, -5, 1.5, 2147483648",
+      "No database import and no network access",
+      "The filtered command pnpm --filter @kaneo/api test -- tests/api/task/estimate-schema.test.ts passes"
+    ],
+    "budget": { "maxInputTokens": 10000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_019",
+    "phase": "tests",
+    "task_type": "test_unit",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/lib/estimate.test.ts",
+    "instruction": "Create the NEW test file apps/web/src/lib/estimate.test.ts. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md sections 2.2, 2.4 and 8.2 and write exactly those cases. Assert the full formatting table from 2.2 (including 1 -> '0.02h', 30 -> '0.5h', 90 -> '1.5h', 100 -> '1.67h', 120 -> '2h', 6000 -> '100h', 2147483647 -> '35791394.12h', and null for 0 / -5 / 1.5 / null / undefined). Assert parseEstimateHours accepts '1.5' -> 90 and rejects empty, malformed, negative, zero and out-of-range input. Assert the 2.4 round-trip property. Assert sumEstimateMinutes over a mixed list containing nulls returns the integer total and never NaN. VERIFY WITH EXACTLY THIS COMMAND AND NOTHING BROADER: pnpm --filter @kaneo/web test -- src/lib/estimate.test.ts . Do NOT run the full web suite.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "tests_passed": { "type": "number" }, "command_output_tail": { "type": "string" } }, "required": ["artifact_path", "tests_passed"] },
+    "acceptance": [
+      "Asserts every row of the change_plan section 2.2 formatting table",
+      "Asserts the parse round-trip property from section 2.4",
+      "Asserts sumEstimateMinutes handles mixed nulls and never returns NaN",
+      "The filtered command pnpm --filter @kaneo/web test -- src/lib/estimate.test.ts passes"
+    ],
+    "budget": { "maxInputTokens": 10000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_020",
+    "phase": "tests",
+    "task_type": "test_component",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/kanban-board/column/column-header.test.tsx",
+    "instruction": "Create the NEW test file apps/web/src/components/kanban-board/column/column-header.test.tsx. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 8.3 and write exactly those cases. Follow the mocking style of apps/web/src/components/task/task-status-popover.test.tsx (vi.mock for hooks, react-i18next mocked so t returns the key). Cover: a column of tasks with MIXED null and non-null estimates renders the correct formatted total; a column where every estimate is null renders NO rollup badge; the total is never NaN. Task object literals must include estimatedMinutes because the field is required. VERIFY WITH EXACTLY THIS COMMAND AND NOTHING BROADER: pnpm --filter @kaneo/web test -- src/components/kanban-board/column/column-header.test.tsx . Do NOT run the full web suite.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "tests_passed": { "type": "number" }, "command_output_tail": { "type": "string" } }, "required": ["artifact_path", "tests_passed"] },
+    "acceptance": [
+      "Covers the mixed null/non-null rollup total",
+      "Asserts no badge renders when all estimates are null",
+      "Task fixtures include the required estimatedMinutes property",
+      "The filtered command for this single file passes"
+    ],
+    "budget": { "maxInputTokens": 12000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_021",
+    "phase": "tests",
+    "task_type": "test_component",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-estimate-popover.test.tsx",
+    "instruction": "Create the NEW test file apps/web/src/components/task/task-estimate-popover.test.tsx. Read .sdlc/runs/20260903-125223-feature-extend-task-estimated-hours/change_plan.md section 8.4 and write exactly those cases. Follow the mocking style of the sibling apps/web/src/components/task/task-status-popover.test.tsx. Cover: entering hours saves the correct MINUTE value via the mocked useUpdateTask mutation; the clear action submits estimatedMinutes: null; and when useWorkspacePermission().canUpdateTasks() returns false the component renders its children plain and opens no popover (AC-7). Task literals must include the required estimatedMinutes property. VERIFY WITH EXACTLY THIS COMMAND AND NOTHING BROADER: pnpm --filter @kaneo/web test -- src/components/task/task-estimate-popover.test.tsx . Do NOT run the full web suite.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "tests_passed": { "type": "number" }, "command_output_tail": { "type": "string" } }, "required": ["artifact_path", "tests_passed"] },
+    "acceptance": [
+      "Asserts hours input is converted to minutes before submission",
+      "Asserts the clear action submits estimatedMinutes: null",
+      "Asserts read-only mode renders children plain and opens no popover",
+      "The filtered command for this single file passes"
+    ],
+    "budget": { "maxInputTokens": 12000, "maxOutputTokens": 4000 },
+    "retry_count": 0
+  },
+  {
+    "id": "tp_022",
+    "phase": "tests",
+    "task_type": "test_fixture_update",
+    "module": "web-ui",
+    "pass_id": "20260903-125223-feature-extend-task-estimated-hours",
+    "intent": "feature-extend",
+    "artifact_path": "apps/web/src/components/task/task-status-popover.test.tsx",
+    "instruction": "Task.estimatedMinutes is now a REQUIRED property, so every existing Task object literal must supply it. Add `estimatedMinutes: null,` to the Task fixtures in BOTH of these files and nothing else: apps/web/src/components/task/task-status-popover.test.tsx and apps/web/src/components/list-view/task-row.test.tsx. Both are allowlisted test files. Change nothing else in them — no assertions, no mocks, no imports. Read change_plan section 8.5 for context. If you find a Task literal in any OTHER file, STOP and report its path instead of editing it. VERIFY WITH EXACTLY THIS COMMAND AND NOTHING BROADER: pnpm --filter @kaneo/web test -- src/components/task/task-status-popover.test.tsx src/components/list-view/task-row.test.tsx . Do NOT run the full web suite.",
+    "inputs": [],
+    "outputSchema": { "type": "object", "properties": { "artifact_path": { "type": "string" }, "files_updated": { "type": "array", "items": { "type": "string" } }, "other_task_literals_found": { "type": "array", "items": { "type": "string" } } }, "required": ["artifact_path", "files_updated", "other_task_literals_found"] },
+    "acceptance": [
+      "estimatedMinutes: null added to the Task fixtures in both named test files",
+      "No assertion, mock or import changed in either file",
+      "Any Task literal found outside the allowlist is reported, not edited",
+      "The filtered command for these two files passes"
+    ],
+    "budget": { "maxInputTokens": 10000, "maxOutputTokens": 3000 },
+    "retry_count": 0
+  }
+]
